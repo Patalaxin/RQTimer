@@ -2,10 +2,15 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
+import {InjectModel} from "@nestjs/mongoose";
+import {User, UserDocument} from "../schemas/user.schema";
+import {Model} from "mongoose";
+import {jwtConstants} from "./constants";
 
 @Injectable()
 export class AuthService {
     constructor(
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
         private usersService: UsersService,
         private jwtService: JwtService) {}
 
@@ -18,9 +23,10 @@ export class AuthService {
         if (!isPasswordMatch) {
             throw new UnauthorizedException();
         }
-        const payload = { sub: user.userId, email: user.email }
-        return {
-            access_token: await this.jwtService.signAsync(payload)
-        };
+        const payload = { email: user.email }
+        const [access_token, refresh_token] = await Promise.all([this.jwtService.signAsync(payload, {secret: jwtConstants.secret}), this.jwtService.signAsync(payload, {secret: jwtConstants.secret2})])
+        await this.userModel.updateOne({email}, {$set: {refreshToken: refresh_token}})
+        return { access_token, refresh_token }
+
     }
 }
