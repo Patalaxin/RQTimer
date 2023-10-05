@@ -3,15 +3,9 @@ import { HydratedDocument } from "mongoose";
 import {Exclude, Expose} from "class-transformer";
 import {randomUUID} from "crypto";
 
-export type UserDocument = HydratedDocument<User>
-
-export const enum RolesTypes {
-    Admin = "Admin",
-    User = "User",
-    Manager = "Manager"
-}
+export type TokenDocument = HydratedDocument<Token>
 @Schema()
-export class User {
+export class Token {
 
     @Expose()
     @Prop({ type: String, default: function genUUID() {
@@ -19,25 +13,25 @@ export class User {
         }})
     _id: string
 
+    @Exclude()
+    @Prop()
+    __v: number
+
     @Expose()
     @Prop({ unique: true, required: true })
     email: string;
 
-    @Exclude({toPlainOnly: true})
-    @Prop({ required: true })
-    password: string;
-
-    @Exclude({toPlainOnly: true})
-    @Prop()
-    __v: number
-
     @Exclude()
-    @Prop({default: RolesTypes.User})
-    role: RolesTypes
+    @Prop({default: ''})
+    refreshToken: string
 
-    constructor(partial: Partial<User>) {
+    @Prop({ type: Date,  expires: 10, default: Date.now })
+    expireAt: Date
+
+    constructor(partial: Partial<Token>) {
         Object.assign(this, partial);
     }
 }
 
-export const UserSchema = SchemaFactory.createForClass(User)
+export const TokenSchema = SchemaFactory.createForClass(Token)
+TokenSchema.index({"expireAt": 1}, {expireAfterSeconds: 10})

@@ -1,5 +1,5 @@
 
 export const jwtConstants = {
-    secret: 'faef gerw gw gewr',
-    secret2: 'faef gerw gw gewreqweqweqw',
+    secret: 'estate concrete loop contraction point',
+    secret2: 'comfort assessment cabin worth mourning',
 };
