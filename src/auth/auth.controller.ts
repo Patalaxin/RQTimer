@@ -3,7 +3,6 @@ import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signIn.dto";
 import { Response } from "express";
 import { Request } from "express";
-import {ExceptionHandler} from "@nestjs/core/errors/exception-handler";
 
 @Controller('auth')
 export class AuthController {

@@ -4,7 +4,7 @@ export const enum Servers {
     Энигма = "Энигма",
     Логрус = "Логрус"
 }
-export const enum BossTypes {
+export enum BossTypes {
     Аркон = "Аркон",
     Архон = "Архон",
     Баксбакуалануксивайе = "Баксбакуалануксивайе",
@@ -21,7 +21,7 @@ export const enum BossTypes {
     Эдвард = "Эдвард"
 }
 
-export const enum EliteTypes {
+export enum EliteTypes {
     Альфа_Самец = "Альфа Самец",
     Богатый_Упырь = "Богатый Упырь",
     Жужелица_Тёмная = "Жужелица Тёмная",

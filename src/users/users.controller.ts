@@ -7,7 +7,8 @@ import {
     HttpException,
     HttpStatus,
     Param,
-    Post, Put,
+    Post,
+    Put,
     UseInterceptors
 } from '@nestjs/common';
 import {CreateUserDto} from "./dto/create-user.dto";
@@ -62,6 +63,17 @@ export class UsersController {
     @Delete(':email')
     async deleteOne(@Param('email') email: string){
         return await this.userService.deleteOne(email)
+    }
+
+   @Put('/updateUnavailable/:email')
+    async updateUnavailable(@Param('email') email: string, @Body('unavailableBosses') unavailableBosses: string[], @Body('unavailableElites') unavailableElites: string[]){
+        return await this.userService.updateUnavailable(email, unavailableBosses, unavailableElites)
+   }
+
+
+    @Put('/updateExcluded/:email')
+    async updateExcluded(@Param('email') email: string, @Body('excludedBosses') excludedBosses: string[], @Body('excludedElites') excludedElites: string[]){
+        return await this.userService.updateExcluded(email, excludedBosses, excludedElites)
     }
 
 }

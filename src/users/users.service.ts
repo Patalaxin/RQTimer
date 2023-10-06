@@ -50,4 +50,13 @@ export class UsersService {
     async deleteOne(email: string){
         return this.userModel.deleteOne({email: email})
     }
+
+    async updateUnavailable(email: string, unavailableBosses?: string[], unavailableElites?: string[]){
+        return this.userModel.findOneAndUpdate({email: email}, {unavailableBosses: unavailableBosses, unavailableElites: unavailableElites}, {new: true}).lean().exec()
+    }
+
+    async updateExcluded(email: string, excludedBosses?: string[], excludedElites?: string[]){
+
+        return this.userModel.findOneAndUpdate({email: email}, {excludedBosses: excludedBosses, excludedElites: excludedElites}, {new: true}).lean().exec()
+    }
 }

@@ -23,6 +23,22 @@ export class User {
     @Prop({ unique: true, required: true })
     email: string;
 
+    @Expose()
+    @Prop()
+    unavailableBosses: string[]
+
+    @Expose()
+    @Prop()
+    unavailableElites: string[]
+
+    @Expose()
+    @Prop()
+    excludedBosses: string[]
+
+    @Expose()
+    @Prop()
+    excludedElites: string[]
+
     @Exclude({toPlainOnly: true})
     @Prop({ required: true })
     password: string;
