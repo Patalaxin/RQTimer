@@ -8,13 +8,16 @@ import {
     HttpStatus,
     Param,
     Post,
-    Put,
+    Put, Res,
     UseInterceptors
 } from '@nestjs/common';
 import {CreateUserDto} from "./dto/create-user.dto";
 import {UsersService} from "./users.service";
 import {RolesTypes, User} from "../schemas/user.schema";
 import {Roles} from "../decorators/roles.decorator";
+import {UpdateExcludedDto} from "./dto/update-excluded.dto";
+import {UpdateUnavailableDto} from "./dto/update-unavailable.dto";
+import * as http from "http";
 
 // @UseGuards(UsersGuard)
 @Controller('user')
@@ -65,15 +68,14 @@ export class UsersController {
         return await this.userService.deleteOne(email)
     }
 
-   @Put('/updateUnavailable/:email')
-    async updateUnavailable(@Param('email') email: string, @Body('unavailableBosses') unavailableBosses: string[], @Body('unavailableElites') unavailableElites: string[]){
-        return await this.userService.updateUnavailable(email, unavailableBosses, unavailableElites)
-   }
+   @Put('/updateUnavailable')
+    async updateUnavailable(@Body() updateUnavailableDto: UpdateUnavailableDto){
+        return await this.userService.updateUnavailable(updateUnavailableDto)
+    }
 
-
-    @Put('/updateExcluded/:email')
-    async updateExcluded(@Param('email') email: string, @Body('excludedBosses') excludedBosses: string[], @Body('excludedElites') excludedElites: string[]){
-        return await this.userService.updateExcluded(email, excludedBosses, excludedElites)
+    @Put('/updateExcluded')
+    async updateExcluded(@Body() updateExcludedDto: UpdateExcludedDto){
+        return await this.userService.updateExcluded(updateExcludedDto)
     }
 
 }

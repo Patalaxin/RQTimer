@@ -1,8 +1,8 @@
-import {IsNotEmpty, IsString, IsOptional, IsNumber} from "class-validator";
-import {BossTypes, Servers} from "../../schemas/bosses.enum";
+import {IsNotEmpty, IsString, IsOptional, IsNumber, IsEnum} from "class-validator";
+import {BossTypes, Locations, Servers} from "../../schemas/bosses.enum";
 
 export class CreateBossDto {
-    @IsString()
+    @IsEnum(BossTypes)
     @IsNotEmpty()
     bossName: BossTypes;
 
@@ -10,16 +10,16 @@ export class CreateBossDto {
     @IsOptional()
     respawnText: string;
 
-    @IsString()
+    @IsEnum(Locations)
     @IsNotEmpty()
-    location: string
+    location: Locations
 
     @IsNumber()
     @IsNotEmpty()
     willResurrect: number
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     cooldown: number
 
     @IsString()
@@ -30,7 +30,7 @@ export class CreateBossDto {
     @IsOptional()
     cooldownTime: number
 
-    @IsString()
+    @IsEnum(Servers)
     @IsNotEmpty()
     server: Servers
 }

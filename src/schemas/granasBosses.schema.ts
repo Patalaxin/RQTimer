@@ -35,11 +35,11 @@ export class GranasBoss {
     willResurrect: number
 
     @Expose()
-    @Prop({ required: true })
+    @Prop({ required: true, default: 0 })
     cooldown: number
 
     @Expose()
-    @Prop({ required: true })
+    @Prop({ required: true})
     cooldownTime: number
 
     @Expose()

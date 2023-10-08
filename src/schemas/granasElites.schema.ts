@@ -2,14 +2,14 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
 import {Exclude, Expose} from "class-transformer";
 import {randomUUID} from "crypto";
-import {BossTypes, Locations, Servers} from "./bosses.enum";
+import {EliteTypes, Locations, Servers} from "./bosses.enum";
 
-export type LogrusBossDocument = HydratedDocument<LogrusBoss>
+export type GranasEliteDocument = HydratedDocument<GranasElite>
 
 @Schema({
     autoIndex: true,
 })
-export class LogrusBoss {
+export class GranasElite {
 
     @Expose()
     @Prop({ type: String, default: function genUUID() {
@@ -19,11 +19,7 @@ export class LogrusBoss {
 
     @Expose()
     @Prop({ required: true })
-    bossName: BossTypes;
-
-    @Expose()
-    @Prop()
-    respawnText: string;
+    eliteName: EliteTypes;
 
     @Expose()
     @Prop({ required: true })
@@ -38,7 +34,7 @@ export class LogrusBoss {
     cooldown: number
 
     @Expose()
-    @Prop({ required: true })
+    @Prop({ required: true})
     cooldownTime: number
 
     @Expose()
@@ -53,10 +49,11 @@ export class LogrusBoss {
     @Prop()
     __v: number
 
-    constructor(partial: Partial<LogrusBoss>) {
+
+    constructor(partial: Partial<GranasElite>) {
         Object.assign(this, partial);
     }
 }
 
-export const LogrusBossSchema = SchemaFactory.createForClass(LogrusBoss)
-LogrusBossSchema.index({ bossName: 1, location: 1}, { unique: true })
+export const GranasEliteSchema = SchemaFactory.createForClass(GranasElite)
+GranasEliteSchema.index({ eliteName: 1, location: 1}, { unique: true })

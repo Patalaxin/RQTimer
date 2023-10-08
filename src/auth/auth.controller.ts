@@ -28,6 +28,5 @@ export class AuthController {
     @Post('exchangeRefresh')
     exchangeRefresh(@Req() req: Request, @Body('email') email: string){
             return this.authService.exchangeRefresh(email, req.cookies['refreshToken'])
-        
     }
 }

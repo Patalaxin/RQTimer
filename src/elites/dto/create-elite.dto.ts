@@ -1,21 +1,21 @@
-import {IsNotEmpty, IsString, IsOptional, IsNumber} from "class-validator";
-import {EliteTypes, Servers} from "../../schemas/bosses.enum";
+import {IsNotEmpty, IsString, IsOptional, IsNumber, IsEnum} from "class-validator";
+import {EliteTypes, Locations, Servers} from "../../schemas/bosses.enum";
 
 export class CreateEliteDto {
-    @IsString()
+    @IsEnum(EliteTypes)
     @IsNotEmpty()
-    bossName: EliteTypes;
+    eliteName: EliteTypes;
 
-    @IsString()
+    @IsEnum(Locations)
     @IsNotEmpty()
-    location: string
+    location: Locations
 
     @IsNumber()
     @IsNotEmpty()
     willResurrect: number
 
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     cooldown: number
 
     @IsString()
@@ -26,7 +26,7 @@ export class CreateEliteDto {
     @IsOptional()
     cooldownTime: number
 
-    @IsString()
+    @IsEnum(Servers)
     @IsNotEmpty()
     server: Servers
 }

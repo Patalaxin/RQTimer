@@ -5,12 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BossesModule } from "../bosses/bosses.module";
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join, resolve } from 'path';
+import {ElitesModule} from "../elites/elites.module";
 
 @Module({
   imports: [
     UsersModule,
     BossesModule,
     AuthModule,
+    ElitesModule,
     MongooseModule.forRoot('mongodb+srv://spatalaxin:oqKWurYUYq1mzGxv@cluster0.tkjfgpb.mongodb.net/?retryWrites=true&w=majority'),
     ServeStaticModule.forRoot({
       rootPath: join(resolve(), 'client'),

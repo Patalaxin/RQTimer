@@ -54,6 +54,5 @@ export class AuthService {
                 throw new UnauthorizedException()
             }
             return this.addTokens(email, user)
-
     }
 }

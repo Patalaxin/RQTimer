@@ -6,6 +6,8 @@ import {CreateUserDto} from "./dto/create-user.dto";
 import * as bcrypt from 'bcrypt';
 import {Token, TokenDocument} from "../schemas/refreshToken.schema";
 import { RolesTypes } from "../schemas/user.schema";
+import {UpdateExcludedDto} from "./dto/update-excluded.dto";
+import {UpdateUnavailableDto} from "./dto/update-unavailable.dto";
 
 @Injectable()
 export class UsersService {
@@ -40,7 +42,9 @@ export class UsersService {
     }
 
     async updateRole(email: string, role: RolesTypes) {
-            return this.userModel.findOneAndUpdate({email: email}, {role: role}, { new: true }).lean().exec()
+        const user = await this.findUser(email);
+        await this.userModel.updateOne({email: user.email}, {role: role}, { new: true }).lean().exec()
+        return "the Role has been updated successfully"
     }
 
     async deleteAll(){
@@ -51,12 +55,15 @@ export class UsersService {
         return this.userModel.deleteOne({email: email})
     }
 
-    async updateUnavailable(email: string, unavailableBosses?: string[], unavailableElites?: string[]){
-        return this.userModel.findOneAndUpdate({email: email}, {unavailableBosses: unavailableBosses, unavailableElites: unavailableElites}, {new: true}).lean().exec()
+    async updateUnavailable(updateUnavailableDto: UpdateUnavailableDto){
+        const user = await this.findUser(updateUnavailableDto.email);
+        await this.userModel.updateOne({email: user.email}, {unavailableBosses: updateUnavailableDto.unavailableBosses, unavailableElites: updateUnavailableDto.unavailableElites}, {new: true}).lean().exec()
+        return "Unavailable entities have been successfully updated"
     }
 
-    async updateExcluded(email: string, excludedBosses?: string[], excludedElites?: string[]){
-
-        return this.userModel.findOneAndUpdate({email: email}, {excludedBosses: excludedBosses, excludedElites: excludedElites}, {new: true}).lean().exec()
+    async updateExcluded(updateExcludedDto: UpdateExcludedDto){
+        const user = await this.findUser(updateExcludedDto.email);
+        await this.userModel.updateOne({email: user.email}, {excludedBosses: updateExcludedDto.excludedBosses, excludedElites: updateExcludedDto.excludedElites}, {new: true}).lean().exec()
+        return "Excluded entities have been successfully updated"
     }
 }

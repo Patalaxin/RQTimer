@@ -2,7 +2,6 @@ import {
     Body,
     ClassSerializerInterceptor,
     Controller,
-    Delete,
     Get,
     HttpException,
     HttpStatus,
@@ -10,52 +9,51 @@ import {
     Post, Put, Query,
     UseInterceptors
 } from '@nestjs/common';
-import {CreateBossDto} from "./dto/create-boss.dto";
 import {RolesTypes, User} from "../schemas/user.schema";
 import {Roles} from "../decorators/roles.decorator";
-import {BossesService} from "./bosses.service";
-import {GranasBoss} from "../schemas/granasBosses.schema";
-import {BossTypes, Servers} from "../schemas/bosses.enum";
-import {GetBossDto} from "./dto/get-boss.dto";
-import {GetEliteDto} from "../elites/dto/get-elite.dto";
-
+import {ElitesService} from "./elites.service";
+import {Servers} from "../schemas/bosses.enum";
+import {CreateEliteDto} from "./dto/create-elite.dto";
+import {GranasElite} from "../schemas/granasElites.schema";
+import {GetEliteDto} from "./dto/get-elite.dto";
+import {GetBossDto} from "../bosses/dto/get-boss.dto";
 
 // @UseGuards(UsersGuard)
-@Controller('boss')
-export class BossesController {
-    constructor(private bossService: BossesService) {
+@Controller('elite')
+export class ElitesController {
+    constructor(private eliteService: ElitesService) {
     }
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
     @Post('/create')
-    async create(@Body() createBossDto: CreateBossDto){
+    async create(@Body() createEliteDto: CreateEliteDto){
         try {
-            return new GranasBoss(await this.bossService.createBoss(createBossDto))
+            return new GranasElite(await this.eliteService.createElite(createEliteDto))
         } catch (error) {
-            throw new HttpException('Boss not created', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Elite not created', HttpStatus.BAD_REQUEST);
         }
     }
 
     @Roles(RolesTypes.User, RolesTypes.Admin)
     @UseInterceptors(ClassSerializerInterceptor)
-    @Get(':bossName/:server/')
-    async getOneBoss(@Param() getBossDto: GetBossDto) {
-        return new GranasBoss(await this.bossService.findBoss(getBossDto))
+    @Get(':eliteName/:server/')
+    async getOneElite(@Param() getEliteDto: GetEliteDto) {
+        return new GranasElite(await this.eliteService.findElite(getEliteDto))
     } // there's no difference between Granas and other servers
 
     @Roles(RolesTypes.User, RolesTypes.Admin)
     @Get('getAll/:email/:server/')
-    async findAllBossesByUser(@Param('email') email: string, @Param('server') server: Servers) {
-        return await this.bossService.findAllBossesByUser(email, server);
+    async findAllEliteByUser(@Param('email') email: string, @Param('server') server: Servers) {
+        return await this.eliteService.findAllEliteByUser(email, server);
     }
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
-    @Put('/updateByCooldownBoss')
-    async updateByCooldown(@Body() getBossDto: GetBossDto){
+    @Put('/updateByCooldownElite')
+    async updateByCooldown(@Body() getEliteDto: GetEliteDto){
         try {
-            return await this.bossService.updateByCooldownBoss(getBossDto)
+            return await this.eliteService.updateByCooldownElite(getEliteDto)
         } catch (error) {
             throw new HttpException('Cooldown not updated', HttpStatus.BAD_REQUEST);
         }
@@ -63,10 +61,10 @@ export class BossesController {
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
-    @Put('/updateDeathOfBossNow')
-    async updateDeathOfBossNow(@Body() getBossDto: GetBossDto){
+    @Put('/updateDeathOfEliteNow')
+    async updateDeathOfEliteNow(@Body() getEliteDto: GetEliteDto){
         try {
-            return await this.bossService.updateDeathOfBossNow(getBossDto)
+            return await this.eliteService.updateDeathOfEliteNow(getEliteDto)
         } catch (error) {
             throw new HttpException('Resurrect Time not updated', HttpStatus.BAD_REQUEST);
         }
@@ -74,10 +72,10 @@ export class BossesController {
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
-    @Put('/updateDeathOfBossDate')
-    async updateDeathOfBossDate(@Body('date') date: number, @Body() getBossDto: GetBossDto){
+    @Put('/updateDeathOfEliteDate')
+    async updateDeathOfEliteDate(@Body('date') date: number, @Body() getEliteDto: GetEliteDto){
         try {
-            return await this.bossService.updateDeathOfBossDate(date, getBossDto)
+            return await this.eliteService.updateDeathOfEliteDate(date, getEliteDto)
         } catch (error) {
             throw new HttpException('Resurrect Time not updated', HttpStatus.BAD_REQUEST);
         }
