@@ -18,7 +18,8 @@ import {User, UserSchema} from "../schemas/user.schema";
         MongooseModule.forFeature([{name: EnigmaBoss.name, schema: EnigmaBossSchema}]),
         MongooseModule.forFeature([{name: LogrusBoss.name, schema: LogrusBossSchema}]),
         MongooseModule.forFeature([{name: User.name, schema: UserSchema}]),
-        MongooseModule.forFeature([{name: Token.name, schema: TokenSchema}])
+        MongooseModule.forFeature([{name: Token.name, schema: TokenSchema}]),
+
     ],
     controllers: [BossesController]
 })

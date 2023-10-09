@@ -8,130 +8,85 @@ import {EnigmaBoss, EnigmaBossDocument} from "../schemas/enigmaBosses.schema";
 import {LogrusBoss, LogrusBossDocument} from "../schemas/logrusBosses.schema";
 import {BossTypes, Servers} from "../schemas/bosses.enum";
 import {GetBossDto} from "./dto/get-boss.dto";
-import {GetEliteDto} from "../elites/dto/get-elite.dto";
 import {UsersService} from "../users/users.service";
 
 @Injectable()
 export class BossesService {
+    private bossModels: any
     constructor(
         @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
         @InjectModel(GranasBoss.name) private granasBossModel: Model<GranasBossDocument>,
         @InjectModel(EnigmaBoss.name) private enigmaBossModel: Model<EnigmaBossDocument>,
         @InjectModel(LogrusBoss.name) private logrusBossModel: Model<LogrusBossDocument>,
         private usersService: UsersService,
-    ) {}
+    ) {
+
+        this.bossModels = [
+            {server: "Гранас", model: this.granasBossModel},
+            {server: "Логрус", model: this.logrusBossModel},
+            {server: "Энигма", model: this.enigmaBossModel}
+        ]
+    }
 
     async createBoss(createBossDto: CreateBossDto) {
-
-        switch (createBossDto.server){
-            case 'Гранас':
-                const newGranasBoss= await this.granasBossModel.create(createBossDto);
-                await newGranasBoss.save()
-                return newGranasBoss.toObject()
-            case 'Энигма':
-                const newEnigmaBoss= await this.enigmaBossModel.create(createBossDto);
-                await newEnigmaBoss.save()
-                return newEnigmaBoss.toObject()
-            case 'Логрус':
-                const newLogrusBoss= await this.logrusBossModel.create(createBossDto);
-                await newLogrusBoss.save()
-                return newLogrusBoss.toObject()
-        }
+        const bossModel = this.bossModels.find(obj => obj.server === createBossDto.server).model;
+        const newBoss = await bossModel.create(createBossDto)
+        await newBoss.save()
+        return newBoss.toObject()
     }
 
     async findBoss(getBossDto: GetBossDto) {
+        const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
+
+        if (!Object.values(Servers).includes(getBossDto.server)){
+            throw new BadRequestException('Not valid server')
+        }
+
+        if (!Object.values(BossTypes).includes(getBossDto.bossName)){
+            throw new BadRequestException('Not valid boss name')
+        }
         try {
-
-            if (!Object.values(Servers).includes(getBossDto.server)){
-                throw new BadRequestException('Not valid server')
+            const boss = await bossModel.findOne({bossName: getBossDto.bossName}).lean().exec();
+            if (!boss?._id) {
+                throw new BadRequestException();
             }
-
-            if (!Object.values(BossTypes).includes(getBossDto.bossName)){
-                throw new BadRequestException('Not valid boss name')
-            }
-
-            switch (getBossDto.server) {
-                case 'Гранас':
-                    const granasBoss = await this.granasBossModel.findOne({bossName: getBossDto.bossName}).lean().exec();
-                    if(!granasBoss._id){
-                        throw new BadRequestException()
-                    }
-                    return granasBoss
-                case 'Энигма':
-                    const enigmaBoss = await  this.enigmaBossModel.findOne({bossName: getBossDto.bossName}).lean().exec();
-                    if(!enigmaBoss._id){
-                        throw new BadRequestException()
-                    }
-                    return enigmaBoss
-                case 'Логрус':
-                    const logrusBoss = await this.logrusBossModel.findOne({bossName: getBossDto.bossName}).lean().exec();
-                    if(!logrusBoss._id){
-                        throw new BadRequestException()
-                    }
-                    return logrusBoss
-            }
-        } catch (error) {
-            throw new BadRequestException('Boss does not exist!')
+            return boss;
+        } catch (error){
+            throw new BadRequestException('Boss not found');
         }
     }
 
-
     async findAllBossesByUser(email: string, server: Servers) {
+        const bossModel = this.bossModels.find(obj => obj.server === server).model;
         const user = await this.usersService.findUser(email)
         const excludedBosses = user.excludedBosses
         const unavailableBosses = user.unavailableBosses
         const undisplayedBosses = excludedBosses.concat(unavailableBosses.filter((item) => excludedBosses.indexOf(item) < 0))
         const arrayOfObjectsUndisplayedBosses = undisplayedBosses.map(item => ({ bossName: item }));
         arrayOfObjectsUndisplayedBosses.push({bossName: 'Mocked Name of Boss'}) // coz $nor doesn't work with empty array
-        switch (server) {
-            case 'Гранас':
-                return this.granasBossModel.find({$nor: arrayOfObjectsUndisplayedBosses}).lean().exec();
-            case 'Энигма':
-                return this.enigmaBossModel.find({$nor: arrayOfObjectsUndisplayedBosses} ).lean().exec();
-            case 'Логрус':
-                return this.logrusBossModel.find({$nor: arrayOfObjectsUndisplayedBosses}).lean().exec();
-        }
+        return bossModel.find({$nor: arrayOfObjectsUndisplayedBosses}).lean().exec()
     }
 
     async updateByCooldownBoss(getBossDto: GetBossDto){
+        const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
         const boss = await this.findBoss(getBossDto), bossCooldownTime = boss.cooldownTime;
-        switch (getBossDto.server) {
-            case 'Гранас':
-                return this.granasBossModel.updateOne({bossName: boss.bossName}, { $inc: {cooldown: 1, willResurrect: bossCooldownTime} })
-            case 'Энигма':
-                return this.enigmaBossModel.updateOne({bossName: boss.bossName}, { $inc: {cooldown: 1, willResurrect: bossCooldownTime} })
-            case 'Логрус':
-                return this.logrusBossModel.updateOne({bossName: boss.bossName}, { $inc: {cooldown: 1, willResurrect: bossCooldownTime} })
-        }
+        return bossModel.updateOne({bossName: boss.bossName}, { $inc: {cooldown: 1, willResurrect: bossCooldownTime} })
     }
 
     async updateDeathOfBossNow(getBossDto: GetBossDto){
+        const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
         const boss = await this.findBoss(getBossDto)
         let nextResurrectTime = boss.cooldownTime + Date.now()
-        switch (getBossDto.server) {
-            case 'Гранас':
-                return this.granasBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-            case 'Энигма':
-                return this.enigmaBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-            case 'Логрус':
-                return this.logrusBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-        }
+        return bossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
     }
 
     async updateDeathOfBossDate(date: number, getBossDto: GetBossDto){
+        const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
         const boss = await this.findBoss(getBossDto)
         let nextResurrectTime = boss.cooldownTime + date
-        switch (getBossDto.server) {
-            case 'Гранас':
-                return this.granasBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-            case 'Энигма':
-                return this.enigmaBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-            case 'Логрус':
-                return this.logrusBossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
-        }
+        return bossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
     }
 
-    //
     // async updateRole(email: string, role: RolesTypes) {
     //     return this.bossModel.findOneAndUpdate({email: email}, {role: role}, { new: true }).lean().exec()
     // }

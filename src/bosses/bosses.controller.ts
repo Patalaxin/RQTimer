@@ -82,24 +82,5 @@ export class BossesController {
             throw new HttpException('Resurrect Time not updated', HttpStatus.BAD_REQUEST);
         }
     }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @UseInterceptors(ClassSerializerInterceptor)
-    // @Put()
-    // async updateRole(@Body('email') email: string,@Body('role') role: RolesTypes ){
-    //     return await this.bossService.updateRole(email, role)
-    // }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @Delete('/deleteAll')
-    // async deleteAll(){
-    //     return await this.bossService.deleteAll()
-    // }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @Delete(':email')
-    // async deleteOne(@Param('email') email: string){
-    //     return await this.bossService.deleteOne(email)
-    // }
 
 }

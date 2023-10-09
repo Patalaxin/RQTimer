@@ -123,9 +123,6 @@ export class ElitesService {
         async updateDeathOfEliteDate(date: number, getEliteDto: GetEliteDto){
             const elite = await this.findElite(getEliteDto)
             let nextResurrectTime = elite.cooldownTime + date
-            console.log(date)
-            console.log(elite.cooldownTime)
-            console.log(nextResurrectTime)
             switch (getEliteDto.server) {
                 case 'Гранас':
                     return this.granasEliteModel.updateOne({eliteName: elite.eliteName},{willResurrect: nextResurrectTime} )
