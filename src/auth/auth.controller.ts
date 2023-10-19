@@ -1,4 +1,4 @@
-import {Body, Controller, HttpCode, HttpException, HttpStatus, Post, Req, Res} from '@nestjs/common';
+import {Body, Controller, HttpCode, HttpStatus, Post, Req, Res} from '@nestjs/common';
 import { AuthService } from "./auth.service";
 import { SignInDto } from "./dto/signIn.dto";
 import { Response } from "express";
@@ -12,7 +12,7 @@ export class AuthController {
     @Post('login')
     async signIn(@Res({ passthrough: true }) res: Response, @Body() signInDto: SignInDto){
 
-            const tokens =  await this.authService.signIn(signInDto.email, signInDto.password)
+            const tokens =  await this.authService.signIn(signInDto)
             res.cookie('refreshToken', tokens.refreshToken,  {
                 httpOnly: true,
                 secure: true,
@@ -20,8 +20,6 @@ export class AuthController {
                 // 2 678 400 000 = 31 day in milliseconds
             })
             return tokens
-
-
     }
 
     @HttpCode(HttpStatus.OK)

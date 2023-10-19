@@ -1,8 +1,12 @@
-import {IsEmail, IsNotEmpty, IsString, IsOptional, IsArray, IsIn, IsEnum, ArrayUnique} from "class-validator";
-import {Type} from "class-transformer";
+import {IsEmail, IsNotEmpty, IsString, IsOptional, IsArray, IsEnum, ArrayUnique} from "class-validator";
 import {BossTypes, EliteTypes} from "../../schemas/bosses.enum";
 
 export class CreateUserDto {
+
+    @IsString()
+    @IsNotEmpty()
+    nickname: string;
+
     @IsEmail()
     @IsNotEmpty()
     email: string;

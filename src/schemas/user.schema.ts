@@ -24,6 +24,10 @@ export class User {
     email: string;
 
     @Expose()
+    @Prop({ unique: true, required: true })
+    nickname: string
+
+    @Expose()
     @Prop()
     unavailableBosses: string[]
 

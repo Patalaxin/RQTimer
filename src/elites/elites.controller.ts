@@ -1,22 +1,22 @@
 import {
     Body,
     ClassSerializerInterceptor,
-    Controller,
+    Controller, Delete,
     Get,
     HttpException,
     HttpStatus,
     Param,
-    Post, Put, Query,
+    Post, Put,
     UseInterceptors
 } from '@nestjs/common';
-import {RolesTypes, User} from "../schemas/user.schema";
+import {RolesTypes} from "../schemas/user.schema";
 import {Roles} from "../decorators/roles.decorator";
 import {ElitesService} from "./elites.service";
 import {Servers} from "../schemas/bosses.enum";
 import {CreateEliteDto} from "./dto/create-elite.dto";
 import {GranasElite} from "../schemas/granasElites.schema";
 import {GetEliteDto} from "./dto/get-elite.dto";
-import {GetBossDto} from "../bosses/dto/get-boss.dto";
+import {UpdateEliteDto} from "./dto/update-elite.dto";
 
 // @UseGuards(UsersGuard)
 @Controller('elite')
@@ -50,6 +50,23 @@ export class ElitesController {
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
+    @Put('/updateElite/:eliteName/:server/')
+    async updateElite(@Body() updateEliteDto: UpdateEliteDto, @Param('eliteName') eliteName: string,  @Param('server') server: string){
+        try {
+            return await this.eliteService.updateElite(server, eliteName, updateEliteDto)
+        } catch (error) {
+            throw new HttpException('Boss not updated', HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Roles(RolesTypes.User, RolesTypes.Admin)
+    @Delete(':eliteName/:server')
+    async deleteOne(@Param('eliteName') eliteName: string, @Param('server') server: Servers){
+        return await this.eliteService.deleteElite(server, eliteName)
+    }
+
+    @Roles()
+    @UseInterceptors(ClassSerializerInterceptor)
     @Put('/updateByCooldownElite')
     async updateByCooldown(@Body() getEliteDto: GetEliteDto){
         try {
@@ -61,43 +78,13 @@ export class ElitesController {
 
     @Roles()
     @UseInterceptors(ClassSerializerInterceptor)
-    @Put('/updateDeathOfEliteNow')
-    async updateDeathOfEliteNow(@Body() getEliteDto: GetEliteDto){
+    @Put('/updateDeathOfElite')
+    async updateDeathOfEliteDate(@Body() getEliteDto: GetEliteDto, @Body('date') date?: number){
         try {
-            return await this.eliteService.updateDeathOfEliteNow(getEliteDto)
+            return await this.eliteService.updateDeathOfElite(getEliteDto, date)
         } catch (error) {
             throw new HttpException('Resurrect Time not updated', HttpStatus.BAD_REQUEST);
         }
     }
-
-    @Roles()
-    @UseInterceptors(ClassSerializerInterceptor)
-    @Put('/updateDeathOfEliteDate')
-    async updateDeathOfEliteDate(@Body('date') date: number, @Body() getEliteDto: GetEliteDto){
-        try {
-            return await this.eliteService.updateDeathOfEliteDate(date, getEliteDto)
-        } catch (error) {
-            throw new HttpException('Resurrect Time not updated', HttpStatus.BAD_REQUEST);
-        }
-    }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @UseInterceptors(ClassSerializerInterceptor)
-    // @Put()
-    // async updateRole(@Body('email') email: string,@Body('role') role: RolesTypes ){
-    //     return await this.bossService.updateRole(email, role)
-    // }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @Delete('/deleteAll')
-    // async deleteAll(){
-    //     return await this.bossService.deleteAll()
-    // }
-    //
-    // @Roles(RolesTypes.User, RolesTypes.Admin)
-    // @Delete(':email')
-    // async deleteOne(@Param('email') email: string){
-    //     return await this.bossService.deleteOne(email)
-    // }
 
 }

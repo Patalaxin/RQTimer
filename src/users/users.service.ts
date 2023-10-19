@@ -1,4 +1,4 @@
-import {BadRequestException, HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import {User, UserDocument} from "../schemas/user.schema";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
@@ -38,7 +38,7 @@ export class UsersService {
     }
 
     async findAll(): Promise<User[]> {
-        return this.userModel.find().select({ email: 1, _id: 1 }).lean().exec();
+        return this.userModel.find().select({ email: 1, _id: 1, nickname: 1 }).lean().exec();
     }
 
     async updateRole(email: string, role: RolesTypes) {

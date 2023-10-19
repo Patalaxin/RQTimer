@@ -9,6 +9,7 @@ import {LogrusBoss, LogrusBossDocument} from "../schemas/logrusBosses.schema";
 import {BossTypes, Servers} from "../schemas/bosses.enum";
 import {GetBossDto} from "./dto/get-boss.dto";
 import {UsersService} from "../users/users.service";
+import {UpdateBossDto} from "./dto/update-boss.dto";
 
 @Injectable()
 export class BossesService {
@@ -30,6 +31,7 @@ export class BossesService {
 
     async createBoss(createBossDto: CreateBossDto) {
         const bossModel = this.bossModels.find(obj => obj.server === createBossDto.server).model;
+
         const newBoss = await bossModel.create(createBossDto)
         await newBoss.save()
         return newBoss.toObject()
@@ -58,44 +60,42 @@ export class BossesService {
 
     async findAllBossesByUser(email: string, server: Servers) {
         const bossModel = this.bossModels.find(obj => obj.server === server).model;
-        const user = await this.usersService.findUser(email)
-        const excludedBosses = user.excludedBosses
-        const unavailableBosses = user.unavailableBosses
+        const { excludedBosses, unavailableBosses } = await this.usersService.findUser(email);
+
         const undisplayedBosses = excludedBosses.concat(unavailableBosses.filter((item) => excludedBosses.indexOf(item) < 0))
+
         const arrayOfObjectsUndisplayedBosses = undisplayedBosses.map(item => ({ bossName: item }));
         arrayOfObjectsUndisplayedBosses.push({bossName: 'Mocked Name of Boss'}) // coz $nor doesn't work with empty array
+
         return bossModel.find({$nor: arrayOfObjectsUndisplayedBosses}).lean().exec()
+    }
+
+    async updateBoss(server: string, bossName: string, updateBossDto: UpdateBossDto){
+        const bossModel = this.bossModels.find(obj => obj.server === server).model;
+        return bossModel.updateOne({bossName: bossName}, {$set: updateBossDto}, { new: true }).lean().exec()
     }
 
     async updateByCooldownBoss(getBossDto: GetBossDto){
         const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
-        const boss = await this.findBoss(getBossDto), bossCooldownTime = boss.cooldownTime;
-        return bossModel.updateOne({bossName: boss.bossName}, { $inc: {cooldown: 1, willResurrect: bossCooldownTime} })
+
+        const { cooldownTime, bossName } = await this.findBoss(getBossDto)
+
+        return bossModel.updateOne({bossName: bossName}, { $inc: {cooldown: 1, willResurrect: cooldownTime} })
     }
 
-    async updateDeathOfBossNow(getBossDto: GetBossDto){
+    async updateDeathOfBoss(getBossDto: GetBossDto, date?: number) {
         const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
-        const boss = await this.findBoss(getBossDto)
-        let nextResurrectTime = boss.cooldownTime + Date.now()
-        return bossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
+        const boss = await this.findBoss(getBossDto);
+        let nextResurrectTime = boss.cooldownTime;
+
+        nextResurrectTime += date || Date.now();
+
+        return bossModel.updateOne({eliteName: boss.eliteName}, {willResurrect: nextResurrectTime});
     }
 
-    async updateDeathOfBossDate(date: number, getBossDto: GetBossDto){
-        const bossModel = this.bossModels.find(obj => obj.server === getBossDto.server).model;
-        const boss = await this.findBoss(getBossDto)
-        let nextResurrectTime = boss.cooldownTime + date
-        return bossModel.updateOne({bossName: boss.bossName},{willResurrect: nextResurrectTime} )
+    async deleteBoss(server: string, bossName: string){
+        const bossModel = this.bossModels.find(obj => obj.server === server).model;
+        return bossModel.deleteOne({bossName: bossName})
     }
 
-    // async updateRole(email: string, role: RolesTypes) {
-    //     return this.bossModel.findOneAndUpdate({email: email}, {role: role}, { new: true }).lean().exec()
-    // }
-    //
-    // async deleteAll(){
-    //     return this.bossModel.deleteMany()
-    // }
-    //
-    // async deleteOne(email: string){
-    //     return this.bossModel.deleteOne({email: email})
-    // }
 }
