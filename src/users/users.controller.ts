@@ -8,9 +8,9 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
-  UseInterceptors,
-} from '@nestjs/common';
+  Put, UseGuards,
+  UseInterceptors
+} from "@nestjs/common";
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
@@ -18,8 +18,9 @@ import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import { RolesTypes, User } from '../schemas/user.schema';
 import { SessionId } from '../schemas/sessionID.schema';
 import { Roles } from '../decorators/roles.decorator';
+import { UsersGuard } from "./users.guard";
 
-// @UseGuards(UsersGuard)
+@UseGuards(UsersGuard)
 @Controller('user')
 export class UsersController {
   constructor(private userService: UsersService) {}
@@ -83,7 +84,7 @@ export class UsersController {
     try {
       return new SessionId(await this.userService.generateSessionId());
     } catch (error) {
-      throw new HttpException('пепеджа', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Session Id does not created', HttpStatus.BAD_REQUEST);
     }
   }
 }

@@ -8,9 +8,10 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put,
-  UseInterceptors,
-} from '@nestjs/common';
+  Put, Req, UseGuards,
+  UseInterceptors
+} from "@nestjs/common";
+import { Request } from "express";
 import { Roles } from '../decorators/roles.decorator';
 import { BossesService } from './bosses.service';
 import { RolesTypes } from '../schemas/user.schema';
@@ -19,8 +20,11 @@ import { BossTypes, Servers } from '../schemas/bosses.enum';
 import { GetBossDto } from './dto/get-boss.dto';
 import { UpdateBossDto } from './dto/update-boss.dto';
 import { CreateBossDto } from './dto/create-boss.dto';
+import { UsersGuard } from "../users/users.guard";
+import { JwtService } from "@nestjs/jwt";
 
-// @UseGuards(UsersGuard)
+
+@UseGuards(UsersGuard)
 @Controller('boss')
 export class BossesController {
   constructor(private bossService: BossesService) {}
@@ -78,25 +82,16 @@ export class BossesController {
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
-  @Put('/updateByCooldownBoss')
-  async updateByCooldown(@Body() getBossDto: GetBossDto) {
-    try {
-      return await this.bossService.updateByCooldownBoss(getBossDto);
-    } catch (error) {
-      throw new HttpException('Cooldown not updated', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @Put('/updateDeathOfBoss')
-  async updateDeathOfEliteDate(
-    @Body() getBossDto: GetBossDto,
-    @Body('date') date?: number,
+  async updateDeathOfBoss(
+   @Req() request: Request, @Body() getBossDto: GetBossDto
   ) {
+
+
     try {
-      return await this.bossService.updateDeathOfBoss(getBossDto, date);
+      return await this.bossService.updateDeathOfBoss(request, getBossDto);
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         'Resurrect Time not updated',
         HttpStatus.BAD_REQUEST,
@@ -104,10 +99,11 @@ export class BossesController {
     }
   }
 
-  @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
-  @Post('/crashServer/:server')
-  async crashServer(@Param('server') server: Servers) {
-    return this.bossService.crashBossServer(server);
-  }
+  // @Roles()
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @Post('/crashServer/:server')
+  // async crashServer(@Param('server') server: Servers) {
+  //   return this.bossService.crashBossServer(server);
+  // }
+
 }

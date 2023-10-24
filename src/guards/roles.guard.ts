@@ -8,6 +8,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 
 export interface DecodeResult {
   email: string;
+  nickname: string;
   iat: number;
   exp: number;
 }

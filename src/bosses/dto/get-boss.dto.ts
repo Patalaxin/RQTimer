@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 import { BossTypes, Servers } from '../../schemas/bosses.enum';
 
 export class GetBossDto {
@@ -9,4 +9,8 @@ export class GetBossDto {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
+
+  @IsNumber()
+  @IsOptional()
+  date?: number
 }

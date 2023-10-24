@@ -23,8 +23,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private async addTokens(user: any) {
-    const payload = { email: user.email };
+  private async addTokens(user: User) {
+    const payload = { email: user.email, nickname: user.nickname };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: jwtConstants.secret,
     });

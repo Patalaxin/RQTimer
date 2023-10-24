@@ -2,14 +2,14 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { EliteTypes, Locations, Servers } from './bosses.enum';
+import { BossTypes, EliteTypes, Servers } from "./bosses.enum";
 
-export type GranasEliteDocument = HydratedDocument<GranasElite>;
+export type EnigmaHistoryDocument = HydratedDocument<EnigmaHistory>;
 
 @Schema({
   autoIndex: true,
 })
-export class GranasElite {
+export class EnigmaHistory {
   @Expose()
   @Prop({
     type: String,
@@ -20,28 +20,40 @@ export class GranasElite {
   _id: string;
 
   @Expose()
-  @Prop({ required: true })
+  @Prop()
+  bossName: BossTypes;
+
+  @Expose()
+  @Prop()
   eliteName: EliteTypes;
 
   @Expose()
   @Prop({ required: true })
-  location: Locations;
+  nickname: string;
+
+  // @Expose()
+  // @Prop({ required: true })
+  // action: number;
 
   @Expose()
   @Prop({ required: true })
-  willResurrect: number;
-
-  @Expose()
-  @Prop({ required: true, default: 0 })
-  cooldown: number;
-
-  @Expose()
-  @Prop({ required: true })
-  cooldownTime: number;
+  date: number;
 
   @Expose()
   @Prop()
-  image: string;
+  fromCooldown: number;
+
+  @Expose()
+  @Prop()
+  toCooldown: number;
+
+  @Expose()
+  @Prop()
+  toWillResurrect: number;
+
+  @Expose()
+  @Prop()
+  crashServer: boolean;
 
   @Expose()
   @Prop()
@@ -51,10 +63,9 @@ export class GranasElite {
   @Prop()
   __v: number;
 
-  constructor(partial: Partial<GranasElite>) {
+  constructor(partial: Partial<EnigmaHistory>) {
     Object.assign(this, partial);
   }
 }
 
-export const GranasEliteSchema = SchemaFactory.createForClass(GranasElite);
-GranasEliteSchema.index({ eliteName: 1, location: 1 }, { unique: true });
+export const EnigmaHistorySchema = SchemaFactory.createForClass(EnigmaHistory);

@@ -30,8 +30,9 @@ export class UsersService {
     await this.sessionIdModel.deleteMany({});
     const newUser = await this.userModel.create(createUserDto);
     newUser.password = await bcrypt.hash(newUser.password, 10);
-    await this.tokenModel.create({ email: newUser.email });
-    return newUser.toObject();
+    await newUser.save()
+    await this.tokenModel.create({email: newUser.email})
+    return newUser.toObject()
   }
 
   async findUser(email: string) {

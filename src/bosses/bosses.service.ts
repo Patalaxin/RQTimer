@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { JwtService } from "@nestjs/jwt";
 import { Model } from 'mongoose';
+import { Request } from "express";
+import { HistoryService } from '../history/history.service';
 import { UsersService } from '../users/users.service';
 import { CreateBossDto } from './dto/create-boss.dto';
 import { UpdateBossDto } from './dto/update-boss.dto';
@@ -9,11 +12,25 @@ import { GranasBoss, GranasBossDocument } from '../schemas/granasBosses.schema';
 import { EnigmaBoss, EnigmaBossDocument } from '../schemas/enigmaBosses.schema';
 import { LogrusBoss, LogrusBossDocument } from '../schemas/logrusBosses.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
+import {
+  GranasHistory,
+  GranasHistoryDocument,
+} from '../schemas/granasHistory.schema';
+import {
+  EnigmaHistory,
+  EnigmaHistoryDocument,
+} from '../schemas/enigmaHistory.schema';
+import {
+  LogrusHistory,
+  LogrusHistoryDocument,
+} from '../schemas/logrusHistory.schema';
 import { BossTypes, Servers } from '../schemas/bosses.enum';
+import { History } from "../interfaces/history.interface";
 
 @Injectable()
 export class BossesService {
   private bossModels: any;
+  private historyModels: any;
   constructor(
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(GranasBoss.name)
@@ -22,12 +39,26 @@ export class BossesService {
     private enigmaBossModel: Model<EnigmaBossDocument>,
     @InjectModel(LogrusBoss.name)
     private logrusBossModel: Model<LogrusBossDocument>,
+    @InjectModel(GranasHistory.name)
+    private granasHistoryModel: Model<GranasHistoryDocument>,
+    @InjectModel(EnigmaHistory.name)
+    private enigmaHistoryModel: Model<EnigmaHistoryDocument>,
+    @InjectModel(LogrusHistory.name)
+    private logrusHistoryModel: Model<LogrusHistoryDocument>,
     private usersService: UsersService,
+    private historyService: HistoryService,
+    private readonly jwtService: JwtService
   ) {
     this.bossModels = [
       { server: 'Гранас', model: this.granasBossModel },
       { server: 'Логрус', model: this.logrusBossModel },
       { server: 'Энигма', model: this.enigmaBossModel },
+    ];
+
+    this.historyModels = [
+      { server: 'Гранас', model: this.granasHistoryModel },
+      { server: 'Логрус', model: this.enigmaHistoryModel },
+      { server: 'Энигма', model: this.logrusHistoryModel },
     ];
   }
 
@@ -46,7 +77,7 @@ export class BossesService {
       (obj) => obj.server === getBossDto.server,
     ).model;
 
-    if (!Object.values(Servers).includes(getBossDto.server)) {
+      if (!Object.values(Servers).includes(getBossDto.server)) {
       throw new BadRequestException('Not valid server');
     }
 
@@ -103,27 +134,49 @@ export class BossesService {
       .exec();
   }
 
-  async updateByCooldownBoss(getBossDto: GetBossDto) {
-    const bossModel = this.bossModels.find(
-      (obj) => obj.server === getBossDto.server,
-    ).model;
+  async getNicknameFromToken(request: Request){
+    interface DecodeResult {
+      email: string;
+      nickname: string;
+      iat: number;
+      exp: number;
+    }
 
-    const { cooldownTime, bossName } = await this.findBoss(getBossDto);
-
-    return bossModel.updateOne(
-      { bossName: bossName },
-      { $inc: { cooldown: 1, willResurrect: cooldownTime } },
-    );
+    const accessToken= request.headers.authorization?.split(' ')[1]
+    const { nickname } = this.jwtService.decode(accessToken) as DecodeResult;
+    return nickname
   }
 
-  async updateDeathOfBoss(getBossDto: GetBossDto, date?: number) {
+  async updateDeathOfBoss(request: Request, getBossDto: GetBossDto) {
+    const nickname = await this.getNicknameFromToken(request)
+
     const bossModel = this.bossModels.find(
       (obj) => obj.server === getBossDto.server,
     ).model;
+
     const boss = await this.findBoss(getBossDto);
     let nextResurrectTime = boss.cooldownTime;
 
-    nextResurrectTime += date || Date.now();
+    const history: History = {
+      bossName: getBossDto.bossName,
+      nickname: nickname,
+      server: getBossDto.server,
+      date: Date.now()
+    }
+
+    if (!getBossDto.date) {
+      history.toWillResurrect = nextResurrectTime + Date.now()
+      history.fromCooldown = boss.cooldown
+      history.toCooldown = ++boss.cooldown
+      await this.historyService.createHistory(history)
+
+      return bossModel.updateOne(
+        { bossName: boss.bossName },
+        { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+      );
+    }
+    history.toWillResurrect = nextResurrectTime + getBossDto.date
+    await this.historyService.createHistory(history)
 
     return bossModel.updateOne(
       { bossName: boss.bossName },
@@ -138,17 +191,35 @@ export class BossesService {
     return bossModel.deleteOne({ bossName: bossName });
   }
 
-  async crashBossServer(server: Servers) {
-    try {
-      const bossModel = this.bossModels.find(
-        (obj) => obj.server === server,
-      ).model;
-      return bossModel.updateMany(
-        { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -300000 } },
-      ); // minus 5 minutes
-    } catch (err) {
-      throw new BadRequestException('Something went wrong!!!');
-    }
-  }
+  // async crashBossServer(server: Servers) {
+  //   try {
+  //     const bossModel = this.bossModels.find(
+  //       (obj) => obj.server === server,
+  //     ).model;
+  //
+  //     const createHistoryBossDto = {
+  //       bossName: BossTypes.Все,
+  //       nickname: 'Mocked',
+  //       server: server,
+  //       crashServer: true,
+  //       date: Date.now()
+  //     }
+  //
+  //     await this.historyService.createHistoryForCrashServer()
+  //
+  //     return bossModel.updateMany(
+  //       { willResurrect: { $gte: Date.now() } },
+  //       { $inc: { willResurrect: -300000 } },
+  //     ); // minus 5 minutes
+  //   } catch (err) {
+  //     throw new BadRequestException('Something went wrong!!!');
+  //   }
+  // }
+
+  // async createHistoryItem(createHistoryBossDto: CreateHistoryBossDto){
+  //   const historyModel = this.historyModels.find(
+  //     (obj) => obj.server === createHistoryBossDto.server,
+  //   ).model;
+  //   return historyModel.create(createHistoryBossDto)
+  // }
 }

@@ -9,7 +9,7 @@ export class Token {
   @Expose()
   @Prop({
     type: String,
-    default: function genUUID() {
+    default: function generateUUID() {
       return randomUUID();
     },
   })
