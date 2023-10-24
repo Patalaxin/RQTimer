@@ -160,8 +160,8 @@ export class ElitesService {
       ).model;
       return eliteModel.updateMany(
         { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -300000 } },
-      ); // minus 5 minutes
+        { $inc: { willResurrect: -18000 } },
+      ); // minus 18 seconds for elites
     } catch (err) {
       throw new BadRequestException('Something went wrong!!!');
     }
