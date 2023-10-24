@@ -1,17 +1,21 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema} from "../schemas/user.schema";
+import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import {Token, TokenSchema} from "../schemas/refreshToken.schema";
+import { User, UserSchema } from '../schemas/user.schema';
+import { Token, TokenSchema } from '../schemas/refreshToken.schema';
+import { SessionId, SessionIdSchema } from '../schemas/sessionID.schema';
 
 @Module({
-    providers: [UsersService],
-    exports: [UsersService],
-    imports: [
-        MongooseModule.forFeature([{name: User.name, schema: UserSchema}]),
-        MongooseModule.forFeature([{name: Token.name, schema: TokenSchema}])
-    ],
-    controllers: [UsersController]
+  providers: [UsersService],
+  exports: [UsersService],
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
+    MongooseModule.forFeature([
+      { name: SessionId.name, schema: SessionIdSchema },
+    ]),
+  ],
+  controllers: [UsersController],
 })
 export class UsersModule {}

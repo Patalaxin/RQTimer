@@ -1,33 +1,38 @@
-import {IsNotEmpty, IsString, IsOptional, IsNumber, IsEnum} from "class-validator";
-import {BossTypes, Locations} from "../../schemas/bosses.enum";
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+} from 'class-validator';
+import { BossTypes, Locations } from '../../schemas/bosses.enum';
 
 export class UpdateBossDto {
+  @IsEnum(BossTypes)
+  @IsOptional()
+  bossName: BossTypes;
 
-    @IsEnum(BossTypes)
-    @IsOptional()
-    bossName: BossTypes;
+  @IsString()
+  @IsOptional()
+  respawnText: string;
 
-    @IsString()
-    @IsOptional()
-    respawnText: string;
+  @IsEnum(Locations)
+  @IsOptional()
+  location: Locations;
 
-    @IsEnum(Locations)
-    @IsOptional()
-    location: Locations
+  @IsNumber()
+  @IsOptional()
+  willResurrect: number;
 
-    @IsNumber()
-    @IsOptional()
-    willResurrect: number
+  @IsNumber()
+  @IsOptional()
+  cooldown: number;
 
-    @IsNumber()
-    @IsOptional()
-    cooldown: number
+  @IsString()
+  @IsNotEmpty()
+  image: string;
 
-    @IsString()
-    @IsNotEmpty()
-    image: string
-
-    @IsNumber()
-    @IsOptional()
-    cooldownTime: number
+  @IsNumber()
+  @IsOptional()
+  cooldownTime: number;
 }

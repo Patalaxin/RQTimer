@@ -1,12 +1,12 @@
-import {IsEnum, IsNotEmpty, IsString} from "class-validator";
-import {EliteTypes, Servers} from "../../schemas/bosses.enum";
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { EliteTypes, Servers } from '../../schemas/bosses.enum';
 
 export class GetEliteDto {
-    @IsEnum(EliteTypes)
-    @IsNotEmpty()
-    eliteName: EliteTypes;
+  @IsEnum(EliteTypes)
+  @IsNotEmpty()
+  eliteName: EliteTypes;
 
-    @IsEnum(Servers)
-    @IsNotEmpty()
-    server: Servers
+  @IsEnum(Servers)
+  @IsNotEmpty()
+  server: Servers;
 }

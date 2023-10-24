@@ -1,3 +1,4 @@
-import {SetMetadata} from "@nestjs/common";
+import { SetMetadata } from '@nestjs/common';
 
-export const UnauthorizedRequest = () => SetMetadata('unauthorizedRequest', true)
+export const UnauthorizedRequest = () =>
+  SetMetadata('unauthorizedRequest', true);
