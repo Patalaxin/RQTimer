@@ -19,6 +19,7 @@ import { RolesTypes, User } from '../schemas/user.schema';
 import { SessionId } from '../schemas/sessionID.schema';
 import { Roles } from '../decorators/roles.decorator';
 import { UsersGuard } from "./users.guard";
+import { UpdateUserPassDto } from "./dto/update-user-pass.dto";
 
 @UseGuards(UsersGuard)
 @Controller('user')
@@ -37,6 +38,13 @@ export class UsersController {
   @Get(':email')
   async getOne(@Param('email') email: string) {
     return new User(await this.userService.findUser(email));
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('/changePassword')
+  async changePassword(@Body() updateUserPassDto: UpdateUserPassDto) {
+    return this.userService.changePassword(updateUserPassDto);
   }
 
   @Roles(RolesTypes.User, RolesTypes.Admin)

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -10,6 +10,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import { RolesTypes } from '../schemas/user.schema';
+import { UpdateUserPassDto } from "./dto/update-user-pass.dto";
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,13 @@ export class UsersService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto) {
+    const userEmail = await this.userModel.findOne({ email: createUserDto.email }).lean().exec();
+    const userNickname = await this.userModel.findOne({ nickname: createUserDto.nickname }).lean().exec();
+
+    if (userEmail || userNickname){
+      throw new BadRequestException('A user with such an email or nickname already exists!')
+    }
+
     const compareSessionId = await this.sessionIdModel.findOne({
       _id: { $eq: createUserDto.sessionId },
     });
@@ -34,6 +42,21 @@ export class UsersService {
     await this.tokenModel.create({email: newUser.email})
     return newUser.toObject()
   }
+
+async changePassword(updateUserPassDto: UpdateUserPassDto){
+  const user = await this.findUser(updateUserPassDto.email)
+
+  const isPasswordMatch = await bcrypt.compare(
+    updateUserPassDto.oldPassword,
+    user.password,
+  );
+  if (!isPasswordMatch) {
+    throw new UnauthorizedException('Password did not match!!!');
+  }
+
+  let hashedNewPassword = await bcrypt.hash(updateUserPassDto.newPassword, 10)
+  await this.userModel.updateOne({email: user.email}, {password: hashedNewPassword})
+}
 
   async findUser(email: string) {
     try {
