@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { Roles } from '../decorators/roles.decorator';
@@ -19,6 +20,8 @@ import { UpdateEliteDto } from './dto/update-elite.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { EliteTypes, Servers } from '../schemas/bosses.enum';
 import { GranasElite } from '../schemas/granasElites.schema';
+import { Request } from 'express';
+import { UpdateEliteDeathDto } from './dto/update-elite-death.dto';
 
 // @UseGuards(UsersGuard)
 @Controller('elite')
@@ -69,7 +72,7 @@ export class ElitesController {
         updateEliteDto,
       );
     } catch (error) {
-      throw new HttpException('Boss not updated', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Elite not updated', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -96,13 +99,17 @@ export class ElitesController {
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @Put('/updateDeathOfElite')
-  async updateDeathOfEliteDate(
-    @Body() getEliteDto: GetEliteDto,
-    @Body('date') date?: number,
+  async updateDeathOfElite(
+    @Req() request: Request,
+    @Body() updateEliteDeathDto: UpdateEliteDeathDto,
   ) {
     try {
-      return await this.eliteService.updateDeathOfElite(getEliteDto, date);
+      return await this.eliteService.updateDeathOfElite(
+        request,
+        updateEliteDeathDto,
+      );
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         'Resurrect Time not updated',
         HttpStatus.BAD_REQUEST,
@@ -113,7 +120,8 @@ export class ElitesController {
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('/crashServer/:server')
-  async crashServer(@Param('server') server: Servers) {
-    return this.eliteService.crashEliteServer(server);
+  async crashServer(@Req() request: Request, @Param('server') server: Servers) {
+    return this.eliteService.crashEliteServer(request, server);
   }
+
 }

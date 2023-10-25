@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from "@nestjs/jwt";
+import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
-import { Request } from "express";
+import { Request } from 'express';
 import { HistoryService } from '../history/history.service';
 import { UsersService } from '../users/users.service';
+import { UpdateBossDeathDto } from './dto/update-boss-death.dto';
 import { CreateBossDto } from './dto/create-boss.dto';
 import { UpdateBossDto } from './dto/update-boss.dto';
 import { GetBossDto } from './dto/get-boss.dto';
@@ -24,8 +25,8 @@ import {
   LogrusHistory,
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
+import { History } from '../interfaces/history.interface';
 import { BossTypes, Servers } from '../schemas/bosses.enum';
-import { History } from "../interfaces/history.interface";
 
 @Injectable()
 export class BossesService {
@@ -47,7 +48,7 @@ export class BossesService {
     private logrusHistoryModel: Model<LogrusHistoryDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
   ) {
     this.bossModels = [
       { server: 'Гранас', model: this.granasBossModel },
@@ -60,6 +61,19 @@ export class BossesService {
       { server: 'Логрус', model: this.enigmaHistoryModel },
       { server: 'Энигма', model: this.logrusHistoryModel },
     ];
+  }
+
+  async getNicknameFromToken(request: Request) {
+    interface DecodeResult {
+      email: string;
+      nickname: string;
+      iat: number;
+      exp: number;
+    }
+
+    const accessToken = request.headers.authorization?.split(' ')[1];
+    const { nickname } = this.jwtService.decode(accessToken) as DecodeResult;
+    return nickname;
   }
 
   async createBoss(createBossDto: CreateBossDto) {
@@ -77,7 +91,7 @@ export class BossesService {
       (obj) => obj.server === getBossDto.server,
     ).model;
 
-      if (!Object.values(Servers).includes(getBossDto.server)) {
+    if (!Object.values(Servers).includes(getBossDto.server)) {
       throw new BadRequestException('Not valid server');
     }
 
@@ -134,54 +148,91 @@ export class BossesService {
       .exec();
   }
 
-  async getNicknameFromToken(request: Request){
-    interface DecodeResult {
-      email: string;
-      nickname: string;
-      iat: number;
-      exp: number;
-    }
-
-    const accessToken= request.headers.authorization?.split(' ')[1]
-    const { nickname } = this.jwtService.decode(accessToken) as DecodeResult;
-    return nickname
-  }
-
-  async updateDeathOfBoss(request: Request, getBossDto: GetBossDto) {
-    const nickname = await this.getNicknameFromToken(request)
+  async updateDeathOfBoss(request: Request, updateBossDeathDto: UpdateBossDeathDto) {
+    const nickname = await this.getNicknameFromToken(request);
+    const getBossDto = {
+      bossName: updateBossDeathDto.bossName,
+      server: updateBossDeathDto.server,
+    };
 
     const bossModel = this.bossModels.find(
-      (obj) => obj.server === getBossDto.server,
+      // Finding the boss database by server
+      (obj) => obj.server === updateBossDeathDto.server,
     ).model;
 
-    const boss = await this.findBoss(getBossDto);
-    let nextResurrectTime = boss.cooldownTime;
+    const boss = await this.findBoss(getBossDto); // Get the boss we're updating
 
     const history: History = {
-      bossName: getBossDto.bossName,
+      bossName: updateBossDeathDto.bossName,
       nickname: nickname,
-      server: getBossDto.server,
-      date: Date.now()
-    }
+      server: updateBossDeathDto.server,
+      date: Date.now(),
+    };
 
-    if (!getBossDto.date) {
-      history.toWillResurrect = nextResurrectTime + Date.now()
-      history.fromCooldown = boss.cooldown
-      history.toCooldown = ++boss.cooldown
-      await this.historyService.createHistory(history)
+    if (!updateBossDeathDto.dateOfDeath && !updateBossDeathDto.dateOfRespawn) {
+      // If the boss died at a certain time not now.
+      let nextResurrectTime = boss.cooldownTime;
+      history.toWillResurrect = nextResurrectTime;
+      history.fromCooldown = boss.cooldown;
+      history.toCooldown = ++boss.cooldown;
+      await this.historyService.createHistory(history);
 
       return bossModel.updateOne(
+        // Add +1 to the cooldown counter and update the respawn on cd
         { bossName: boss.bossName },
         { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
       );
     }
-    history.toWillResurrect = nextResurrectTime + getBossDto.date
-    await this.historyService.createHistory(history)
+
+    if (updateBossDeathDto.dateOfRespawn) {
+      // If we now know the exact time of the boss respawn.
+      let nextResurrectTime = updateBossDeathDto.dateOfRespawn;
+      history.toWillResurrect = nextResurrectTime;
+      await this.historyService.createHistory(history);
+
+      return bossModel.updateOne(
+        // Update the respawn at the exact time of respawn.
+        { bossName: boss.bossName },
+        { willResurrect: nextResurrectTime },
+      );
+    }
+
+    let nextResurrectTime = updateBossDeathDto.dateOfDeath + boss.cooldownTime; // If the boss is dead now.
+    history.toWillResurrect = nextResurrectTime;
+    await this.historyService.createHistory(history);
 
     return bossModel.updateOne(
+      // Update the respawn at the exact time of death.
       { bossName: boss.bossName },
       { willResurrect: nextResurrectTime },
     );
+  }
+
+  async crashBossServer(request: Request, server: Servers) {
+    const nickname = await this.getNicknameFromToken(request);
+
+    try {
+      const bossModel = this.bossModels.find(
+        (obj) => obj.server === server,
+      ).model;
+
+      const history: History = {
+        bossName: BossTypes.Все,
+        nickname: nickname,
+        server: server,
+        date: Date.now(),
+      };
+
+      history.crashServer = true
+      await this.historyService.createHistory(history);
+
+      return bossModel.updateMany(
+        { willResurrect: { $gte: Date.now() } },
+        { $inc: { willResurrect: -300000 } },
+      ); // minus 5 minutes
+    } catch (err) {
+      throw new BadRequestException('Something went wrong!!!');
+    }
   }
 
   async deleteBoss(server: Servers, bossName: BossTypes) {
@@ -191,35 +242,4 @@ export class BossesService {
     return bossModel.deleteOne({ bossName: bossName });
   }
 
-  // async crashBossServer(server: Servers) {
-  //   try {
-  //     const bossModel = this.bossModels.find(
-  //       (obj) => obj.server === server,
-  //     ).model;
-  //
-  //     const createHistoryBossDto = {
-  //       bossName: BossTypes.Все,
-  //       nickname: 'Mocked',
-  //       server: server,
-  //       crashServer: true,
-  //       date: Date.now()
-  //     }
-  //
-  //     await this.historyService.createHistoryForCrashServer()
-  //
-  //     return bossModel.updateMany(
-  //       { willResurrect: { $gte: Date.now() } },
-  //       { $inc: { willResurrect: -300000 } },
-  //     ); // minus 5 minutes
-  //   } catch (err) {
-  //     throw new BadRequestException('Something went wrong!!!');
-  //   }
-  // }
-
-  // async createHistoryItem(createHistoryBossDto: CreateHistoryBossDto){
-  //   const historyModel = this.historyModels.find(
-  //     (obj) => obj.server === createHistoryBossDto.server,
-  //   ).model;
-  //   return historyModel.create(createHistoryBossDto)
-  // }
 }

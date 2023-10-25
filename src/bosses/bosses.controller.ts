@@ -8,7 +8,7 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put, Req, UseGuards,
+  Put, Req,
   UseInterceptors
 } from "@nestjs/common";
 import { Request } from "express";
@@ -20,11 +20,9 @@ import { BossTypes, Servers } from '../schemas/bosses.enum';
 import { GetBossDto } from './dto/get-boss.dto';
 import { UpdateBossDto } from './dto/update-boss.dto';
 import { CreateBossDto } from './dto/create-boss.dto';
-import { UsersGuard } from "../users/users.guard";
-import { JwtService } from "@nestjs/jwt";
+import { UpdateBossDeathDto } from "./dto/update-boss-death.dto";
 
-
-@UseGuards(UsersGuard)
+// @UseGuards(UsersGuard)
 @Controller('boss')
 export class BossesController {
   constructor(private bossService: BossesService) {}
@@ -71,25 +69,15 @@ export class BossesController {
     }
   }
 
-  @Roles(RolesTypes.User, RolesTypes.Admin)
-  @Delete(':bossName/:server')
-  async deleteOne(
-    @Param('bossName') bossName: BossTypes,
-    @Param('server') server: Servers,
-  ) {
-    return await this.bossService.deleteBoss(server, bossName);
-  }
-
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @Put('/updateDeathOfBoss')
   async updateDeathOfBoss(
-   @Req() request: Request, @Body() getBossDto: GetBossDto
+   @Req() request: Request, @Body() updateBossDeathDto: UpdateBossDeathDto
   ) {
 
-
     try {
-      return await this.bossService.updateDeathOfBoss(request, getBossDto);
+      return await this.bossService.updateDeathOfBoss(request, updateBossDeathDto);
     } catch (error) {
       console.log(error);
       throw new HttpException(
@@ -99,11 +87,20 @@ export class BossesController {
     }
   }
 
-  // @Roles()
-  // @UseInterceptors(ClassSerializerInterceptor)
-  // @Post('/crashServer/:server')
-  // async crashServer(@Param('server') server: Servers) {
-  //   return this.bossService.crashBossServer(server);
-  // }
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post('/crashServer/:server')
+  async crashServer(@Req() request: Request, @Param('server') server: Servers) {
+    return this.bossService.crashBossServer(request, server);
+  }
+
+  @Roles(RolesTypes.User, RolesTypes.Admin)
+  @Delete(':bossName/:server')
+  async deleteOne(
+    @Param('bossName') bossName: BossTypes,
+    @Param('server') server: Servers,
+  ) {
+    return await this.bossService.deleteBoss(server, bossName);
+  }
 
 }
