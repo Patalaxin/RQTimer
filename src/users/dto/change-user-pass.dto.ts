@@ -4,7 +4,7 @@ import {
   IsString
 } from "class-validator";
 
-export class UpdateUserPassDto {
+export class ChangeUserPassDto {
 
   @IsEmail()
   email: string;

@@ -19,7 +19,8 @@ import { RolesTypes, User } from '../schemas/user.schema';
 import { SessionId } from '../schemas/sessionID.schema';
 import { Roles } from '../decorators/roles.decorator';
 import { UsersGuard } from "./users.guard";
-import { UpdateUserPassDto } from "./dto/update-user-pass.dto";
+import { ChangeUserPassDto } from "./dto/change-user-pass.dto";
+import { ForgotUserPassDto } from "./dto/forgot-user-pass.dto";
 
 @UseGuards(UsersGuard)
 @Controller('user')
@@ -42,9 +43,16 @@ export class UsersController {
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
-  @Post('/changePassword')
-  async changePassword(@Body() updateUserPassDto: UpdateUserPassDto) {
+  @Put('/changePassword')
+  async changePassword(@Body() updateUserPassDto: ChangeUserPassDto) {
     return this.userService.changePassword(updateUserPassDto);
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Put('/forgotPassword')
+  async forgotPassword(@Body() forgotUserPassDto: ForgotUserPassDto) {
+    return this.userService.forgotPassword(forgotUserPassDto);
   }
 
   @Roles(RolesTypes.User, RolesTypes.Admin)

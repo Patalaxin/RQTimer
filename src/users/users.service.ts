@@ -10,7 +10,8 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import { RolesTypes } from '../schemas/user.schema';
-import { UpdateUserPassDto } from "./dto/update-user-pass.dto";
+import { ChangeUserPassDto } from "./dto/change-user-pass.dto";
+import { ForgotUserPassDto } from "./dto/forgot-user-pass.dto";
 
 @Injectable()
 export class UsersService {
@@ -43,7 +44,7 @@ export class UsersService {
     return newUser.toObject()
   }
 
-async changePassword(updateUserPassDto: UpdateUserPassDto){
+async changePassword(updateUserPassDto: ChangeUserPassDto){
   const user = await this.findUser(updateUserPassDto.email)
 
   const isPasswordMatch = await bcrypt.compare(
@@ -55,6 +56,21 @@ async changePassword(updateUserPassDto: UpdateUserPassDto){
   }
 
   let hashedNewPassword = await bcrypt.hash(updateUserPassDto.newPassword, 10)
+  await this.userModel.updateOne({email: user.email}, {password: hashedNewPassword})
+}
+
+async forgotPassword(forgotUserPassDto: ForgotUserPassDto) {
+  const user = await this.findUser(forgotUserPassDto.email)
+
+  const compareSessionId = await this.sessionIdModel.findOne({
+    _id: { $eq: forgotUserPassDto.sessionId },
+  });
+  if (compareSessionId === null) {
+    throw new BadRequestException('Wrong SessionId!');
+  }
+
+  await this.sessionIdModel.deleteMany({});
+  let hashedNewPassword = await bcrypt.hash(forgotUserPassDto.newPassword, 10)
   await this.userModel.updateOne({email: user.email}, {password: hashedNewPassword})
 }
 
