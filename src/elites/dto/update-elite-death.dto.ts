@@ -6,7 +6,7 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
-import { EliteTypes, Locations, Servers } from '../../schemas/bosses.enum';
+import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
 
 export class UpdateEliteDeathDtoRequest {
   @IsEnum(EliteTypes)

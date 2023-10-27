@@ -1,49 +1,28 @@
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsNumber,
   IsEnum,
-} from 'class-validator';
+  IsNotEmpty,
+  IsNumber,
+  IsOptional, IsPositive,
+  IsString,
+} from "class-validator";
 import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
 
-export class UpdateEliteDtoBodyRequest {
+export class UpdateEliteCooldownDtoRequest {
   @IsEnum(EliteTypes)
   @IsNotEmpty()
   eliteName: EliteTypes;
 
-  @IsEnum(Locations)
-  @IsOptional()
-  location: Locations;
-
-  @IsNumber()
-  @IsOptional()
-  willResurrect: number;
-
-  @IsNumber()
-  @IsOptional()
-  cooldown: number;
-
-  @IsString()
-  @IsOptional()
-  image: string;
-
-  @IsNumber()
-  @IsOptional()
-  cooldownTime: number;
-}
-
-export class UpdateEliteDtoParamsRequest {
-  @IsEnum(EliteTypes)
-  @IsOptional()
-  eliteName: EliteTypes;
-
   @IsEnum(Servers)
-  @IsOptional()
+  @IsNotEmpty()
   server: Servers;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  cooldown: number;
 }
 
-export class UpdateEliteDtoBodyResponse {
+export class UpdateEliteCooldownDtoResponse {
   @IsEnum(EliteTypes)
   @IsOptional()
   eliteName: EliteTypes;

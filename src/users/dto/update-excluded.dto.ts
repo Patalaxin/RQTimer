@@ -1,5 +1,5 @@
 import { IsArray, IsEnum, ArrayUnique } from 'class-validator';
-import { BossTypes, EliteTypes } from '../../schemas/bosses.enum';
+import { BossTypes, EliteTypes } from '../../schemas/mobs.enum';
 
 export class UpdateExcludedDto {
   @IsArray()

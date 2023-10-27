@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { BossTypes, EliteTypes, Servers } from './bosses.enum';
+import { BossTypes, EliteTypes, Servers } from './mobs.enum';
 
 export type GranasHistoryDocument = HydratedDocument<GranasHistory>;
 

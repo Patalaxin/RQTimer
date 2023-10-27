@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
-import { EliteTypes, Servers } from '../schemas/bosses.enum';
+import { EliteTypes, Servers } from '../schemas/mobs.enum';
 import {
   EnigmaElite,
   EnigmaEliteDocument,
@@ -52,6 +52,7 @@ import {
   GetElitesDtoResponse,
 } from './dto/get-elites.dto';
 import { DeleteEliteDtoResponse } from './dto/delete-elite.dto';
+import { UpdateEliteCooldownDtoRequest, UpdateEliteCooldownDtoResponse } from "./dto/update-elite-cooldown.dto";
 
 @Injectable()
 export class ElitesService {
@@ -269,6 +270,28 @@ export class ElitesService {
       .select('-__v')
       .lean()
       .exec();
+  }
+
+  async updateCooldownCounterElite(
+    updateEliteCooldownDtoRequest: UpdateEliteCooldownDtoRequest,
+  ): Promise<UpdateEliteCooldownDtoResponse> {
+    const eliteModel = this.elitesModels.find(
+      (obj) => obj.server === updateEliteCooldownDtoRequest.server,
+    ).model;
+
+    try {
+      return await eliteModel
+        .findOneAndUpdate(
+          { eliteName: updateEliteCooldownDtoRequest.eliteName },
+          { cooldown: updateEliteCooldownDtoRequest.cooldown },
+          { new: true },
+        )
+        .select('-__v')
+        .lean()
+        .exec();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong!');
+    }
   }
 
   async crashEliteServer(

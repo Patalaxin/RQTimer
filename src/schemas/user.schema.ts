@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { ApiProperty } from '@nestjs/swagger';
-import { BossTypes, EliteTypes } from './bosses.enum';
+import { BossTypes, EliteTypes } from './mobs.enum';
 
 export type UserDocument = HydratedDocument<User>;
 

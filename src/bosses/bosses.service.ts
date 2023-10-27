@@ -41,8 +41,12 @@ import {
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
-import { BossTypes, Servers } from '../schemas/bosses.enum';
+import { BossTypes, Servers } from '../schemas/mobs.enum';
 import { HelperClass } from '../helper-class';
+import {
+  UpdateBossCooldownDtoRequest,
+  UpdateBossCooldownDtoResponse,
+} from './dto/update-boss-cooldown.dto';
 
 @Injectable()
 export class BossesService {
@@ -254,6 +258,28 @@ export class BossesService {
       .select('-__v')
       .lean()
       .exec();
+  }
+
+  async updateCooldownCounterBoss(
+    updateBossCooldownDtoRequest: UpdateBossCooldownDtoRequest,
+  ): Promise<UpdateBossCooldownDtoResponse> {
+    const bossModel = this.bossModels.find(
+      (obj) => obj.server === updateBossCooldownDtoRequest.server,
+    ).model;
+
+    try {
+      return await bossModel
+        .findOneAndUpdate(
+          { bossName: updateBossCooldownDtoRequest.bossName },
+          { cooldown: updateBossCooldownDtoRequest.cooldown },
+          { new: true },
+        )
+        .select('-__v')
+        .lean()
+        .exec();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong!');
+    }
   }
 
   async crashBossServer(

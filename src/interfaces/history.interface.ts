@@ -1,4 +1,4 @@
-import { BossTypes, EliteTypes, Servers } from '../schemas/bosses.enum';
+import { BossTypes, EliteTypes, Servers } from '../schemas/mobs.enum';
 
 export interface History {
   bossName?: BossTypes;

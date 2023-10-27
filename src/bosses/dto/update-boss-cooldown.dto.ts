@@ -2,20 +2,29 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
-  IsOptional,
+  IsOptional, IsPositive,
   IsString,
-} from 'class-validator';
+} from "class-validator";
 import { BossTypes, Locations, Servers } from '../../schemas/mobs.enum';
 
-export class GetBossesDtoRequest {
+export class UpdateBossCooldownDtoRequest {
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  bossName: BossTypes;
+
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  cooldown: number;
 }
 
-export class GetBossesDtoResponse {
+export class UpdateBossCooldownDtoResponse {
   @IsEnum(BossTypes)
-  @IsNotEmpty()
+  @IsOptional()
   bossName: BossTypes;
 
   @IsString()
@@ -23,11 +32,11 @@ export class GetBossesDtoResponse {
   respawnText: string;
 
   @IsEnum(Locations)
-  @IsNotEmpty()
+  @IsOptional()
   location: Locations;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   willResurrect: number;
 
   @IsNumber()
@@ -41,12 +50,4 @@ export class GetBossesDtoResponse {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
-
-  @IsEnum(Servers)
-  @IsNotEmpty()
-  server: Servers;
-
-  @IsString()
-  @IsNotEmpty()
-  _id: string;
 }

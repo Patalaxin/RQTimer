@@ -40,7 +40,8 @@ import {
 } from './dto/update-elite-death.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { GranasElite } from '../schemas/granasElites.schema';
-import { EliteTypes, Servers } from '../schemas/bosses.enum';
+import { EliteTypes, Servers } from '../schemas/mobs.enum';
+import { UpdateEliteCooldownDtoRequest, UpdateEliteCooldownDtoResponse } from "./dto/update-elite-cooldown.dto";
 
 @ApiTags('Elite API')
 @ApiBearerAuth()
@@ -111,6 +112,15 @@ export class ElitesController {
       request,
       updateEliteDeathDto,
     );
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Update Elite Cooldown Counter ' })
+  @Put('/updateCooldownCounter')
+  async updateCooldownCounter(
+    @Body() updateEliteCooldownDtoRequest: UpdateEliteCooldownDtoRequest
+  ): Promise<UpdateEliteCooldownDtoResponse> {
+    return await this.eliteService.updateCooldownCounterElite(updateEliteCooldownDtoRequest);
   }
 
   @Roles(RolesTypes.Admin)

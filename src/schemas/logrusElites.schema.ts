@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { EliteTypes, Locations, Servers } from './bosses.enum';
+import { EliteTypes, Locations, Servers } from './mobs.enum';
 
 export type LogrusEliteDocument = HydratedDocument<LogrusElite>;
 

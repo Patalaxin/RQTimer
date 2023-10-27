@@ -20,7 +20,7 @@ import { Roles } from '../decorators/roles.decorator';
 import { BossesService } from './bosses.service';
 import { RolesTypes } from '../schemas/user.schema';
 import { GranasBoss } from '../schemas/granasBosses.schema';
-import { BossTypes, Servers } from '../schemas/bosses.enum';
+import { BossTypes, Servers } from '../schemas/mobs.enum';
 import { GetBossDtoRequest, GetBossDtoResponse } from './dto/get-boss.dto';
 import {
   UpdateBossDtoBodyRequest,
@@ -41,6 +41,7 @@ import {
 } from './dto/get-bosses.dto';
 import { DeleteBossDtoResponse } from './dto/delete-boss.dto';
 import { UsersGuard } from '../guards/users.guard';
+import { UpdateBossCooldownDtoRequest, UpdateBossCooldownDtoResponse } from "./dto/update-boss-cooldown.dto";
 
 @ApiTags('Boss API')
 @ApiBearerAuth()
@@ -112,6 +113,15 @@ export class BossesController {
       request,
       updateBossDeathDto,
     );
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Update Boss Cooldown Counter ' })
+  @Put('/updateCooldownCounter')
+  async updateCooldownCounter(
+    @Body() updateBossCooldownDtoRequest: UpdateBossCooldownDtoRequest
+  ): Promise<UpdateBossCooldownDtoResponse> {
+    return await this.bossService.updateCooldownCounterBoss(updateBossCooldownDtoRequest);
   }
 
   @Roles(RolesTypes.Admin)
