@@ -2,14 +2,14 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
-  IsOptional,
   IsArray,
   IsEnum,
   ArrayUnique,
 } from 'class-validator';
 import { BossTypes, EliteTypes } from '../../schemas/bosses.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUserDto {
+export class CreateUserDtoRequest {
   @IsString()
   @IsNotEmpty()
   sessionId: string;
@@ -26,15 +26,23 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  @IsString()
-  @IsOptional()
-  refreshToken: string;
-
+  @ApiProperty({
+    description: 'Боссы которых пользователь не хочет видеть',
+    enum: BossTypes,
+    isArray: true,
+    example: [BossTypes.Архон, BossTypes.Хьюго],
+  })
   @IsArray()
   @ArrayUnique()
   @IsEnum(BossTypes, { each: true })
   excludedBosses: BossTypes[];
 
+  @ApiProperty({
+    description: 'Элита которых пользователь не хочет видеть',
+    enum: EliteTypes,
+    isArray: true,
+    example: [EliteTypes.Лякуша, EliteTypes.Пламярык],
+  })
   @IsArray()
   @ArrayUnique()
   @IsEnum(EliteTypes, { each: true })

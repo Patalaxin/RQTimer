@@ -8,62 +8,93 @@ import {
   HttpStatus,
   Param,
   Post,
-  Put, Req,
-  UseInterceptors
-} from "@nestjs/common";
-import { Request } from "express";
+  Put,
+  Req,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
+import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { BossesService } from './bosses.service';
 import { RolesTypes } from '../schemas/user.schema';
 import { GranasBoss } from '../schemas/granasBosses.schema';
 import { BossTypes, Servers } from '../schemas/bosses.enum';
-import { GetBossDto } from './dto/get-boss.dto';
-import { UpdateBossDto } from './dto/update-boss.dto';
-import { CreateBossDto } from './dto/create-boss.dto';
-import { UpdateBossDeathDto } from "./dto/update-boss-death.dto";
+import { GetBossDtoRequest, GetBossDtoResponse } from './dto/get-boss.dto';
+import {
+  UpdateBossDtoBodyRequest,
+  UpdateBossDtoBodyResponse,
+  UpdateBossDtoParamsRequest,
+} from './dto/update-boss.dto';
+import {
+  CreateBossDtoRequest,
+  CreateBossDtoResponse,
+} from './dto/create-boss.dto';
+import {
+  UpdateBossDeathDtoRequest,
+  UpdateBossDeathDtoResponse,
+} from './dto/update-boss-death.dto';
+import {
+  GetBossesDtoRequest,
+  GetBossesDtoResponse,
+} from './dto/get-bosses.dto';
+import { DeleteBossDtoResponse } from './dto/delete-boss.dto';
+import { UsersGuard } from '../guards/users.guard';
 
-// @UseGuards(UsersGuard)
+@ApiTags('Boss API')
+@ApiBearerAuth()
+@UseGuards(UsersGuard)
 @Controller('boss')
 export class BossesController {
   constructor(private bossService: BossesService) {}
 
-  @Roles()
+  @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Create Boss' })
   @Post('/create')
-  async create(@Body() createBossDto: CreateBossDto) {
-    try {
-      return new GranasBoss(await this.bossService.createBoss(createBossDto));
-    } catch (error) {
-      throw new HttpException('Boss not created', HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @Roles(RolesTypes.User, RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
-  @Get(':bossName/:server/')
-  async getOneBoss(@Param() getBossDto: GetBossDto) {
-    return new GranasBoss(await this.bossService.findBoss(getBossDto));
-  } // there's no difference between Granas and other servers
-
-  @Roles(RolesTypes.User, RolesTypes.Admin)
-  @Get('getAll/:email/:server/')
-  async findAllBossesByUser(
-    @Param('email') email: string,
-    @Param('server') server: Servers,
-  ) {
-    return await this.bossService.findAllBossesByUser(email, server);
+  async create(
+    @Body() createBossDto: CreateBossDtoRequest,
+  ): Promise<CreateBossDtoResponse> {
+    return new GranasBoss(await this.bossService.createBoss(createBossDto));
   }
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Find Boss' })
+  @Get('findBoss/:bossName/:server/')
+  async getOneBoss(
+    @Param() getBossDto: GetBossDtoRequest,
+  ): Promise<GetBossDtoResponse> {
+    return await this.bossService.findBoss(getBossDto);
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Find All User Bosses' })
+  @Get('findAll/:server/')
+  async findAllBossesByUser(
+    @GetEmailFromToken() email: string,
+    @Param() getBossesDtoRequest: GetBossesDtoRequest,
+  ): Promise<GetBossesDtoResponse[]> {
+    return await this.bossService.findAllBossesByUser(
+      email,
+      getBossesDtoRequest,
+    );
+  }
+
+  @Roles(RolesTypes.Admin)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Boss' })
   @Put('/updateBoss/:bossName/:server/')
   async updateBoss(
-    @Body() updateBossDto: UpdateBossDto,
-    @Param('bossName') bossName: BossTypes,
-    @Param('server') server: Servers,
-  ) {
+    @Body() updateBossDto: UpdateBossDtoBodyRequest,
+    @Param() updateBossDtoParamsRequest: UpdateBossDtoParamsRequest,
+  ): Promise<UpdateBossDtoBodyResponse> {
     try {
-      return await this.bossService.updateBoss(server, bossName, updateBossDto);
+      return await this.bossService.updateBoss(
+        updateBossDtoParamsRequest,
+        updateBossDto,
+      );
     } catch (error) {
       throw new HttpException('Boss not updated', HttpStatus.BAD_REQUEST);
     }
@@ -71,36 +102,36 @@ export class BossesController {
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Boss Respawn Time' })
   @Put('/updateDeathOfBoss')
   async updateDeathOfBoss(
-   @Req() request: Request, @Body() updateBossDeathDto: UpdateBossDeathDto
-  ) {
-
-    try {
-      return await this.bossService.updateDeathOfBoss(request, updateBossDeathDto);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        'Resurrect Time not updated',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    @Req() request: Request,
+    @Body() updateBossDeathDto: UpdateBossDeathDtoRequest,
+  ): Promise<UpdateBossDeathDtoResponse> {
+    return await this.bossService.updateDeathOfBoss(
+      request,
+      updateBossDeathDto,
+    );
   }
 
-  @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
-  @Post('/crashServer/:server')
-  async crashServer(@Req() request: Request, @Param('server') server: Servers) {
-    return this.bossService.crashBossServer(request, server);
-  }
-
-  @Roles(RolesTypes.User, RolesTypes.Admin)
+  @Roles(RolesTypes.Admin)
+  @ApiOperation({ summary: 'Delete Boss' })
   @Delete(':bossName/:server')
   async deleteOne(
     @Param('bossName') bossName: BossTypes,
     @Param('server') server: Servers,
-  ) {
+  ): Promise<DeleteBossDtoResponse> {
     return await this.bossService.deleteBoss(server, bossName);
   }
 
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Crash Boss Server' })
+  @Post('/crashServer/:server')
+  async crashServer(
+    @Req() request: Request,
+    @Param('server') server: Servers,
+  ): Promise<GetBossesDtoResponse[]> {
+    return this.bossService.crashBossServer(request, server);
+  }
 }

@@ -1,17 +1,34 @@
-import { BadRequestException, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
 import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
+import {
+  ChangeUserPassDtoRequest,
+  ChangeUserPassDtoResponse,
+} from './dto/change-user-pass.dto';
+import {
+  ForgotUserPassDtoRequest,
+  ForgotUserPassDtoResponse,
+} from './dto/forgot-user-pass.dto';
+import {
+  UpdateUserRoleDtoRequest,
+  UpdateUserRoleDtoResponse,
+} from './dto/update-user-role.dto';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
-import { RolesTypes } from '../schemas/user.schema';
-import { ChangeUserPassDto } from "./dto/change-user-pass.dto";
-import { ForgotUserPassDto } from "./dto/forgot-user-pass.dto";
+import {
+  DeleteAllUsersDtoResponse,
+  DeleteUserDtoResponse,
+} from './dto/delete-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -22,12 +39,20 @@ export class UsersService {
     private sessionIdModel: Model<SessionIdDocument>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto) {
-    const userEmail = await this.userModel.findOne({ email: createUserDto.email }).lean().exec();
-    const userNickname = await this.userModel.findOne({ nickname: createUserDto.nickname }).lean().exec();
+  async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
+    const userEmail = await this.userModel
+      .findOne({ email: createUserDto.email })
+      .lean()
+      .exec();
+    const userNickname = await this.userModel
+      .findOne({ nickname: createUserDto.nickname })
+      .lean()
+      .exec();
 
-    if (userEmail || userNickname){
-      throw new BadRequestException('A user with such an email or nickname already exists!')
+    if (userEmail || userNickname) {
+      throw new BadRequestException(
+        'A user with such an email or nickname already exists!',
+      );
     }
 
     const compareSessionId = await this.sessionIdModel.findOne({
@@ -36,99 +61,127 @@ export class UsersService {
     if (compareSessionId === null) {
       throw new BadRequestException('Wrong SessionId!');
     }
-    await this.sessionIdModel.deleteMany({});
-    const newUser = await this.userModel.create(createUserDto);
-    newUser.password = await bcrypt.hash(newUser.password, 10);
-    await newUser.save()
-    await this.tokenModel.create({email: newUser.email})
-    return newUser.toObject()
+    try {
+      await this.sessionIdModel.deleteMany({});
+      const newUser = await this.userModel.create(createUserDto);
+      newUser.password = await bcrypt.hash(newUser.password, 10);
+      await newUser.save();
+      await this.tokenModel.create({ email: newUser.email });
+      return newUser.toObject();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong');
+    }
   }
-
-async changePassword(updateUserPassDto: ChangeUserPassDto){
-  const user = await this.findUser(updateUserPassDto.email)
-
-  const isPasswordMatch = await bcrypt.compare(
-    updateUserPassDto.oldPassword,
-    user.password,
-  );
-  if (!isPasswordMatch) {
-    throw new UnauthorizedException('Password did not match!!!');
-  }
-
-  let hashedNewPassword = await bcrypt.hash(updateUserPassDto.newPassword, 10)
-  await this.userModel.updateOne({email: user.email}, {password: hashedNewPassword})
-}
-
-async forgotPassword(forgotUserPassDto: ForgotUserPassDto) {
-  const user = await this.findUser(forgotUserPassDto.email)
-
-  const compareSessionId = await this.sessionIdModel.findOne({
-    _id: { $eq: forgotUserPassDto.sessionId },
-  });
-  if (compareSessionId === null) {
-    throw new BadRequestException('Wrong SessionId!');
-  }
-
-  await this.sessionIdModel.deleteMany({});
-  let hashedNewPassword = await bcrypt.hash(forgotUserPassDto.newPassword, 10)
-  await this.userModel.updateOne({email: user.email}, {password: hashedNewPassword})
-}
 
   async findUser(email: string) {
     try {
       const user = await this.userModel.findOne({ email: email }).lean().exec();
-      if (!user._id) {
-        throw new BadRequestException();
+      if (!user) {
+        throw new BadRequestException('User does not exist!');
       }
       return user;
-    } catch (error) {
-      throw new BadRequestException('User does not exist!');
+    } catch (err) {
+      throw err;
     }
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel
-      .find()
-      .select({ email: 1, _id: 1, nickname: 1 })
-      .lean()
-      .exec();
+    try {
+      return this.userModel
+        .find()
+        .select({ email: 1, _id: 1, nickname: 1 })
+        .lean()
+        .exec();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong');
+    }
   }
 
-  async updateRole(email: string, role: RolesTypes) {
-    const user = await this.findUser(email);
-    await this.userModel
-      .updateOne({ email: user.email }, { role: role }, { new: true })
-      .lean()
-      .exec();
-    return 'the Role has been updated successfully';
-  }
+  async changePassword(
+    email: string,
+    updateUserPassDto: ChangeUserPassDtoRequest,
+  ): Promise<ChangeUserPassDtoResponse> {
+    try {
+      const user = await this.findUser(email);
 
-  async deleteAll() {
-    return this.userModel.deleteMany();
-  }
+      const isPasswordMatch = await bcrypt.compare(
+        updateUserPassDto.oldPassword,
+        user.password,
+      );
+      if (!isPasswordMatch) {
+        throw new UnauthorizedException('Password did not match!!!');
+      }
 
-  async deleteOne(email: string) {
-    return this.userModel.deleteOne({ email: email });
-  }
-
-  async updateUnavailable(updateUnavailableDto: UpdateUnavailableDto) {
-    const user = await this.findUser(updateUnavailableDto.email);
-    await this.userModel
-      .updateOne(
+      let hashedNewPassword = await bcrypt.hash(
+        updateUserPassDto.newPassword,
+        10,
+      );
+      await this.userModel.updateOne(
         { email: user.email },
-        {
-          unavailableBosses: updateUnavailableDto.unavailableBosses,
-          unavailableElites: updateUnavailableDto.unavailableElites,
-        },
-        { new: true },
-      )
-      .lean()
-      .exec();
-    return 'Unavailable entities have been successfully updated';
+        { password: hashedNewPassword },
+      );
+    } catch (err) {
+      throw err;
+    }
+    return { message: 'Password successfully changed' };
   }
 
-  async updateExcluded(updateExcludedDto: UpdateExcludedDto) {
-    const user = await this.findUser(updateExcludedDto.email);
+  async forgotPassword(
+    forgotUserPassDto: ForgotUserPassDtoRequest,
+  ): Promise<ForgotUserPassDtoResponse> {
+    try {
+      const user = await this.findUser(forgotUserPassDto.email);
+
+      const compareSessionId = await this.sessionIdModel.findOne({
+        _id: { $eq: forgotUserPassDto.sessionId },
+      });
+      if (compareSessionId === null) {
+        throw new BadRequestException('Wrong SessionId!');
+      }
+
+      await this.sessionIdModel.deleteMany({});
+      let hashedNewPassword = await bcrypt.hash(
+        forgotUserPassDto.newPassword,
+        10,
+      );
+      await this.userModel.updateOne(
+        { email: user.email },
+        { password: hashedNewPassword },
+      );
+    } catch (err) {
+      throw err;
+    }
+
+    return { message: 'Password successfully changed' };
+  }
+
+  async updateUnavailable(
+    updateUnavailableDto: UpdateUnavailableDto,
+  ): Promise<User> {
+    try {
+      const user = await this.findUser(updateUnavailableDto.email);
+      await this.userModel
+        .updateOne(
+          { email: user.email },
+          {
+            unavailableBosses: updateUnavailableDto.unavailableBosses,
+            unavailableElites: updateUnavailableDto.unavailableElites,
+          },
+          { new: true },
+        )
+        .lean()
+        .exec();
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateExcluded(
+    email: string,
+    updateExcludedDto: UpdateExcludedDto,
+  ): Promise<User> {
+    const user = await this.findUser(email);
     await this.userModel
       .updateOne(
         { email: user.email },
@@ -140,12 +193,53 @@ async forgotPassword(forgotUserPassDto: ForgotUserPassDto) {
       )
       .lean()
       .exec();
-    return 'Excluded entities have been successfully updated';
+    return user;
   }
 
-  async generateSessionId() {
-    await this.sessionIdModel.deleteMany({});
-    let sessionId = await this.sessionIdModel.create({ _id: randomUUID() });
-    return sessionId.toObject();
+  async updateRole(
+    updateUserRoleDto: UpdateUserRoleDtoRequest,
+  ): Promise<UpdateUserRoleDtoResponse> {
+    try {
+      const user = await this.findUser(updateUserRoleDto.email);
+      await this.userModel
+        .updateOne(
+          { email: user.email },
+          { role: updateUserRoleDto.role },
+          { new: true },
+        )
+        .lean()
+        .exec();
+    } catch (err) {
+      throw err;
+    }
+    return { message: 'the Role has been updated successfully' };
+  }
+
+  async deleteOne(email: string): Promise<DeleteUserDtoResponse> {
+    try {
+      await this.userModel.deleteOne({ email: email });
+    } catch (err) {
+      throw new BadRequestException('Something went wrong ');
+    }
+    return { message: 'User deleted' };
+  }
+
+  async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
+    try {
+      await this.userModel.deleteMany();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong ');
+    }
+    return { message: 'All users deleted' };
+  }
+
+  async generateSessionId(): Promise<SessionId> {
+    try {
+      await this.sessionIdModel.deleteMany({});
+      let sessionId = await this.sessionIdModel.create({ _id: randomUUID() });
+      return sessionId.toObject();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong');
+    }
   }
 }

@@ -13,7 +13,7 @@ import {
   LogrusHistory,
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
-import { History } from "../interfaces/history.interface";
+import { History } from '../interfaces/history.interface';
 
 @Injectable()
 export class HistoryService {

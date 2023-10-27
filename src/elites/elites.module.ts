@@ -8,10 +8,19 @@ import { EnigmaElite, EnigmaEliteSchema } from '../schemas/enigmaElites.schema';
 import { LogrusElite, LogrusEliteSchema } from '../schemas/logrusElites.schema';
 import { Token, TokenSchema } from '../schemas/refreshToken.schema';
 import { User, UserSchema } from '../schemas/user.schema';
-import { GranasHistory, GranasHistorySchema } from "../schemas/granasHistory.schema";
-import { EnigmaHistory, EnigmaHistorySchema } from "../schemas/enigmaHistory.schema";
-import { LogrusHistory, LogrusHistorySchema } from "../schemas/logrusHistory.schema";
-import { HistoryModule } from "../history/history.module";
+import {
+  GranasHistory,
+  GranasHistorySchema,
+} from '../schemas/granasHistory.schema';
+import {
+  EnigmaHistory,
+  EnigmaHistorySchema,
+} from '../schemas/enigmaHistory.schema';
+import {
+  LogrusHistory,
+  LogrusHistorySchema,
+} from '../schemas/logrusHistory.schema';
+import { HistoryModule } from '../history/history.module';
 
 @Module({
   providers: [ElitesService],

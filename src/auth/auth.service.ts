@@ -12,7 +12,8 @@ import { jwtConstants } from './constants';
 import { UsersService } from '../users/users.service';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
-import { SignInDto } from './dto/signIn.dto';
+import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
+import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,13 +24,13 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private async addTokens(user: User) {
+  private async addTokens(user: User): Promise<SignInDtoResponse> {
     const payload = { email: user.email, nickname: user.nickname };
-    const accessToken = await this.jwtService.signAsync(payload, {
+    const accessToken: string = await this.jwtService.signAsync(payload, {
       secret: jwtConstants.secret,
     });
-    const refreshToken = randomUUID();
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    const refreshToken: string = randomUUID();
+    const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
     await this.tokenModel.findOneAndUpdate(
       { email: user.email },
       { refreshToken: hashedRefreshToken },
@@ -41,24 +42,30 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async signIn(signInDto: SignInDto) {
+  async signIn(signInDto: SignInDtoRequest): Promise<SignInDtoResponse> {
+    if (signInDto.email && signInDto.nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    }
+
     let user: User;
     try {
       if (signInDto.email) {
-        user = await this.usersService.findUser(signInDto.email);
+        user = await this.userModel.findOne({ email: signInDto.email });
+        if (!user) {
+          throw new BadRequestException('Login or password invalid');
+        }
       } else if (signInDto.nickname) {
-        user = await this.userModel
-          .findOne({ nickname: signInDto.nickname })
-          .lean()
-          .exec();
-        if (!user._id) {
-          throw new BadRequestException();
+        user = await this.userModel.findOne({ nickname: signInDto.nickname });
+        if (!user) {
+          throw new BadRequestException('Login or password invalid');
         }
       } else {
-        throw new BadRequestException();
+        throw new BadRequestException('Something went wrong');
       }
-    } catch (error) {
-      throw new BadRequestException('Something went wrong!');
+    } catch (err) {
+      throw err;
     }
 
     const isPasswordMatch = await bcrypt.compare(
@@ -66,21 +73,28 @@ export class AuthService {
       user.password,
     );
     if (!isPasswordMatch) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Login or password invalid');
     }
     return this.addTokens(user);
   }
 
-  async exchangeRefresh(email: string, userRefreshToken: string) {
-    const user = await this.usersService.findUser(email);
-    const userFromAccessToken = await this.tokenModel.findOne({ email: email });
+  async exchangeRefresh(
+    exchangeRefreshDto: ExchangeRefreshDto,
+    userRefreshToken: string,
+  ): Promise<SignInDtoResponse> {
+    const user: User = await this.usersService.findUser(
+      exchangeRefreshDto.email,
+    );
+    const { refreshToken } = await this.tokenModel.findOne({
+      email: exchangeRefreshDto.email,
+    });
 
-    const isRefreshTokenCorrect = await bcrypt.compare(
+    const isRefreshTokenCorrect: boolean = await bcrypt.compare(
       userRefreshToken,
-      userFromAccessToken.refreshToken,
+      refreshToken,
     );
     if (!isRefreshTokenCorrect) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Incorrect refresh token');
     }
     return this.addTokens(user);
   }

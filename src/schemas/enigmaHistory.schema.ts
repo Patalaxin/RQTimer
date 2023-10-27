@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { BossTypes, EliteTypes, Servers } from "./bosses.enum";
+import { BossTypes, EliteTypes, Servers } from './bosses.enum';
 
 export type EnigmaHistoryDocument = HydratedDocument<EnigmaHistory>;
 
@@ -30,10 +30,6 @@ export class EnigmaHistory {
   @Expose()
   @Prop({ required: true })
   nickname: string;
-
-  // @Expose()
-  // @Prop({ required: true })
-  // action: number;
 
   @Expose()
   @Prop({ required: true })

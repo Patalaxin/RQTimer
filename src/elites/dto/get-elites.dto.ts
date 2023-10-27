@@ -1,43 +1,19 @@
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsNumber,
   IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 import { EliteTypes, Locations, Servers } from '../../schemas/bosses.enum';
 
-export class CreateEliteDtoRequest {
-  @IsEnum(EliteTypes)
-  @IsNotEmpty()
-  eliteName: EliteTypes;
-
-  @IsEnum(Locations)
-  @IsNotEmpty()
-  location: Locations;
-
-  @IsNumber()
-  @IsNotEmpty()
-  willResurrect: number;
-
-  @IsNumber()
-  @IsOptional()
-  cooldown: number;
-
-  @IsString()
-  @IsNotEmpty()
-  image: string;
-
-  @IsNumber()
-  @IsOptional()
-  cooldownTime: number;
-
+export class GetElitesDtoRequest {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
 }
 
-export class CreateEliteDtoResponse {
+export class GetElitesDtoResponse {
   @IsEnum(EliteTypes)
   @IsNotEmpty()
   eliteName: EliteTypes;

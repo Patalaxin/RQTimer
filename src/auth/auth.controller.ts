@@ -1,28 +1,23 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { SignInDto } from './dto/signIn.dto';
+import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 
+@ApiTags('Auth API')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Login' })
   @Post('login')
   async signIn(
     @Res({ passthrough: true }) res: Response,
-    @Body() signInDto: SignInDto,
-  ) {
-    const tokens = await this.authService.signIn(signInDto);
+    @Body() signInDto: SignInDtoRequest,
+  ): Promise<SignInDtoResponse> {
+    const tokens: SignInDtoResponse = await this.authService.signIn(signInDto);
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
@@ -31,10 +26,16 @@ export class AuthController {
     return tokens;
   }
 
-  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Exchange Refresh Token' })
+  @ApiBearerAuth()
   @Post('exchangeRefresh')
-  exchangeRefresh(@Req() req: Request, @Body('email') email: string) {
-    return this.authService.exchangeRefresh(email, req.cookies['refreshToken']);
+  exchangeRefresh(
+    @Req() req: Request,
+    @Body() exchangeRefreshDto: ExchangeRefreshDto,
+  ): Promise<SignInDtoResponse> {
+    return this.authService.exchangeRefresh(
+      exchangeRefreshDto,
+      req.cookies['refreshToken'],
+    );
   }
-
 }

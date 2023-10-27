@@ -1,7 +1,14 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, ValidateIf } from "class-validator";
-import { EliteTypes, Servers } from "../../schemas/bosses.enum";
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
+import { EliteTypes, Locations, Servers } from '../../schemas/bosses.enum';
 
-export class UpdateEliteDeathDto {
+export class UpdateEliteDeathDtoRequest {
   @IsEnum(EliteTypes)
   @IsNotEmpty()
   eliteName: EliteTypes;
@@ -13,10 +20,36 @@ export class UpdateEliteDeathDto {
   @IsNumber()
   @IsOptional()
   @ValidateIf((object) => !object.dateOfRespawn || object.dateOfDeath)
-  dateOfDeath?: number
+  dateOfDeath?: number;
 
   @IsNumber()
   @IsOptional()
   @ValidateIf((object) => !object.dateOfDeath || object.dateOfRespawn)
-  dateOfRespawn?: number
+  dateOfRespawn?: number;
+}
+
+export class UpdateEliteDeathDtoResponse {
+  @IsEnum(EliteTypes)
+  @IsOptional()
+  eliteName: EliteTypes;
+
+  @IsEnum(Locations)
+  @IsOptional()
+  location: Locations;
+
+  @IsNumber()
+  @IsOptional()
+  willResurrect: number;
+
+  @IsNumber()
+  @IsOptional()
+  cooldown: number;
+
+  @IsString()
+  @IsNotEmpty()
+  image: string;
+
+  @IsNumber()
+  @IsOptional()
+  cooldownTime: number;
 }

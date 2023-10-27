@@ -5,10 +5,25 @@ import { Model } from 'mongoose';
 import { Request } from 'express';
 import { HistoryService } from '../history/history.service';
 import { UsersService } from '../users/users.service';
-import { UpdateBossDeathDto } from './dto/update-boss-death.dto';
-import { CreateBossDto } from './dto/create-boss.dto';
-import { UpdateBossDto } from './dto/update-boss.dto';
-import { GetBossDto } from './dto/get-boss.dto';
+import {
+  GetBossesDtoRequest,
+  GetBossesDtoResponse,
+} from './dto/get-bosses.dto';
+import {
+  UpdateBossDeathDtoRequest,
+  UpdateBossDeathDtoResponse,
+} from './dto/update-boss-death.dto';
+import {
+  CreateBossDtoRequest,
+  CreateBossDtoResponse,
+} from './dto/create-boss.dto';
+import {
+  UpdateBossDtoBodyRequest,
+  UpdateBossDtoBodyResponse,
+  UpdateBossDtoParamsRequest,
+} from './dto/update-boss.dto';
+import { DeleteBossDtoResponse } from './dto/delete-boss.dto';
+import { GetBossDtoRequest, GetBossDtoResponse } from './dto/get-boss.dto';
 import { GranasBoss, GranasBossDocument } from '../schemas/granasBosses.schema';
 import { EnigmaBoss, EnigmaBossDocument } from '../schemas/enigmaBosses.schema';
 import { LogrusBoss, LogrusBossDocument } from '../schemas/logrusBosses.schema';
@@ -27,11 +42,15 @@ import {
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
 import { BossTypes, Servers } from '../schemas/bosses.enum';
+import { HelperClass } from '../helper-class';
 
 @Injectable()
 export class BossesService {
   private bossModels: any;
   private historyModels: any;
+  public getNicknameFromToken(request: Request): any {
+    return HelperClass.getNicknameFromToken(request, this.jwtService);
+  }
   constructor(
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(GranasBoss.name)
@@ -63,30 +82,25 @@ export class BossesService {
     ];
   }
 
-  async getNicknameFromToken(request: Request) {
-    interface DecodeResult {
-      email: string;
-      nickname: string;
-      iat: number;
-      exp: number;
-    }
-
-    const accessToken = request.headers.authorization?.split(' ')[1];
-    const { nickname } = this.jwtService.decode(accessToken) as DecodeResult;
-    return nickname;
-  }
-
-  async createBoss(createBossDto: CreateBossDto) {
+  async createBoss(
+    createBossDto: CreateBossDtoRequest,
+  ): Promise<CreateBossDtoResponse> {
     const bossModel = this.bossModels.find(
       (obj) => obj.server === createBossDto.server,
     ).model;
 
-    const newBoss = await bossModel.create(createBossDto);
-    await newBoss.save();
-    return newBoss.toObject();
+    try {
+      const newBoss = await bossModel.create(createBossDto);
+      await newBoss.save();
+      return newBoss.toObject();
+    } catch (err) {
+      throw new BadRequestException(
+        'Something went wrong. Probably this boss already exist in this location',
+      );
+    }
   }
 
-  async findBoss(getBossDto: GetBossDto) {
+  async findBoss(getBossDto: GetBossDtoRequest): Promise<GetBossDtoResponse> {
     const bossModel = this.bossModels.find(
       (obj) => obj.server === getBossDto.server,
     ).model;
@@ -98,29 +112,34 @@ export class BossesService {
     if (!Object.values(BossTypes).includes(getBossDto.bossName)) {
       throw new BadRequestException('Not valid boss name');
     }
+
     try {
       const boss = await bossModel
-        .findOne({ bossName: getBossDto.bossName })
+        .findOne({ bossName: getBossDto.bossName }, { __v: 0 })
         .lean()
         .exec();
       if (!boss?._id) {
         throw new BadRequestException();
       }
+
       return boss;
     } catch (error) {
       throw new BadRequestException('Boss not found');
     }
   }
 
-  async findAllBossesByUser(email: string, server: Servers) {
+  async findAllBossesByUser(
+    email: string,
+    getBossesDtoRequest: GetBossesDtoRequest,
+  ): Promise<GetBossesDtoResponse[]> {
     const bossModel = this.bossModels.find(
-      (obj) => obj.server === server,
+      (obj) => obj.server === getBossesDtoRequest.server,
     ).model;
     const { excludedBosses, unavailableBosses } =
       await this.usersService.findUser(email);
 
     const undisplayedBosses = excludedBosses.concat(
-      unavailableBosses.filter((item) => excludedBosses.indexOf(item) < 0),
+      unavailableBosses.filter((item) => excludedBosses.indexOf(item) === -1),
     );
 
     const arrayOfObjectsUndisplayedBosses = undisplayedBosses.map((item) => ({
@@ -135,21 +154,34 @@ export class BossesService {
   }
 
   async updateBoss(
-    server: Servers,
-    bossName: BossTypes,
-    updateBossDto: UpdateBossDto,
-  ) {
+    updateBossDtoParamsRequest: UpdateBossDtoParamsRequest,
+    updateBossDto: UpdateBossDtoBodyRequest,
+  ): Promise<UpdateBossDtoBodyResponse> {
     const bossModel = this.bossModels.find(
-      (obj) => obj.server === server,
+      (obj) => obj.server === updateBossDtoParamsRequest.server,
     ).model;
-    return bossModel
-      .updateOne({ bossName: bossName }, { $set: updateBossDto }, { new: true })
+    return await bossModel
+      .findOneAndUpdate(
+        { bossName: updateBossDtoParamsRequest.bossName },
+        { $set: updateBossDto },
+        { new: true },
+      )
+      .select('-__v')
       .lean()
       .exec();
   }
 
-  async updateDeathOfBoss(request: Request, updateBossDeathDto: UpdateBossDeathDto) {
-    const nickname = await this.getNicknameFromToken(request);
+  async updateDeathOfBoss(
+    request: Request,
+    updateBossDeathDto: UpdateBossDeathDtoRequest,
+  ): Promise<UpdateBossDeathDtoResponse> {
+    if (updateBossDeathDto.dateOfDeath && updateBossDeathDto.dateOfRespawn) {
+      throw new BadRequestException(
+        'dateOfDeath and dateOfRespawn should not be together',
+      );
+    }
+
+    const nickname = this.getNicknameFromToken(request);
     const getBossDto = {
       bossName: updateBossDeathDto.bossName,
       server: updateBossDeathDto.server,
@@ -160,7 +192,7 @@ export class BossesService {
       (obj) => obj.server === updateBossDeathDto.server,
     ).model;
 
-    const boss = await this.findBoss(getBossDto); // Get the boss we're updating
+    const boss: GetBossDtoResponse = await this.findBoss(getBossDto); // Get the boss we're updating
 
     const history: History = {
       bossName: updateBossDeathDto.bossName,
@@ -171,17 +203,22 @@ export class BossesService {
 
     if (!updateBossDeathDto.dateOfDeath && !updateBossDeathDto.dateOfRespawn) {
       // If the boss died at a certain time not now.
-      let nextResurrectTime = boss.cooldownTime;
+      let nextResurrectTime: number = boss.cooldownTime;
       history.toWillResurrect = nextResurrectTime;
       history.fromCooldown = boss.cooldown;
       history.toCooldown = ++boss.cooldown;
       await this.historyService.createHistory(history);
 
-      return bossModel.updateOne(
-        // Add +1 to the cooldown counter and update the respawn on cd
-        { bossName: boss.bossName },
-        { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
-      );
+      return bossModel
+        .findOneAndUpdate(
+          // Add +1 to the cooldown counter and update the respawn on cd
+          { bossName: boss.bossName },
+          { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+          { new: true },
+        )
+        .select('-__v')
+        .lean()
+        .exec();
     }
 
     if (updateBossDeathDto.dateOfRespawn) {
@@ -190,26 +227,40 @@ export class BossesService {
       history.toWillResurrect = nextResurrectTime;
       await this.historyService.createHistory(history);
 
-      return bossModel.updateOne(
-        // Update the respawn at the exact time of respawn.
-        { bossName: boss.bossName },
-        { willResurrect: nextResurrectTime },
-      );
+      return bossModel
+        .findOneAndUpdate(
+          // Update the respawn at the exact time of respawn.
+          { bossName: boss.bossName },
+          { willResurrect: nextResurrectTime },
+          { new: true },
+        )
+        .select('-__v')
+        .lean()
+        .exec();
     }
 
-    let nextResurrectTime = updateBossDeathDto.dateOfDeath + boss.cooldownTime; // If the boss is dead now.
+    let nextResurrectTime: number =
+      updateBossDeathDto.dateOfDeath + boss.cooldownTime; // If the boss is dead now.
     history.toWillResurrect = nextResurrectTime;
     await this.historyService.createHistory(history);
 
-    return bossModel.updateOne(
-      // Update the respawn at the exact time of death.
-      { bossName: boss.bossName },
-      { willResurrect: nextResurrectTime },
-    );
+    return bossModel
+      .findOneAndUpdate(
+        // Update the respawn at the exact time of death.
+        { bossName: boss.bossName },
+        { willResurrect: nextResurrectTime },
+        { new: true },
+      )
+      .select('-__v')
+      .lean()
+      .exec();
   }
 
-  async crashBossServer(request: Request, server: Servers) {
-    const nickname = await this.getNicknameFromToken(request);
+  async crashBossServer(
+    request: Request,
+    server: Servers,
+  ): Promise<GetBossesDtoResponse[]> {
+    const nickname = this.getNicknameFromToken(request);
 
     try {
       const bossModel = this.bossModels.find(
@@ -223,23 +274,28 @@ export class BossesService {
         date: Date.now(),
       };
 
-      history.crashServer = true
+      history.crashServer = true;
       await this.historyService.createHistory(history);
 
-      return bossModel.updateMany(
+      await bossModel.updateMany(
         { willResurrect: { $gte: Date.now() } },
         { $inc: { willResurrect: -300000 } },
       ); // minus 5 minutes
+
+      return await bossModel.find({}).select('-__v').lean().exec();
     } catch (err) {
       throw new BadRequestException('Something went wrong!!!');
     }
   }
 
-  async deleteBoss(server: Servers, bossName: BossTypes) {
+  async deleteBoss(
+    server: Servers,
+    bossName: BossTypes,
+  ): Promise<DeleteBossDtoResponse> {
     const bossModel = this.bossModels.find(
       (obj) => obj.server === server,
     ).model;
-    return bossModel.deleteOne({ bossName: bossName });
+    await bossModel.deleteOne({ bossName: bossName });
+    return { message: 'Boss deleted' };
   }
-
 }
