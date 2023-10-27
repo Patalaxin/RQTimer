@@ -231,7 +231,7 @@ export class BossesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { bossName: boss.bossName },
-          { willResurrect: nextResurrectTime },
+          { willResurrect: nextResurrectTime, cooldown: 0 },
           { new: true },
         )
         .select('-__v')
@@ -248,7 +248,7 @@ export class BossesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { bossName: boss.bossName },
-        { willResurrect: nextResurrectTime },
+        { willResurrect: nextResurrectTime, cooldown: 0 },
         { new: true },
       )
       .select('-__v')

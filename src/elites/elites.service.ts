@@ -246,7 +246,7 @@ export class ElitesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { eliteName: elite.eliteName },
-          { willResurrect: nextResurrectTime },
+          { willResurrect: nextResurrectTime, cooldown: 0 },
           { new: true },
         )
         .select('-__v')
@@ -263,7 +263,7 @@ export class ElitesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { eliteName: elite.eliteName },
-        { willResurrect: nextResurrectTime },
+        { willResurrect: nextResurrectTime, cooldown: 0 },
         { new: true },
       )
       .select('-__v')
