@@ -2,6 +2,7 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SignInDtoRequest {
   @IsEmail()
+  @IsNotEmpty()
   @IsOptional()
   email?: string;
 
@@ -10,6 +11,7 @@ export class SignInDtoRequest {
   password: string;
 
   @IsString()
+  @IsNotEmpty()
   @IsOptional()
   nickname?: string;
 }

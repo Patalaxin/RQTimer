@@ -14,7 +14,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
-import { Response } from "express";
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +34,7 @@ export class AuthService {
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
     await this.tokenModel.findOneAndUpdate(
       { email: user.email },
-      { refreshToken: hashedRefreshToken },
+      { refreshToken: hashedRefreshToken, nickname: user.nickname },
       {
         new: true,
         upsert: true,
@@ -43,7 +43,10 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async signIn(res: Response, signInDto: SignInDtoRequest): Promise<SignInDtoResponse> {
+  async signIn(
+    res: Response,
+    signInDto: SignInDtoRequest,
+  ): Promise<SignInDtoResponse> {
     if (signInDto.email && signInDto.nickname) {
       throw new BadRequestException(
         'Email and Nickname fields should not be together',
@@ -81,10 +84,10 @@ export class AuthService {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 2678400000, // 2 678 400 000 = 31 day in milliseconds
+      maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
     });
 
-    return tokens
+    return tokens;
   }
 
   async exchangeRefresh(
@@ -92,28 +95,66 @@ export class AuthService {
     exchangeRefreshDto: ExchangeRefreshDto,
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
-    const user: User = await this.usersService.findUser(
-      exchangeRefreshDto.email,
-    );
-    const { refreshToken } = await this.tokenModel.findOne({
-      email: exchangeRefreshDto.email,
-    });
+    if (exchangeRefreshDto.email && exchangeRefreshDto.nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    }
+
+    let user;
+    let refreshToken;
+
+    try {
+      if (exchangeRefreshDto.email && !exchangeRefreshDto.nickname) {
+        console.log(exchangeRefreshDto.email);
+        user = await this.userModel
+          .findOne({ email: exchangeRefreshDto.email })
+          .lean()
+          .exec();
+        ({ refreshToken } = await this.tokenModel.findOne({
+          email: exchangeRefreshDto.email,
+        }));
+      }
+    } catch (err) {
+      throw new BadRequestException(
+        'There is no valid refresh token for this user',
+      );
+    }
+
+    try {
+      if (exchangeRefreshDto.nickname && !exchangeRefreshDto.email) {
+        console.log(exchangeRefreshDto.nickname);
+        user = await this.userModel
+          .findOne({ nickname: exchangeRefreshDto.nickname })
+          .lean()
+          .exec();
+        ({ refreshToken } = await this.tokenModel.findOne({
+          nickname: exchangeRefreshDto.nickname,
+        }));
+      }
+    } catch (err) {
+      throw new BadRequestException(
+        'There is no valid refresh token for this user',
+      );
+    }
 
     const isRefreshTokenCorrect: boolean = await bcrypt.compare(
       userRefreshToken,
       refreshToken,
     );
+
     if (!isRefreshTokenCorrect) {
       throw new UnauthorizedException('Incorrect refresh token');
     }
+
     const tokens = await this.addTokens(user);
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 2678400000, // 2 678 400 000 = 31 day in milliseconds
+      maxAge: 2678400000, // 2,678,400,000 = day in milliseconds
     });
 
-    return tokens
+    return tokens;
   }
 }

@@ -20,14 +20,18 @@ export class Token {
   __v: number;
 
   @Expose()
-  @Prop({ unique: true, required: true })
+  @Prop({ unique: true})
   email: string;
+
+  @Expose()
+  @Prop({ unique: true })
+  nickname: string;
 
   @Exclude()
   @Prop({ default: '' })
   refreshToken: string;
 
-  @Prop({ type: Date, expires: 2678400, default: Date.now }) // 31 days live for refreshToken
+  @Prop({ type: Date, expires: 2678400, default: Date.now }) //  31 day live for refreshToken
   expireAt: Date;
 
   constructor(partial: Partial<Token>) {
@@ -36,4 +40,4 @@ export class Token {
 }
 
 export const TokenSchema = SchemaFactory.createForClass(Token);
-TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 2678400 }); // 31 days live for refreshToken
+TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 2678400 }); //  31 day live for refreshToken
