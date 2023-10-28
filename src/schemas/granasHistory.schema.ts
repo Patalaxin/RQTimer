@@ -31,10 +31,6 @@ export class GranasHistory {
   @Prop({ required: true })
   nickname: string;
 
-  // @Expose()
-  // @Prop({ required: true })
-  // action: number;
-
   @Expose()
   @Prop({ required: true })
   date: number;

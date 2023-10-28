@@ -14,6 +14,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
+import { Response } from "express";
 
 @Injectable()
 export class AuthService {
@@ -42,7 +43,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async signIn(signInDto: SignInDtoRequest): Promise<SignInDtoResponse> {
+  async signIn(res: Response, signInDto: SignInDtoRequest): Promise<SignInDtoResponse> {
     if (signInDto.email && signInDto.nickname) {
       throw new BadRequestException(
         'Email and Nickname fields should not be together',
@@ -75,10 +76,19 @@ export class AuthService {
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Login or password invalid');
     }
-    return this.addTokens(user);
+    const tokens = await this.addTokens(user);
+
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 2678400000, // 2 678 400 000 = 31 day in milliseconds
+    });
+
+    return tokens
   }
 
   async exchangeRefresh(
+    res: Response,
     exchangeRefreshDto: ExchangeRefreshDto,
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
@@ -96,6 +106,14 @@ export class AuthService {
     if (!isRefreshTokenCorrect) {
       throw new UnauthorizedException('Incorrect refresh token');
     }
-    return this.addTokens(user);
+    const tokens = await this.addTokens(user);
+
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 2678400000, // 2 678 400 000 = 31 day in milliseconds
+    });
+
+    return tokens
   }
 }
