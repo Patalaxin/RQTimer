@@ -82,7 +82,6 @@ export class User {
   @Prop()
   __v: number;
 
-  @Exclude()
   @Prop({ default: RolesTypes.User })
   role: RolesTypes;
 
