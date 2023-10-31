@@ -16,9 +16,9 @@ jobs:
       - name: Connect to server via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_IP }}
+          host: 95.181.151.17
           username: root
-          password: ${{ secrets.ROOT_PASSWORD }}
+          password: JLBW1Op2N0pe
           port: 22
           script: |
             cd /TimerRQ
