@@ -19,7 +19,9 @@ export class UpdateUserRoleDtoResponse {
   @IsString()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 200,
+  })
   @IsNumber()
   status: number;
 }

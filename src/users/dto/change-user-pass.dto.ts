@@ -18,7 +18,9 @@ export class ChangeUserPassDtoResponse {
   @IsString()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 200,
+  })
   @IsNumber()
   status: number;
 }

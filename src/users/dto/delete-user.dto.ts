@@ -8,7 +8,9 @@ export class DeleteUserDtoResponse {
   @IsString()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 200,
+  })
   @IsNumber()
   status: number;
 }
@@ -20,7 +22,9 @@ export class DeleteAllUsersDtoResponse {
   @IsString()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: 200,
+  })
   @IsNumber()
   status: number;
 }
