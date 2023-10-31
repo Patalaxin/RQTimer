@@ -1,0 +1,32 @@
+name: SSH Action
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Connect to server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: 95.181.151.17
+          username: root
+          password: JLBW1Op2N0pe
+          port: 22
+          script: |
+            cd /TimerRQ
+            git pull origin master 
+            npm install
+            npm run build
+            cd /TimerRQ/dist/
+            pm2 restart main.js
+            sudo service nginx restart
+
+            

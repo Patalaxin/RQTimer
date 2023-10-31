@@ -69,7 +69,7 @@ export class UsersService {
       await this.tokenModel.create({ email: newUser.email });
       return newUser.toObject();
     } catch (err) {
-      throw new BadRequestException('Something went wrong');
+      throw new BadRequestException('Something went wrong!');
     }
   }
 
