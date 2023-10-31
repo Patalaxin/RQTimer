@@ -21,6 +21,7 @@ jobs:
           password: JLBW1Op2N0pe
           port: 22
           script: |
+            echo TestingMyEcho
             cd /TimerRQ
             git pull origin master 
             npm install
