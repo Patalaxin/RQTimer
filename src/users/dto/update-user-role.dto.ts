@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
 import { RolesTypes } from '../../schemas/user.schema';
 
@@ -18,4 +18,8 @@ export class UpdateUserRoleDtoResponse {
   })
   @IsString()
   message: string;
+
+  @ApiProperty()
+  @IsNumber()
+  status: number;
 }

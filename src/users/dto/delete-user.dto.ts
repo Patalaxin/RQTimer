@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsNumber, IsString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
 
 export class DeleteUserDtoResponse {
@@ -7,6 +7,10 @@ export class DeleteUserDtoResponse {
   })
   @IsString()
   message: string;
+
+  @ApiProperty()
+  @IsNumber()
+  status: number;
 }
 
 export class DeleteAllUsersDtoResponse {
@@ -15,4 +19,8 @@ export class DeleteAllUsersDtoResponse {
   })
   @IsString()
   message: string;
+
+  @ApiProperty()
+  @IsNumber()
+  status: number;
 }

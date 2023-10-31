@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ChangeUserPassDtoRequest {
@@ -17,4 +17,8 @@ export class ChangeUserPassDtoResponse {
   })
   @IsString()
   message: string;
+
+  @ApiProperty()
+  @IsNumber()
+  status: number;
 }

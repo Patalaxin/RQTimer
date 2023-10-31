@@ -123,7 +123,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'Password successfully changed' };
+    return { message: 'Password successfully changed', status: 200 };
   }
 
   async forgotPassword(
@@ -152,7 +152,7 @@ export class UsersService {
       throw err;
     }
 
-    return { message: 'Password successfully changed' };
+    return { message: 'Password successfully changed', status: 200 };
   }
 
   async updateUnavailable(
@@ -212,7 +212,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'the Role has been updated successfully' };
+    return { message: 'the Role has been updated successfully', status: 200 };
   }
 
   async deleteOne(email: string): Promise<DeleteUserDtoResponse> {
@@ -221,7 +221,7 @@ export class UsersService {
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }
-    return { message: 'User deleted' };
+    return { message: 'User deleted', status: 200 };
   }
 
   async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
@@ -230,7 +230,7 @@ export class UsersService {
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }
-    return { message: 'All users deleted' };
+    return { message: 'All users deleted', status: 200 };
   }
 
   async generateSessionId(): Promise<SessionId> {
