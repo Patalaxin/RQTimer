@@ -13,7 +13,7 @@ export class CreateBossDtoRequest {
   @IsNotEmpty()
   bossName: BossTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortBossName)
   @IsNotEmpty()
   shortName: ShortBossName;
 
@@ -28,6 +28,10 @@ export class CreateBossDtoRequest {
   @IsNumber()
   @IsNotEmpty()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -70,6 +74,10 @@ export class CreateBossDtoResponse {
   @IsNumber()
   @IsNotEmpty()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()

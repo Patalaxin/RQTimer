@@ -40,6 +40,10 @@ export class LogrusBoss {
   respawnTime: number;
 
   @Expose()
+  @Prop()
+  deathTime: number;
+
+  @Expose()
   @Prop({ required: true, default: 0 })
   cooldown: number;
 

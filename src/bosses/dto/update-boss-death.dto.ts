@@ -33,7 +33,7 @@ export class UpdateBossDeathDtoResponse {
   @IsOptional()
   bossName: BossTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortBossName)
   @IsNotEmpty()
   shortName: ShortBossName;
 
@@ -48,6 +48,10 @@ export class UpdateBossDeathDtoResponse {
   @IsNumber()
   @IsOptional()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()

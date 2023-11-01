@@ -6,7 +6,6 @@ import {
   IsEnum,
 } from 'class-validator';
 import {
-  BossTypes,
   EliteTypes,
   Locations,
   MobsTypes,
@@ -19,7 +18,7 @@ export class CreateEliteDtoRequest {
   @IsNotEmpty()
   eliteName: EliteTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortEliteName)
   @IsNotEmpty()
   shortName: ShortEliteName;
 
@@ -30,6 +29,10 @@ export class CreateEliteDtoRequest {
   @IsNumber()
   @IsNotEmpty()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -57,7 +60,7 @@ export class CreateEliteDtoResponse {
   @IsNotEmpty()
   eliteName: EliteTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortEliteName)
   @IsNotEmpty()
   shortName: ShortEliteName;
 
@@ -68,6 +71,10 @@ export class CreateEliteDtoResponse {
   @IsNumber()
   @IsNotEmpty()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()

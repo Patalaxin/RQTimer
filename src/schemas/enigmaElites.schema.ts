@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { EliteTypes, Locations, MobsTypes, Servers, ShortBossName, ShortEliteName } from "./mobs.enum";
+import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "./mobs.enum";
 
 export type EnigmaEliteDocument = HydratedDocument<EnigmaElite>;
 
@@ -34,6 +34,10 @@ export class EnigmaElite {
   @Expose()
   @Prop({ required: true })
   respawnTime: number;
+
+  @Expose()
+  @Prop()
+  deathTime: number;
 
   @Expose()
   @Prop({ required: true, default: 0 })

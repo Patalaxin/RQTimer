@@ -26,6 +26,10 @@ export class UpdateBossDtoBodyRequest {
 
   @IsNumber()
   @IsOptional()
+  deathTime: number;
+
+  @IsNumber()
+  @IsOptional()
   cooldown: number;
 
   @IsString()
@@ -52,7 +56,7 @@ export class UpdateBossDtoBodyResponse {
   @IsOptional()
   bossName: BossTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortBossName)
   @IsNotEmpty()
   shortName: ShortBossName;
 
@@ -67,6 +71,10 @@ export class UpdateBossDtoBodyResponse {
   @IsNumber()
   @IsOptional()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()

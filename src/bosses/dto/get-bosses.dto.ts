@@ -18,7 +18,7 @@ export class GetBossesDtoResponse {
   @IsNotEmpty()
   bossName: BossTypes;
 
-  @IsEnum(BossTypes)
+  @IsEnum(ShortBossName)
   @IsNotEmpty()
   shortName: ShortBossName;
 
@@ -33,6 +33,10 @@ export class GetBossesDtoResponse {
   @IsNumber()
   @IsNotEmpty()
   respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
