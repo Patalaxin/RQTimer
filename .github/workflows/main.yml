@@ -22,7 +22,8 @@ jobs:
           port: 22
           script: |
             cd TimerRQ
-            git pull 
+            git config --global credential.helper store
+            git pull origin master
             npm install
             npm run build
             cd dist
