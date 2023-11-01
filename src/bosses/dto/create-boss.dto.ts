@@ -5,12 +5,17 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { BossTypes, Locations, MobsTypes, Servers } from "../../schemas/mobs.enum";
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
+
 
 export class CreateBossDtoRequest {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
+
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()
@@ -49,6 +54,10 @@ export class CreateBossDtoResponse {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
+
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()

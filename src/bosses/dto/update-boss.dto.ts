@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { BossTypes, Locations, MobsTypes, Servers } from "../../schemas/mobs.enum";
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class UpdateBossDtoBodyRequest {
   @IsEnum(BossTypes)
@@ -51,6 +51,10 @@ export class UpdateBossDtoBodyResponse {
   @IsEnum(BossTypes)
   @IsOptional()
   bossName: BossTypes;
+
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()

@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { BossTypes, Locations, MobsTypes, Servers } from "../../schemas/mobs.enum";
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class GetBossDtoRequest {
   @IsEnum(BossTypes)
@@ -21,6 +21,10 @@ export class GetBossDtoResponse {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
+
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()

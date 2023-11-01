@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { EliteTypes, Locations, MobsTypes, Servers } from "./mobs.enum";
+import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "./mobs.enum";
 
 export type GranasEliteDocument = HydratedDocument<GranasElite>;
 
@@ -22,6 +22,10 @@ export class GranasElite {
   @Expose()
   @Prop({ required: true })
   eliteName: EliteTypes;
+
+  @Expose()
+  @Prop({ required: true })
+  shortName: ShortEliteName;
 
   @Expose()
   @Prop({ required: true })

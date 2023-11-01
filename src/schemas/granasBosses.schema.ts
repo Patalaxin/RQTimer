@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { BossTypes, Locations, MobsTypes, Servers } from "./mobs.enum";
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "./mobs.enum";
 
 export type GranasBossDocument = HydratedDocument<GranasBoss>;
 
@@ -22,6 +22,10 @@ export class GranasBoss {
   @Expose()
   @Prop({ required: true })
   bossName: BossTypes;
+
+  @Expose()
+  @Prop({ required: true })
+  shortName: ShortBossName;
 
   @Expose()
   @Prop()
