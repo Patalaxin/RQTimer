@@ -21,12 +21,11 @@ jobs:
           password: JLBW1Op2N0pe
           port: 22
           script: |
-            echo TestingMyEcho
-            cd /TimerRQ
+            cd TimerRQ
             git pull origin master 
             npm install
             npm run build
-            cd /TimerRQ/dist/
+            cd TimerRQ/dist/
             pm2 restart main.js
             sudo service nginx restart
 
