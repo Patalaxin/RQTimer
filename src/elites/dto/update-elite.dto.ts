@@ -18,7 +18,7 @@ export class UpdateEliteDtoBodyRequest {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -58,7 +58,7 @@ export class UpdateEliteDtoBodyResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

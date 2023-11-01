@@ -27,7 +27,7 @@ export class CreateBossDtoRequest {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -69,7 +69,7 @@ export class CreateBossDtoResponse {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

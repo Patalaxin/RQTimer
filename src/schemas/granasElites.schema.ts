@@ -33,7 +33,7 @@ export class GranasElite {
 
   @Expose()
   @Prop({ required: true })
-  willResurrect: number;
+  respawnTime: number;
 
   @Expose()
   @Prop({ required: true, default: 0 })

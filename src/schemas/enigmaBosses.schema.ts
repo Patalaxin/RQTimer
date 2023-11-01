@@ -37,7 +37,7 @@ export class EnigmaBoss {
 
   @Expose()
   @Prop({ required: true })
-  willResurrect: number;
+  respawnTime: number;
 
   @Expose()
   @Prop({ required: true, default: 0 })

@@ -47,7 +47,7 @@ export class UpdateBossDeathDtoResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

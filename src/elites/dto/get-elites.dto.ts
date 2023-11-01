@@ -28,7 +28,7 @@ export class GetElitesDtoResponse {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

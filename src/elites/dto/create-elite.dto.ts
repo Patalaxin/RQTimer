@@ -29,7 +29,7 @@ export class CreateEliteDtoRequest {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -67,7 +67,7 @@ export class CreateEliteDtoResponse {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

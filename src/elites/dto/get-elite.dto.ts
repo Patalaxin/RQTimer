@@ -32,7 +32,7 @@ export class GetEliteDtoResponse {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

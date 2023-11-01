@@ -22,7 +22,7 @@ export class UpdateBossDtoBodyRequest {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -66,7 +66,7 @@ export class UpdateBossDtoBodyResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

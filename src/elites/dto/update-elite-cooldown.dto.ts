@@ -37,7 +37,7 @@ export class UpdateEliteCooldownDtoResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

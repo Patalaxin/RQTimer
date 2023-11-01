@@ -43,7 +43,7 @@ export class UpdateEliteDeathDtoResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()

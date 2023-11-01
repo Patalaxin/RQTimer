@@ -217,7 +217,7 @@ export class BossesService {
         .findOneAndUpdate(
           // Add +1 to the cooldown counter and update the respawn on cd
           { bossName: boss.bossName },
-          { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+          { $inc: { cooldown: 1, respawnTime: nextResurrectTime } },
           { new: true },
         )
         .select('-__v')
@@ -235,7 +235,7 @@ export class BossesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { bossName: boss.bossName },
-          { willResurrect: nextResurrectTime, cooldown: 0 },
+          { respawnTime: nextResurrectTime, cooldown: 0 },
           { new: true },
         )
         .select('-__v')
@@ -252,7 +252,7 @@ export class BossesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { bossName: boss.bossName },
-        { willResurrect: nextResurrectTime, cooldown: 0 },
+        { respawnTime: nextResurrectTime, cooldown: 0 },
         { new: true },
       )
       .select('-__v')
@@ -304,8 +304,8 @@ export class BossesService {
       await this.historyService.createHistory(history);
 
       await bossModel.updateMany(
-        { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -300000 } },
+        { respawnTime: { $gte: Date.now() } },
+        { $inc: { respawnTime: -300000 } },
       ); // minus 5 minutes
 
       return await bossModel.find({}).select('-__v').lean().exec();

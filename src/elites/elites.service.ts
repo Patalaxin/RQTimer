@@ -229,7 +229,7 @@ export class ElitesService {
         .findOneAndUpdate(
           // Add +1 to the cooldown counter and update the respawn on cd
           { eliteName: elite.eliteName },
-          { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+          { $inc: { cooldown: 1, respawnTime: nextResurrectTime } },
           { new: true },
         )
         .select('-__v')
@@ -247,7 +247,7 @@ export class ElitesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { eliteName: elite.eliteName },
-          { willResurrect: nextResurrectTime, cooldown: 0 },
+          { respawnTime: nextResurrectTime, cooldown: 0 },
           { new: true },
         )
         .select('-__v')
@@ -264,7 +264,7 @@ export class ElitesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { eliteName: elite.eliteName },
-        { willResurrect: nextResurrectTime, cooldown: 0 },
+        { respawnTime: nextResurrectTime, cooldown: 0 },
         { new: true },
       )
       .select('-__v')
@@ -316,8 +316,8 @@ export class ElitesService {
       await this.historyService.createHistory(history);
 
       await eliteModel.updateMany(
-        { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -18000 } },
+        { respawnTime: { $gte: Date.now() } },
+        { $inc: { respawnTime: -18000 } },
       ); // // minus 18 seconds for elites
 
       return await eliteModel.find({}).select('-__v').lean().exec();

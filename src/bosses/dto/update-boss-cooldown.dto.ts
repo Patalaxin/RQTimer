@@ -41,7 +41,7 @@ export class UpdateBossCooldownDtoResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
