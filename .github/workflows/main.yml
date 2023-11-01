@@ -22,8 +22,8 @@ jobs:
           port: 22
           script: |
             cd TimerRQ
-            git remote set-url origin https://github.com/Patalaxin/TimerRQ.git
             git pull origin master
+            username: spatalaxin@gmail.com
             npm install
             npm run build
             cd dist
