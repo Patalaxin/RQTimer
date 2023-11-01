@@ -22,10 +22,10 @@ jobs:
           port: 22
           script: |
             cd TimerRQ
-            git pull origin master 
+            git pull 
             npm install
             npm run build
-            cd TimerRQ/dist/
+            cd dist
             pm2 restart main.js
             sudo service nginx restart
 
