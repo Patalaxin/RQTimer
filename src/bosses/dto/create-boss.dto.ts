@@ -5,12 +5,17 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { BossTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
+
 
 export class CreateBossDtoRequest {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
+
+  @IsEnum(ShortBossName)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()
@@ -22,7 +27,11 @@ export class CreateBossDtoRequest {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -39,12 +48,20 @@ export class CreateBossDtoRequest {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }
 
 export class CreateBossDtoResponse {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
+
+  @IsEnum(BossTypes)
+  @IsNotEmpty()
+  shortName: ShortBossName;
 
   @IsString()
   @IsOptional()
@@ -56,7 +73,11 @@ export class CreateBossDtoResponse {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -77,4 +98,8 @@ export class CreateBossDtoResponse {
   @IsString()
   @IsNotEmpty()
   _id: string;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

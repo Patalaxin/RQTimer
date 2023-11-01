@@ -152,7 +152,7 @@ export class BossesService {
     arrayOfObjectsUndisplayedBosses.push({ bossName: 'Mocked Name of Boss' }); // coz $nor doesn't work with empty array
 
     return bossModel
-      .find({ $nor: arrayOfObjectsUndisplayedBosses })
+      .find({ $nor: arrayOfObjectsUndisplayedBosses }, { __v: 0 })
       .lean()
       .exec();
   }
@@ -212,12 +212,13 @@ export class BossesService {
       history.fromCooldown = boss.cooldown;
       history.toCooldown = ++boss.cooldown;
       await this.historyService.createHistory(history);
+      const deathTime = boss.respawnTime
 
       return bossModel
         .findOneAndUpdate(
-          // Add +1 to the cooldown counter and update the respawn on cd
+          // Add +1 to the cooldown counter and update the respawn/death times
           { bossName: boss.bossName },
-          { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+          { $inc: { cooldown: 1, respawnTime: nextResurrectTime }, deathTime: deathTime },
           { new: true },
         )
         .select('-__v')
@@ -230,12 +231,14 @@ export class BossesService {
       let nextResurrectTime = updateBossDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
       await this.historyService.createHistory(history);
+      const deathTime = nextResurrectTime - boss.cooldownTime;
+      const adjustedDeathTime = deathTime < 0 ? 0 : deathTime;
 
       return bossModel
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { bossName: boss.bossName },
-          { willResurrect: nextResurrectTime, cooldown: 0 },
+          { respawnTime: nextResurrectTime, cooldown: 0, deathTime: adjustedDeathTime },
           { new: true },
         )
         .select('-__v')
@@ -252,7 +255,7 @@ export class BossesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { bossName: boss.bossName },
-        { willResurrect: nextResurrectTime, cooldown: 0 },
+        { respawnTime: nextResurrectTime, cooldown: 0, deathTime: updateBossDeathDto.dateOfDeath },
         { new: true },
       )
       .select('-__v')
@@ -304,8 +307,8 @@ export class BossesService {
       await this.historyService.createHistory(history);
 
       await bossModel.updateMany(
-        { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -300000 } },
+        { respawnTime: { $gte: Date.now() } },
+        { $inc: { respawnTime: -300000 } },
       ); // minus 5 minutes
 
       return await bossModel.find({}).select('-__v').lean().exec();

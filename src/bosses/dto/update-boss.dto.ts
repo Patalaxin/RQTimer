@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { BossTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class UpdateBossDtoBodyRequest {
   @IsEnum(BossTypes)
@@ -22,7 +22,11 @@ export class UpdateBossDtoBodyRequest {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -52,6 +56,10 @@ export class UpdateBossDtoBodyResponse {
   @IsOptional()
   bossName: BossTypes;
 
+  @IsEnum(ShortBossName)
+  @IsNotEmpty()
+  shortName: ShortBossName;
+
   @IsString()
   @IsOptional()
   respawnText: string;
@@ -62,7 +70,11 @@ export class UpdateBossDtoBodyResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -75,4 +87,8 @@ export class UpdateBossDtoBodyResponse {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

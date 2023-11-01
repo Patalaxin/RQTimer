@@ -6,7 +6,7 @@ import {
   IsString,
   ValidateIf,
 } from 'class-validator';
-import { BossTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class UpdateBossDeathDtoRequest {
   @IsEnum(BossTypes)
@@ -33,6 +33,10 @@ export class UpdateBossDeathDtoResponse {
   @IsOptional()
   bossName: BossTypes;
 
+  @IsEnum(ShortBossName)
+  @IsNotEmpty()
+  shortName: ShortBossName;
+
   @IsString()
   @IsOptional()
   respawnText: string;
@@ -43,7 +47,11 @@ export class UpdateBossDeathDtoResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -56,4 +64,8 @@ export class UpdateBossDeathDtoResponse {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "../../schemas/mobs.enum";
 
 export class UpdateEliteDtoBodyRequest {
   @IsEnum(EliteTypes)
@@ -18,7 +18,7 @@ export class UpdateEliteDtoBodyRequest {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -46,7 +46,11 @@ export class UpdateEliteDtoParamsRequest {
 export class UpdateEliteDtoBodyResponse {
   @IsEnum(EliteTypes)
   @IsOptional()
-  eliteName: EliteTypes;
+  eliteName: EliteTypes
+
+  @IsEnum(ShortEliteName)
+  @IsNotEmpty()
+  shortName: ShortEliteName;
 
   @IsEnum(Locations)
   @IsOptional()
@@ -54,7 +58,11 @@ export class UpdateEliteDtoBodyResponse {
 
   @IsNumber()
   @IsOptional()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -67,4 +75,8 @@ export class UpdateEliteDtoBodyResponse {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

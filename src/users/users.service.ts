@@ -66,10 +66,9 @@ export class UsersService {
       const newUser = await this.userModel.create(createUserDto);
       newUser.password = await bcrypt.hash(newUser.password, 10);
       await newUser.save();
-      await this.tokenModel.create({ email: newUser.email });
       return newUser.toObject();
     } catch (err) {
-      throw new BadRequestException('Something went wrong');
+      throw new BadRequestException('Something went wrong!');
     }
   }
 
@@ -123,7 +122,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'Password successfully changed', status: 200 };
+    return { message: 'Password successfully changed!', status: 200 };
   }
 
   async forgotPassword(
@@ -212,7 +211,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'the Role has been updated successfully', status: 200 };
+    return { message: 'Role has been updated successfully', status: 200 };
   }
 
   async deleteOne(email: string): Promise<DeleteUserDtoResponse> {

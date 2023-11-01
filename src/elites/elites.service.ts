@@ -224,12 +224,13 @@ export class ElitesService {
       history.fromCooldown = elite.cooldown;
       history.toCooldown = ++elite.cooldown;
       await this.historyService.createHistory(history);
+      const deathTime = elite.respawnTime
 
       return eliteModel
         .findOneAndUpdate(
           // Add +1 to the cooldown counter and update the respawn on cd
           { eliteName: elite.eliteName },
-          { $inc: { cooldown: 1, willResurrect: nextResurrectTime } },
+          { $inc: { cooldown: 1, respawnTime: nextResurrectTime }, deathTime: deathTime },
           { new: true },
         )
         .select('-__v')
@@ -242,12 +243,14 @@ export class ElitesService {
       let nextResurrectTime = updateEliteDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
       await this.historyService.createHistory(history);
+      const deathTime = nextResurrectTime - elite.cooldownTime;
+      const adjustedDeathTime = deathTime < 0 ? 0 : deathTime;
 
       return eliteModel
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { eliteName: elite.eliteName },
-          { willResurrect: nextResurrectTime, cooldown: 0 },
+          { respawnTime: nextResurrectTime, cooldown: 0, deathTime: adjustedDeathTime },
           { new: true },
         )
         .select('-__v')
@@ -264,7 +267,7 @@ export class ElitesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { eliteName: elite.eliteName },
-        { willResurrect: nextResurrectTime, cooldown: 0 },
+        { respawnTime: nextResurrectTime, cooldown: 0, deathTime: updateEliteDeathDto.dateOfDeath },
         { new: true },
       )
       .select('-__v')
@@ -316,8 +319,8 @@ export class ElitesService {
       await this.historyService.createHistory(history);
 
       await eliteModel.updateMany(
-        { willResurrect: { $gte: Date.now() } },
-        { $inc: { willResurrect: -18000 } },
+        { respawnTime: { $gte: Date.now() } },
+        { $inc: { respawnTime: -18000 } },
       ); // // minus 18 seconds for elites
 
       return await eliteModel.find({}).select('-__v').lean().exec();

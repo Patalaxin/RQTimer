@@ -5,12 +5,22 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import {
+  EliteTypes,
+  Locations,
+  MobsTypes,
+  Servers,
+  ShortEliteName
+} from "../../schemas/mobs.enum";
 
 export class CreateEliteDtoRequest {
   @IsEnum(EliteTypes)
   @IsNotEmpty()
   eliteName: EliteTypes;
+
+  @IsEnum(ShortEliteName)
+  @IsNotEmpty()
+  shortName: ShortEliteName;
 
   @IsEnum(Locations)
   @IsNotEmpty()
@@ -18,7 +28,11 @@ export class CreateEliteDtoRequest {
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -35,6 +49,10 @@ export class CreateEliteDtoRequest {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }
 
 export class CreateEliteDtoResponse {
@@ -42,13 +60,21 @@ export class CreateEliteDtoResponse {
   @IsNotEmpty()
   eliteName: EliteTypes;
 
+  @IsEnum(ShortEliteName)
+  @IsNotEmpty()
+  shortName: ShortEliteName;
+
   @IsEnum(Locations)
   @IsNotEmpty()
   location: Locations;
 
   @IsNumber()
   @IsNotEmpty()
-  willResurrect: number;
+  respawnTime: number;
+
+  @IsNumber()
+  @IsOptional()
+  deathTime: number;
 
   @IsNumber()
   @IsOptional()
@@ -69,4 +95,8 @@ export class CreateEliteDtoResponse {
   @IsString()
   @IsNotEmpty()
   _id: string;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

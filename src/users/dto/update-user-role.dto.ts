@@ -14,7 +14,7 @@ export class UpdateUserRoleDtoRequest {
 
 export class UpdateUserRoleDtoResponse {
   @ApiProperty({
-    example: 'the Role has been updated successfully',
+    example: 'Role has been updated successfully!!!!',
   })
   @IsString()
   message: string;

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { BossTypes, Locations, Servers } from './mobs.enum';
+import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "./mobs.enum";
 
 export type EnigmaBossDocument = HydratedDocument<EnigmaBoss>;
 
@@ -24,6 +24,10 @@ export class EnigmaBoss {
   bossName: BossTypes;
 
   @Expose()
+  @Prop({ required: true })
+  shortName: ShortBossName;
+
+  @Expose()
   @Prop()
   respawnText: string;
 
@@ -33,7 +37,11 @@ export class EnigmaBoss {
 
   @Expose()
   @Prop({ required: true })
-  willResurrect: number;
+  respawnTime: number;
+
+  @Expose()
+  @Prop()
+  deathTime: number;
 
   @Expose()
   @Prop({ required: true, default: 0 })
@@ -54,6 +62,10 @@ export class EnigmaBoss {
   @Exclude()
   @Prop()
   __v: number;
+
+  @Expose()
+  @Prop({ required: true })
+  mobType: MobsTypes;
 
   constructor(partial: Partial<EnigmaBoss>) {
     Object.assign(this, partial);
