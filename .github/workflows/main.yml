@@ -22,8 +22,7 @@ jobs:
           port: 22
           script: |
             cd TimerRQ
-            git pull origin master
-            username: spatalaxin@gmail.com
+            git pull
             npm install
             npm run build
             cd dist
