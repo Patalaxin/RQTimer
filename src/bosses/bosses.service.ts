@@ -152,7 +152,7 @@ export class BossesService {
     arrayOfObjectsUndisplayedBosses.push({ bossName: 'Mocked Name of Boss' }); // coz $nor doesn't work with empty array
 
     return bossModel
-      .find({ $nor: arrayOfObjectsUndisplayedBosses })
+      .find({ $nor: arrayOfObjectsUndisplayedBosses }, { __v: 0 })
       .lean()
       .exec();
   }

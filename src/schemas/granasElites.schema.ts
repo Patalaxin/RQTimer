@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { EliteTypes, Locations, Servers } from './mobs.enum';
+import { EliteTypes, Locations, MobsTypes, Servers } from "./mobs.enum";
 
 export type GranasEliteDocument = HydratedDocument<GranasElite>;
 
@@ -50,6 +50,10 @@ export class GranasElite {
   @Exclude()
   @Prop()
   __v: number;
+
+  @Expose()
+  @Prop({ required: true })
+  mobType: MobsTypes;
 
   constructor(partial: Partial<GranasElite>) {
     Object.assign(this, partial);

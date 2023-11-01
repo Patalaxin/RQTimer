@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { EliteTypes, Locations, MobsTypes, Servers } from "../../schemas/mobs.enum";
 
 export class CreateEliteDtoRequest {
   @IsEnum(EliteTypes)
@@ -35,6 +35,10 @@ export class CreateEliteDtoRequest {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }
 
 export class CreateEliteDtoResponse {
@@ -69,4 +73,8 @@ export class CreateEliteDtoResponse {
   @IsString()
   @IsNotEmpty()
   _id: string;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }

@@ -3,6 +3,12 @@ export enum Servers {
   Энигма = 'Энигма',
   Логрус = 'Логрус',
 }
+
+export enum MobsTypes {
+  Босс = 'Босс',
+  Элитка = 'Элитка'
+}
+
 export enum BossTypes {
   Аркон = 'Аркон',
   Архон = 'Архон',

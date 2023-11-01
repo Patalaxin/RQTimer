@@ -71,6 +71,7 @@ export class BossesController {
   }
 
   @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Find All User Bosses' })
   @Get('findAll/:server/')
   async findAllBossesByUser(

@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsEnum,
 } from 'class-validator';
-import { EliteTypes, Locations, Servers } from '../../schemas/mobs.enum';
+import { EliteTypes, Locations, MobsTypes, Servers } from "../../schemas/mobs.enum";
 
 export class UpdateEliteDtoBodyRequest {
   @IsEnum(EliteTypes)
@@ -67,4 +67,8 @@ export class UpdateEliteDtoBodyResponse {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsEnum(MobsTypes)
+  @IsNotEmpty()
+  mobType: MobsTypes;
 }
