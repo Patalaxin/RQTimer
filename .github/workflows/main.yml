@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-        SSH_HOST: ${{ secrets.API_KEY }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PASS: ${{ secrets.SSH_PASS }}
 
     steps:
