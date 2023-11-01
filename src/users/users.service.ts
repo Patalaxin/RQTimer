@@ -122,7 +122,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'Password successfully changed', status: 200 };
+    return { message: 'Password successfully changed!', status: 200 };
   }
 
   async forgotPassword(
@@ -211,7 +211,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'Role has been updated successfully!!!', status: 200 };
+    return { message: 'Role has been updated successfully', status: 200 };
   }
 
   async deleteOne(email: string): Promise<DeleteUserDtoResponse> {
