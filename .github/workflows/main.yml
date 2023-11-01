@@ -3,11 +3,14 @@ name: SSH Action
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_PASS: ${{ secrets.SSH_PASS }}
 
     steps:
       - name: Checkout code
@@ -16,16 +19,16 @@ jobs:
       - name: Connect to server via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_IP }}
+          host: ${{ secrets.SSH_HOST }}
           username: root
-          password: ${{ secrets.ROOT_PASSWORD }}
+          password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
-            cd /TimerRQ
-            git pull origin master 
+            cd TimerRQ
+            git pull
             npm install
             npm run build
-            cd /TimerRQ/dist/
+            cd dist
             pm2 restart main.js
             sudo service nginx restart
 
