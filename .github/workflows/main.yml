@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+        SSH_HOST: ${{ secrets.API_KEY }}
+        SSH_PASS: ${{ secrets.SSH_PASS }}
 
     steps:
       - name: Checkout code
@@ -18,7 +21,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: root
-          password: ${{ secrets.PASS }}
+          password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
             cd TimerRQ
