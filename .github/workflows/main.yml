@@ -16,9 +16,9 @@ jobs:
       - name: Connect to server via SSH
         uses: appleboy/ssh-action@master
         with:
-          host: 95.181.151.17
+          host: ${{ secrets.SSH_HOST }}
           username: root
-          password: JLBW1Op2N0pe
+          password: ${{ secrets.PASS }}
           port: 22
           script: |
             cd TimerRQ
@@ -28,5 +28,3 @@ jobs:
             cd dist
             pm2 restart main.js
             sudo service nginx restart
-
-            
