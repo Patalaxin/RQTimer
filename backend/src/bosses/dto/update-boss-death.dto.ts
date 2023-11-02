@@ -20,12 +20,10 @@ export class UpdateBossDeathDtoRequest {
 
   @IsNumber()
   @IsOptional()
-  @ValidateIf((object) => !object.dateOfRespawn || object.dateOfDeath)
   dateOfDeath?: number;
 
   @IsNumber()
   @IsOptional()
-  @ValidateIf((object) => !object.dateOfDeath || object.dateOfRespawn)
   dateOfRespawn?: number;
 }
 

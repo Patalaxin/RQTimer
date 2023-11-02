@@ -267,6 +267,7 @@ export class BossesService {
         .select('-__v')
         .lean()
         .exec();
+
     }
 
     let nextResurrectTime: number =
