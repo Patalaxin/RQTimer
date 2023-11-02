@@ -122,7 +122,7 @@ export class UsersService {
     } catch (err) {
       throw err;
     }
-    return { message: 'Password successfully changed!', status: 200 };
+    return { message: 'Password successfully changed', status: 200 };
   }
 
   async forgotPassword(
