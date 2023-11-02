@@ -27,6 +27,7 @@ jobs:
             cd TimerRQ
             git pull
             npm install
+            cd backend
             npm run build
             cd dist
             pm2 restart main.js
