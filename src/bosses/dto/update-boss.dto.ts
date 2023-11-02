@@ -3,8 +3,8 @@ import {
   IsString,
   IsOptional,
   IsNumber,
-  IsEnum,
-} from 'class-validator';
+  IsEnum, IsBoolean
+} from "class-validator";
 import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class UpdateBossDtoBodyRequest {
@@ -39,6 +39,10 @@ export class UpdateBossDtoBodyRequest {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }
 
 export class UpdateBossDtoParamsRequest {
@@ -91,4 +95,8 @@ export class UpdateBossDtoBodyResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }

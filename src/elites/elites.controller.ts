@@ -40,8 +40,9 @@ import {
 } from './dto/update-elite-death.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { GranasElite } from '../schemas/granasElites.schema';
-import { EliteTypes, Servers } from '../schemas/mobs.enum';
+import { EliteTypes, Servers } from "../schemas/mobs.enum";
 import { UpdateEliteCooldownDtoRequest, UpdateEliteCooldownDtoResponse } from "./dto/update-elite-cooldown.dto";
+import { RespawnLostEliteDtoResponse } from "./dto/respawnLost-elite.dto";
 
 @ApiTags('Elite API')
 @ApiBearerAuth()
@@ -143,5 +144,15 @@ export class ElitesController {
     @Param('server') server: Servers,
   ): Promise<GetElitesDtoResponse[]> {
     return this.eliteService.crashEliteServer(request, server);
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Elite Respawn Lost' })
+  @Put('respawnLost/:eliteName/:server')
+  async respawnLost(
+    @Param('eliteName') eliteName: EliteTypes,
+    @Param('server') server: Servers,
+  ): Promise<RespawnLostEliteDtoResponse[]> {
+    return await this.eliteService.respawnLost(server, eliteName);
   }
 }

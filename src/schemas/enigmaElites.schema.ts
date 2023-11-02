@@ -55,13 +55,17 @@ export class EnigmaElite {
   @Prop()
   server: Servers;
 
-  @Exclude()
-  @Prop()
-  __v: number;
-
   @Expose()
   @Prop({ required: true })
   mobType: MobsTypes;
+
+  @Expose()
+  @Prop({ required: true, default: false })
+  respawnLost: boolean;
+
+  @Exclude()
+  @Prop()
+  __v: number;
 
   constructor(partial: Partial<EnigmaElite>) {
     Object.assign(this, partial);

@@ -1,11 +1,12 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  ValidateIf,
-} from 'class-validator';
+  ValidateIf
+} from "class-validator";
 import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "../../schemas/mobs.enum";
 
 export class UpdateEliteDeathDtoRequest {
@@ -64,4 +65,8 @@ export class UpdateEliteDeathDtoResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }

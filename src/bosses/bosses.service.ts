@@ -47,6 +47,7 @@ import {
   UpdateBossCooldownDtoRequest,
   UpdateBossCooldownDtoResponse,
 } from './dto/update-boss-cooldown.dto';
+import { RespawnLostBossDtoResponse } from './dto/respawnLost-boss.dto';
 
 @Injectable()
 export class BossesService {
@@ -198,6 +199,16 @@ export class BossesService {
 
     const boss: GetBossDtoResponse = await this.findBoss(getBossDto); // Get the boss we're updating
 
+    if (
+      isNaN(updateBossDeathDto.dateOfDeath) &&
+      isNaN(updateBossDeathDto.dateOfRespawn) &&
+      boss.respawnTime === null
+    ) {
+      throw new BadRequestException(
+        'Respawn is lost, so it is not possible to update on a cooldown. Some date of death (dateOfDeath) or date of respawn (dateOfRespawn) must be specified',
+      );
+    }
+
     const history: History = {
       bossName: updateBossDeathDto.bossName,
       nickname: nickname,
@@ -224,6 +235,7 @@ export class BossesService {
           {
             $inc: { cooldown: 1, respawnTime: nextResurrectTime },
             deathTime: deathTime,
+            respawnLost: false,
           },
           { new: true },
         )
@@ -248,6 +260,7 @@ export class BossesService {
             respawnTime: nextResurrectTime,
             cooldown: 0,
             deathTime: adjustedDeathTime,
+            respawnLost: false,
           },
           { new: true },
         )
@@ -269,6 +282,7 @@ export class BossesService {
           respawnTime: nextResurrectTime,
           cooldown: 0,
           deathTime: updateBossDeathDto.dateOfDeath,
+          respawnLost: false,
         },
         { new: true },
       )
@@ -340,5 +354,24 @@ export class BossesService {
     ).model;
     await bossModel.deleteOne({ bossName: bossName });
     return { message: 'Boss deleted' };
+  }
+
+  async respawnLost(
+    server: Servers,
+    bossName: BossTypes,
+  ): Promise<RespawnLostBossDtoResponse[]> {
+    const bossModel = this.bossModels.find(
+      (obj) => obj.server === server,
+    ).model;
+
+    return await bossModel
+      .findOneAndUpdate(
+        { bossName: bossName },
+        { cooldown: 0, respawnTime: null, deathTime: null, respawnLost: true },
+        { new: true },
+      )
+      .select('-__v')
+      .lean()
+      .exec();
   }
 }

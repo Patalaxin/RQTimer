@@ -55,13 +55,17 @@ export class LogrusElite {
   @Prop()
   server: Servers;
 
-  @Exclude()
-  @Prop()
-  __v: number;
-
   @Expose()
   @Prop({ required: true })
   mobType: MobsTypes;
+
+  @Expose()
+  @Prop({ required: true, default: false })
+  respawnLost: boolean;
+
+  @Exclude()
+  @Prop()
+  __v: number;
 
   constructor(partial: Partial<LogrusElite>) {
     Object.assign(this, partial);

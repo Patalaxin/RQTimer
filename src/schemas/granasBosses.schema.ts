@@ -59,13 +59,18 @@ export class GranasBoss {
   @Prop()
   server: Servers;
 
+  @Expose()
+  @Prop({ required: true })
+  mobType: MobsTypes;
+
+  @Expose()
+  @Prop({ required: true, default: false })
+  respawnLost: boolean;
+
   @Exclude()
   @Prop()
   __v: number;
 
-  @Expose()
-  @Prop({ required: true })
-  mobType: MobsTypes;
 
   constructor(partial: Partial<GranasBoss>) {
     Object.assign(this, partial);

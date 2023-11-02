@@ -3,8 +3,8 @@ import {
   IsString,
   IsOptional,
   IsNumber,
-  IsEnum,
-} from 'class-validator';
+  IsEnum, IsBoolean
+} from "class-validator";
 import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "../../schemas/mobs.enum";
 
 export class UpdateEliteDtoBodyRequest {
@@ -31,6 +31,10 @@ export class UpdateEliteDtoBodyRequest {
   @IsNumber()
   @IsOptional()
   cooldownTime: number;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }
 
 export class UpdateEliteDtoParamsRequest {
@@ -79,4 +83,8 @@ export class UpdateEliteDtoBodyResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }

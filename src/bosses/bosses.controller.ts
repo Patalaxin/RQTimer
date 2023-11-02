@@ -42,6 +42,7 @@ import {
 import { DeleteBossDtoResponse } from './dto/delete-boss.dto';
 import { UsersGuard } from '../guards/users.guard';
 import { UpdateBossCooldownDtoRequest, UpdateBossCooldownDtoResponse } from "./dto/update-boss-cooldown.dto";
+import { RespawnLostBossDtoResponse } from "./dto/respawnLost-boss.dto";
 
 @ApiTags('Boss API')
 @ApiBearerAuth()
@@ -144,5 +145,15 @@ export class BossesController {
     @Param('server') server: Servers,
   ): Promise<GetBossesDtoResponse[]> {
     return this.bossService.crashBossServer(request, server);
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Boss Respawn Lost' })
+  @Put('respawnLost/:bossName/:server')
+  async respawnLost(
+    @Param('bossName') bossName: BossTypes,
+    @Param('server') server: Servers,
+  ): Promise<RespawnLostBossDtoResponse[]> {
+    return await this.bossService.respawnLost(server, bossName);
   }
 }

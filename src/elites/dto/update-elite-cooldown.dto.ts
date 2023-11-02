@@ -1,9 +1,10 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional, IsPositive,
-  IsString,
+  IsString
 } from "class-validator";
 import { EliteTypes, Locations, MobsTypes, Servers, ShortEliteName } from "../../schemas/mobs.enum";
 
@@ -58,4 +59,8 @@ export class UpdateEliteCooldownDtoResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }

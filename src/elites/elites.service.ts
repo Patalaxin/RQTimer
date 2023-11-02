@@ -56,6 +56,7 @@ import {
   UpdateEliteCooldownDtoRequest,
   UpdateEliteCooldownDtoResponse,
 } from './dto/update-elite-cooldown.dto';
+import { RespawnLostEliteDtoResponse } from './dto/respawnLost-elite.dto';
 
 @Injectable()
 export class ElitesService {
@@ -210,6 +211,16 @@ export class ElitesService {
 
     const elite: GetEliteDtoResponse = await this.findElite(getEliteDto); // Get the elite we're updating
 
+    if (
+      isNaN(updateEliteDeathDto.dateOfDeath) &&
+      isNaN(updateEliteDeathDto.dateOfRespawn) &&
+      elite.respawnTime === null
+    ) {
+      throw new BadRequestException(
+        'Respawn is lost, so it is not possible to update on a cooldown. Some date of death (dateOfDeath) or date of respawn (dateOfRespawn) must be specified',
+      );
+    }
+
     const history: History = {
       eliteName: updateEliteDeathDto.eliteName,
       nickname: nickname,
@@ -352,5 +363,24 @@ export class ElitesService {
     ).model;
     await eliteModel.deleteOne({ eliteName: eliteName });
     return { message: 'Elite deleted' };
+  }
+
+  async respawnLost(
+    server: Servers,
+    eliteName: EliteTypes,
+  ): Promise<RespawnLostEliteDtoResponse[]> {
+    const eliteModel = this.elitesModels.find(
+      (obj) => obj.server === server,
+    ).model;
+
+    return await eliteModel
+      .findOneAndUpdate(
+        { eliteName: eliteName },
+        { cooldown: 0, respawnTime: null, deathTime: null, respawnLost: true },
+        { new: true },
+      )
+      .select('-__v')
+      .lean()
+      .exec();
   }
 }

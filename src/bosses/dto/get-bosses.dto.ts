@@ -1,10 +1,11 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString,
-} from 'class-validator';
+  IsString
+} from "class-validator";
 import { BossTypes, Locations, MobsTypes, Servers, ShortBossName } from "../../schemas/mobs.enum";
 
 export class GetBossesDtoRequest {
@@ -61,4 +62,8 @@ export class GetBossesDtoResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }

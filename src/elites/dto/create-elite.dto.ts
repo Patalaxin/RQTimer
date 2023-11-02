@@ -3,8 +3,8 @@ import {
   IsString,
   IsOptional,
   IsNumber,
-  IsEnum,
-} from 'class-validator';
+  IsEnum, IsBoolean
+} from "class-validator";
 import {
   EliteTypes,
   Locations,
@@ -53,6 +53,10 @@ export class CreateEliteDtoRequest {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }
 
 export class CreateEliteDtoResponse {
@@ -99,4 +103,8 @@ export class CreateEliteDtoResponse {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  respawnLost: boolean;
 }
