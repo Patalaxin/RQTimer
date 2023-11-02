@@ -1,0 +1,13 @@
+<div class="profile container">
+  <nz-skeleton *ngIf="isLoading"></nz-skeleton>
+
+  <div class="profile" *ngIf="!isLoading">
+    <nz-page-header class="site-page-header" nzBackIcon>
+      <nz-page-header-title>Таймер</nz-page-header-title>
+      <nz-page-header-extra>
+        <app-info [user]="user"></app-info>
+      </nz-page-header-extra>
+    </nz-page-header>
+    <app-user [excluded]="excluded" [role]="user.role"></app-user>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="login background">
+  <div class="form-container">
+    <form nz-form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Введите почту или никнейм!">
+          <nz-input-group nzPrefixIcon="user">
+            <input
+              nz-input
+              formControlName="key"
+              placeholder="Почта или никнейм"
+              name="required"
+              required
+            />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Введите пароль!">
+          <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+            <input
+              nz-input
+              [type]="passwordVisible ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Пароль"
+              name="mix"
+              minlength="3"
+              required
+            />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <ng-template #suffixTemplate>
+        <span
+          nz-icon
+          [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+          (click)="passwordVisible = !passwordVisible"
+        ></span>
+      </ng-template>
+      <div class="login-form-mb-16px">
+        <a [routerLink]="['/change-password']">Проблемы со входом?</a>
+      </div>
+      <button
+        nz-button
+        class="login-form-button login-form-mb-16px"
+        [nzType]="'primary'"
+        type="submit"
+        [disabled]="!form.valid"
+      >
+        Войти
+      </button>
+      <div class="login-form-center">
+        <span>Нет учетной записи? </span>
+        <a [routerLink]="['/register']">Зарегистрируйтесь</a>
+      </div>
+    </form>
+  </div>
+</div>

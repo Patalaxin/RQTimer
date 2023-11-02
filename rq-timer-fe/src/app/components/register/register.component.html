@@ -1,0 +1,215 @@
+<div class="background">
+  <div class="register container">
+    <div class="form-container register-form-container">
+      <nz-steps
+        nzSize="small"
+        [nzCurrent]="currentStep"
+        class="register-stepper"
+      >
+        <nz-step nzTitle="Шаг 1:" nzDescription="Основной"></nz-step>
+        <nz-step
+          nzTitle="Шаг 2:"
+          nzDescription="Настройка отображения"
+        ></nz-step>
+      </nz-steps>
+
+      <form
+        nz-form
+        class="register-form"
+        [formGroup]="form"
+        (ngSubmit)="onRegister()"
+      >
+        <div class="steps-content" *ngIf="currentStep === 0">
+          <div class="register-form-info">
+            <nz-form-item>
+              <nz-form-control nzErrorTip="Введите никнейм!">
+                <nz-input-group nzPrefixIcon="user">
+                  <input
+                    nz-input
+                    formControlName="nickname"
+                    placeholder="Никнейм"
+                    name="mix"
+                    minlength="3"
+                    required
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control nzErrorTip="Введите почту!">
+                <nz-input-group nzPrefixIcon="mail">
+                  <input
+                    nz-input
+                    formControlName="email"
+                    placeholder="Почта"
+                    name="mix"
+                    email
+                    required
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control nzErrorTip="Введите пароль!">
+                <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+                  <input
+                    nz-input
+                    [type]="passwordVisible ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Пароль"
+                    name="mix"
+                    minlength="3"
+                    required
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control nzErrorTip="Пароль не совпадает!">
+                <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+                  <input
+                    nz-input
+                    [type]="passwordVisible ? 'text' : 'password'"
+                    formControlName="confirmPassword"
+                    placeholder="Подтвердите пароль"
+                    name="mix"
+                    matching
+                    required
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+            <ng-template #suffixTemplate>
+              <span
+                nz-icon
+                [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+                (click)="passwordVisible = !passwordVisible"
+              ></span>
+            </ng-template>
+            <nz-form-item class="register-form-mb-12px">
+              <nz-form-control nzErrorTip="Введите Session ID!">
+                <nz-input-group nzPrefixIcon="number">
+                  <input
+                    nz-input
+                    formControlName="sessionId"
+                    placeholder="Session ID"
+                    name="required"
+                    required
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+            <div class="register-form-center">
+              <a [routerLink]="['/login']">У меня уже есть аккаунт</a>
+            </div>
+          </div>
+        </div>
+        <div class="steps-content" *ngIf="currentStep === 1">
+          <div nz-row class="register-form-excluded">
+            <nz-form-item>
+              <nz-form-control>
+                <nz-checkbox-wrapper
+                  style="width: 100%"
+                  (nzOnChange)="onChangeCheckbox($event, 'Боссы')"
+                >
+                  <div>
+                    <h4>
+                      <span
+                        nz-icon
+                        nzType="question-circle"
+                        nzTheme="outline"
+                        nzTooltipTitle="Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                        nzTooltipPlacement="bottom"
+                        nz-tooltip
+                      ></span>
+                      Выберите боссов для исключения:
+                    </h4>
+                    <div
+                      formArrayName="excludedBosses"
+                      *ngFor="
+                        let boss of excludedBosses.controls;
+                        let i = index
+                      "
+                    >
+                      <label
+                        nz-checkbox
+                        [formControlName]="i"
+                        [nzValue]="bossesCheckboxList[i].value"
+                      >
+                        {{ bossesCheckboxList[i].value }}
+                      </label>
+                    </div>
+                  </div>
+                </nz-checkbox-wrapper>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control>
+                <nz-checkbox-wrapper
+                  style="width: 100%"
+                  (nzOnChange)="onChangeCheckbox($event, 'Элитки')"
+                >
+                  <div>
+                    <h4>
+                      <span
+                        nz-icon
+                        nzType="question-circle"
+                        nzTheme="outline"
+                        nzTooltipTitle="Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                        nzTooltipPlacement="bottom"
+                        nz-tooltip
+                      ></span>
+                      Выберите элиток для исключения:
+                    </h4>
+                    <div
+                      formArrayName="excludedElites"
+                      *ngFor="
+                        let boss of excludedElites.controls;
+                        let i = index
+                      "
+                    >
+                      <label
+                        nz-checkbox
+                        [formControlName]="i"
+                        [nzValue]="elitesCheckboxList[i].value"
+                      >
+                        {{ elitesCheckboxList[i].value }}
+                      </label>
+                    </div>
+                  </div>
+                </nz-checkbox-wrapper>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+      <div class="steps-action">
+        <button
+          nz-button
+          nzType="default"
+          (click)="prev()"
+          *ngIf="currentStep > 0"
+        >
+          <span>Назад</span>
+        </button>
+        <button
+          nz-button
+          nzType="default"
+          (click)="next()"
+          *ngIf="currentStep < 1"
+          [disabled]="!form.valid"
+        >
+          <span>Вперёд</span>
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="done()"
+          *ngIf="currentStep === 1"
+        >
+          <span>Зарегистрироваться</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

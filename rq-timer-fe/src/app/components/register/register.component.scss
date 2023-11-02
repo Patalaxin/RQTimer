@@ -1,0 +1,44 @@
+.register {
+  .register-form-container {
+    padding: 0 50px 20px;
+
+    .register-stepper {
+      padding: 24px 0;
+    }
+
+    .register-form {
+      width: 1000px;
+
+      .steps-content {
+        height: 550px;
+
+        .register-form-info {
+          margin: 0 auto;
+          width: 300px;
+        }
+
+        .register-form-excluded {
+          margin: 0 auto;
+          width: 600px;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .register-form-mb-12px {
+          margin-bottom: 12px;
+        }
+
+        .register-form-center {
+          text-align: center;
+        }
+      }
+    }
+    .steps-action {
+      text-align: center;
+
+      button {
+        margin: 0 5px;
+      }
+    }
+  }
+}

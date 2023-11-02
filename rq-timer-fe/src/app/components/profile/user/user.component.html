@@ -1,0 +1,155 @@
+<div class="user">
+  <nz-tabset>
+    <nz-tab nzTitle="Настройки отображения">
+      <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
+        <div nz-row class="update-excluded-form">
+          <nz-form-item>
+            <nz-form-control>
+              <nz-checkbox-wrapper
+                style="width: 100%"
+                (nzOnChange)="onChangeCheckbox($event, 'Боссы')"
+              >
+                <div>
+                  <h4>
+                    <span
+                      nz-icon
+                      nzType="question-circle"
+                      nzTheme="outline"
+                      nzTooltipTitle="Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                      nzTooltipPlacement="bottom"
+                      nz-tooltip
+                    ></span>
+                    Выберите боссов для исключения:
+                  </h4>
+                  <div
+                    formArrayName="excludedBosses"
+                    *ngFor="let boss of excludedBosses.controls; let i = index"
+                  >
+                    <label
+                      nz-checkbox
+                      [formControlName]="i"
+                      class="boss-input"
+                      [nzValue]="bossesCheckboxList[i].value"
+                    >
+                      {{ bossesCheckboxList[i].value }}
+                    </label>
+                  </div>
+                </div>
+              </nz-checkbox-wrapper>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control>
+              <nz-checkbox-wrapper
+                style="width: 100%"
+                (nzOnChange)="onChangeCheckbox($event, 'Элитки')"
+              >
+                <div>
+                  <h4>
+                    <span
+                      nz-icon
+                      nzType="question-circle"
+                      nzTheme="outline"
+                      nzTooltipTitle="Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                      nzTooltipPlacement="bottom"
+                      nz-tooltip
+                    ></span>
+                    Выберите элиток для исключения:
+                  </h4>
+                  <div
+                    formArrayName="excludedElites"
+                    *ngFor="let boss of excludedElites.controls; let i = index"
+                  >
+                    <label
+                      nz-checkbox
+                      [formControlName]="i"
+                      class="elite-input"
+                      [nzValue]="elitesCheckboxList[i].value"
+                    >
+                      {{ elitesCheckboxList[i].value }}
+                    </label>
+                  </div>
+                </div>
+              </nz-checkbox-wrapper>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <nz-form-item>
+          <nz-form-control class="update-excluded-form-center">
+            <button nz-button nzType="primary">Обновить</button>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-tab>
+    <nz-tab nzTitle="Изменить пароль">
+      <form
+        [formGroup]="changePasswordForm"
+        class="change-password-form"
+        (ngSubmit)="onChangePassword()"
+      >
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Введите старый пароль!">
+            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+              <input
+                nz-input
+                [type]="passwordVisible ? 'text' : 'password'"
+                formControlName="oldPassword"
+                placeholder="Старый пароль"
+                name="mix"
+                minlength="3"
+                required
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Введите новый пароль!">
+            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+              <input
+                nz-input
+                [type]="passwordVisible ? 'text' : 'password'"
+                formControlName="newPassword"
+                placeholder="Новый пароль"
+                name="mix"
+                minlength="3"
+                required
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Новый пароль не совпадает!">
+            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+              <input
+                nz-input
+                [type]="passwordVisible ? 'text' : 'password'"
+                formControlName="confirmNewPassword"
+                placeholder="Подтвердите новый пароль"
+                name="mix"
+                matching
+                required
+              />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-template #suffixTemplate>
+          <span
+            nz-icon
+            [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+            (click)="passwordVisible = !passwordVisible"
+          ></span>
+        </ng-template>
+        <button
+          nz-button
+          class="change-password-form-button"
+          [nzType]="'primary'"
+          type="submit"
+          [disabled]="!changePasswordForm.valid"
+        >
+          Поменять пароль
+        </button>
+      </form>
+    </nz-tab>
+    <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">Панель админа</nz-tab>
+  </nz-tabset>
+</div>

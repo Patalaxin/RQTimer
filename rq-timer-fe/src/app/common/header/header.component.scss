@@ -1,0 +1,26 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  // background-color: #222222;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+
+  .header-left {
+    align-self: center;
+
+    nz-select,
+    button {
+      margin-right: 10px;
+    }
+
+    nz-select {
+      width: 90px;
+    }
+  }
+
+  .header-right {
+    button {
+      margin-left: 10px;
+    }
+  }
+}

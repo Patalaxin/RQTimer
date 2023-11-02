@@ -1,0 +1,82 @@
+/* You can add global styles to this file, and also import other style files */
+
+.container {
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.background {
+  background-image: url(../src/assets/img/bg-halloween.jpeg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.box-shadow {
+  box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+}
+
+.form-container {
+  padding: 50px;
+  box-shadow: 0px 8px 28px -2px rgba(0, 0, 0, 1);
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ant-statistic-title {
+  margin-bottom: 0;
+}
+
+.ant-page-header {
+  padding: 0;
+}
+
+.ant-page-header-heading-left {
+  margin: 0;
+}
+
+.ant-modal-content {
+  border-radius: 10px;
+}
+
+.ant-modal-body {
+  p {
+    margin-top: 2em;
+    text-align: center;
+  }
+}
+
+.ant-picker {
+  width: 40%;
+  margin: 10px 5px 0;
+}
+
+h4.ant-list-item-meta-title {
+  display: flex;
+  margin-bottom: 0;
+
+  button {
+    margin: 0 5px;
+  }
+}
+
+nz-progress {
+  display: flex;
+  align-items: center;
+
+  .ant-progress-inner {
+    width: 100px;
+    margin-right: 10px;
+  }
+
+  .ant-progress-text {
+    display: none;
+  }
+}

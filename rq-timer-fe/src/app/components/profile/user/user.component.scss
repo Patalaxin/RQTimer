@@ -1,0 +1,20 @@
+.user {
+  .update-excluded-form {
+    margin: 0 auto;
+    width: 600px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .update-excluded-form-center {
+    text-align: center;
+  }
+
+  .change-password-form {
+    width: 300px;
+    margin: 0 auto;
+
+    .change-password-form-button {
+      width: 100%;
+    }
+  }
+}

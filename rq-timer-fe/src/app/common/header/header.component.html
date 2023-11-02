@@ -1,0 +1,81 @@
+<div class="header" *ngIf="isLoggedIn()">
+  <div class="header-left">
+    <nz-select
+      [(ngModel)]="currentServer"
+      [nzOptions]="serverList"
+      nzSize="small"
+      (ngModelChange)="setCurrentServer()"
+    ></nz-select>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="setCurrentServer()"
+      nz-tooltip
+      nzTooltipTitle="Обновить"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="reload"></span>
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      (click)="copyRespText()"
+      nz-tooltip
+      nzTooltipTitle="Скопировать респы"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="copy"></span>
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nz-tooltip
+      nzTooltipTitle="Учитывать падение сервера"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="api" (click)="onCrashServer()"></span>
+    </button>
+  </div>
+  <div class="header-right">
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onTimer()"
+      nz-tooltip
+      nzTooltipTitle="История"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="history"></span>
+    </button>
+    <!-- <button nz-button nzType="primary" (click)="onTimer()">
+      <span nz-icon nzType="clock-circle"></span>
+    </button> -->
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onProfile()"
+      nz-tooltip
+      nzTooltipTitle="Личный кабинет"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="user"></span>
+    </button>
+    <button
+      nz-button
+      nzType="primary"
+      nzDanger
+      (click)="showLogoutModal()"
+      nz-tooltip
+      nzTooltipTitle="Выход"
+      nzTooltipPlacement="bottom"
+      [nzTooltipMouseEnterDelay]="1"
+    >
+      <span nz-icon nzType="logout"></span>
+    </button>
+  </div>
+</div>

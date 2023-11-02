@@ -1,0 +1,56 @@
+.timer {
+  padding: 10px 0;
+
+  .orange {
+    background-color: #b18b01;
+  }
+
+  .green {
+    background-color: #64b101;
+  }
+
+  .white {
+    background-color: #ffff;
+  }
+
+  nz-badge {
+    width: 100%;
+
+    nz-list-item {
+      margin-bottom: 10px;
+    }
+
+    .timer-d-flex-space-between {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+
+      .timer-left {
+        display: flex;
+        align-items: center;
+        h2 {
+          margin-bottom: 0;
+        }
+        span {
+          align-self: center;
+        }
+      }
+
+      .timer-right {
+        .timer-plus-cooldown {
+          width: auto;
+          z-index: 2;
+        }
+
+        .timer-cd-button {
+          width: 32px;
+          padding: 0;
+        }
+      }
+    }
+
+    .timer-mx-10px {
+      margin: 0 10px;
+    }
+  }
+}
