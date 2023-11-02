@@ -205,20 +205,26 @@ export class BossesService {
       date: Date.now(),
     };
 
-    if (!updateBossDeathDto.dateOfDeath && !updateBossDeathDto.dateOfRespawn) {
+    if (
+      isNaN(updateBossDeathDto.dateOfDeath) &&
+      isNaN(updateBossDeathDto.dateOfRespawn)
+    ) {
       // If the boss died at a certain time not now.
       let nextResurrectTime: number = boss.cooldownTime;
       history.toWillResurrect = nextResurrectTime;
       history.fromCooldown = boss.cooldown;
       history.toCooldown = ++boss.cooldown;
       await this.historyService.createHistory(history);
-      const deathTime = boss.respawnTime
+      const deathTime = boss.respawnTime;
 
       return bossModel
         .findOneAndUpdate(
           // Add +1 to the cooldown counter and update the respawn/death times
           { bossName: boss.bossName },
-          { $inc: { cooldown: 1, respawnTime: nextResurrectTime }, deathTime: deathTime },
+          {
+            $inc: { cooldown: 1, respawnTime: nextResurrectTime },
+            deathTime: deathTime,
+          },
           { new: true },
         )
         .select('-__v')
@@ -226,7 +232,7 @@ export class BossesService {
         .exec();
     }
 
-    if (updateBossDeathDto.dateOfRespawn) {
+    if (updateBossDeathDto.dateOfRespawn >= 0) {
       // If we now know the exact time of the boss respawn.
       let nextResurrectTime = updateBossDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
@@ -238,7 +244,11 @@ export class BossesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { bossName: boss.bossName },
-          { respawnTime: nextResurrectTime, cooldown: 0, deathTime: adjustedDeathTime },
+          {
+            respawnTime: nextResurrectTime,
+            cooldown: 0,
+            deathTime: adjustedDeathTime,
+          },
           { new: true },
         )
         .select('-__v')
@@ -255,7 +265,11 @@ export class BossesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { bossName: boss.bossName },
-        { respawnTime: nextResurrectTime, cooldown: 0, deathTime: updateBossDeathDto.dateOfDeath },
+        {
+          respawnTime: nextResurrectTime,
+          cooldown: 0,
+          deathTime: updateBossDeathDto.dateOfDeath,
+        },
         { new: true },
       )
       .select('-__v')

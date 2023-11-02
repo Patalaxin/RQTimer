@@ -52,7 +52,10 @@ import {
   GetElitesDtoResponse,
 } from './dto/get-elites.dto';
 import { DeleteEliteDtoResponse } from './dto/delete-elite.dto';
-import { UpdateEliteCooldownDtoRequest, UpdateEliteCooldownDtoResponse } from "./dto/update-elite-cooldown.dto";
+import {
+  UpdateEliteCooldownDtoRequest,
+  UpdateEliteCooldownDtoResponse,
+} from './dto/update-elite-cooldown.dto';
 
 @Injectable()
 export class ElitesService {
@@ -215,8 +218,8 @@ export class ElitesService {
     };
 
     if (
-      !updateEliteDeathDto.dateOfDeath &&
-      !updateEliteDeathDto.dateOfRespawn
+      isNaN(updateEliteDeathDto.dateOfDeath) &&
+      isNaN(updateEliteDeathDto.dateOfRespawn)
     ) {
       // If the elite died at a certain time not now.
       let nextResurrectTime = elite.cooldownTime;
@@ -224,13 +227,16 @@ export class ElitesService {
       history.fromCooldown = elite.cooldown;
       history.toCooldown = ++elite.cooldown;
       await this.historyService.createHistory(history);
-      const deathTime = elite.respawnTime
+      const deathTime = elite.respawnTime;
 
       return eliteModel
         .findOneAndUpdate(
           // Add +1 to the cooldown counter and update the respawn on cd
           { eliteName: elite.eliteName },
-          { $inc: { cooldown: 1, respawnTime: nextResurrectTime }, deathTime: deathTime },
+          {
+            $inc: { cooldown: 1, respawnTime: nextResurrectTime },
+            deathTime: deathTime,
+          },
           { new: true },
         )
         .select('-__v')
@@ -238,7 +244,7 @@ export class ElitesService {
         .exec();
     }
 
-    if (updateEliteDeathDto.dateOfRespawn) {
+    if (updateEliteDeathDto.dateOfRespawn >= 0) {
       // If we now know the exact time of the elite respawn.
       let nextResurrectTime = updateEliteDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
@@ -250,7 +256,11 @@ export class ElitesService {
         .findOneAndUpdate(
           // Update the respawn at the exact time of respawn.
           { eliteName: elite.eliteName },
-          { respawnTime: nextResurrectTime, cooldown: 0, deathTime: adjustedDeathTime },
+          {
+            respawnTime: nextResurrectTime,
+            cooldown: 0,
+            deathTime: adjustedDeathTime,
+          },
           { new: true },
         )
         .select('-__v')
@@ -267,7 +277,11 @@ export class ElitesService {
       .findOneAndUpdate(
         // Update the respawn at the exact time of death.
         { eliteName: elite.eliteName },
-        { respawnTime: nextResurrectTime, cooldown: 0, deathTime: updateEliteDeathDto.dateOfDeath },
+        {
+          respawnTime: nextResurrectTime,
+          cooldown: 0,
+          deathTime: updateEliteDeathDto.dateOfDeath,
+        },
         { new: true },
       )
       .select('-__v')
