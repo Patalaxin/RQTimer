@@ -21,6 +21,7 @@ import {
   LogrusHistorySchema,
 } from '../schemas/logrusHistory.schema';
 import { HistoryModule } from '../history/history.module';
+import { BotModule } from '../telegramBot/bot.module';
 
 @Module({
   providers: [BossesService],
@@ -28,6 +29,7 @@ import { HistoryModule } from '../history/history.module';
   imports: [
     UsersModule,
     HistoryModule,
+    BotModule,
     MongooseModule.forFeature([
       { name: GranasBoss.name, schema: GranasBossSchema },
     ]),

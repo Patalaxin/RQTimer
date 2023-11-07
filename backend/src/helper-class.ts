@@ -4,9 +4,9 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class HelperClass {
-  constructor() {}
+  static counter: number = 0
 
-  static getNicknameFromToken(request: Request, jwtService: JwtService) {
+  static getNicknameFromToken(request: Request, jwtService: JwtService): string {
     interface DecodeResult {
       email: string;
       nickname: string;
@@ -14,8 +14,13 @@ export class HelperClass {
       exp: number;
     }
 
-    const accessToken = request.headers.authorization?.split(' ')[1];
+    const accessToken: string = request.headers.authorization?.split(' ')[1];
     const { nickname } = jwtService.decode(accessToken) as DecodeResult;
     return nickname;
   }
+
+  static async generateUniqueName() {
+    let actualCounter = ++this.counter;
+    return `${actualCounter}`
+  };
 }

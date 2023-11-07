@@ -48,11 +48,13 @@ import {
   UpdateBossCooldownDtoResponse,
 } from './dto/update-boss-cooldown.dto';
 import { RespawnLostBossDtoResponse } from './dto/respawnLost-boss.dto';
+import { TelegramBotService } from '../telegramBot/bot.service';
 
 @Injectable()
 export class BossesService {
   private bossModels: any;
   private historyModels: any;
+
   public getNicknameFromToken(request: Request): any {
     return HelperClass.getNicknameFromToken(request, this.jwtService);
   }
@@ -72,7 +74,8 @@ export class BossesService {
     private logrusHistoryModel: Model<LogrusHistoryDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
-    private readonly jwtService: JwtService,
+    private botService: TelegramBotService,
+    private jwtService: JwtService,
   ) {
     this.bossModels = [
       { server: 'Гранас', model: this.granasBossModel },
@@ -143,7 +146,7 @@ export class BossesService {
     const { excludedBosses, unavailableBosses } =
       await this.usersService.findUser(email);
 
-    const undisplayedBosses = excludedBosses.concat(
+    const undisplayedBosses: string[] = excludedBosses.concat(
       unavailableBosses.filter((item) => excludedBosses.indexOf(item) === -1),
     );
 
@@ -198,6 +201,7 @@ export class BossesService {
     ).model;
 
     const boss: GetBossDtoResponse = await this.findBoss(getBossDto); // Get the boss we're updating
+    const timeoutName: string = await HelperClass.generateUniqueName();
 
     if (
       isNaN(updateBossDeathDto.dateOfDeath) &&
@@ -226,7 +230,14 @@ export class BossesService {
       history.fromCooldown = boss.cooldown;
       history.toCooldown = ++boss.cooldown;
       await this.historyService.createHistory(history);
-      const deathTime = boss.respawnTime;
+      const previousRespawnTime = boss.respawnTime;
+
+      await this.botService.newTimeout(
+        timeoutName,
+        boss.respawnTime + nextResurrectTime,
+        updateBossDeathDto.bossName,
+        updateBossDeathDto.server,
+      );
 
       return bossModel
         .findOneAndUpdate(
@@ -234,7 +245,7 @@ export class BossesService {
           { bossName: boss.bossName },
           {
             $inc: { cooldown: 1, respawnTime: nextResurrectTime },
-            deathTime: deathTime,
+            deathTime: previousRespawnTime,
             respawnLost: false,
           },
           { new: true },
@@ -246,11 +257,18 @@ export class BossesService {
 
     if (updateBossDeathDto.dateOfRespawn >= 0) {
       // If we now know the exact time of the boss respawn.
-      let nextResurrectTime = updateBossDeathDto.dateOfRespawn;
+      let nextResurrectTime: number = updateBossDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
       await this.historyService.createHistory(history);
-      const deathTime = nextResurrectTime - boss.cooldownTime;
-      const adjustedDeathTime = deathTime < 0 ? 0 : deathTime;
+      const deathTime: number = nextResurrectTime - boss.cooldownTime;
+      const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
+
+      await this.botService.newTimeout(
+        timeoutName,
+        updateBossDeathDto.dateOfRespawn,
+        updateBossDeathDto.bossName,
+        updateBossDeathDto.server,
+      );
 
       return bossModel
         .findOneAndUpdate(
@@ -267,13 +285,19 @@ export class BossesService {
         .select('-__v')
         .lean()
         .exec();
-
     }
 
     let nextResurrectTime: number =
       updateBossDeathDto.dateOfDeath + boss.cooldownTime; // If the boss is dead now.
     history.toWillResurrect = nextResurrectTime;
     await this.historyService.createHistory(history);
+
+    await this.botService.newTimeout(
+      timeoutName,
+      nextResurrectTime,
+      updateBossDeathDto.bossName,
+      updateBossDeathDto.server,
+    );
 
     return bossModel
       .findOneAndUpdate(

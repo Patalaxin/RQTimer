@@ -57,6 +57,7 @@ import {
   UpdateEliteCooldownDtoResponse,
 } from './dto/update-elite-cooldown.dto';
 import { RespawnLostEliteDtoResponse } from './dto/respawnLost-elite.dto';
+import { TelegramBotService } from "../telegramBot/bot.service";
 
 @Injectable()
 export class ElitesService {
@@ -82,6 +83,7 @@ export class ElitesService {
     private logrusHistoryModel: Model<LogrusHistoryDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
+    private botService: TelegramBotService,
     private readonly jwtService: JwtService,
   ) {
     this.elitesModels = [
@@ -155,7 +157,7 @@ export class ElitesService {
     const { excludedElites, unavailableElites } =
       await this.usersService.findUser(email);
 
-    const undisplayedElites = excludedElites.concat(
+    const undisplayedElites: string[] = excludedElites.concat(
       unavailableElites.filter((item) => excludedElites.indexOf(item) === -1),
     );
 
@@ -210,6 +212,8 @@ export class ElitesService {
     ).model;
 
     const elite: GetEliteDtoResponse = await this.findElite(getEliteDto); // Get the elite we're updating
+    const timeoutName: string = await HelperClass.generateUniqueName();
+
 
     if (
       isNaN(updateEliteDeathDto.dateOfDeath) &&
@@ -238,15 +242,23 @@ export class ElitesService {
       history.fromCooldown = elite.cooldown;
       history.toCooldown = ++elite.cooldown;
       await this.historyService.createHistory(history);
-      const deathTime = elite.respawnTime;
+      const previousRespawnTime = elite.respawnTime;
+
+      await this.botService.newTimeout(
+        timeoutName,
+        elite.respawnTime + nextResurrectTime,
+        updateEliteDeathDto.eliteName,
+        updateEliteDeathDto.server,
+      );
 
       return eliteModel
         .findOneAndUpdate(
-          // Add +1 to the cooldown counter and update the respawn on cd
+          // Add +1 to the cooldown counter and update the respawn/death times
           { eliteName: elite.eliteName },
           {
             $inc: { cooldown: 1, respawnTime: nextResurrectTime },
-            deathTime: deathTime,
+            deathTime: previousRespawnTime,
+            respawnLost: false,
           },
           { new: true },
         )
@@ -257,11 +269,18 @@ export class ElitesService {
 
     if (updateEliteDeathDto.dateOfRespawn >= 0) {
       // If we now know the exact time of the elite respawn.
-      let nextResurrectTime = updateEliteDeathDto.dateOfRespawn;
+      let nextResurrectTime: number = updateEliteDeathDto.dateOfRespawn;
       history.toWillResurrect = nextResurrectTime;
       await this.historyService.createHistory(history);
-      const deathTime = nextResurrectTime - elite.cooldownTime;
-      const adjustedDeathTime = deathTime < 0 ? 0 : deathTime;
+      const deathTime: number = nextResurrectTime - elite.cooldownTime;
+      const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
+
+      await this.botService.newTimeout(
+        timeoutName,
+        updateEliteDeathDto.dateOfRespawn,
+        updateEliteDeathDto.eliteName,
+        updateEliteDeathDto.server,
+      );
 
       return eliteModel
         .findOneAndUpdate(
@@ -271,6 +290,7 @@ export class ElitesService {
             respawnTime: nextResurrectTime,
             cooldown: 0,
             deathTime: adjustedDeathTime,
+            respawnLost: false,
           },
           { new: true },
         )
@@ -279,10 +299,17 @@ export class ElitesService {
         .exec();
     }
 
-    let nextResurrectTime =
+    let nextResurrectTime: number =
       updateEliteDeathDto.dateOfDeath + elite.cooldownTime; // If the elite is dead now.
     history.toWillResurrect = nextResurrectTime;
     await this.historyService.createHistory(history);
+
+    await this.botService.newTimeout(
+      timeoutName,
+      nextResurrectTime,
+      updateEliteDeathDto.eliteName,
+      updateEliteDeathDto.server,
+    );
 
     return eliteModel
       .findOneAndUpdate(
@@ -292,6 +319,7 @@ export class ElitesService {
           respawnTime: nextResurrectTime,
           cooldown: 0,
           deathTime: updateEliteDeathDto.dateOfDeath,
+          respawnLost: false,
         },
         { new: true },
       )
