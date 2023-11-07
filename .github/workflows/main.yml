@@ -32,6 +32,7 @@ jobs:
           script: |
             cd TimerRQ
             git pull
+            cd backend
             if [ -f .env ]; then rm .env; fi
             echo "DATABASE_USER_TEST=${{ secrets.DATABASE_USER_TEST }}" >> .env
             echo "DATABASE_PASSWORD_TEST=${{ secrets.DATABASE_PASSWORD_TEST }}" >> .env
@@ -40,7 +41,6 @@ jobs:
             echo "ENIGMA_TOKEN=${{ secrets.ENIGMA_TOKEN }}" >> .env
             echo "LOGRUS_TOKEN=${{ secrets.LOGRUS_TOKEN }}" >> .env
             npm install
-            cd backend
             npm run build
             cd dist
             pm2 restart main.js
