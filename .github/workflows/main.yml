@@ -11,6 +11,12 @@ jobs:
     env:
         SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PASS: ${{ secrets.SSH_PASS }}
+        DATABASE_USER_TEST: ${{ secrets.DATABASE_USER_TEST }}
+        DATABASE_PASSWORD_TEST: ${{ secrets.DATABASE_PASSWORD_TEST }}
+        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+        GRANAS_TOKEN: ${{ secrets.GRANAS_TOKEN }}
+        ENIGMA_TOKEN: ${{ secrets.ENIGMA_TOKEN }}
+        LOGRUS_TOKEN: ${{ secrets.LOGRUS_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -26,6 +32,13 @@ jobs:
           script: |
             cd TimerRQ
             git pull
+            if [ -f .env ]; then rm .env; fi
+            echo "DATABASE_USER_TEST=${{ secrets.DATABASE_USER_TEST }}" > .env
+            echo "DATABASE_PASSWORD_TEST=${{ secrets.DATABASE_PASSWORD_TEST }}" > .env
+            echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" > .env
+            echo "GRANAS_TOKEN=${{ secrets.GRANAS_TOKEN }}" > .env
+            echo "ENIGMA_TOKEN=${{ secrets.ENIGMA_TOKEN }}" > .env
+            echo "LOGRUS_TOKEN=${{ secrets.LOGRUS_TOKEN }}" > .env
             npm install
             cd backend
             npm run build
