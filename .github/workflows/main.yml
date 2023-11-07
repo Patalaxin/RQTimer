@@ -43,7 +43,7 @@ jobs:
             npm install
             npm run build
             cd dist
-            pm2 restart main.js ecosystem.config.js
+            pm2 restart main
             sudo service nginx restart
 
             
