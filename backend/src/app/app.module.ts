@@ -6,6 +6,9 @@ import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { BossesModule } from '../bosses/bosses.module';
 import { ElitesModule } from '../elites/elites.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import * as process from "process";
 
 @Module({
   imports: [
@@ -13,12 +16,18 @@ import { ElitesModule } from '../elites/elites.module';
     BossesModule,
     AuthModule,
     ElitesModule,
-    MongooseModule.forRoot(
-      'mongodb+srv://spatalaxin:oqKWurYUYq1mzGxv@cluster0.tkjfgpb.mongodb.net/?retryWrites=true&w=majority',
-    ),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        uri: `mongodb+srv://${process.env.DATABASE_USER_TEST}:${process.env.DATABASE_PASSWORD_TEST}.mongodb.net/?retryWrites=true&w=majority`,
+      }),
+      inject: [ConfigService],
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(resolve(), 'client'),
     }),
+    ScheduleModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],
   providers: [],
