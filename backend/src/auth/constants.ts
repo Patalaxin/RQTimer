@@ -1,4 +1,5 @@
-export const jwtConstants = {
-  secret: 'estate concrete loop contraction point',
-  secret2: 'comfort assessment cabin worth mourning',
+import * as process from "process";
+
+export const jwtConstants: { secret: string } = {
+  secret: process.env.SECRET_CONSTANT,
 };
