@@ -1,5 +1,6 @@
 import { IsEmail, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
+import { IsPassword } from "../../decorators/isPassword.decorator";
 
 export class ForgotUserPassDtoRequest {
   @IsEmail()
@@ -12,6 +13,7 @@ export class ForgotUserPassDtoRequest {
 
   @IsString()
   @IsNotEmpty()
+  @IsPassword()
   newPassword: string;
 }
 

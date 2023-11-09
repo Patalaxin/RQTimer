@@ -1,7 +1,7 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { EliteTypes, Servers } from '../../schemas/mobs.enum';
 
-export class UpdateEliteCooldownDtoRequest {
+export class UpdateEliteDateOfRespawnDtoRequest {
   @IsEnum(EliteTypes)
   @IsNotEmpty()
   eliteName: EliteTypes;
@@ -11,7 +11,6 @@ export class UpdateEliteCooldownDtoRequest {
   server: Servers;
 
   @IsNumber()
-  @IsPositive()
   @IsNotEmpty()
-  cooldown: number;
+  dateOfRespawn: number | null;
 }

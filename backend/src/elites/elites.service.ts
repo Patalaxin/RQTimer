@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { EliteTypes, Servers } from '../schemas/mobs.enum';
 import {
   EnigmaElite,
@@ -17,91 +16,50 @@ import {
   GranasEliteDocument,
 } from '../schemas/granasElites.schema';
 import { GetEliteDtoRequest, GetEliteDtoResponse } from './dto/get-elite.dto';
-import {
-  CreateEliteDtoRequest,
-  CreateEliteDtoResponse,
-} from './dto/create-elite.dto';
+import { CreateEliteDtoRequest } from './dto/create-elite.dto';
 import {
   UpdateEliteDtoBodyRequest,
-  UpdateEliteDtoBodyResponse,
   UpdateEliteDtoParamsRequest,
 } from './dto/update-elite.dto';
 import { Request } from 'express';
 import { History } from '../interfaces/history.interface';
 import { HistoryService } from '../history/history.service';
 import { JwtService } from '@nestjs/jwt';
-import {
-  GranasHistory,
-  GranasHistoryDocument,
-} from '../schemas/granasHistory.schema';
-import {
-  EnigmaHistory,
-  EnigmaHistoryDocument,
-} from '../schemas/enigmaHistory.schema';
-import {
-  LogrusHistory,
-  LogrusHistoryDocument,
-} from '../schemas/logrusHistory.schema';
-import {
-  UpdateEliteDeathDtoRequest,
-  UpdateEliteDeathDtoResponse,
-} from './dto/update-elite-death.dto';
 import { HelperClass } from '../helper-class';
-import {
-  GetElitesDtoRequest,
-  GetElitesDtoResponse,
-} from './dto/get-elites.dto';
+import { GetElitesDtoRequest } from './dto/get-elites.dto';
 import { DeleteEliteDtoResponse } from './dto/delete-elite.dto';
-import {
-  UpdateEliteCooldownDtoRequest,
-  UpdateEliteCooldownDtoResponse,
-} from './dto/update-elite-cooldown.dto';
-import { RespawnLostEliteDtoResponse } from './dto/respawnLost-elite.dto';
-import { TelegramBotService } from "../telegramBot/bot.service";
+import { UpdateEliteCooldownDtoRequest } from './dto/update-elite-cooldown.dto';
+import { TelegramBotService } from '../telegramBot/bot.service';
+import { UpdateEliteByCooldownDtoRequest } from './dto/update-elite-by-cooldown.dto';
+import { UpdateEliteDateOfDeathDtoRequest } from './dto/update-elite-date-of-death.dto';
+import { UpdateEliteDateOfRespawnDtoRequest } from './dto/update-elite-date-of-respawn.dto';
 
 @Injectable()
 export class ElitesService {
   private elitesModels: any;
-  private historyModels: any;
 
-  public getNicknameFromToken(request: Request): any {
-    return HelperClass.getNicknameFromToken(request, this.jwtService);
-  }
   constructor(
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(GranasElite.name)
     private granasEliteModel: Model<GranasEliteDocument>,
     @InjectModel(EnigmaElite.name)
     private enigmaEliteModel: Model<EnigmaEliteDocument>,
     @InjectModel(LogrusElite.name)
     private logrusEliteModel: Model<LogrusEliteDocument>,
-    @InjectModel(GranasHistory.name)
-    private granasHistoryModel: Model<GranasHistoryDocument>,
-    @InjectModel(EnigmaHistory.name)
-    private enigmaHistoryModel: Model<EnigmaHistoryDocument>,
-    @InjectModel(LogrusHistory.name)
-    private logrusHistoryModel: Model<LogrusHistoryDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
     private botService: TelegramBotService,
-    private readonly jwtService: JwtService,
+    private jwtService: JwtService,
   ) {
     this.elitesModels = [
       { server: 'Гранас', model: this.granasEliteModel },
       { server: 'Логрус', model: this.logrusEliteModel },
       { server: 'Энигма', model: this.enigmaEliteModel },
     ];
-
-    this.historyModels = [
-      { server: 'Гранас', model: this.granasHistoryModel },
-      { server: 'Логрус', model: this.enigmaHistoryModel },
-      { server: 'Энигма', model: this.logrusHistoryModel },
-    ];
   }
 
   async createElite(
     createEliteDto: CreateEliteDtoRequest,
-  ): Promise<CreateEliteDtoResponse> {
+  ): Promise<GetEliteDtoResponse> {
     const eliteModel = this.elitesModels.find(
       (obj) => obj.server === createEliteDto.server,
     ).model;
@@ -132,25 +90,21 @@ export class ElitesService {
       throw new BadRequestException('Not valid elite name');
     }
 
-    try {
-      const elite = await eliteModel
-        .findOne({ eliteName: getEliteDto.eliteName }, { __v: 0 })
-        .lean()
-        .exec();
-      if (!elite?._id) {
-        throw new BadRequestException();
-      }
-
-      return elite;
-    } catch (error) {
+    const elite = await eliteModel
+      .findOne({ eliteName: getEliteDto.eliteName }, { __v: 0 })
+      .lean()
+      .exec();
+    if (!elite?._id) {
       throw new BadRequestException('Elite not found');
     }
+
+    return elite;
   }
 
   async findAllEliteByUser(
     email: string,
     getElitesDtoRequest: GetElitesDtoRequest,
-  ): Promise<GetElitesDtoResponse[]> {
+  ): Promise<GetEliteDtoResponse[]> {
     const eliteModel = this.elitesModels.find(
       (obj) => obj.server === getElitesDtoRequest.server,
     ).model;
@@ -175,7 +129,7 @@ export class ElitesService {
   async updateElite(
     updateEliteDtoParamsRequest: UpdateEliteDtoParamsRequest,
     updateEliteDto: UpdateEliteDtoBodyRequest,
-  ): Promise<UpdateEliteDtoBodyResponse> {
+  ): Promise<GetEliteDtoResponse> {
     const eliteModel = this.elitesModels.find(
       (obj) => obj.server === updateEliteDtoParamsRequest.server,
     ).model;
@@ -190,125 +144,108 @@ export class ElitesService {
       .exec();
   }
 
-  async updateDeathOfElite(
+  async updateEliteByCooldown(
     request: Request,
-    updateEliteDeathDto: UpdateEliteDeathDtoRequest,
-  ): Promise<UpdateEliteDeathDtoResponse> {
-    if (updateEliteDeathDto.dateOfDeath && updateEliteDeathDto.dateOfRespawn) {
-      throw new BadRequestException(
-        'dateOfDeath and dateOfRespawn should not be together',
-      );
-    }
-
-    const nickname = await this.getNicknameFromToken(request);
+    updateEliteByCooldownDto: UpdateEliteByCooldownDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
     const getEliteDto = {
-      eliteName: updateEliteDeathDto.eliteName,
-      server: updateEliteDeathDto.server,
+      eliteName: updateEliteByCooldownDto.eliteName,
+      server: updateEliteByCooldownDto.server,
     };
 
     const eliteModel = this.elitesModels.find(
       // Finding the elite database by server
-      (obj) => obj.server === updateEliteDeathDto.server,
+      (obj) => obj.server === updateEliteByCooldownDto.server,
     ).model;
 
-    const elite: GetEliteDtoResponse = await this.findElite(getEliteDto); // Get the elite we're updating
+    const elite: GetEliteDtoResponse = await this.findElite(getEliteDto);
     const timeoutName: string = await HelperClass.generateUniqueName();
 
-
-    if (
-      isNaN(updateEliteDeathDto.dateOfDeath) &&
-      isNaN(updateEliteDeathDto.dateOfRespawn) &&
-      elite.respawnTime === null
-    ) {
+    if (elite.respawnTime === null) {
       throw new BadRequestException(
         'Respawn is lost, so it is not possible to update on a cooldown. Some date of death (dateOfDeath) or date of respawn (dateOfRespawn) must be specified',
       );
     }
 
     const history: History = {
-      eliteName: updateEliteDeathDto.eliteName,
+      eliteName: updateEliteByCooldownDto.eliteName,
       nickname: nickname,
-      server: updateEliteDeathDto.server,
+      server: updateEliteByCooldownDto.server,
       date: Date.now(),
     };
 
-    if (
-      isNaN(updateEliteDeathDto.dateOfDeath) &&
-      isNaN(updateEliteDeathDto.dateOfRespawn)
-    ) {
-      // If the elite died at a certain time not now.
-      let nextResurrectTime = elite.cooldownTime;
-      history.toWillResurrect = nextResurrectTime;
-      history.fromCooldown = elite.cooldown;
-      history.toCooldown = ++elite.cooldown;
-      await this.historyService.createHistory(history);
-      const previousRespawnTime = elite.respawnTime;
+    let nextResurrectTime: number = elite.cooldownTime;
+    history.toWillResurrect = nextResurrectTime;
+    history.fromCooldown = elite.cooldown;
+    history.toCooldown = ++elite.cooldown;
+    await this.historyService.createHistory(history);
+    const previousRespawnTime: number = elite.respawnTime;
 
-      await this.botService.newTimeout(
-        timeoutName,
-        elite.respawnTime + nextResurrectTime,
-        updateEliteDeathDto.eliteName,
-        updateEliteDeathDto.server,
-      );
+    await this.botService.newTimeout(
+      timeoutName,
+      elite.respawnTime + nextResurrectTime,
+      updateEliteByCooldownDto.eliteName,
+      updateEliteByCooldownDto.server,
+    );
 
-      return eliteModel
-        .findOneAndUpdate(
-          // Add +1 to the cooldown counter and update the respawn/death times
-          { eliteName: elite.eliteName },
-          {
-            $inc: { cooldown: 1, respawnTime: nextResurrectTime },
-            deathTime: previousRespawnTime,
-            respawnLost: false,
-          },
-          { new: true },
-        )
-        .select('-__v')
-        .lean()
-        .exec();
-    }
+    return eliteModel
+      .findOneAndUpdate(
+        // Add +1 to the cooldown counter and update the respawn/death times
+        { eliteName: elite.eliteName },
+        {
+          $inc: { cooldown: 1, respawnTime: nextResurrectTime },
+          deathTime: previousRespawnTime,
+          respawnLost: false,
+        },
+        { new: true },
+      )
+      .select('-__v')
+      .lean()
+      .exec();
+  }
 
-    if (updateEliteDeathDto.dateOfRespawn >= 0) {
-      // If we now know the exact time of the elite respawn.
-      let nextResurrectTime: number = updateEliteDeathDto.dateOfRespawn;
-      history.toWillResurrect = nextResurrectTime;
-      await this.historyService.createHistory(history);
-      const deathTime: number = nextResurrectTime - elite.cooldownTime;
-      const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
+  async updateEliteDateOfDeath(
+    request: Request,
+    updateEliteDateOfDeathDto: UpdateEliteDateOfDeathDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
+    const getEliteDto = {
+      eliteName: updateEliteDateOfDeathDto.eliteName,
+      server: updateEliteDateOfDeathDto.server,
+    };
 
-      await this.botService.newTimeout(
-        timeoutName,
-        updateEliteDeathDto.dateOfRespawn,
-        updateEliteDeathDto.eliteName,
-        updateEliteDeathDto.server,
-      );
+    const eliteModel = this.elitesModels.find(
+      // Finding the elite database by server
+      (obj) => obj.server === updateEliteDateOfDeathDto.server,
+    ).model;
 
-      return eliteModel
-        .findOneAndUpdate(
-          // Update the respawn at the exact time of respawn.
-          { eliteName: elite.eliteName },
-          {
-            respawnTime: nextResurrectTime,
-            cooldown: 0,
-            deathTime: adjustedDeathTime,
-            respawnLost: false,
-          },
-          { new: true },
-        )
-        .select('-__v')
-        .lean()
-        .exec();
-    }
+    const elite: GetEliteDtoResponse = await this.findElite(getEliteDto); // Get the elite we're updating
+    const timeoutName: string = await HelperClass.generateUniqueName();
+
+    const history: History = {
+      eliteName: updateEliteDateOfDeathDto.eliteName,
+      nickname: nickname,
+      server: updateEliteDateOfDeathDto.server,
+      date: Date.now(),
+    };
 
     let nextResurrectTime: number =
-      updateEliteDeathDto.dateOfDeath + elite.cooldownTime; // If the elite is dead now.
+      updateEliteDateOfDeathDto.dateOfDeath + elite.cooldownTime; // If the elite is dead now.
     history.toWillResurrect = nextResurrectTime;
     await this.historyService.createHistory(history);
 
     await this.botService.newTimeout(
       timeoutName,
       nextResurrectTime,
-      updateEliteDeathDto.eliteName,
-      updateEliteDeathDto.server,
+      updateEliteDateOfDeathDto.eliteName,
+      updateEliteDateOfDeathDto.server,
     );
 
     return eliteModel
@@ -318,7 +255,65 @@ export class ElitesService {
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
-          deathTime: updateEliteDeathDto.dateOfDeath,
+          deathTime: updateEliteDateOfDeathDto.dateOfDeath,
+          respawnLost: false,
+        },
+        { new: true },
+      )
+      .select('-__v')
+      .lean()
+      .exec();
+  }
+
+  async updateEliteDateOfRespawn(
+    request: Request,
+    updateEliteDateOfRespawnDto: UpdateEliteDateOfRespawnDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
+    const getEliteDto = {
+      eliteName: updateEliteDateOfRespawnDto.eliteName,
+      server: updateEliteDateOfRespawnDto.server,
+    };
+
+    const eliteModel = this.elitesModels.find(
+      // Finding the elite database by server
+      (obj) => obj.server === updateEliteDateOfRespawnDto.server,
+    ).model;
+
+    const elite: GetEliteDtoResponse = await this.findElite(getEliteDto); // Get the elite we're updating
+    const timeoutName: string = await HelperClass.generateUniqueName();
+
+    const history: History = {
+      eliteName: updateEliteDateOfRespawnDto.eliteName,
+      nickname: nickname,
+      server: updateEliteDateOfRespawnDto.server,
+      date: Date.now(),
+    };
+
+    let nextResurrectTime: number = updateEliteDateOfRespawnDto.dateOfRespawn;
+    history.toWillResurrect = nextResurrectTime;
+    await this.historyService.createHistory(history);
+    const deathTime: number = nextResurrectTime - elite.cooldownTime;
+    const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
+
+    await this.botService.newTimeout(
+      timeoutName,
+      updateEliteDateOfRespawnDto.dateOfRespawn,
+      updateEliteDateOfRespawnDto.eliteName,
+      updateEliteDateOfRespawnDto.server,
+    );
+
+    return eliteModel
+      .findOneAndUpdate(
+        // Update the respawn at the exact time of respawn.
+        { eliteName: elite.eliteName },
+        {
+          respawnTime: nextResurrectTime,
+          cooldown: 0,
+          deathTime: adjustedDeathTime,
           respawnLost: false,
         },
         { new: true },
@@ -330,7 +325,7 @@ export class ElitesService {
 
   async updateCooldownCounterElite(
     updateEliteCooldownDtoRequest: UpdateEliteCooldownDtoRequest,
-  ): Promise<UpdateEliteCooldownDtoResponse> {
+  ): Promise<GetEliteDtoResponse> {
     const eliteModel = this.elitesModels.find(
       (obj) => obj.server === updateEliteCooldownDtoRequest.server,
     ).model;
@@ -353,8 +348,11 @@ export class ElitesService {
   async crashEliteServer(
     request: Request,
     server: Servers,
-  ): Promise<GetElitesDtoResponse[]> {
-    const nickname = this.getNicknameFromToken(request);
+  ): Promise<GetEliteDtoResponse[]> {
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
 
     try {
       const eliteModel = this.elitesModels.find(
@@ -396,7 +394,7 @@ export class ElitesService {
   async respawnLost(
     server: Servers,
     eliteName: EliteTypes,
-  ): Promise<RespawnLostEliteDtoResponse[]> {
+  ): Promise<GetEliteDtoResponse[]> {
     const eliteModel = this.elitesModels.find(
       (obj) => obj.server === server,
     ).model;

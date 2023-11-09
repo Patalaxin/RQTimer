@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { BossTypes, EliteTypes } from '../../schemas/mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsPassword } from "../../decorators/isPassword.decorator";
 
 export class CreateUserDtoRequest {
   @IsString()
@@ -24,6 +25,7 @@ export class CreateUserDtoRequest {
 
   @IsString()
   @IsNotEmpty()
+  @IsPassword()
   password: string;
 
   @ApiProperty({

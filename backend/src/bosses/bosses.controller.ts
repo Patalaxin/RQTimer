@@ -24,25 +24,22 @@ import { BossTypes, Servers } from '../schemas/mobs.enum';
 import { GetBossDtoRequest, GetBossDtoResponse } from './dto/get-boss.dto';
 import {
   UpdateBossDtoBodyRequest,
-  UpdateBossDtoBodyResponse,
   UpdateBossDtoParamsRequest,
 } from './dto/update-boss.dto';
 import {
   CreateBossDtoRequest,
-  CreateBossDtoResponse,
 } from './dto/create-boss.dto';
 import {
-  UpdateBossDeathDtoRequest,
-  UpdateBossDeathDtoResponse,
-} from './dto/update-boss-death.dto';
-import {
   GetBossesDtoRequest,
-  GetBossesDtoResponse,
 } from './dto/get-bosses.dto';
 import { DeleteBossDtoResponse } from './dto/delete-boss.dto';
 import { UsersGuard } from '../guards/users.guard';
-import { UpdateBossCooldownDtoRequest, UpdateBossCooldownDtoResponse } from "./dto/update-boss-cooldown.dto";
-import { RespawnLostBossDtoResponse } from "./dto/respawnLost-boss.dto";
+import {
+  UpdateBossCooldownDtoRequest,
+} from './dto/update-boss-cooldown.dto';
+import { UpdateBossByCooldownDtoRequest } from './dto/update-boss-by-cooldown.dto';
+import { UpdateBossDateOfDeathDtoRequest } from './dto/update-boss-date-of-death.dto';
+import { UpdateBossDateOfRespawnDtoRequest } from './dto/update-boss-date-of-respawn.dto';
 
 @ApiTags('Boss API')
 @ApiBearerAuth()
@@ -57,7 +54,7 @@ export class BossesController {
   @Post('/create')
   async create(
     @Body() createBossDto: CreateBossDtoRequest,
-  ): Promise<CreateBossDtoResponse> {
+  ): Promise<GetBossDtoResponse> {
     return new GranasBoss(await this.bossService.createBoss(createBossDto));
   }
 
@@ -78,7 +75,7 @@ export class BossesController {
   async findAllBossesByUser(
     @GetEmailFromToken() email: string,
     @Param() getBossesDtoRequest: GetBossesDtoRequest,
-  ): Promise<GetBossesDtoResponse[]> {
+  ): Promise<GetBossDtoResponse[]> {
     return await this.bossService.findAllBossesByUser(
       email,
       getBossesDtoRequest,
@@ -92,7 +89,7 @@ export class BossesController {
   async updateBoss(
     @Body() updateBossDto: UpdateBossDtoBodyRequest,
     @Param() updateBossDtoParamsRequest: UpdateBossDtoParamsRequest,
-  ): Promise<UpdateBossDtoBodyResponse> {
+  ): Promise<GetBossDtoResponse> {
     try {
       return await this.bossService.updateBoss(
         updateBossDtoParamsRequest,
@@ -105,15 +102,43 @@ export class BossesController {
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
-  @ApiOperation({ summary: 'Update Boss Respawn Time' })
-  @Put('/updateDeathOfBoss')
-  async updateDeathOfBoss(
+  @ApiOperation({ summary: 'Update Boss by Cooldown Respawn Time' })
+  @Put('/updateBossByCooldown')
+  async updateBossByCooldown(
     @Req() request: Request,
-    @Body() updateBossDeathDto: UpdateBossDeathDtoRequest,
-  ): Promise<UpdateBossDeathDtoResponse> {
-    return await this.bossService.updateDeathOfBoss(
+    @Body() updateBossByCooldownDto: UpdateBossByCooldownDtoRequest,
+  ): Promise<GetBossDtoResponse> {
+    return await this.bossService.updateBossByCooldown(
       request,
-      updateBossDeathDto,
+      updateBossByCooldownDto,
+    );
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Boss Respawn Time by Date of Death' })
+  @Put('/updateBossDateOfDeath')
+  async updateBossDateOfDeath(
+    @Req() request: Request,
+    @Body() updateBossDateOfDeathDto: UpdateBossDateOfDeathDtoRequest,
+  ): Promise<GetBossDtoResponse> {
+    return await this.bossService.updateBossDateOfDeath(
+      request,
+      updateBossDateOfDeathDto,
+    );
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Boss Respawn Time by Date of Respawn' })
+  @Put('/updateBossDateOfRespawn')
+  async updateBossDateOfRespawn(
+    @Req() request: Request,
+    @Body() updateBossDateOfRespawnDto: UpdateBossDateOfRespawnDtoRequest,
+  ): Promise<GetBossDtoResponse> {
+    return await this.bossService.updateBossDateOfRespawn(
+      request,
+      updateBossDateOfRespawnDto,
     );
   }
 
@@ -121,9 +146,11 @@ export class BossesController {
   @ApiOperation({ summary: 'Update Boss Cooldown Counter ' })
   @Put('/updateCooldownCounter')
   async updateCooldownCounter(
-    @Body() updateBossCooldownDtoRequest: UpdateBossCooldownDtoRequest
-  ): Promise<UpdateBossCooldownDtoResponse> {
-    return await this.bossService.updateCooldownCounterBoss(updateBossCooldownDtoRequest);
+    @Body() updateBossCooldownDtoRequest: UpdateBossCooldownDtoRequest,
+  ): Promise<GetBossDtoResponse> {
+    return await this.bossService.updateCooldownCounterBoss(
+      updateBossCooldownDtoRequest,
+    );
   }
 
   @Roles(RolesTypes.Admin)
@@ -143,7 +170,7 @@ export class BossesController {
   async crashServer(
     @Req() request: Request,
     @Param('server') server: Servers,
-  ): Promise<GetBossesDtoResponse[]> {
+  ): Promise<GetBossDtoResponse[]> {
     return this.bossService.crashBossServer(request, server);
   }
 
@@ -153,7 +180,7 @@ export class BossesController {
   async respawnLost(
     @Param('bossName') bossName: BossTypes,
     @Param('server') server: Servers,
-  ): Promise<RespawnLostBossDtoResponse[]> {
+  ): Promise<GetBossDtoResponse[]> {
     return await this.bossService.respawnLost(server, bossName);
   }
 }

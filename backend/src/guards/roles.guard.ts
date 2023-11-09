@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
 import { Request } from 'express';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../schemas/user.schema';
+import { RolesTypes, User, UserDocument } from "../schemas/user.schema";
 
 export interface DecodeResult {
   email: string;
@@ -16,8 +16,8 @@ export interface DecodeResult {
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
-    public jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    public jwtService: JwtService,
     public reflector: Reflector,
   ) {}
 
@@ -27,7 +27,7 @@ export class RolesGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const allowedRoles = this.reflector.get<string[]>(
+    const allowedRoles: RolesTypes[] = this.reflector.get<RolesTypes[]>(
       'roles',
       context.getHandler(),
     );
@@ -37,12 +37,12 @@ export class RolesGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token: string = this.extractTokenFromHeader(request);
     const { email } = this.jwtService.decode(token) as DecodeResult;
     const user = await this.userModel
       .find({ email: email })
       .select({ role: 1 });
-    const userRole = user[0].role;
+    const userRole: RolesTypes = user[0].role;
     return allowedRoles.includes(userRole);
   }
 }

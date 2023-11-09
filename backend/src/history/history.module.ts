@@ -1,8 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersModule } from '../users/users.module';
-import { Token, TokenSchema } from '../schemas/refreshToken.schema';
-import { User, UserSchema } from '../schemas/user.schema';
 import {
   GranasHistory,
   GranasHistorySchema,
@@ -22,7 +19,6 @@ import { HistoryController } from './history.controller';
   providers: [HistoryService],
   exports: [HistoryService],
   imports: [
-    UsersModule,
     MongooseModule.forFeature([
       { name: GranasHistory.name, schema: GranasHistorySchema },
     ]),
@@ -32,8 +28,6 @@ import { HistoryController } from './history.controller';
     MongooseModule.forFeature([
       { name: LogrusHistory.name, schema: LogrusHistorySchema },
     ]),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
   ],
   controllers: [HistoryController],
 })

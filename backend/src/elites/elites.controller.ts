@@ -19,30 +19,21 @@ import { Roles } from '../decorators/roles.decorator';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { ElitesService } from './elites.service';
 import { UsersGuard } from '../guards/users.guard';
-import {
-  CreateEliteDtoRequest,
-  CreateEliteDtoResponse,
-} from './dto/create-elite.dto';
+import { CreateEliteDtoRequest } from './dto/create-elite.dto';
 import { GetEliteDtoRequest, GetEliteDtoResponse } from './dto/get-elite.dto';
 import {
   UpdateEliteDtoBodyRequest,
-  UpdateEliteDtoBodyResponse,
   UpdateEliteDtoParamsRequest,
 } from './dto/update-elite.dto';
-import {
-  GetElitesDtoRequest,
-  GetElitesDtoResponse,
-} from './dto/get-elites.dto';
+import { GetElitesDtoRequest } from './dto/get-elites.dto';
 import { DeleteEliteDtoResponse } from './dto/delete-elite.dto';
-import {
-  UpdateEliteDeathDtoRequest,
-  UpdateEliteDeathDtoResponse,
-} from './dto/update-elite-death.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { GranasElite } from '../schemas/granasElites.schema';
-import { EliteTypes, Servers } from "../schemas/mobs.enum";
-import { UpdateEliteCooldownDtoRequest, UpdateEliteCooldownDtoResponse } from "./dto/update-elite-cooldown.dto";
-import { RespawnLostEliteDtoResponse } from "./dto/respawnLost-elite.dto";
+import { EliteTypes, Servers } from '../schemas/mobs.enum';
+import { UpdateEliteCooldownDtoRequest } from './dto/update-elite-cooldown.dto';
+import { UpdateEliteByCooldownDtoRequest } from './dto/update-elite-by-cooldown.dto';
+import { UpdateEliteDateOfDeathDtoRequest } from './dto/update-elite-date-of-death.dto';
+import { UpdateEliteDateOfRespawnDtoRequest } from './dto/update-elite-date-of-respawn.dto';
 
 @ApiTags('Elite API')
 @ApiBearerAuth()
@@ -57,7 +48,7 @@ export class ElitesController {
   @Post('/create')
   async create(
     @Body() createEliteDto: CreateEliteDtoRequest,
-  ): Promise<CreateEliteDtoResponse> {
+  ): Promise<GetEliteDtoResponse> {
     return new GranasElite(await this.eliteService.createElite(createEliteDto));
   }
 
@@ -76,7 +67,7 @@ export class ElitesController {
   async findAllEliteByUser(
     @GetEmailFromToken() email: string,
     @Param() getElitesDtoRequest: GetElitesDtoRequest,
-  ): Promise<GetElitesDtoResponse[]> {
+  ): Promise<GetEliteDtoResponse[]> {
     return await this.eliteService.findAllEliteByUser(
       email,
       getElitesDtoRequest,
@@ -90,7 +81,7 @@ export class ElitesController {
   async updateElite(
     @Body() updateEliteDto: UpdateEliteDtoBodyRequest,
     @Param() updateEliteDtoParamsRequest: UpdateEliteDtoParamsRequest,
-  ): Promise<UpdateEliteDtoBodyResponse> {
+  ): Promise<GetEliteDtoResponse> {
     try {
       return await this.eliteService.updateElite(
         updateEliteDtoParamsRequest,
@@ -103,15 +94,43 @@ export class ElitesController {
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
-  @ApiOperation({ summary: 'Update Elite Respawn Time' })
-  @Put('/updateDeathOfElite')
-  async updateDeathOfElite(
+  @ApiOperation({ summary: 'Update Elite by Cooldown Respawn Time' })
+  @Put('/updateEliteByCooldown')
+  async updateEliteByCooldown(
     @Req() request: Request,
-    @Body() updateEliteDeathDto: UpdateEliteDeathDtoRequest,
-  ): Promise<UpdateEliteDeathDtoResponse> {
-    return await this.eliteService.updateDeathOfElite(
+    @Body() updateEliteByCooldownDto: UpdateEliteByCooldownDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    return await this.eliteService.updateEliteByCooldown(
       request,
-      updateEliteDeathDto,
+      updateEliteByCooldownDto,
+    );
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Elite Respawn Time by Date of Death' })
+  @Put('/updateEliteDateOfDeath')
+  async updateEliteDateOfDeath(
+    @Req() request: Request,
+    @Body() updateEliteDateOfDeathDto: UpdateEliteDateOfDeathDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    return await this.eliteService.updateEliteDateOfDeath(
+      request,
+      updateEliteDateOfDeathDto,
+    );
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Update Elite Respawn Time by Date of Respawn' })
+  @Put('/updateEliteDateOfRespawn')
+  async updateEliteDateOfRespawn(
+    @Req() request: Request,
+    @Body() updateEliteDateOfRespawnDto: UpdateEliteDateOfRespawnDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    return await this.eliteService.updateEliteDateOfRespawn(
+      request,
+      updateEliteDateOfRespawnDto,
     );
   }
 
@@ -119,9 +138,11 @@ export class ElitesController {
   @ApiOperation({ summary: 'Update Elite Cooldown Counter ' })
   @Put('/updateCooldownCounter')
   async updateCooldownCounter(
-    @Body() updateEliteCooldownDtoRequest: UpdateEliteCooldownDtoRequest
-  ): Promise<UpdateEliteCooldownDtoResponse> {
-    return await this.eliteService.updateCooldownCounterElite(updateEliteCooldownDtoRequest);
+    @Body() updateEliteCooldownDtoRequest: UpdateEliteCooldownDtoRequest,
+  ): Promise<GetEliteDtoResponse> {
+    return await this.eliteService.updateCooldownCounterElite(
+      updateEliteCooldownDtoRequest,
+    );
   }
 
   @Roles(RolesTypes.Admin)
@@ -142,7 +163,7 @@ export class ElitesController {
   async crashServer(
     @Req() request: Request,
     @Param('server') server: Servers,
-  ): Promise<GetElitesDtoResponse[]> {
+  ): Promise<GetEliteDtoResponse[]> {
     return this.eliteService.crashEliteServer(request, server);
   }
 
@@ -152,7 +173,7 @@ export class ElitesController {
   async respawnLost(
     @Param('eliteName') eliteName: EliteTypes,
     @Param('server') server: Servers,
-  ): Promise<RespawnLostEliteDtoResponse[]> {
+  ): Promise<GetEliteDtoResponse[]> {
     return await this.eliteService.respawnLost(server, eliteName);
   }
 }

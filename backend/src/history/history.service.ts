@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -14,8 +14,8 @@ import {
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
-import { Servers } from "../schemas/mobs.enum";
-import { GetHistoryDtoResponse } from "./dto/get-history.dto";
+import { Servers } from '../schemas/mobs.enum';
+import { GetHistoryDtoResponse } from './dto/get-history.dto';
 
 @Injectable()
 export class HistoryService {
@@ -30,8 +30,8 @@ export class HistoryService {
   ) {
     this.historyModels = [
       { server: 'Гранас', model: this.granasHistoryModel },
-      { server: 'Логрус', model: this.enigmaHistoryModel },
-      { server: 'Энигма', model: this.logrusHistoryModel },
+      { server: 'Энигма', model: this.enigmaHistoryModel },
+      { server: 'Логрус', model: this.logrusHistoryModel },
     ];
   }
 
@@ -43,17 +43,13 @@ export class HistoryService {
     return historyModel.create(history);
   }
 
-  async getAllHistory(server: Servers): Promise<GetHistoryDtoResponse[]>{
+  async getAllHistory(server: Servers): Promise<GetHistoryDtoResponse[]> {
     try {
-
       const historyModel = this.historyModels.find(
         (obj) => obj.server === server,
       ).model;
 
-      return historyModel
-        .find({}, { __v: 0 })
-        .lean()
-        .exec();
+      return historyModel.find({}, { __v: 0 }).lean().exec();
     } catch (err) {
       throw new BadRequestException('Something went wrong');
     }

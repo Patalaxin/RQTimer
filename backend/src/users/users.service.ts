@@ -23,7 +23,6 @@ import {
   UpdateUserRoleDtoResponse,
 } from './dto/update-user-role.dto';
 import { User, UserDocument } from '../schemas/user.schema';
-import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import {
   DeleteAllUsersDtoResponse,
@@ -33,7 +32,6 @@ import {
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SessionId.name)
     private sessionIdModel: Model<SessionIdDocument>,
@@ -72,16 +70,12 @@ export class UsersService {
     }
   }
 
-  async findUser(email: string) {
-    try {
-      const user = await this.userModel.findOne({ email: email }).lean().exec();
-      if (!user) {
-        throw new BadRequestException('User does not exist!');
-      }
-      return user;
-    } catch (err) {
-      throw err;
+  async findUser(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email: email }).lean().exec();
+    if (!user) {
+      throw new BadRequestException('User does not exist!');
     }
+    return user;
   }
 
   async findAll(): Promise<User[]> {
@@ -100,56 +94,49 @@ export class UsersService {
     email: string,
     updateUserPassDto: ChangeUserPassDtoRequest,
   ): Promise<ChangeUserPassDtoResponse> {
-    try {
-      const user = await this.findUser(email);
+    const user: User = await this.findUser(email);
 
-      const isPasswordMatch = await bcrypt.compare(
-        updateUserPassDto.oldPassword,
-        user.password,
-      );
-      if (!isPasswordMatch) {
-        throw new UnauthorizedException('Password did not match!!!');
-      }
-
-      let hashedNewPassword = await bcrypt.hash(
-        updateUserPassDto.newPassword,
-        10,
-      );
-      await this.userModel.updateOne(
-        { email: user.email },
-        { password: hashedNewPassword },
-      );
-    } catch (err) {
-      throw err;
+    const isPasswordMatch: boolean = await bcrypt.compare(
+      updateUserPassDto.oldPassword,
+      user.password,
+    );
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException('Password did not match!!!');
     }
+
+    let hashedNewPassword: string = await bcrypt.hash(
+      updateUserPassDto.newPassword,
+      10,
+    );
+    await this.userModel.updateOne(
+      { email: user.email },
+      { password: hashedNewPassword },
+    );
+
     return { message: 'Password successfully changed', status: 200 };
   }
 
   async forgotPassword(
     forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
-    try {
-      const user = await this.findUser(forgotUserPassDto.email);
+    const user: User = await this.findUser(forgotUserPassDto.email);
 
-      const compareSessionId = await this.sessionIdModel.findOne({
-        _id: { $eq: forgotUserPassDto.sessionId },
-      });
-      if (compareSessionId === null) {
-        throw new BadRequestException('Wrong SessionId!');
-      }
-
-      await this.sessionIdModel.deleteMany({});
-      let hashedNewPassword = await bcrypt.hash(
-        forgotUserPassDto.newPassword,
-        10,
-      );
-      await this.userModel.updateOne(
-        { email: user.email },
-        { password: hashedNewPassword },
-      );
-    } catch (err) {
-      throw err;
+    const compareSessionId = await this.sessionIdModel.findOne({
+      _id: { $eq: forgotUserPassDto.sessionId },
+    });
+    if (compareSessionId === null) {
+      throw new BadRequestException('Wrong SessionId!');
     }
+
+    await this.sessionIdModel.deleteMany({});
+    let hashedNewPassword: string = await bcrypt.hash(
+      forgotUserPassDto.newPassword,
+      10,
+    );
+    await this.userModel.updateOne(
+      { email: user.email },
+      { password: hashedNewPassword },
+    );
 
     return { message: 'Password successfully changed', status: 200 };
   }
@@ -158,7 +145,7 @@ export class UsersService {
     updateUnavailableDto: UpdateUnavailableDto,
   ): Promise<User> {
     try {
-      const user = await this.findUser(updateUnavailableDto.email);
+      const user: User = await this.findUser(updateUnavailableDto.email);
       await this.userModel
         .updateOne(
           { email: user.email },
@@ -172,7 +159,7 @@ export class UsersService {
         .exec();
       return user;
     } catch (err) {
-      throw err;
+      throw new BadRequestException('Something went wrong!');
     }
   }
 
@@ -209,7 +196,7 @@ export class UsersService {
         .lean()
         .exec();
     } catch (err) {
-      throw err;
+      throw new BadRequestException('Something went wrong!');
     }
     return { message: 'Role has been updated successfully', status: 200 };
   }

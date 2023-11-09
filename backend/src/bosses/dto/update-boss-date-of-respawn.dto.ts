@@ -1,7 +1,7 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsPositive } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { BossTypes, Servers } from '../../schemas/mobs.enum';
 
-export class UpdateBossCooldownDtoRequest {
+export class UpdateBossDateOfRespawnDtoRequest {
   @IsEnum(BossTypes)
   @IsNotEmpty()
   bossName: BossTypes;
@@ -11,7 +11,6 @@ export class UpdateBossCooldownDtoRequest {
   server: Servers;
 
   @IsNumber()
-  @IsPositive()
   @IsNotEmpty()
-  cooldown: number;
+  dateOfRespawn: number | null;
 }

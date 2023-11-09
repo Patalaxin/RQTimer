@@ -3,6 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { BossTypes, EliteTypes, Servers } from './mobs.enum';
+import { TokenSchema } from "./refreshToken.schema";
 
 export type GranasHistoryDocument = HydratedDocument<GranasHistory>;
 
@@ -55,6 +56,9 @@ export class GranasHistory {
   @Prop()
   server: Servers;
 
+  @Prop({ type: Date, expires: 259200, default: Date.now }) //  3 day live for history
+  expireAt: Date;
+
   @Exclude()
   @Prop()
   __v: number;
@@ -65,3 +69,4 @@ export class GranasHistory {
 }
 
 export const GranasHistorySchema = SchemaFactory.createForClass(GranasHistory);
+TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 259200 }); //  3 day live for history

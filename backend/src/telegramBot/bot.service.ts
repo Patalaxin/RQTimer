@@ -1,16 +1,15 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
+import * as process from 'process';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { Servers } from "../schemas/mobs.enum";
-import * as process from "process";
+import { Servers } from '../schemas/mobs.enum';
 
 @Injectable()
 export class TelegramBotService {
   private botModel: any;
-  private bot: TelegramBot = new TelegramBot(
-    process.env.TELEGRAM_TOKEN,
-    { polling: true },
-  );
+  private bot: TelegramBot = new TelegramBot(process.env.TELEGRAM_TOKEN, {
+    polling: true,
+  });
   constructor(private readonly schedulerRegistry: SchedulerRegistry) {
     this.botModel = [
       {
@@ -28,11 +27,18 @@ export class TelegramBotService {
     ];
   }
 
-  async newTimeout(name: string, respawnTime: number, mobName: string, server: Servers): Promise<void> {
+  async newTimeout(
+    name: string,
+    respawnTime: number,
+    mobName: string,
+    server: Servers,
+  ): Promise<void> {
     try {
-      let time: number = respawnTime - Date.now() - 300000
+      let time: number = respawnTime - Date.now() - 300000;
       const callback = () => {
-        const botToken = this.botModel.find((obj) => obj.server === server).token;
+        const botToken = this.botModel.find(
+          (obj) => obj.server === server,
+        ).token;
         this.bot.sendMessage(botToken, `${mobName} реснется через 5 минут!`);
         this.bot.stopPolling();
         this.schedulerRegistry.deleteTimeout(name);
@@ -40,9 +46,10 @@ export class TelegramBotService {
 
       const timeout = setTimeout(callback, time);
       this.schedulerRegistry.addTimeout(name, timeout);
-    } catch (err){
-      throw new BadRequestException('Something get wrong with telegram bot :( ')
+    } catch (err) {
+      throw new BadRequestException(
+        'Something get wrong with telegram bot :( ',
+      );
     }
-    }
-
+  }
 }

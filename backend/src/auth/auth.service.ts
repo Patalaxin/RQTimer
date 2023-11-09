@@ -50,23 +50,19 @@ export class AuthService {
       );
     }
 
-    let user;
-    try {
-      if (signInDto.email) {
-        user = await this.userModel.findOne({ email: signInDto.email });
-        if (!user) {
-          throw new BadRequestException('Login or password invalid');
-        }
-      } else if (signInDto.nickname) {
-        user = await this.userModel.findOne({ nickname: signInDto.nickname });
-        if (!user) {
-          throw new BadRequestException('Login or password invalid');
-        }
-      } else {
-        throw new BadRequestException('Something went wrong');
+    let user: User;
+    if (signInDto.email) {
+      user = await this.userModel.findOne({ email: signInDto.email });
+      if (!user) {
+        throw new BadRequestException('Login or password invalid');
       }
-    } catch (err) {
-      throw err;
+    } else if (signInDto.nickname) {
+      user = await this.userModel.findOne({ nickname: signInDto.nickname });
+      if (!user) {
+        throw new BadRequestException('Login or password invalid');
+      }
+    } else {
+      throw new BadRequestException('Something went wrong');
     }
 
     const isPasswordMatch: boolean = await bcrypt.compare(
