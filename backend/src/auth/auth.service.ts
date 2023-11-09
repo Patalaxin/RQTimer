@@ -8,8 +8,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { Model } from 'mongoose';
-import { jwtConstants } from './constants';
-import { UsersService } from '../users/users.service';
 import { User, UserDocument } from '../schemas/user.schema';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
@@ -21,14 +19,13 @@ export class AuthService {
   constructor(
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
   private async addTokens(user: User): Promise<SignInDtoResponse> {
     const payload = { email: user.email, nickname: user.nickname };
     const accessToken: string = await this.jwtService.signAsync(payload, {
-      secret: jwtConstants.secret,
+      secret: process.env.SECRET_CONSTANT,
     });
     const refreshToken: string = randomUUID();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
@@ -53,7 +50,7 @@ export class AuthService {
       );
     }
 
-    let user: User;
+    let user;
     try {
       if (signInDto.email) {
         user = await this.userModel.findOne({ email: signInDto.email });
@@ -72,15 +69,14 @@ export class AuthService {
       throw err;
     }
 
-    const isPasswordMatch = await bcrypt.compare(
+    const isPasswordMatch: boolean = await bcrypt.compare(
       signInDto.password,
       user.password,
     );
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Login or password invalid');
     }
-    const tokens = await this.addTokens(user);
-
+    const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
@@ -101,8 +97,8 @@ export class AuthService {
       );
     }
 
-    let user;
-    let refreshToken;
+    let user: User;
+    let refreshToken: string;
 
     try {
       if (exchangeRefreshDto.email && !exchangeRefreshDto.nickname) {

@@ -1,19 +1,16 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { UsersModule } from '../users/users.module';
-import { jwtConstants } from './constants';
 import { User, UserSchema } from '../schemas/user.schema';
 import { Token, TokenSchema } from '../schemas/refreshToken.schema';
 
 @Module({
   imports: [
-    UsersModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret,
+      secret: process.env.SECRET_CONSTANT,
       signOptions: { expiresIn: '900s' }, // 15 min live for access token
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
