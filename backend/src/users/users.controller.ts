@@ -6,6 +6,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Inject,
   Param,
   Post,
   Put,
@@ -18,7 +19,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { UsersService } from './users.service';
 import { RolesTypes, User } from '../schemas/user.schema';
 import { SessionId } from '../schemas/sessionID.schema';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
@@ -44,19 +44,20 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
+import { IUser } from '../domain/user/user.interface';
 
 @ApiTags('User API')
 @UseGuards(RolesGuard)
 @Controller('user')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(@Inject('IUser') private readonly userInterface: IUser) {}
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create User' })
   @Post('/create')
   async create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
-    return new User(await this.userService.createUser(createUserDto));
+    return new User(await this.userInterface.createUser(createUserDto));
   }
 
   @UseGuards(UsersGuard)
@@ -66,7 +67,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Get User By Email' })
   @Get('findUser')
   async getOne(@GetEmailFromToken() email: string): Promise<User> {
-    return new User(await this.userService.findUser(email));
+    return new User(await this.userInterface.findUser(email));
   }
 
   @UseGuards(UsersGuard)
@@ -75,7 +76,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Find All Users' })
   @Get('/findAll')
   async findAll(): Promise<User[]> {
-    return await this.userService.findAll();
+    return await this.userInterface.findAll();
   }
 
   @UseGuards(UsersGuard)
@@ -89,7 +90,7 @@ export class UsersController {
     @GetEmailFromToken() email: string,
     @Body() updateUserPassDto: ChangeUserPassDtoRequest,
   ): Promise<ChangeUserPassDtoResponse> {
-    return this.userService.changePassword(email, updateUserPassDto);
+    return this.userInterface.changePassword(email, updateUserPassDto);
   }
 
   @Roles()
@@ -100,7 +101,7 @@ export class UsersController {
   async forgotPassword(
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
-    return this.userService.forgotPassword(forgotUserPassDto);
+    return this.userInterface.forgotPassword(forgotUserPassDto);
   }
 
   @UseGuards(UsersGuard)
@@ -113,7 +114,7 @@ export class UsersController {
     @Body() updateUnavailableDto: UpdateUnavailableDto,
   ): Promise<User> {
     return new User(
-      await this.userService.updateUnavailable(updateUnavailableDto),
+      await this.userInterface.updateUnavailable(updateUnavailableDto),
     );
   }
 
@@ -127,7 +128,7 @@ export class UsersController {
     @Body() updateExcludedDto: UpdateExcludedDto,
   ): Promise<User> {
     return new User(
-      await this.userService.updateExcluded(email, updateExcludedDto),
+      await this.userInterface.updateExcluded(email, updateExcludedDto),
     );
   }
 
@@ -141,7 +142,7 @@ export class UsersController {
   async updateRole(
     @Body() updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
-    return await this.userService.updateRole(updateUserRoleDto);
+    return await this.userInterface.updateRole(updateUserRoleDto);
   }
 
   @UseGuards(UsersGuard)
@@ -153,7 +154,7 @@ export class UsersController {
   async deleteOne(
     @Param('email') email: string,
   ): Promise<DeleteUserDtoResponse> {
-    return await this.userService.deleteOne(email);
+    return await this.userInterface.deleteOne(email);
   }
 
   @UseGuards(UsersGuard)
@@ -163,7 +164,7 @@ export class UsersController {
   @ApiOkResponse({ description: 'Success', type: DeleteAllUsersDtoResponse })
   @Delete('/deleteAll')
   async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
-    return await this.userService.deleteAll();
+    return await this.userInterface.deleteAll();
   }
 
   @Roles(RolesTypes.Admin)
@@ -173,7 +174,7 @@ export class UsersController {
   @Post('/generateSessionId')
   async generateSessionId(): Promise<SessionId> {
     try {
-      return new SessionId(await this.userService.generateSessionId());
+      return new SessionId(await this.userInterface.generateSessionId());
     } catch (error) {
       throw new HttpException(
         'Session Id does not created',

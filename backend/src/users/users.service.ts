@@ -28,9 +28,10 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
+import { IUser } from '../domain/user/user.interface';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUser {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SessionId.name)
@@ -42,6 +43,7 @@ export class UsersService {
       .findOne({ email: createUserDto.email })
       .lean()
       .exec();
+    console.log(userEmail);
     const userNickname = await this.userModel
       .findOne({ nickname: createUserDto.nickname })
       .lean()
@@ -121,9 +123,10 @@ export class UsersService {
   ): Promise<ForgotUserPassDtoResponse> {
     const user: User = await this.findUser(forgotUserPassDto.email);
 
-    const compareSessionId = await this.sessionIdModel.findOne({
+    const compareSessionId: SessionId = await this.sessionIdModel.findOne({
       _id: { $eq: forgotUserPassDto.sessionId },
     });
+
     if (compareSessionId === null) {
       throw new BadRequestException('Wrong SessionId!');
     }
@@ -133,6 +136,7 @@ export class UsersService {
       forgotUserPassDto.newPassword,
       10,
     );
+
     await this.userModel.updateOne(
       { email: user.email },
       { password: hashedNewPassword },
