@@ -34,8 +34,8 @@ import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
 export class MobService implements IMob {
   constructor(
     @InjectModel(Mob.name)
-    @InjectModel(MobsData.name)
     private mobModel: Model<MobDocument>,
+    @InjectModel(MobsData.name)
     private mobsDataModel: Model<MobsDataDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
