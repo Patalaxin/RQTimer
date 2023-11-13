@@ -4,18 +4,14 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsString
-} from "class-validator";
-import { BossTypes, EliteTypes, Servers } from "../../schemas/mobs.enum";
+  IsString,
+} from 'class-validator';
+import { MobName, Servers } from '../../schemas/mobs.enum';
 
 export class GetHistoryDtoResponse {
-  @IsEnum(BossTypes)
-  @IsOptional()
-  bossName?: BossTypes;
-
-  @IsEnum(EliteTypes)
-  @IsOptional()
-  eliteName?: EliteTypes;
+  @IsEnum(MobName)
+  @IsNotEmpty()
+  mobName: MobName;
 
   @IsString()
   @IsNotEmpty()
@@ -44,5 +40,4 @@ export class GetHistoryDtoResponse {
   @IsBoolean()
   @IsOptional()
   crashServer?: boolean;
-
 }

@@ -34,12 +34,18 @@ export class TelegramBotService {
     server: Servers,
   ): Promise<void> {
     try {
-      let time: number = respawnTime - Date.now() - 300000;
+      const time: number = respawnTime - Date.now() - 300000;
+      if (time <= Date.now()) {
+        return;
+      }
       const callback = () => {
         const botToken = this.botModel.find(
           (obj) => obj.server === server,
         ).token;
-        this.bot.sendMessage(botToken, `${mobName} реснется через 5 минут!`);
+        this.bot.sendMessage(
+          botToken,
+          `${mobName} реснется меньше чем через 5 минут!!!`,
+        );
         this.bot.stopPolling();
         this.schedulerRegistry.deleteTimeout(name);
       };

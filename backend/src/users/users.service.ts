@@ -28,13 +28,16 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
+import { IUser } from '../domain/user/user.interface';
+import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 
 @Injectable()
-export class UsersService {
+export class UsersService implements IUser {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(SessionId.name)
     private sessionIdModel: Model<SessionIdDocument>,
+    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
   ) {}
 
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
@@ -104,7 +107,7 @@ export class UsersService {
       throw new UnauthorizedException('Password did not match!!!');
     }
 
-    let hashedNewPassword: string = await bcrypt.hash(
+    const hashedNewPassword: string = await bcrypt.hash(
       updateUserPassDto.newPassword,
       10,
     );
@@ -121,18 +124,20 @@ export class UsersService {
   ): Promise<ForgotUserPassDtoResponse> {
     const user: User = await this.findUser(forgotUserPassDto.email);
 
-    const compareSessionId = await this.sessionIdModel.findOne({
+    const compareSessionId: SessionId = await this.sessionIdModel.findOne({
       _id: { $eq: forgotUserPassDto.sessionId },
     });
+
     if (compareSessionId === null) {
       throw new BadRequestException('Wrong SessionId!');
     }
 
     await this.sessionIdModel.deleteMany({});
-    let hashedNewPassword: string = await bcrypt.hash(
+    const hashedNewPassword: string = await bcrypt.hash(
       forgotUserPassDto.newPassword,
       10,
     );
+
     await this.userModel.updateOne(
       { email: user.email },
       { password: hashedNewPassword },
@@ -150,8 +155,7 @@ export class UsersService {
         .updateOne(
           { email: user.email },
           {
-            unavailableBosses: updateUnavailableDto.unavailableBosses,
-            unavailableElites: updateUnavailableDto.unavailableElites,
+            unavailableMobs: updateUnavailableDto.unavailableMobs,
           },
           { new: true },
         )
@@ -167,13 +171,12 @@ export class UsersService {
     email: string,
     updateExcludedDto: UpdateExcludedDto,
   ): Promise<User> {
-    const user = await this.findUser(email);
+    const user: User = await this.findUser(email);
     await this.userModel
       .updateOne(
         { email: user.email },
         {
-          excludedBosses: updateExcludedDto.excludedBosses,
-          excludedElites: updateExcludedDto.excludedElites,
+          excludedMobs: updateExcludedDto.excludedMobs,
         },
         { new: true },
       )
@@ -186,7 +189,7 @@ export class UsersService {
     updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
     try {
-      const user = await this.findUser(updateUserRoleDto.email);
+      const user: User = await this.findUser(updateUserRoleDto.email);
       await this.userModel
         .updateOne(
           { email: user.email },
@@ -204,6 +207,7 @@ export class UsersService {
   async deleteOne(email: string): Promise<DeleteUserDtoResponse> {
     try {
       await this.userModel.deleteOne({ email: email });
+      await this.tokenModel.findOneAndDelete({ email: email });
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }
@@ -222,7 +226,7 @@ export class UsersService {
   async generateSessionId(): Promise<SessionId> {
     try {
       await this.sessionIdModel.deleteMany({});
-      let sessionId = await this.sessionIdModel.create({ _id: randomUUID() });
+      const sessionId = await this.sessionIdModel.create({ _id: randomUUID() });
       return sessionId.toObject();
     } catch (err) {
       throw new BadRequestException('Something went wrong');
