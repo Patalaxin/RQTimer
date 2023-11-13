@@ -75,8 +75,8 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
   @Get('/findAll')
-  async findAll(): Promise<User[]> {
-    return await this.userInterface.findAll();
+  findAll(): Promise<User[]> {
+    return this.userInterface.findAll();
   }
 
   @UseGuards(UsersGuard)
@@ -86,7 +86,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Change User Password' })
   @ApiOkResponse({ description: 'Success', type: ChangeUserPassDtoResponse })
   @Put('/changePassword')
-  async changePassword(
+  changePassword(
     @GetEmailFromToken() email: string,
     @Body() updateUserPassDto: ChangeUserPassDtoRequest,
   ): Promise<ChangeUserPassDtoResponse> {
@@ -98,7 +98,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Forgot User Password' })
   @ApiOkResponse({ description: 'Success', type: ForgotUserPassDtoResponse })
   @Put('/forgotPassword')
-  async forgotPassword(
+  forgotPassword(
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
     return this.userInterface.forgotPassword(forgotUserPassDto);
@@ -139,10 +139,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Update The User Role' })
   @ApiOkResponse({ description: 'Success', type: UpdateUserRoleDtoResponse })
   @Put('/updateRole')
-  async updateRole(
+  updateRole(
     @Body() updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
-    return await this.userInterface.updateRole(updateUserRoleDto);
+    return this.userInterface.updateRole(updateUserRoleDto);
   }
 
   @UseGuards(UsersGuard)
@@ -151,10 +151,8 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete User By Email' })
   @ApiOkResponse({ description: 'Success', type: DeleteUserDtoResponse })
   @Delete(':email')
-  async deleteOne(
-    @Param('email') email: string,
-  ): Promise<DeleteUserDtoResponse> {
-    return await this.userInterface.deleteOne(email);
+  deleteOne(@Param('email') email: string): Promise<DeleteUserDtoResponse> {
+    return this.userInterface.deleteOne(email);
   }
 
   @UseGuards(UsersGuard)
@@ -163,8 +161,8 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete All Users' })
   @ApiOkResponse({ description: 'Success', type: DeleteAllUsersDtoResponse })
   @Delete('/deleteAll')
-  async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
-    return await this.userInterface.deleteAll();
+  deleteAll(): Promise<DeleteAllUsersDtoResponse> {
+    return this.userInterface.deleteAll();
   }
 
   @Roles(RolesTypes.Admin)

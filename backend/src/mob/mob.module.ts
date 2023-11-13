@@ -9,7 +9,7 @@ import { Mob, MobSchema } from '../schemas/mob.schema';
 import { MobsData, MobsDataSchema } from '../schemas/mobsData.schema';
 
 @Module({
-  providers: [MobService, { provide: 'IMob', useExisting: MobService }],
+  providers: [MobService, { provide: 'IMob', useClass: MobService }],
   exports: [MobService],
   imports: [
     UsersModule,

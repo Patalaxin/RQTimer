@@ -7,7 +7,7 @@ import { SessionId, SessionIdSchema } from '../schemas/sessionID.schema';
 import { Token, TokenSchema } from '../schemas/refreshToken.schema';
 
 @Module({
-  providers: [UsersService, { provide: 'IUser', useExisting: UsersService }],
+  providers: [UsersService, { provide: 'IUser', useClass: UsersService }],
   exports: [UsersService],
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

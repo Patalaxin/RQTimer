@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Inject,
   Param,
   Post,
@@ -45,78 +43,68 @@ import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
 @UseGuards(UsersGuard)
 @Controller('mob')
 export class MobController {
-  constructor(@Inject('IMob') private readonly mobInterface: IMob) {}
+  constructor(@Inject('IMob') private readonly mobService: IMob) {}
 
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create Mob' })
   @Post('/create')
-  async create(
+  create(
     @Body() createMobDto: CreateMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    return await this.mobInterface.createMob(createMobDto);
+    return this.mobService.createMob(createMobDto);
   }
 
   @Get('findMob/:mobName/:server/:location/')
   @UseInterceptors(ClassSerializerInterceptor)
-  async getMobAndData(
+  getMobAndData(
     @Param() getMobDto: GetMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    return await this.mobInterface.findMob(getMobDto);
+    return this.mobService.findMob(getMobDto);
   }
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Find All User Mobs' })
   @Get('findAll/:server/')
-  async findAllMobsByUser(
+  findAllMobsByUser(
     @GetEmailFromToken() email: string,
     @Param() getMobsDto: GetMobsDtoRequest,
   ): Promise<GetFullMobDtoResponse[]> {
-    return await this.mobInterface.findAllMobsByUser(email, getMobsDto);
+    return this.mobService.findAllMobsByUser(email, getMobsDto);
   }
 
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob' })
   @Put('/updateMob/:mobName/:server/:location/')
-  async updateMob(
+  updateMob(
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
   ): Promise<GetMobDtoResponse> {
-    try {
-      return await this.mobInterface.updateMob(
-        updateMobDtoBody,
-        updateMobDtoParams,
-      );
-    } catch (error) {
-      throw new HttpException('Mob not updated', HttpStatus.BAD_REQUEST);
-    }
+    return this.mobService.updateMob(updateMobDtoBody, updateMobDtoParams);
   }
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
   @Put('/updateMobByCooldown')
-  async updateMobByCooldown(
+  updateMobByCooldown(
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return await this.mobInterface.updateMobByCooldown(
-      request,
-      updateMobByCooldownDto,
-    );
+    return this.mobService.updateMobByCooldown(request, updateMobByCooldownDto);
   }
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
   @Put('/updateMobDateOfDeath')
-  async updateMobDateOfDeath(
+  updateMobDateOfDeath(
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return await this.mobInterface.updateMobDateOfDeath(
+    return this.mobService.updateMobDateOfDeath(
       request,
       updateMobDateOfDeathDto,
     );
@@ -126,11 +114,11 @@ export class MobController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
   @Put('/updateMobDateOfRespawn')
-  async updateMobDateOfRespawn(
+  updateMobDateOfRespawn(
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return await this.mobInterface.updateMobDateOfRespawn(
+    return this.mobService.updateMobDateOfRespawn(
       request,
       updateMobDateOfRespawnDto,
     );
@@ -139,45 +127,43 @@ export class MobController {
   @Roles()
   @ApiOperation({ summary: 'Update Mob Cooldown Counter ' })
   @Put('/updateMobCooldownCounter')
-  async updateMobCooldownCounter(
+  updateMobCooldownCounter(
     @Body() updateMobCooldownDto: UpdateMobCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return await this.mobInterface.updateMobCooldownCounter(
-      updateMobCooldownDto,
-    );
+    return this.mobService.updateMobCooldownCounter(updateMobCooldownDto);
   }
 
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Delete Mob' })
   @Delete(':mobName/:server/:location/')
-  async deleteOne(
+  deleteOne(
     @Param('mobName') mobName: MobName,
     @Param('server') server: Servers,
     @Param('location') location: Locations,
   ): Promise<DeleteMobDtoResponse> {
-    return await this.mobInterface.deleteMob(mobName, server, location);
+    return this.mobService.deleteMob(mobName, server, location);
   }
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/crashServer/:server')
-  async crashServer(
+  crashServer(
     @GetEmailFromToken() email: string,
     @Req() request: Request,
     @Param('server') server: Servers,
   ): Promise<GetFullMobDtoResponse[]> {
-    return this.mobInterface.crashMobServer(email, request, server);
+    return this.mobService.crashMobServer(email, request, server);
   }
 
   @Roles()
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('respawnLost/:mobName/:server/:location/')
-  async respawnLost(
+  respawnLost(
     @Param('mobName') mobName: MobName,
     @Param('server') server: Servers,
     @Param('location') location: Locations,
   ): Promise<GetMobDataDtoResponse> {
-    return await this.mobInterface.respawnLost(server, mobName, location);
+    return this.mobService.respawnLost(server, mobName, location);
   }
 }

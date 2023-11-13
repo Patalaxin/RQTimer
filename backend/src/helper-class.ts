@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 
-@Injectable()
 export class HelperClass {
-  static counter: number = 0
+  static counter: number = 0;
 
-  static getNicknameFromToken(request: Request, jwtService: JwtService): string {
+  static getNicknameFromToken(
+    request: Request,
+    jwtService: JwtService,
+  ): string {
     interface DecodeResult {
       email: string;
       nickname: string;
@@ -20,7 +21,7 @@ export class HelperClass {
   }
 
   static async generateUniqueName() {
-    let actualCounter = ++this.counter;
-    return `${actualCounter}`
-  };
+    const actualCounter: number = ++this.counter;
+    return `${actualCounter}`;
+  }
 }

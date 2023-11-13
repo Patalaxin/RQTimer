@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
@@ -30,7 +30,6 @@ import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
 
-@Injectable()
 export class MobService implements IMob {
   constructor(
     @InjectModel(Mob.name)

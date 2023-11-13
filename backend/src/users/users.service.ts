@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -31,7 +30,6 @@ import {
 import { IUser } from '../domain/user/user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 
-@Injectable()
 export class UsersService implements IUser {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
