@@ -61,4 +61,3 @@ export class Mob {
 }
 
 export const MobSchema = SchemaFactory.createForClass(Mob);
-// MobSchema.index({ bossName: 1, location: 1 }, { unique: true });
