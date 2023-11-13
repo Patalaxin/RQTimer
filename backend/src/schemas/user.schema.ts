@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { ApiProperty } from '@nestjs/swagger';
-import { BossTypes, EliteTypes } from './mobs.enum';
+import { MobName } from './mobs.enum';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -35,44 +35,24 @@ export class User {
   nickname: string;
 
   @ApiProperty({
-    description: 'Боссы которые не доступны пользователю',
-    enum: BossTypes,
+    description: 'Мобы которые не доступны пользователю',
+    enum: MobName,
     isArray: true,
-    example: [BossTypes.Аркон, BossTypes.Эдвард],
+    example: [MobName.Аркон, MobName.Эдвард],
   })
   @Expose()
   @Prop({ default: [] })
-  unavailableBosses: string[];
+  unavailableMobs: string[];
 
   @ApiProperty({
-    description: 'Элита которые не доступны пользователю',
-    enum: EliteTypes,
+    description: 'Мобы которых пользователь не хочет видеть',
+    enum: MobName,
     isArray: true,
-    example: [EliteTypes.Слепоглаз, EliteTypes.Хозяин],
+    example: [MobName.Архон, MobName.Хьюго],
   })
   @Expose()
   @Prop({ default: [] })
-  unavailableElites: string[];
-
-  @ApiProperty({
-    description: 'Боссы которых пользователь не хочет видеть',
-    enum: BossTypes,
-    isArray: true,
-    example: [BossTypes.Архон, BossTypes.Хьюго],
-  })
-  @Expose()
-  @Prop({ default: [] })
-  excludedBosses: string[];
-
-  @ApiProperty({
-    description: 'Элита которых пользователь не хочет видеть',
-    enum: EliteTypes,
-    isArray: true,
-    example: [EliteTypes.Лякуша, EliteTypes.Пламярык],
-  })
-  @Expose()
-  @Prop({ default: [] })
-  excludedElites: string[];
+  excludedMobs: string[];
 
   @Exclude({ toPlainOnly: true })
   @Prop({ required: true })

@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { BossTypes, EliteTypes, Servers } from './mobs.enum';
-import { TokenSchema } from "./refreshToken.schema";
+import { MobName, Servers } from './mobs.enum';
+import { TokenSchema } from './refreshToken.schema';
 
 export type LogrusHistoryDocument = HydratedDocument<LogrusHistory>;
 
@@ -22,11 +22,7 @@ export class LogrusHistory {
 
   @Expose()
   @Prop()
-  bossName: BossTypes;
-
-  @Expose()
-  @Prop()
-  eliteName: EliteTypes;
+  mobName: MobName;
 
   @Expose()
   @Prop({ required: true })
@@ -70,4 +66,3 @@ export class LogrusHistory {
 
 export const LogrusHistorySchema = SchemaFactory.createForClass(LogrusHistory);
 TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 259200 }); //  3 day live for history
-

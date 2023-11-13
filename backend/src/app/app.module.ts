@@ -4,18 +4,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
-import { BossesModule } from '../bosses/bosses.module';
-import { ElitesModule } from '../elites/elites.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import * as process from "process";
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as process from 'process';
+import { MobModule } from '../mob/mob.module';
 
 @Module({
   imports: [
+    MobModule,
     UsersModule,
-    BossesModule,
     AuthModule,
-    ElitesModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => ({

@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User, UserSchema } from '../schemas/user.schema';
 import { SessionId, SessionIdSchema } from '../schemas/sessionID.schema';
+import { Token, TokenSchema } from '../schemas/refreshToken.schema';
 
 @Module({
   providers: [UsersService, { provide: 'IUser', useExisting: UsersService }],
@@ -13,6 +14,7 @@ import { SessionId, SessionIdSchema } from '../schemas/sessionID.schema';
     MongooseModule.forFeature([
       { name: SessionId.name, schema: SessionIdSchema },
     ]),
+    MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
   ],
   controllers: [UsersController],
 })

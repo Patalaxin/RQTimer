@@ -1,9 +1,9 @@
 import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DeleteEliteDtoResponse {
+export class DeleteMobDtoResponse {
   @ApiProperty({
-    example: 'Elite deleted',
+    example: 'Mob deleted',
   })
   @IsString()
   message: string;

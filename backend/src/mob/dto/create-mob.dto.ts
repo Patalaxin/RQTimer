@@ -4,40 +4,31 @@ import {
   IsOptional,
   IsNumber,
   IsEnum,
-  IsBoolean,
 } from 'class-validator';
 import {
-  EliteTypes,
   Locations,
+  MobName,
   MobsTypes,
   Servers,
-  ShortEliteName,
+  ShortMobName,
 } from '../../schemas/mobs.enum';
 
-export class CreateEliteDtoRequest {
-  @IsEnum(EliteTypes)
+export class CreateMobDtoRequest {
+  @IsEnum(MobName)
   @IsNotEmpty()
-  eliteName: EliteTypes;
+  mobName: MobName;
 
-  @IsEnum(ShortEliteName)
+  @IsEnum(ShortMobName)
   @IsNotEmpty()
-  shortName: ShortEliteName;
+  shortName: ShortMobName;
 
   @IsEnum(Locations)
   @IsNotEmpty()
   location: Locations;
 
-  @IsNumber()
-  @IsNotEmpty()
-  respawnTime: number;
-
-  @IsNumber()
+  @IsString()
   @IsOptional()
-  deathTime: number;
-
-  @IsNumber()
-  @IsOptional()
-  cooldown: number;
+  respawnText: string;
 
   @IsString()
   @IsNotEmpty()
@@ -54,8 +45,4 @@ export class CreateEliteDtoRequest {
   @IsEnum(MobsTypes)
   @IsNotEmpty()
   mobType: MobsTypes;
-
-  @IsBoolean()
-  @IsNotEmpty()
-  respawnLost: boolean;
 }

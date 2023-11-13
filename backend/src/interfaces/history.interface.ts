@@ -1,8 +1,7 @@
-import { BossTypes, EliteTypes, Servers } from '../schemas/mobs.enum';
+import { MobName, Servers } from '../schemas/mobs.enum';
 
 export interface History {
-  bossName?: BossTypes;
-  eliteName?: EliteTypes;
+  mobName: MobName;
   nickname: string;
   server: Servers;
   date: number;
