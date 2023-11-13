@@ -12,11 +12,11 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Login' })
   @Post('login')
-  async signIn(
+  signIn(
     @Res({ passthrough: true }) res: Response,
     @Body() signInDto: SignInDtoRequest,
   ): Promise<SignInDtoResponse> {
-    return await this.authService.signIn(res, signInDto);
+    return this.authService.signIn(res, signInDto);
   }
 
   @ApiOperation({ summary: 'Exchange Refresh Token' })
