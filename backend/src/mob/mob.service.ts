@@ -239,7 +239,7 @@ export class MobService implements IMob {
     };
 
     const nextResurrectTime: number =
-      updateMobDateOfDeathDto.dateOfDeath + mob.mob.cooldownTime; // If the boss is dead now.
+      updateMobDateOfDeathDto.dateOfDeath + mob.mob.cooldownTime; // If the mob is dead now.
     history.toWillResurrect = nextResurrectTime;
     await this.historyService.createHistory(history);
 
@@ -276,13 +276,13 @@ export class MobService implements IMob {
       request,
       this.jwtService,
     );
-    const getBossDto: GetMobDtoRequest = {
+    const getMobDto: GetMobDtoRequest = {
       mobName: updateMobDateOfRespawnDto.mobName,
       server: updateMobDateOfRespawnDto.server,
       location: updateMobDateOfRespawnDto.location,
     };
 
-    const mob: GetMobDtoResponse = await this.findMob(getBossDto); // Get the boss we're updating
+    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
     const timeoutName: string = await HelperClass.generateUniqueName();
 
     const history: History = {
@@ -327,12 +327,12 @@ export class MobService implements IMob {
   async updateMobCooldownCounter(
     updateMobCooldownDto: UpdateMobCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const getBossDto: GetMobDtoRequest = {
+    const getMobDto: GetMobDtoRequest = {
       mobName: updateMobCooldownDto.mobName,
       server: updateMobCooldownDto.server,
       location: updateMobCooldownDto.location,
     };
-    const mob: GetMobDtoResponse = await this.findMob(getBossDto); // Get the boss we're updating
+    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
 
     const mobData = await this.mobsDataModel
       .findOneAndUpdate(
@@ -352,13 +352,13 @@ export class MobService implements IMob {
     server: Servers,
     location: Locations,
   ): Promise<DeleteMobDtoResponse> {
-    const getBossDto: GetMobDtoRequest = {
+    const getMobDto: GetMobDtoRequest = {
       mobName: mobName,
       server: server,
       location: location,
     };
 
-    const mob: GetMobDtoResponse = await this.findMob(getBossDto); // Get the boss we're updating
+    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
     console.log(mob.mob.mobsDataId);
     await this.mobModel.deleteOne({
       mobName: mob.mob.mobName,
