@@ -358,7 +358,6 @@ export class MobService implements IMob {
     };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
-    console.log(mob.mob.mobsDataId);
     await this.mobModel.deleteOne({
       mobName: mob.mob.mobName,
       server: mob.mob.server,

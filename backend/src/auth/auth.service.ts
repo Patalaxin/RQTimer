@@ -98,7 +98,6 @@ export class AuthService {
 
     try {
       if (exchangeRefreshDto.email && !exchangeRefreshDto.nickname) {
-        console.log(exchangeRefreshDto.email);
         user = await this.userModel
           .findOne({ email: exchangeRefreshDto.email })
           .lean()
@@ -115,7 +114,6 @@ export class AuthService {
 
     try {
       if (exchangeRefreshDto.nickname && !exchangeRefreshDto.email) {
-        console.log(exchangeRefreshDto.nickname);
         user = await this.userModel
           .findOne({ nickname: exchangeRefreshDto.nickname })
           .lean()

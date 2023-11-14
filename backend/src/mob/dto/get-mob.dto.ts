@@ -3,6 +3,7 @@ import { Locations, Servers, MobName } from '../../schemas/mobs.enum';
 import { Expose, Type } from 'class-transformer';
 import { Mob } from '../../schemas/mob.schema';
 import { MobsData } from '../../schemas/mobsData.schema';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class GetMobDtoRequest {
   @IsEnum(MobName)
@@ -19,10 +20,12 @@ export class GetMobDtoRequest {
 }
 
 export class GetFullMobDtoResponse {
+  @ApiProperty()
   @Expose()
   @Type(() => Mob)
   mob: Mob;
 
+  @ApiProperty()
   @Expose()
   @Type(() => MobsData)
   mobData: MobsData;
