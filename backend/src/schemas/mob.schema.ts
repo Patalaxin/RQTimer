@@ -8,6 +8,7 @@ import {
   Servers,
   ShortMobName,
 } from './mobs.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type MobDocument = HydratedDocument<Mob>;
 
@@ -15,42 +16,52 @@ export type MobDocument = HydratedDocument<Mob>;
   autoIndex: true,
 })
 export class Mob {
+  @ApiProperty()
   @Expose()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'MobsData' })
   mobsDataId: mongoose.Types.ObjectId;
 
+  @ApiProperty({ enum: MobName })
   @Expose()
   @Prop({ required: true })
   mobName: MobName;
 
+  @ApiProperty({ enum: ShortMobName })
   @Expose()
   @Prop({ required: true })
   shortName: ShortMobName;
 
+  @ApiProperty()
   @Expose()
   @Prop({ default: null })
   respawnText: string;
 
+  @ApiProperty({ enum: Locations })
   @Expose()
   @Prop({ required: true })
   location: Locations;
 
+  @ApiProperty()
   @Expose()
   @Prop({ required: true })
   cooldownTime: number;
 
+  @ApiProperty()
   @Expose()
   @Prop()
   image: string;
 
+  @ApiProperty({ enum: Servers })
   @Expose()
   @Prop()
   server: Servers;
 
+  @ApiProperty({ enum: MobsTypes })
   @Expose()
   @Prop({ required: true })
   mobType: MobsTypes;
 
+  @ApiProperty()
   @Exclude()
   @Prop()
   __v: number;
