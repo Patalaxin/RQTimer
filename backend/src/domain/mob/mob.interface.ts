@@ -14,8 +14,11 @@ import { UpdateMobByCooldownDtoRequest } from '../../mob/dto/update-mob-by-coold
 import { UpdateMobDateOfDeathDtoRequest } from '../../mob/dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from '../../mob/dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from '../../mob/dto/update-mob-cooldown.dto';
-import { DeleteMobDtoResponse } from '../../mob/dto/delete-mob.dto';
-import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import {
+  DeleteMobDtoParamsRequest,
+  DeleteMobDtoResponse,
+} from '../../mob/dto/delete-mob.dto';
+import { RespawnLostDtoParamsRequest } from '../../mob/dto/respawn-lost.dto';
 
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<GetFullMobDtoResponse>;
@@ -52,20 +55,16 @@ export interface IMob {
   ): Promise<GetMobDataDtoResponse>;
 
   deleteMob(
-    mobName: MobName,
-    server: Servers,
-    location: Locations,
+    deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse>;
 
   crashMobServer(
     email: string,
     nickname: string,
-    server: Servers,
+    server: string,
   ): Promise<GetFullMobDtoResponse[]>;
 
   respawnLost(
-    server: Servers,
-    mobName: MobName,
-    location: Locations,
+    respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse>;
 }

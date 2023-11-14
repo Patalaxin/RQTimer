@@ -17,7 +17,6 @@ import { Request } from 'express';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
-import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { UsersGuard } from '../guards/users.guard';
 import { IMob } from '../domain/mob/mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
@@ -36,9 +35,14 @@ import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto'
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
-import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
+import {
+  DeleteMobDtoParamsRequest,
+  DeleteMobDtoResponse,
+} from './dto/delete-mob.dto';
 import { HelperClass } from '../helper-class';
 import { JwtService } from '@nestjs/jwt';
+import { RespawnLostDtoParamsRequest } from "./dto/respawn-lost.dto";
+import { CrashServerDtoParamsRequest } from "./dto/crash-server.dto";
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -157,11 +161,9 @@ export class MobController {
   @ApiOperation({ summary: 'Delete Mob' })
   @Delete(':mobName/:server/:location/')
   deleteOne(
-    @Param('mobName') mobName: MobName,
-    @Param('server') server: Servers,
-    @Param('location') location: Locations,
+    @Param() deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
-    return this.mobService.deleteMob(mobName, server, location);
+    return this.mobService.deleteMob(deleteMobDtoParams);
   }
 
   @Roles()
@@ -171,23 +173,21 @@ export class MobController {
   crashServer(
     @GetEmailFromToken() email: string,
     @Req() request: Request,
-    @Param('server') server: Servers,
+    @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
     const nickname: string = HelperClass.getNicknameFromToken(
       request,
       this.jwtService,
     );
-    return this.mobService.crashMobServer(email, nickname, server);
+    return this.mobService.crashMobServer(email, nickname, crashServerDtoParams.server);
   }
 
   @Roles()
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('respawnLost/:mobName/:server/:location/')
   respawnLost(
-    @Param('mobName') mobName: MobName,
-    @Param('server') server: Servers,
-    @Param('location') location: Locations,
+    @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.respawnLost(server, mobName, location);
+    return this.mobService.respawnLost(respawnLostDtoParams);
   }
 }
