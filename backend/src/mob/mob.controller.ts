@@ -37,13 +37,18 @@ import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.d
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
 import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
+import { HelperClass } from '../helper-class';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
 @UseGuards(UsersGuard)
 @Controller('mob')
 export class MobController {
-  constructor(@Inject('IMob') private readonly mobService: IMob) {}
+  constructor(
+    @Inject('IMob') private readonly mobService: IMob,
+    private jwtService: JwtService,
+  ) {}
 
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -93,7 +98,14 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.updateMobByCooldown(request, updateMobByCooldownDto);
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
+    return this.mobService.updateMobByCooldown(
+      nickname,
+      updateMobByCooldownDto,
+    );
   }
 
   @Roles()
@@ -104,8 +116,12 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.updateMobDateOfDeath(
+    const nickname: string = HelperClass.getNicknameFromToken(
       request,
+      this.jwtService,
+    );
+    return this.mobService.updateMobDateOfDeath(
+      nickname,
       updateMobDateOfDeathDto,
     );
   }
@@ -118,8 +134,12 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.updateMobDateOfRespawn(
+    const nickname: string = HelperClass.getNicknameFromToken(
       request,
+      this.jwtService,
+    );
+    return this.mobService.updateMobDateOfRespawn(
+      nickname,
       updateMobDateOfRespawnDto,
     );
   }
@@ -153,7 +173,11 @@ export class MobController {
     @Req() request: Request,
     @Param('server') server: Servers,
   ): Promise<GetFullMobDtoResponse[]> {
-    return this.mobService.crashMobServer(email, request, server);
+    const nickname: string = HelperClass.getNicknameFromToken(
+      request,
+      this.jwtService,
+    );
+    return this.mobService.crashMobServer(email, nickname, server);
   }
 
   @Roles()

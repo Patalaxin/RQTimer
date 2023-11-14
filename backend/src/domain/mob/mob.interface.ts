@@ -11,7 +11,6 @@ import {
   UpdateMobDtoParamsRequest,
 } from '../../mob/dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from '../../mob/dto/update-mob-by-cooldown.dto';
-import { Request } from 'express';
 import { UpdateMobDateOfDeathDtoRequest } from '../../mob/dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from '../../mob/dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from '../../mob/dto/update-mob-cooldown.dto';
@@ -34,17 +33,17 @@ export interface IMob {
   ): Promise<GetMobDtoResponse>;
 
   updateMobByCooldown(
-    request: Request,
+    nickname: string,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfDeath(
-    request: Request,
+    nickname: string,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfRespawn(
-    request: Request,
+    nickname: string,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
@@ -60,7 +59,7 @@ export interface IMob {
 
   crashMobServer(
     email: string,
-    request: Request,
+    nickname: string,
     server: Servers,
   ): Promise<GetFullMobDtoResponse[]>;
 
