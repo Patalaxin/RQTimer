@@ -25,8 +25,12 @@ import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
-import { Locations, MobName, Servers } from '../schemas/mobs.enum';
-import { DeleteMobDtoResponse } from './dto/delete-mob.dto';
+import { MobName, Servers } from '../schemas/mobs.enum';
+import {
+  DeleteMobDtoParamsRequest,
+  DeleteMobDtoResponse,
+} from './dto/delete-mob.dto';
+import { RespawnLostDtoParamsRequest } from "./dto/respawn-lost.dto";
 
 export class MobService implements IMob {
   constructor(
@@ -332,14 +336,12 @@ export class MobService implements IMob {
   }
 
   async deleteMob(
-    mobName: MobName,
-    server: Servers,
-    location: Locations,
+    deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
-      mobName: mobName,
-      server: server,
-      location: location,
+      mobName: deleteMobDtoParams.mobName,
+      server: deleteMobDtoParams.server,
+      location: deleteMobDtoParams.location,
     };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
@@ -383,14 +385,12 @@ export class MobService implements IMob {
   }
 
   async respawnLost(
-    server: Servers,
-    mobName: MobName,
-    location: Locations,
+    respawnLostDtoParams: RespawnLostDtoParamsRequest
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
-      mobName: mobName,
-      server: server,
-      location: location,
+      mobName: respawnLostDtoParams.mobName,
+      server: respawnLostDtoParams.server,
+      location: respawnLostDtoParams.location,
     };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
