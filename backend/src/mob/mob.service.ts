@@ -1,6 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { TelegramBotService } from '../telegramBot/bot.service';
@@ -21,7 +20,6 @@ import {
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
 import { HelperClass } from '../helper-class';
-import { Request } from 'express';
 import { History } from '../interfaces/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
@@ -39,7 +37,6 @@ export class MobService implements IMob {
     private usersService: UsersService,
     private historyService: HistoryService,
     private botService: TelegramBotService,
-    private jwtService: JwtService,
   ) {}
 
   async createMob(
@@ -152,13 +149,9 @@ export class MobService implements IMob {
   }
 
   async updateMobByCooldown(
-    request: Request,
+    nickname: string,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
-      request,
-      this.jwtService,
-    );
     const getMobDto = {
       mobName: updateMobByCooldownDto.mobName,
       server: updateMobByCooldownDto.server,
@@ -214,13 +207,9 @@ export class MobService implements IMob {
   }
 
   async updateMobDateOfDeath(
-    request: Request,
+    nickname: string,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
-      request,
-      this.jwtService,
-    );
     const getMobDto: GetMobDtoRequest = {
       mobName: updateMobDateOfDeathDto.mobName,
       server: updateMobDateOfDeathDto.server,
@@ -268,13 +257,9 @@ export class MobService implements IMob {
   }
 
   async updateMobDateOfRespawn(
-    request: Request,
+    nickname: string,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
-      request,
-      this.jwtService,
-    );
     const getMobDto: GetMobDtoRequest = {
       mobName: updateMobDateOfRespawnDto.mobName,
       server: updateMobDateOfRespawnDto.server,
@@ -369,14 +354,9 @@ export class MobService implements IMob {
 
   async crashMobServer(
     email: string,
-    request: Request,
+    nickname: string,
     server: Servers,
   ): Promise<GetFullMobDtoResponse[]> {
-    const nickname: string = HelperClass.getNicknameFromToken(
-      request,
-      this.jwtService,
-    );
-
     try {
       const history: History = {
         mobName: MobName.Все,
