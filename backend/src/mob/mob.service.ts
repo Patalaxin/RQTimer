@@ -25,12 +25,12 @@ import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
-import { MobName, MobsTypes, Servers } from "../schemas/mobs.enum";
+import { MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
 } from './dto/delete-mob.dto';
-import { RespawnLostDtoParamsRequest } from "./dto/respawn-lost.dto";
+import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 
 export class MobService implements IMob {
   constructor(
@@ -47,7 +47,9 @@ export class MobService implements IMob {
     createMobDto: CreateMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
     try {
-      const mobData = await this.mobsDataModel.create({mobTypeAdditionalTime: createMobDto.mobType});
+      const mobData = await this.mobsDataModel.create({
+        mobTypeAdditionalTime: createMobDto.mobType,
+      });
       const mob = await this.mobModel.create({
         ...createMobDto,
         mobsDataId: mobData._id,
@@ -372,7 +374,10 @@ export class MobService implements IMob {
 
       await this.mobsDataModel
         .updateMany(
-          { respawnTime: { $gte: Date.now() }, mobTypeAdditionalTime: MobsTypes.Босс },
+          {
+            respawnTime: { $gte: Date.now() },
+            mobTypeAdditionalTime: MobsTypes.Босс,
+          },
           { $inc: { respawnTime: -300000 } },
         )
         .lean()
@@ -380,7 +385,10 @@ export class MobService implements IMob {
 
       await this.mobsDataModel
         .updateMany(
-          { respawnTime: { $gte: Date.now() }, mobTypeAdditionalTime: MobsTypes.Элитка },
+          {
+            respawnTime: { $gte: Date.now() },
+            mobTypeAdditionalTime: MobsTypes.Элитка,
+          },
           { $inc: { respawnTime: -18000 } },
         )
         .lean()
@@ -393,7 +401,7 @@ export class MobService implements IMob {
   }
 
   async respawnLost(
-    respawnLostDtoParams: RespawnLostDtoParamsRequest
+    respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
       mobName: respawnLostDtoParams.mobName,
