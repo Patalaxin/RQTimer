@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { MobsTypes } from "./mobs.enum";
 
 export type MobsDataDocument = HydratedDocument<MobsData>;
 
@@ -38,6 +39,11 @@ export class MobsData {
   @Exclude()
   @Prop()
   __v: number;
+
+  @ApiProperty({ enum: MobsTypes })
+  @Expose()
+  @Prop({ required: true })
+  mobTypeAdditionalTime: MobsTypes;
 
   constructor(partial: Partial<MobsData>) {
     Object.assign(this, partial);

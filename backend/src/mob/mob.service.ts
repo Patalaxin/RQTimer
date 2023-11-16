@@ -25,7 +25,7 @@ import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
-import { MobName, Servers } from '../schemas/mobs.enum';
+import { MobName, MobsTypes, Servers } from "../schemas/mobs.enum";
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
@@ -47,7 +47,7 @@ export class MobService implements IMob {
     createMobDto: CreateMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
     try {
-      const mobData = await this.mobsDataModel.create({});
+      const mobData = await this.mobsDataModel.create({mobTypeAdditionalTime: createMobDto.mobType});
       const mob = await this.mobModel.create({
         ...createMobDto,
         mobsDataId: mobData._id,
@@ -372,11 +372,19 @@ export class MobService implements IMob {
 
       await this.mobsDataModel
         .updateMany(
-          { respawnTime: { $gte: Date.now() } },
+          { respawnTime: { $gte: Date.now() }, mobTypeAdditionalTime: MobsTypes.Босс },
           { $inc: { respawnTime: -300000 } },
         )
         .lean()
-        .exec(); // minus 5 minutes
+        .exec(); // minus 5 minutes for bosses
+
+      await this.mobsDataModel
+        .updateMany(
+          { respawnTime: { $gte: Date.now() }, mobTypeAdditionalTime: MobsTypes.Элитка },
+          { $inc: { respawnTime: -18000 } },
+        )
+        .lean()
+        .exec(); // minus 18 second for elites
 
       return await this.findAllMobsByUser(email, { server });
     } catch (err) {
