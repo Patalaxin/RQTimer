@@ -57,7 +57,7 @@ export class MobController {
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create Mob' })
-  @Post('/create')
+  @Post()
   create(
     @Body() createMobDto: CreateMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
