@@ -55,7 +55,7 @@ export class UsersController {
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create User' })
-  @Post('/create')
+  @Post()
   async create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
     return new User(await this.userInterface.createUser(createUserDto));
   }
@@ -65,7 +65,7 @@ export class UsersController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User By Email' })
-  @Get('findUser')
+  @Get()
   async getOne(@GetEmailFromToken() email: string): Promise<User> {
     return new User(await this.userInterface.findUser(email));
   }

@@ -75,7 +75,7 @@ export class MobController {
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Find All User Mobs' })
-  @Get('findAll/:server/')
+  @Get('/:server/')
   findAllMobsByUser(
     @GetEmailFromToken() email: string,
     @Param() getMobsDto: GetMobsDtoRequest,
@@ -86,7 +86,7 @@ export class MobController {
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob' })
-  @Put('/updateMob/:mobName/:server/:location/')
+  @Put('/:mobName/:server/:location/')
   updateMob(
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
