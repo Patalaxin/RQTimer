@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
-const AUTH_API = 'http://localhost:3000/auth/';
+const AUTH_API = environment.apiUrl + '/auth';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -27,7 +28,7 @@ export class AuthService {
         password,
       };
     }
-    return this.http.post(AUTH_API + 'login', payload, httpOptions);
+    return this.http.post(AUTH_API + '/login', payload, httpOptions);
   }
 
   exchangeRefresh(key: string): Observable<any> {
@@ -42,6 +43,6 @@ export class AuthService {
         nickname: key,
       };
     }
-    return this.http.post(AUTH_API + 'exchangeRefresh', payload, httpOptions);
+    return this.http.post(AUTH_API + '/exchangeRefresh', payload, httpOptions);
   }
 }

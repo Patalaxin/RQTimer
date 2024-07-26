@@ -11,8 +11,6 @@ const SERVER = 'server';
 export class StorageService {
   currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
 
-  constructor() {}
-
   clean(): void {
     // window.sessionStorage.clear();
     window.sessionStorage.removeItem(EMAIL);
@@ -21,22 +19,22 @@ export class StorageService {
   }
 
   setCurrentServer(server: string) {
-    window.sessionStorage.setItem(SERVER, JSON.stringify(server));
+    window.sessionStorage.setItem(SERVER, server);
   }
 
   setSessionStorage(key: string, token: any): void {
     this.clean();
 
     if (key.includes('@')) {
-      window.sessionStorage.setItem(EMAIL, JSON.stringify(key));
+      window.sessionStorage.setItem(EMAIL, key);
     } else {
-      window.sessionStorage.setItem(NICKNAME, JSON.stringify(key));
+      window.sessionStorage.setItem(NICKNAME, key);
     }
 
-    window.sessionStorage.setItem(ACCESS_TOKEN, JSON.stringify(token));
+    window.sessionStorage.setItem(ACCESS_TOKEN, token);
 
     if (!window.sessionStorage.getItem(SERVER)) {
-      window.sessionStorage.setItem(SERVER, JSON.stringify(this.currentServer));
+      window.sessionStorage.setItem(SERVER, this.currentServer);
     }
   }
 
@@ -64,15 +62,10 @@ export class StorageService {
       return JSON.parse(sessionStorage.server);
     }
 
-    return {};
+    return '';
   }
 
   isLoggedIn(): any {
-    const token = window.sessionStorage.getItem(ACCESS_TOKEN);
-    if (token) {
-      return true;
-    }
-
-    return false;
+    return !!window.sessionStorage.getItem(ACCESS_TOKEN);
   }
 }
