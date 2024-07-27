@@ -24,3 +24,21 @@
     }
   }
 }
+
+@media only screen and (max-width: 550px) {
+  .header {
+    padding: 5px;
+
+    .header-left {
+      button {
+        margin-right: 5px;
+      }
+    }
+
+    .header-right {
+      button {
+        margin-left: 5px;
+      }
+    }
+  }
+}

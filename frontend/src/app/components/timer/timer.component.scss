@@ -37,20 +37,72 @@
       }
 
       .timer-right {
-        .timer-plus-cooldown {
-          width: auto;
-          z-index: 2;
+        .timer-action-menu-mob {
+          display: none;
         }
 
-        .timer-cd-button {
-          width: 32px;
-          padding: 0;
+        .timer-action-menu {
+          .timer-plus-cooldown {
+            width: auto;
+            z-index: 2;
+          }
+
+          .timer-cd-button {
+            width: 32px;
+            padding: 0;
+          }
         }
       }
     }
 
     .timer-mx-10px {
       margin: 0 10px;
+    }
+
+    .timer-d-none {
+      display: none;
+    }
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .timer {
+    padding: 10px;
+
+    .timer-center {
+      .timer-die-button {
+        width: 32px;
+        height: 32px;
+        padding: 2.4px 0;
+        font-size: 16px;
+        border-radius: 2px;
+        vertical-align: -3px;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .timer {
+    nz-badge {
+      nz-list-item {
+        margin-bottom: 5px;
+      }
+
+      .timer-d-flex-space-between {
+        padding: 5px;
+        border-radius: 5px;
+
+        .timer-right {
+          .timer-action-menu-mob {
+            display: block;
+          }
+
+          .timer-action-menu {
+            display: none;
+          }
+        }
+      }
     }
   }
 }

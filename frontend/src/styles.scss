@@ -1,7 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
+// * {
+//   outline: 1px solid red;
+// }
+
 .container {
-  width: 1000px;
+  max-width: 1000px;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -78,5 +83,32 @@ nz-progress {
 
   .ant-progress-text {
     display: none;
+  }
+}
+
+.ant-dropdown {
+  padding: 5px 2.5px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.4);
+
+  button {
+    margin: 0 2.5px;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  h4.ant-list-item-meta-title {
+    button {
+      margin: 0 2.5px;
+    }
+  }
+
+  .ant-badge-count {
+    min-width: 15px;
+    height: 15px;
+    font-size: 10px;
+    line-height: 15px;
+    padding: 0 3px;
   }
 }

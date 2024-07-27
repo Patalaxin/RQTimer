@@ -4,8 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
 
-const BOSS_URL = 'http://localhost:3000/boss/';
-const ELITE_URL = 'http://localhost:3000/elite/';
+const MOB_URL = 'http://localhost:3000/mob/';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +13,8 @@ export class TimerService {
   accessToken: string = '';
   private timerList$ = new BehaviorSubject<TimerItem[]>([]);
   timerList = this.timerList$.asObservable();
+  private isLoading$ = new BehaviorSubject<boolean>(true);
+  isLoading = this.isLoading$.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -24,33 +25,21 @@ export class TimerService {
     this.timerList$.next(list);
   }
 
-  getAllBosses(server: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(BOSS_URL + 'findAll/' + `${server}`, { headers });
+  setIsLoading(value: boolean) {
+    this.isLoading$.next(value);
   }
 
-  getAllElites(server: string): Observable<any> {
+  getAllBosses(server: string): Observable<any> {
     const headers = this.createHeaders();
-    return this.http.get(ELITE_URL + 'findAll/' + `${server}`, { headers });
+    return this.http.get(MOB_URL + `${server}`, { headers });
   }
 
   crashServerBosses(server: string): Observable<any> {
     const headers = this.createHeaders();
     return this.http.post(
-      BOSS_URL + 'crashServer/' + `${server}`,
+      MOB_URL + 'crashServer/' + `${server}`,
       {},
       { headers }
-    );
-  }
-
-  crashServerElites(server: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.post(
-      ELITE_URL + 'crashServer/' + `${server}`,
-      {},
-      {
-        headers,
-      }
     );
   }
 
@@ -58,61 +47,83 @@ export class TimerService {
     const headers = this.createHeaders();
     let payload = {
       dateOfDeath,
-      bossName: item.bossName,
-      server: item.server,
+      mobName: item.mob.mobName,
+      server: item.mob.server,
+      location: item.mob.location,
     };
-    if (item.mobType === 'Элитка') {
-      let payload = {
-        dateOfDeath,
-        eliteName: item.eliteName,
-        server: item.server,
-      };
-      return this.http.put(ELITE_URL + 'updateDeathOfElite', payload, {
-        headers,
-      });
-    }
 
-    return this.http.put(BOSS_URL + 'updateDeathOfBoss', payload, { headers });
+    return this.http.put(MOB_URL + 'updateMobDateOfDeath', payload, {
+      headers,
+    });
   }
 
   setByRespawnTime(item: TimerItem, dateOfRespawn: number): Observable<any> {
     const headers = this.createHeaders();
     let payload = {
       dateOfRespawn,
-      bossName: item.bossName,
-      server: item.server,
+      mobName: item.mob.mobName,
+      server: item.mob.server,
+      location: item.mob.location,
     };
-    if (item.mobType === 'Элитка') {
-      let payload = {
-        dateOfRespawn,
-        eliteName: item.eliteName,
-        server: item.server,
-      };
-      return this.http.put(ELITE_URL + 'updateDeathOfElite', payload, {
-        headers,
-      });
-    }
 
-    return this.http.put(BOSS_URL + 'updateDeathOfBoss', payload, { headers });
+    return this.http.put(MOB_URL + 'updateMobDateOfRespawn', payload, {
+      headers,
+    });
   }
 
   setByCooldownTime(item: TimerItem): Observable<any> {
     const headers = this.createHeaders();
     let payload = {
-      bossName: item.bossName,
-      server: item.server,
+      mobName: item.mob.mobName,
+      server: item.mob.server,
+      location: item.mob.location,
     };
-    if (item.mobType === 'Элитка') {
-      let payload = {
-        eliteName: item.eliteName,
-        server: item.server,
-      };
-      return this.http.put(ELITE_URL + 'updateDeathOfElite', payload, {
-        headers,
-      });
-    }
 
-    return this.http.put(BOSS_URL + 'updateDeathOfBoss', payload, { headers });
+    return this.http.put(MOB_URL + 'updateMobByCooldown', payload, {
+      headers,
+    });
+  }
+
+  updateCooldownCounter(item: TimerItem, cooldown: number): Observable<any> {
+    const headers = this.createHeaders();
+    let payload = {
+      mobName: item.mob.mobName,
+      server: item.mob.server,
+      location: item.mob.location,
+      cooldown,
+    };
+
+    return this.http.put(MOB_URL + 'updateMobByCooldownCount', payload, {
+      headers,
+    });
+  }
+
+  respawnLost(item: TimerItem): Observable<any> {
+    const headers = this.createHeaders();
+    let payload = {};
+
+    console.log(
+      'respawnLost/' +
+        item.mob.mobName +
+        '/' +
+        item.mob.location +
+        '/' +
+        item.mob.server
+    );
+
+    return this.http.put(
+      MOB_URL +
+        'respawnLost/' +
+        item.mob.mobName +
+        '/' +
+        item.mob.server +
+        '/' +
+        item.mob.location,
+      payload,
+      {
+        headers,
+      }
+    );
   }
 
   private createHeaders(): HttpHeaders {

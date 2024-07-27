@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { forkJoin } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -12,30 +12,69 @@ import { TimerService } from 'src/app/services/timer.service';
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
 })
-export class TimerComponent implements OnInit {
+export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
-  isLoading: boolean = true;
+  isLoading = this.timerService.isLoading;
   currentServer: string = '';
   leftTime: number = 0;
   currentTime: number = Date.now();
   currentItem: any;
+
+  percent: number = 0;
+  intervalId: any;
 
   isVisible: boolean = false;
   isOkLoading: boolean = false;
 
   cooldownChangeVisible: boolean = false;
 
+  isScreenWidth1000: boolean = false;
+  isScreenWidth750: boolean = false;
+  isScreenWidth372: boolean = false;
+  isScreenWidthInZone: boolean = false;
+
   constructor(
     private timerService: TimerService,
     private storageService: StorageService,
     private authService: AuthService,
     private message: NzMessageService
-  ) {}
+  ) {
+    console.log(this.isLoading);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.checkScreenWidth();
+  }
+
+  private checkScreenWidth(): void {
+    this.isScreenWidth1000 = window.innerWidth <= 1000;
+    this.isScreenWidth750 = window.innerWidth <= 750;
+    this.isScreenWidthInZone =
+      window.innerWidth <= 750 && window.innerWidth > 372;
+    this.isScreenWidth372 = window.innerWidth <= 372;
+  }
+
+  updatePercent(item: TimerItem): number {
+    if (
+      item.mobData.respawnTime &&
+      item.mobData.deathTime &&
+      this.currentTime < item.mobData.respawnTime
+    ) {
+      return (
+        ((this.currentTime - item.mobData.deathTime) /
+          (item.mobData.respawnTime - item.mobData.deathTime)) *
+        100
+      );
+    }
+
+    return 100;
+  }
 
   onClickTimerItem(item: TimerItem): void {
-    let data: string = `${item.shortName} - ${moment(item.respawnTime).format(
-      'HH:mm:ss'
-    )}`;
+    let data: string = `${item.mob.shortName} - ${moment(
+      item.mobData.respawnTime
+    ).format('HH:mm:ss')}`;
     this.message.create('success', `${data}`);
     navigator.clipboard.writeText(data);
   }
@@ -51,68 +90,64 @@ export class TimerComponent implements OnInit {
 
   confirmDeathModal(): void {
     this.isOkLoading = true;
-    this.isLoading = true;
+    this.timerService.setIsLoading(true);
     console.log('confirm', this.currentItem);
     this.currentTime = Date.now();
     this.timerService
       .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
       .subscribe({
         next: (res) => {
+          this.getAllBosses(1);
+          this.isVisible = false;
+          this.isOkLoading = false;
           this.message.create(
             'success',
             'Респ был успешно обновлён по точному времени смерти'
           );
-          this.getAllBosses(1);
-          this.isVisible = false;
-          this.isOkLoading = false;
-          this.isLoading = false;
         },
       });
   }
 
   onDieNow(item: TimerItem): void {
-    this.isLoading = true;
+    this.timerService.setIsLoading(true);
     this.currentTime = Date.now();
     console.log('onDieNow', item);
     this.timerService
       .setByDeathTime(item, moment(this.currentTime).valueOf() - 10000)
       .subscribe({
         next: (res) => {
+          this.getAllBosses(1);
           this.message.create(
             'success',
             'Респ был успешно переписан кнопкой "Упал сейчас"'
           );
-          this.getAllBosses(1);
-          this.isLoading = false;
         },
       });
   }
 
   onPlusCooldown(item: TimerItem): void {
-    item.plusCooldown++;
-    if (item.respawnTime) {
-      item.respawnTime += item.cooldownTime;
+    item.mob.plusCooldown++;
+    if (item.mobData.respawnTime) {
+      item.mobData.respawnTime += item.mob.cooldownTime;
     }
   }
 
   onSetByCooldownTime(item: TimerItem): void {
-    this.isLoading = true;
+    this.timerService.setIsLoading(true);
     this.timerService.setByCooldownTime(item).subscribe({
       next: (res) => {
-        this.message.create('success', 'Респ был успешно переписан по кд');
         this.getAllBosses(1);
-        this.isLoading = false;
+        this.message.create('success', 'Респ был успешно переписан по кд');
       },
     });
   }
 
   onLostCooldown(item: TimerItem): void {
-    this.isLoading = true;
+    this.timerService.setIsLoading(true);
     console.log('onDieNow', item);
-    this.timerService.setByRespawnTime(item, 0).subscribe({
+    this.timerService.respawnLost(item).subscribe({
       next: (res) => {
         this.getAllBosses(1);
-        this.isLoading = false;
       },
     });
   }
@@ -120,23 +155,25 @@ export class TimerComponent implements OnInit {
   getAllBosses(retryCount: number): void {
     this.currentServer = this.storageService.getSessionStorage('server');
     console.log(this.currentServer);
-    forkJoin(
-      this.timerService.getAllBosses(this.currentServer),
-      this.timerService.getAllElites(this.currentServer)
-    ).subscribe({
+    this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         console.log(res);
-        this.timerList = [...res[0], ...res[1]];
-        this.timerList = this.timerList.sort((a, b) =>
-          a.respawnTime && b.respawnTime && a.respawnTime > b.respawnTime
-            ? 1
-            : -1
-        );
+        this.timerList = [...res];
+        this.timerList = this.timerList.sort((a, b) => {
+          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+          if (a.mobData.respawnTime && b.mobData.respawnTime) {
+            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
+          }
+
+          return 0;
+        });
 
         this.timerList.map((item) => {
-          item.plusCooldown = 0;
+          item.mob.plusCooldown = 0;
         });
-        this.isLoading = false;
+        this.timerService.setIsLoading(false);
       },
       error: (err) => {
         console.log('getUser error', err);
@@ -164,6 +201,11 @@ export class TimerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.intervalId = setInterval(() => {
+      this.currentTime = Date.now();
+    }, 1000);
+
+    this.checkScreenWidth();
     this.getAllBosses(1);
     this.timerService.timerList.subscribe({
       next: (res) => {
@@ -171,5 +213,11 @@ export class TimerComponent implements OnInit {
         console.log('timer', this.timerList);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 }

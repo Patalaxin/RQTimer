@@ -1,4 +1,4 @@
-export interface TimerItem {
+export interface TimerItem1 {
   image: string;
   cooldownTime: number;
   mobType: 'Босс' | 'Элитка';
@@ -12,4 +12,27 @@ export interface TimerItem {
   deathTime?: number;
   shortName?: string;
   plusCooldown: number;
+}
+
+export interface TimerItem {
+  mob: {
+    mobsDataId?: {};
+    mobName: string;
+    cooldownTime: number;
+    shortName?: string;
+    respawnText?: string;
+    location: string;
+    image?: string;
+    server: string;
+    mobType?: string;
+    plusCooldown: number;
+  };
+  mobData: {
+    mobId?: {};
+    respawnTime?: number;
+    deathTime?: number;
+    cooldown?: number;
+    respawnLost?: boolean;
+    mobTypeAdditionalTime?: string;
+  };
 }
