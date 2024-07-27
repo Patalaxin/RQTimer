@@ -9,7 +9,7 @@ import {
 export class IsPositiveOrZeroConstraint
   implements ValidatorConstraintInterface
 {
-  validate(value: number, args: ValidationArguments): boolean {
+  validate(value: number): boolean {
     return value === 0 || value > 0;
   }
 

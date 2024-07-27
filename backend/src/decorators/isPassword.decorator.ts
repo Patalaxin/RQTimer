@@ -1,7 +1,7 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 
 export function IsPassword(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string): void {
+  return function (object: any, propertyName: string): void {
     registerDecorator({
       name: 'isPassword',
       target: object.constructor,

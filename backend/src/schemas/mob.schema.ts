@@ -17,7 +17,7 @@ export type MobDocument = HydratedDocument<Mob>;
 })
 export class Mob {
   @ApiProperty()
-  @Expose()
+  @Exclude()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'MobsData' })
   mobsDataId: mongoose.Types.ObjectId;
 

@@ -41,8 +41,8 @@ import {
 } from './dto/delete-mob.dto';
 import { HelperClass } from '../helper-class';
 import { JwtService } from '@nestjs/jwt';
-import { RespawnLostDtoParamsRequest } from "./dto/respawn-lost.dto";
-import { CrashServerDtoParamsRequest } from "./dto/crash-server.dto";
+import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
+import { CrashServerDtoParamsRequest } from './dto/crash-server.dto';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -65,6 +65,7 @@ export class MobController {
   }
 
   @Get('findMob/:mobName/:server/:location/')
+  @ApiOperation({ summary: 'Get Mob' })
   @UseInterceptors(ClassSerializerInterceptor)
   getMobAndData(
     @Param() getMobDto: GetMobDtoRequest,
@@ -179,7 +180,11 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.crashMobServer(email, nickname, crashServerDtoParams.server);
+    return this.mobService.crashMobServer(
+      email,
+      nickname,
+      crashServerDtoParams.server,
+    );
   }
 
   @Roles()
