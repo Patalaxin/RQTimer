@@ -19,7 +19,7 @@ export class Mob {
   @ApiProperty()
   @Exclude()
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'MobsData' })
-  mobsDataId: mongoose.Types.ObjectId;
+  mobsDataId: string;
 
   @ApiProperty({ enum: MobName })
   @Expose()

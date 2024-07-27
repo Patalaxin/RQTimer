@@ -69,7 +69,7 @@ export class MobService implements IMob {
           server: getMobDto.server,
           location: getMobDto.location,
         },
-        { __v: 0 },
+        { __v: 0, _id: 0 },
       )
       .lean()
       .exec();
@@ -78,7 +78,7 @@ export class MobService implements IMob {
     }
 
     const mobData: MobsData = await this.mobsDataModel
-      .findOne({ _id: mob.mobsDataId }, { __v: 0 })
+      .findOne({ _id: mob.mobsDataId }, { __v: 0, _id: 0 })
       .lean()
       .exec();
     if (!mobData) {
@@ -118,6 +118,8 @@ export class MobService implements IMob {
       throw new BadRequestException('No mobs found for the given server');
     }
     const mobDataPromises = mobs.map(async (mob) => {
+      const mobDataId = mob.mobsDataId ? mob.mobsDataId.toString() : null;
+
       const mobData: MobsData = await this.mobsDataModel
         .findOne({ _id: mob.mobsDataId }, { __v: 0, _id: 0 })
         .lean()
@@ -127,7 +129,13 @@ export class MobService implements IMob {
         throw new BadRequestException('Mob data not found');
       }
 
-      return { mob, mobData };
+      return {
+        mob: {
+          ...mob,
+          mobsDataId: mobDataId,
+        },
+        mobData,
+      };
     });
 
     return await Promise.all(mobDataPromises);
