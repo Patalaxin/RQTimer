@@ -14,10 +14,9 @@ import {
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
-import { Servers } from '../schemas/mobs.enum';
+import { MobName, Servers } from '../schemas/mobs.enum';
 import { GetHistoryDtoResponse } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
-import { DeleteAllUsersDtoResponse } from '../users/dto/delete-user.dto';
 
 @Injectable()
 export class HistoryService {
@@ -46,13 +45,42 @@ export class HistoryService {
     return historyModel.create(history);
   }
 
-  async getAllHistory(server: Servers): Promise<GetHistoryDtoResponse[]> {
+  async getAllHistory(
+    server: Servers,
+    mobName?: MobName,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{
+    data: GetHistoryDtoResponse[];
+    total: number;
+    page: number;
+    pages: number;
+  }> {
     try {
       const historyModel = this.historyModels.find(
         (obj) => obj.server === server,
       ).model;
 
-      return historyModel.find({}, { __v: 0 }).lean().exec();
+      const query: any = {};
+      if (mobName) {
+        query.mobName = mobName;
+      }
+
+      const total = await historyModel.countDocuments(query).exec();
+      const pages: number = Math.ceil(total / limit);
+      const data = await historyModel
+        .find(query, { __v: 0 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean()
+        .exec();
+
+      return {
+        data,
+        total,
+        page,
+        pages,
+      };
     } catch (err) {
       throw new BadRequestException('Something went wrong');
     }

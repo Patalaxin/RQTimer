@@ -6,6 +6,7 @@ import {
   Param,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { HistoryService } from './history.service';
 import { UsersGuard } from '../guards/users.guard';
@@ -16,7 +17,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Servers } from '../schemas/mobs.enum';
+import { MobName, Servers } from '../schemas/mobs.enum';
 import { GetHistoryDtoResponse } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
@@ -34,8 +35,21 @@ export class HistoryController {
   @Get('/findAll/:server')
   async findAll(
     @Param('server') server: Servers,
-  ): Promise<GetHistoryDtoResponse[]> {
-    return await this.historyService.getAllHistory(server);
+    @Query('mobName') mobName?: MobName,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<{
+    data: GetHistoryDtoResponse[];
+    total: number;
+    page: number;
+    pages: number;
+  }> {
+    return await this.historyService.getAllHistory(
+      server,
+      mobName,
+      page,
+      limit,
+    );
   }
 
   @UseGuards(UsersGuard)
