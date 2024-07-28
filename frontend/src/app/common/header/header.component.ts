@@ -6,7 +6,6 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -33,23 +32,28 @@ export class HeaderComponent implements OnInit {
 
   setCurrentServer() {
     console.log(this.currentServer);
+    this.timerService.setIsLoading(true);
     this.storageService.setCurrentServer(this.currentServer);
-    forkJoin(
-      this.timerService.getAllBosses(this.currentServer),
-      this.timerService.getAllElites(this.currentServer)
-    ).subscribe({
+    this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
-        this.timerList = [...res[0], ...res[1]];
-        this.timerList = this.timerList.sort((a, b) =>
-          a.respawnTime && b.respawnTime && a.respawnTime > b.respawnTime
-            ? 1
-            : -1
-        );
+        this.timerList = [...res];
+        this.timerList = this.timerList.sort((a, b) => {
+          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+          if (a.mobData.respawnTime && b.mobData.respawnTime) {
+            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
+          }
+
+          return 0;
+        });
+
         this.timerService.setTimerList(this.timerList);
 
         this.timerList.map((item) => {
-          item.plusCooldown = 0;
+          item.mob.plusCooldown = 0;
         });
+        this.timerService.setIsLoading(false);
       },
     });
   }
@@ -62,22 +66,28 @@ export class HeaderComponent implements OnInit {
     let data: string[] = [];
     console.log('object', this.timerList);
     this.getCurrentServer();
-    forkJoin(
-      this.timerService.getAllBosses(this.currentServer),
-      this.timerService.getAllElites(this.currentServer)
-    ).subscribe({
+    this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
-        this.timerList = [...res[0], ...res[1]];
-        this.timerList = this.timerList.sort((a, b) =>
-          a.respawnTime && b.respawnTime && a.respawnTime > b.respawnTime
-            ? 1
-            : -1
-        );
+        this.timerList = [...res];
+        this.timerList = this.timerList.sort((a, b) => {
+          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+          if (a.mobData.respawnTime && b.mobData.respawnTime) {
+            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
+          }
+
+          return 0;
+        });
         this.timerList.map((item) => {
-          item.plusCooldown = 0;
-          data.push(
-            `${item.shortName} - ${moment(item.respawnTime).format('HH:mm:ss')}`
-          );
+          item.mob.plusCooldown = 0;
+          if (item.mobData.respawnTime) {
+            data.push(
+              `${item.mob.shortName} - ${moment(
+                item.mobData.respawnTime
+              ).format('HH:mm:ss')}`
+            );
+          }
         });
         this.message.create('success', 'Респы были успешно скопированы');
         navigator.clipboard.writeText(data.join(',\n'));
@@ -88,10 +98,7 @@ export class HeaderComponent implements OnInit {
   onCrashServer() {
     this.getCurrentServer();
     console.log(this.currentServer);
-    forkJoin(
-      this.timerService.crashServerBosses(this.currentServer),
-      this.timerService.crashServerElites(this.currentServer)
-    ).subscribe({
+    this.timerService.crashServerBosses(this.currentServer).subscribe({
       next: (res) => {
         this.setCurrentServer();
         this.message.create('success', 'Респы теперь с учётом падения сервера');

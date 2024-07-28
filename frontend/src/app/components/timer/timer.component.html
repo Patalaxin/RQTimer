@@ -1,39 +1,59 @@
-<nz-skeleton *ngIf="isLoading" class="container"></nz-skeleton>
+<nz-skeleton *ngIf="isLoading | async" class="container"></nz-skeleton>
 
-<div class="timer container" *ngIf="!isLoading">
+<div class="timer container" *ngIf="!(isLoading | async)">
   <nz-list nzItemLayout="horizontal">
-    <nz-badge *ngFor="let item of timerList" [nzCount]="item.cooldown">
+    <nz-badge *ngFor="let item of timerList" [nzCount]="item.mobData.cooldown">
       <nz-list-item
         class="timer-d-flex-space-between box-shadow"
         [ngClass]="
-          item.respawnTime ? (item.cooldown ? 'orange' : 'green') : 'white'
+          item.mobData.respawnTime
+            ? item.mobData.cooldown
+              ? 'orange'
+              : 'green'
+            : 'white'
         "
         (click)="onClickTimerItem(item)"
       >
         <div class="timer-left">
-          <nz-list-item-meta [nzAvatar]="item.image"> </nz-list-item-meta>
+          <nz-list-item-meta
+            [nzAvatar]="item.mob.image ? 'https://' + item.mob.image : ''"
+          >
+          </nz-list-item-meta>
           <nz-list-item-meta-title>
             <nz-countdown
-              [nzValue]="item.respawnTime"
+              [nzValue]="item.mobData.respawnTime"
               [nzFormat]="'HH:mm:ss'"
             ></nz-countdown>
-            <span class="timer-mx-10px">
+            <span
+              class="timer-mx-10px"
+              [ngClass]="{
+                'timer-d-none': isScreenWidth750
+              }"
+            >
               {{
-                item.deathTime
-                  ? (item.deathTime | date : "HH:mm:ss")
+                item.mobData.deathTime
+                  ? (item.mobData.deathTime | date : "HH:mm:ss")
                   : "00:00:00"
               }}
             </span>
             <nz-progress
-              [nzPercent]="70"
-              nzStatus="active"
+              [nzPercent]="updatePercent(item)"
+              [nzStatus]="updatePercent(item) >= 100 ? 'exception' : 'active'"
               nzSize="small"
               [nzStrokeWidth]="10"
+              [ngClass]="{
+                'timer-d-none': isScreenWidth750
+              }"
             ></nz-progress>
-            <span>
+            <span
+              [ngClass]="{
+                'timer-mx-10px': isScreenWidthInZone,
+                'timer-d-none': isScreenWidth372
+              }"
+            >
               {{
-                item.respawnTime
-                  ? (item.respawnTime | date : "HH:mm:ss")
+                item.mobData.respawnTime
+                  ? (item.mobData.respawnTime | date : "HH:mm:ss")
                   : "00:00:00"
               }}
             </span>
@@ -48,8 +68,12 @@
               nz-tooltip
               nzTooltipTitle="Переписать по точному времени смерти"
               [nzTooltipMouseEnterDelay]="1"
+              class="timer-die-button"
             >
-              <span nz-icon nzType="edit"></span>Переписать
+              <span nz-icon nzType="edit"></span>
+              <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
+                >Переписать</span
+              >
             </button>
             <nz-modal
               [(nzVisible)]="isVisible"
@@ -71,61 +95,127 @@
               nz-tooltip
               nzTooltipTitle="Переписать по (текущему времени - 10 сек)"
               [nzTooltipMouseEnterDelay]="1"
+              class="timer-die-button"
             >
               <span nz-icon nzType="scan"></span>
-              Упал сейчас
+              <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
+                >Упал сейчас</span
+              >
             </button>
           </nz-list-item-meta-title>
         </div>
         <div class="timer-right">
-          <nz-list-item-meta-title>
-            <button
-              nz-button
-              nzType="primary"
-              nz-tooltip
-              nzTooltipTitle="История переписи босса/элитки"
-              [nzTooltipMouseEnterDelay]="1"
-            >
-              <span nz-icon nzType="history"></span>
-            </button>
-            <nz-badge
-              [nzCount]="item.plusCooldown"
-              class="timer-plus-cooldown"
-              [nzOffset]="[-7, 3]"
-            >
+          <div class="timer-action-menu">
+            <nz-list-item-meta-title>
               <button
                 nz-button
                 nzType="primary"
-                (click)="onPlusCooldown(item)"
                 nz-tooltip
-                nzTooltipTitle="Симуляция следующего кдшного респа"
+                nzTooltipTitle="История переписи босса/элитки"
                 [nzTooltipMouseEnterDelay]="1"
               >
-                <span nz-icon nzType="step-forward"></span>
+                <span nz-icon nzType="history"></span>
               </button>
-            </nz-badge>
+              <nz-badge
+                [nzCount]="item.mob.plusCooldown"
+                class="timer-plus-cooldown"
+                [nzOffset]="[-7, 3]"
+              >
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="onPlusCooldown(item)"
+                  nz-tooltip
+                  nzTooltipTitle="Симуляция следующего кдшного респа"
+                  [nzTooltipMouseEnterDelay]="1"
+                >
+                  <span nz-icon nzType="step-forward"></span>
+                </button>
+              </nz-badge>
+              <button
+                nz-button
+                nzType="primary"
+                class="timer-cd-button"
+                (click)="onSetByCooldownTime(item)"
+                nz-tooltip
+                nzTooltipTitle="Переписать по кд"
+                [nzTooltipMouseEnterDelay]="1"
+              >
+                <span>CD</span>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Респ утерян"
+                [nzTooltipMouseEnterDelay]="1"
+              >
+                <span nz-icon nzType="fall"></span>
+              </button>
+            </nz-list-item-meta-title>
+          </div>
+
+          <div class="timer-action-menu-mob">
             <button
-              nz-button
               nzType="primary"
-              class="timer-cd-button"
-              (click)="onSetByCooldownTime(item)"
-              nz-tooltip
-              nzTooltipTitle="Переписать по кд"
-              [nzTooltipMouseEnterDelay]="1"
-            >
-              <span>CD</span>
-            </button>
-            <button
               nz-button
-              nzType="primary"
-              (click)="onLostCooldown(item)"
-              nz-tooltip
-              nzTooltipTitle="Респ утерян"
-              [nzTooltipMouseEnterDelay]="1"
+              nz-dropdown
+              nzTrigger="click"
+              [nzDropdownMenu]="menu"
+              nzPlacement="bottomRight"
             >
-              <span nz-icon nzType="fall"></span>
+              <span nz-icon nzType="menu-unfold"></span>
             </button>
-          </nz-list-item-meta-title>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <button
+                nz-button
+                nzType="primary"
+                nz-tooltip
+                nzTooltipTitle="История переписи босса/элитки"
+                [nzTooltipMouseEnterDelay]="1"
+              >
+                <span nz-icon nzType="history"></span>
+              </button>
+              <nz-badge
+                [nzCount]="item.mob.plusCooldown"
+                class="timer-plus-cooldown"
+                [nzOffset]="[-7, 3]"
+              >
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="onPlusCooldown(item)"
+                  nz-tooltip
+                  nzTooltipTitle="Симуляция следующего кдшного респа"
+                  [nzTooltipMouseEnterDelay]="1"
+                >
+                  <span nz-icon nzType="step-forward"></span>
+                </button>
+              </nz-badge>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="onSetByCooldownTime(item)"
+                nz-tooltip
+                nzTooltipTitle="Переписать по кд"
+                [nzTooltipMouseEnterDelay]="1"
+                style="width: 32px; padding: 0"
+              >
+                <span>CD</span>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Респ утерян"
+                [nzTooltipMouseEnterDelay]="1"
+              >
+                <span nz-icon nzType="fall"></span>
+              </button>
+            </nz-dropdown-menu>
+          </div>
         </div>
       </nz-list-item>
     </nz-badge>

@@ -47,19 +47,19 @@ export class StorageService {
     };
 
     if (sessionStorage.email && key === 'email') {
-      return JSON.parse(sessionStorage.email);
+      return sessionStorage.email;
     }
 
     if (sessionStorage.nickname && key === 'nickname') {
-      return JSON.parse(sessionStorage.nickname);
+      return sessionStorage.nickname;
     }
 
     if (sessionStorage.token && key === 'token') {
-      return JSON.parse(sessionStorage.token);
+      return sessionStorage.token;
     }
 
     if (sessionStorage.server && key === 'server') {
-      return JSON.parse(sessionStorage.server);
+      return sessionStorage.server;
     }
 
     return '';

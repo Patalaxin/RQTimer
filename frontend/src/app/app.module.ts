@@ -41,6 +41,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 
 registerLocaleData(ru);
 
@@ -83,6 +84,7 @@ registerLocaleData(ru);
     NzTimePickerModule,
     NzDatePickerModule,
     NzPopoverModule,
+    NzDropDownModule,
   ],
   providers: [httpInterceptorProviders, { provide: NZ_I18N, useValue: ru_RU }],
   bootstrap: [AppComponent],
