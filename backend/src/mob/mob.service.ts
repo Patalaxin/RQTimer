@@ -188,16 +188,18 @@ export class MobService implements IMob {
       date: Date.now(),
     };
 
-    const nextResurrectTime: number = mob.mob.cooldownTime;
+    const nextResurrectTime: number =
+      mob.mob.cooldownTime * updateMobByCooldownDto.cooldown +
+      mob.mobData.respawnTime;
     history.toWillResurrect = nextResurrectTime;
     history.fromCooldown = mob.mobData.cooldown;
-    history.toCooldown = ++mob.mobData.cooldown;
+    history.toCooldown = updateMobByCooldownDto.cooldown;
     await this.historyService.createHistory(history);
     const previousRespawnTime: number = mob.mobData.respawnTime;
 
     await this.botService.newTimeout(
       timeoutName,
-      mob.mobData.respawnTime + nextResurrectTime,
+      nextResurrectTime,
       updateMobByCooldownDto.mobName,
       updateMobByCooldownDto.server,
     );
@@ -207,7 +209,8 @@ export class MobService implements IMob {
         // Add +1 to the cooldown counter and update the respawn/death times
         { _id: mob.mob.mobsDataId },
         {
-          $inc: { cooldown: 1, respawnTime: nextResurrectTime },
+          $inc: { cooldown: 1 },
+          respawnTime: nextResurrectTime,
           deathTime: previousRespawnTime,
           respawnLost: false,
         },

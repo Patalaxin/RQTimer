@@ -5,19 +5,17 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-@ValidatorConstraint({ name: 'isPositiveOrZero', async: false })
-export class IsPositiveOrZeroConstraint
-  implements ValidatorConstraintInterface
-{
+@ValidatorConstraint({ name: 'isPositive', async: false })
+export class IsPositiveConstraint implements ValidatorConstraintInterface {
   validate(value: number): boolean {
-    return value === 0 || value > 0;
+    return value > 0;
   }
 
   defaultMessage(args: ValidationArguments): string {
-    return `${args.property} must be zero or a positive number`;
+    return `${args.property} must a positive number`;
   }
 }
 
-export function IsPositiveOrZero() {
-  return Validate(IsPositiveOrZeroConstraint);
+export function IsPositive() {
+  return Validate(IsPositiveConstraint);
 }
