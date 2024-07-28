@@ -42,6 +42,11 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
+import { NzRadioModule } from 'ng-zorro-antd/radio';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { HistoryComponent } from './components/history/history.component';
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
+import { LogComponent } from './components/history/log/log.component';
 
 registerLocaleData(ru);
 
@@ -56,6 +61,8 @@ registerLocaleData(ru);
     ProfileComponent,
     InfoComponent,
     UserComponent,
+    HistoryComponent,
+    LogComponent,
   ],
   imports: [
     BrowserModule,
@@ -85,6 +92,9 @@ registerLocaleData(ru);
     NzDatePickerModule,
     NzPopoverModule,
     NzDropDownModule,
+    NzRadioModule,
+    NzTagModule,
+    NzTimelineModule,
   ],
   providers: [httpInterceptorProviders, { provide: NZ_I18N, useValue: ru_RU }],
   bootstrap: [AppComponent],

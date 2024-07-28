@@ -26,13 +26,19 @@ export interface TimerItem {
     server: string;
     mobType?: string;
     plusCooldown: number;
+    isDeathModalVisible: boolean;
+    isDeathOkLoading: boolean;
+    isHistoryModalVisible: boolean;
+    isHistoryOkLoading: boolean;
   };
   mobData: {
     mobId?: {};
     respawnTime?: number;
     deathTime?: number;
-    cooldown?: number;
+    cooldown: number;
     respawnLost?: boolean;
     mobTypeAdditionalTime?: string;
   };
+  // isTimerRunning?: boolean; // Флаг для отслеживания состояния таймера
+  // timeoutId?: any; // Идентификатор таймера
 }

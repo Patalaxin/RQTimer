@@ -7,3 +7,13 @@
     margin-right: 30px;
   }
 }
+
+@media only screen and (max-width: 550px) {
+  .user-info {
+    display: block;
+
+    h3 {
+      margin-right: 0;
+    }
+  }
+}
