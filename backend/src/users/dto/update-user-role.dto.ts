@@ -1,11 +1,24 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { RolesTypes } from '../../schemas/user.schema';
 
 export class UpdateUserRoleDtoRequest {
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  nickname?: string;
 
   @IsString()
   @IsEnum(RolesTypes, { each: true })

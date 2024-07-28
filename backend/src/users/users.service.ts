@@ -1,7 +1,4 @@
-import {
-  BadRequestException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -25,6 +22,7 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import {
   DeleteAllUsersDtoResponse,
+  DeleteUserDtoRequest,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
@@ -71,8 +69,14 @@ export class UsersService implements IUser {
     }
   }
 
-  async findUser(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email: email }).lean().exec();
+  async findUser(nicknameOrEmail: string): Promise<User> {
+    const user = await this.userModel
+      .findOne({
+        $or: [{ email: nicknameOrEmail }, { nickname: nicknameOrEmail }],
+      })
+      .lean()
+      .exec();
+
     if (!user) {
       throw new BadRequestException('User does not exist!');
     }
@@ -120,7 +124,19 @@ export class UsersService implements IUser {
   async forgotPassword(
     forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
-    const user: User = await this.findUser(forgotUserPassDto.email);
+    if (forgotUserPassDto.email && forgotUserPassDto.nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    } else if (!forgotUserPassDto.email && !forgotUserPassDto.nickname) {
+      throw new BadRequestException(
+        'The "Email" or "Nickname" fields must be specified',
+      );
+    }
+
+    const query = forgotUserPassDto.email
+      ? { email: forgotUserPassDto.email }
+      : { nickname: forgotUserPassDto.nickname };
 
     const compareSessionId: SessionId = await this.sessionIdModel.findOne({
       _id: { $eq: forgotUserPassDto.sessionId },
@@ -136,10 +152,10 @@ export class UsersService implements IUser {
       10,
     );
 
-    await this.userModel.updateOne(
-      { email: user.email },
-      { password: hashedNewPassword },
-    );
+    await this.userModel
+      .findOneAndUpdate(query, { password: hashedNewPassword }, { new: true })
+      .lean()
+      .exec();
 
     return { message: 'Password successfully changed', status: 200 };
   }
@@ -147,11 +163,24 @@ export class UsersService implements IUser {
   async updateUnavailable(
     updateUnavailableDto: UpdateUnavailableDto,
   ): Promise<User> {
+    if (updateUnavailableDto.email && updateUnavailableDto.nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    } else if (!updateUnavailableDto.email && !updateUnavailableDto.nickname) {
+      throw new BadRequestException(
+        'The "Email" or "Nickname" fields must be specified',
+      );
+    }
+
     try {
-      const user: User = await this.findUser(updateUnavailableDto.email);
-      await this.userModel
-        .updateOne(
-          { email: user.email },
+      const query = updateUnavailableDto.email
+        ? { email: updateUnavailableDto.email }
+        : { nickname: updateUnavailableDto.nickname };
+
+      return await this.userModel
+        .findOneAndUpdate(
+          query,
           {
             unavailableMobs: updateUnavailableDto.unavailableMobs,
           },
@@ -159,7 +188,6 @@ export class UsersService implements IUser {
         )
         .lean()
         .exec();
-      return user;
     } catch (err) {
       throw new BadRequestException('Something went wrong!');
     }
@@ -186,11 +214,23 @@ export class UsersService implements IUser {
   async updateRole(
     updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
+    if (updateUserRoleDto.email && updateUserRoleDto.nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    } else if (!updateUserRoleDto.email && !updateUserRoleDto.nickname) {
+      throw new BadRequestException(
+        'The "Email" or "Nickname" fields must be specified',
+      );
+    }
+    const query = updateUserRoleDto.email
+      ? { email: updateUserRoleDto.email }
+      : { nickname: updateUserRoleDto.nickname };
+
     try {
-      const user: User = await this.findUser(updateUserRoleDto.email);
       await this.userModel
-        .updateOne(
-          { email: user.email },
+        .findOneAndUpdate(
+          query,
           { role: updateUserRoleDto.role },
           { new: true },
         )
@@ -202,10 +242,25 @@ export class UsersService implements IUser {
     return { message: 'Role has been updated successfully', status: 200 };
   }
 
-  async deleteOne(email: string): Promise<DeleteUserDtoResponse> {
+  async deleteOne(
+    deleteUserDtoRequest: DeleteUserDtoRequest,
+  ): Promise<DeleteUserDtoResponse> {
+    const { email, nickname } = deleteUserDtoRequest;
+    if (email && nickname) {
+      throw new BadRequestException(
+        'Email and Nickname fields should not be together',
+      );
+    } else if (!email && !nickname) {
+      throw new BadRequestException(
+        'The "Email" or "Nickname" fields must be specified',
+      );
+    }
+
+    const deleteQuery = email ? { email: email } : { nickname: nickname };
+
     try {
-      await this.userModel.deleteOne({ email: email });
-      await this.tokenModel.findOneAndDelete({ email: email });
+      await this.userModel.deleteOne(deleteQuery);
+      await this.tokenModel.findOneAndDelete(deleteQuery);
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }

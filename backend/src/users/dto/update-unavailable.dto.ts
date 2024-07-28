@@ -4,6 +4,8 @@ import {
   ArrayUnique,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 import { MobName } from '../../schemas/mobs.enum';
 
@@ -15,5 +17,11 @@ export class UpdateUnavailableDto {
 
   @IsEmail()
   @IsNotEmpty()
-  email: string;
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  nickname?: string;
 }

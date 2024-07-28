@@ -42,6 +42,7 @@ import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
   DeleteAllUsersDtoResponse,
+  DeleteUserDtoRequest,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
@@ -64,10 +65,22 @@ export class UsersController {
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get User By Email' })
+  @ApiOperation({ summary: 'Get User' })
   @Get()
   async getOne(@GetEmailFromToken() email: string): Promise<User> {
     return new User(await this.userInterface.findUser(email));
+  }
+
+  @UseGuards(UsersGuard)
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a Specific User By Email or Nickname' })
+  @Get('specificUser/:nicknameOrEmail')
+  async getUserByEmailOrNickname(
+    @Param('nicknameOrEmail') nicknameOrEmail: string,
+  ): Promise<User> {
+    return new User(await this.userInterface.findUser(nicknameOrEmail));
   }
 
   @UseGuards(UsersGuard)
@@ -148,11 +161,13 @@ export class UsersController {
   @UseGuards(UsersGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete User By Email' })
+  @ApiOperation({ summary: 'Delete User By Email or Nickname' })
   @ApiOkResponse({ description: 'Success', type: DeleteUserDtoResponse })
-  @Delete(':email')
-  deleteOne(@Param('email') email: string): Promise<DeleteUserDtoResponse> {
-    return this.userInterface.deleteOne(email);
+  @Delete()
+  deleteOne(
+    @Body() deleteUserDtoRequest: DeleteUserDtoRequest,
+  ): Promise<DeleteUserDtoResponse> {
+    return this.userInterface.deleteOne(deleteUserDtoRequest);
   }
 
   @UseGuards(UsersGuard)
