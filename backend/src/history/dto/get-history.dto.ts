@@ -10,6 +10,7 @@ import { MobName, Servers } from '../../schemas/mobs.enum';
 import { Expose } from 'class-transformer';
 import { Prop } from '@nestjs/mongoose';
 import { RolesTypes } from '../../schemas/user.schema';
+import { HistoryTypes } from '../../interfaces/history.interface';
 
 export class GetHistoryDtoResponse {
   @IsEnum(MobName)
@@ -31,6 +32,10 @@ export class GetHistoryDtoResponse {
   @Expose()
   @Prop()
   role: RolesTypes;
+
+  @Expose()
+  @Prop()
+  historyTypes: HistoryTypes;
 
   @IsNumber()
   @IsOptional()

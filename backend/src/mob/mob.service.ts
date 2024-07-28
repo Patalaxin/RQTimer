@@ -20,7 +20,7 @@ import {
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
 import { HelperClass } from '../helper-class';
-import { History } from '../interfaces/history.interface';
+import { History, HistoryTypes } from '../interfaces/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
@@ -188,6 +188,7 @@ export class MobService implements IMob {
       server: updateMobByCooldownDto.server,
       date: Date.now(),
       role: role,
+      historyTypes: HistoryTypes.updateMobByCooldown,
     };
 
     const nextResurrectTime: number =
@@ -243,6 +244,7 @@ export class MobService implements IMob {
       server: updateMobDateOfDeathDto.server,
       date: Date.now(),
       role: role,
+      historyTypes: HistoryTypes.updateMobDateOfDeath,
     };
 
     const nextResurrectTime: number =
@@ -295,6 +297,7 @@ export class MobService implements IMob {
       server: updateMobDateOfRespawnDto.server,
       date: Date.now(),
       role: role,
+      historyTypes: HistoryTypes.updateMobDateOfRespawn,
     };
 
     const nextResurrectTime: number = updateMobDateOfRespawnDto.dateOfRespawn;
@@ -361,6 +364,7 @@ export class MobService implements IMob {
         server: server,
         date: Date.now(),
         role: role,
+        historyTypes: HistoryTypes.crashMobServer,
       };
 
       history.crashServer = true;
