@@ -24,7 +24,6 @@ import { History } from '../interfaces/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
-import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
 import { MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
 import {
   DeleteMobDtoParamsRequest,
@@ -206,10 +205,10 @@ export class MobService implements IMob {
 
     const mobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        // Add +1 to the cooldown counter and update the respawn/death times
+        // Increment cooldown counter and update the respawn/death times
         { _id: mob.mob.mobsDataId },
         {
-          $inc: { cooldown: 1 },
+          $inc: { cooldown: updateMobByCooldownDto.cooldown },
           respawnTime: nextResurrectTime,
           deathTime: previousRespawnTime,
           respawnLost: false,
@@ -319,29 +318,6 @@ export class MobService implements IMob {
         { new: true },
       )
       .select('-_id -__v')
-      .lean()
-      .exec();
-
-    return { mobData };
-  }
-
-  async updateMobCooldownCounter(
-    updateMobCooldownDto: UpdateMobCooldownDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
-    const getMobDto: GetMobDtoRequest = {
-      mobName: updateMobCooldownDto.mobName,
-      server: updateMobCooldownDto.server,
-      location: updateMobCooldownDto.location,
-    };
-    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
-
-    const mobData = await this.mobsDataModel
-      .findOneAndUpdate(
-        { _id: mob.mob.mobsDataId },
-        { cooldown: updateMobCooldownDto.cooldown },
-        { new: true },
-      )
-      .select('-__v')
       .lean()
       .exec();
 

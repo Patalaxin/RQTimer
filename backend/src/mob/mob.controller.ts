@@ -34,7 +34,6 @@ import {
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
-import { UpdateMobCooldownDtoRequest } from './dto/update-mob-cooldown.dto';
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
@@ -147,15 +146,6 @@ export class MobController {
       nickname,
       updateMobDateOfRespawnDto,
     );
-  }
-
-  @Roles()
-  @ApiOperation({ summary: 'Update Mob Cooldown Counter ' })
-  @Put('/updateMobCooldownCounter')
-  updateMobCooldownCounter(
-    @Body() updateMobCooldownDto: UpdateMobCooldownDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.updateMobCooldownCounter(updateMobCooldownDto);
   }
 
   @Roles(RolesTypes.Admin)

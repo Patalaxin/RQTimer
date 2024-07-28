@@ -13,7 +13,6 @@ import {
 import { UpdateMobByCooldownDtoRequest } from '../../mob/dto/update-mob-by-cooldown.dto';
 import { UpdateMobDateOfDeathDtoRequest } from '../../mob/dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from '../../mob/dto/update-mob-date-of-respawn.dto';
-import { UpdateMobCooldownDtoRequest } from '../../mob/dto/update-mob-cooldown.dto';
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
@@ -48,10 +47,6 @@ export interface IMob {
   updateMobDateOfRespawn(
     nickname: string,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetMobDataDtoResponse>;
-
-  updateMobCooldownCounter(
-    updateMobCooldownDto: UpdateMobCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
   deleteMob(
