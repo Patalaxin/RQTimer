@@ -2,8 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
+import { environment } from 'src/environments/environment';
 
-const USER_API = 'http://localhost:3000/user/';
+const USER_API = environment.apiUrl + '/user/';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class UserService {
 
   getUser(): Observable<any> {
     const headers = this.createHeaders();
-    return this.http.get(USER_API + 'findUser', { headers });
+    return this.http.get(USER_API, { headers });
   }
 
   createUser(
@@ -26,19 +27,17 @@ export class UserService {
     email: string,
     password: string,
     sessionId: string,
-    excludedBosses: string[],
-    excludedElites: string[]
+    excludedMobs: string[]
   ): Observable<any> {
     let payload = {
       nickname,
       email,
       password,
       sessionId,
-      excludedBosses,
-      excludedElites,
+      excludedMobs,
     };
     const headers = this.createHeaders();
-    return this.http.post(USER_API + 'create', payload, { headers });
+    return this.http.post(USER_API, payload, { headers });
   }
 
   forgotPassword(
@@ -64,13 +63,9 @@ export class UserService {
     return this.http.put(USER_API + 'changePassword', payload, { headers });
   }
 
-  updateExcluded(
-    excludedBosses: string[],
-    excludedElites: string[]
-  ): Observable<any> {
+  updateExcluded(excludedMobs: string[]): Observable<any> {
     let payload = {
-      excludedBosses,
-      excludedElites,
+      excludedMobs,
     };
     const headers = this.createHeaders();
     return this.http.put(USER_API + 'updateExcluded', payload, { headers });

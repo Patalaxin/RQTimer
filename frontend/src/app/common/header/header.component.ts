@@ -14,6 +14,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 })
 export class HeaderComponent implements OnInit {
   currentServer: string = 'Гранас';
+  currentRoute: string = '';
   timerList: TimerItem[] = [];
 
   serverList = [
@@ -136,6 +137,10 @@ export class HeaderComponent implements OnInit {
     this.onLogin();
   }
 
+  onHistory(): void {
+    this.router.navigate(['/history']);
+  }
+
   onTimer(): void {
     this.router.navigate(['/timer']);
   }
@@ -144,7 +149,15 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/profile']);
   }
 
+  updateRoute(): void {
+    this.currentRoute = this.router.url;
+  }
+
   ngOnInit(): void {
     this.getCurrentServer();
+    this.router.events.subscribe(() => {
+      this.updateRoute();
+    });
+    this.updateRoute();
   }
 }

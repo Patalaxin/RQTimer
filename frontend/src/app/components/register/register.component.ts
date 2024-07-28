@@ -122,8 +122,7 @@ export class RegisterComponent implements OnInit {
         this.form.value.email,
         this.form.value.password,
         this.form.value.sessionId,
-        this.selectedBossesCheckbox,
-        this.selectedElitesCheckbox
+        [...this.selectedBossesCheckbox, ...this.selectedElitesCheckbox]
       )
       .subscribe({
         next: (res) => {

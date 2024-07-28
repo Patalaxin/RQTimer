@@ -1,27 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
+import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss'],
+  selector: 'app-history',
+  templateUrl: './history.component.html',
+  styleUrls: ['./history.component.scss'],
 })
-export class ProfileComponent implements OnInit {
+export class HistoryComponent implements OnInit {
+  historyList: any = [];
+
   user = {
     nickname: '',
     email: '',
     role: '',
   };
-
-  excludedMobs = [];
   isLoading: boolean = true;
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private historyService: HistoryService
   ) {}
 
   getUser(retryCount: number) {
@@ -34,9 +36,7 @@ export class ProfileComponent implements OnInit {
           role: res.role,
         };
 
-        this.excludedMobs = res.excludedMobs;
-
-        this.isLoading = false;
+        this.getHistory(this.storageService.getSessionStorage('server'));
       },
       error: (err) => {
         console.log('getUser error', err);
@@ -46,6 +46,16 @@ export class ProfileComponent implements OnInit {
             this.getUser(--retryCount);
           }
         }
+      },
+    });
+  }
+
+  getHistory(server: string): void {
+    this.historyService.getHistory(server).subscribe({
+      next: (res) => {
+        this.historyList = res;
+        this.historyList = this.historyList.reverse();
+        this.isLoading = false;
       },
     });
   }

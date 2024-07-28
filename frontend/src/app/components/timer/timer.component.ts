@@ -4,6 +4,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { BehaviorSubject } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 
@@ -14,17 +15,19 @@ import { TimerService } from 'src/app/services/timer.service';
 })
 export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
+  historyList: any = [];
   isLoading = this.timerService.isLoading;
   currentServer: string = '';
   leftTime: number = 0;
+
+  radioValue: string = 'A';
   currentTime: number = Date.now();
+  currentProgressTime: number = Date.now();
   currentItem: any;
+  cooldown: number = 1;
 
   percent: number = 0;
   intervalId: any;
-
-  isVisible: boolean = false;
-  isOkLoading: boolean = false;
 
   cooldownChangeVisible: boolean = false;
 
@@ -37,6 +40,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     private timerService: TimerService,
     private storageService: StorageService,
     private authService: AuthService,
+    private historyService: HistoryService,
     private message: NzMessageService
   ) {
     console.log(this.isLoading);
@@ -59,16 +63,34 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (
       item.mobData.respawnTime &&
       item.mobData.deathTime &&
-      this.currentTime < item.mobData.respawnTime
+      this.currentProgressTime < item.mobData.respawnTime
     ) {
       return (
-        ((this.currentTime - item.mobData.deathTime) /
+        ((this.currentProgressTime - item.mobData.deathTime) /
           (item.mobData.respawnTime - item.mobData.deathTime)) *
         100
       );
     }
 
-    return 100;
+    if (
+      item.mobData.respawnTime &&
+      this.currentProgressTime >= item.mobData.respawnTime
+    ) {
+      // let remainingTime = item.mobData.respawnTime - this.currentProgressTime;
+
+      // if (remainingTime <= 0 && !item.isTimerRunning) {
+      //   item.isTimerRunning = true;
+      //   console.log('Запуск таймера на 1 минут...', item.mob.mobName);
+      //   item.timeoutId = setTimeout(() => {
+      //     this.onSetByCooldownTime(item);
+      //     item.isTimerRunning = false;
+      //   }, 1 * 60 * 1000);
+      // }
+
+      return 100;
+    }
+
+    return 0;
   }
 
   onClickTimerItem(item: TimerItem): void {
@@ -79,33 +101,104 @@ export class TimerComponent implements OnInit, OnDestroy {
     navigator.clipboard.writeText(data);
   }
 
+  showHistoryModal(item: TimerItem): void {
+    console.log('showHistoryModal', item.mob.mobName);
+    item.mob.isHistoryModalVisible = true;
+  }
+
+  confirmHistoryModal(item: TimerItem): void {
+    item.mob.isHistoryModalVisible = false;
+  }
+
+  cancelHistoryModal(item: TimerItem): void {
+    item.mob.isHistoryModalVisible = false;
+  }
+
+  getHistory(server: string): void {
+    this.historyService.getHistory(server).subscribe({
+      next: (res) => {
+        this.historyList = res;
+        this.historyList = this.historyList.reverse();
+      },
+    });
+  }
+
+  sortHistoryList(item: TimerItem): any {
+    let historyListSorted = this.historyList.filter(
+      (a: any) => a.mobName === item.mob.mobName
+    );
+
+    historyListSorted.sort((a: any, b: any) => a.date - b.date);
+
+    return historyListSorted;
+  }
+
   showDeathModal(item: TimerItem): void {
-    this.isVisible = true;
+    item.mob.isDeathModalVisible = true;
     this.currentItem = item;
+    this.currentTime = Date.now();
   }
 
-  cancelDeathModal(): void {
-    this.isVisible = false;
+  cancelDeathModal(item: TimerItem): void {
+    item.mob.isDeathModalVisible = false;
   }
 
-  confirmDeathModal(): void {
-    this.isOkLoading = true;
+  confirmDeathModal(item: TimerItem): void {
+    item.mob.isDeathOkLoading = true;
     this.timerService.setIsLoading(true);
     console.log('confirm', this.currentItem);
-    this.currentTime = Date.now();
-    this.timerService
-      .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
-      .subscribe({
-        next: (res) => {
-          this.getAllBosses(1);
-          this.isVisible = false;
-          this.isOkLoading = false;
-          this.message.create(
-            'success',
-            'Респ был успешно обновлён по точному времени смерти'
-          );
-        },
-      });
+    console.log(moment(this.currentTime).format('HH:mm:ss'));
+    if (this.radioValue == 'A') {
+      this.timerService
+        .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
+        .subscribe({
+          next: (res) => {
+            // if (item.timeoutId) {
+            //   clearTimeout(item.timeoutId);
+            //   item.isTimerRunning = false;
+            // }
+            this.getAllBosses(1);
+            item.mob.isDeathModalVisible = false;
+            item.mob.isDeathOkLoading = false;
+            this.message.create(
+              'success',
+              'Респ был успешно обновлён по точному времени смерти'
+            );
+          },
+        });
+    }
+
+    if (this.radioValue == 'B') {
+      this.timerService
+        .setByRespawnTime(this.currentItem, moment(this.currentTime).valueOf())
+        .subscribe({
+          next: (res) => {
+            this.getAllBosses(1);
+            item.mob.isDeathModalVisible = false;
+            item.mob.isDeathOkLoading = false;
+            this.message.create(
+              'success',
+              'Респ был успешно обновлён по точному времени респауна'
+            );
+          },
+        });
+    }
+
+    if (this.radioValue == 'C') {
+      this.timerService
+        .setByCooldownTime(this.currentItem, Number(this.cooldown))
+        .subscribe({
+          next: (res) => {
+            this.getAllBosses(1);
+            item.mob.isDeathModalVisible = false;
+            item.mob.isDeathOkLoading = false;
+            this.message.create(
+              'success',
+              `Респ был успешно обновлён по кд ${this.cooldown} раз`
+            );
+          },
+        });
+    }
   }
 
   onDieNow(item: TimerItem): void {
@@ -116,6 +209,10 @@ export class TimerComponent implements OnInit, OnDestroy {
       .setByDeathTime(item, moment(this.currentTime).valueOf() - 10000)
       .subscribe({
         next: (res) => {
+          // if (item.timeoutId) {
+          //   clearTimeout(item.timeoutId);
+          //   item.isTimerRunning = false;
+          // }
           this.getAllBosses(1);
           this.message.create(
             'success',
@@ -134,8 +231,12 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onSetByCooldownTime(item: TimerItem): void {
     this.timerService.setIsLoading(true);
-    this.timerService.setByCooldownTime(item).subscribe({
+    this.timerService.setByCooldownTime(item, 1).subscribe({
       next: (res) => {
+        // if (item.timeoutId) {
+        //   clearTimeout(item.timeoutId);
+        //   item.isTimerRunning = false;
+        // }
         this.getAllBosses(1);
         this.message.create('success', 'Респ был успешно переписан по кд');
       },
@@ -147,6 +248,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
       next: (res) => {
+        // if (item.timeoutId) {
+        //   clearTimeout(item.timeoutId);
+        //   item.isTimerRunning = false;
+        // }
         this.getAllBosses(1);
       },
     });
@@ -172,6 +277,10 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         this.timerList.map((item) => {
           item.mob.plusCooldown = 0;
+          item.mob.isDeathModalVisible = false;
+          item.mob.isDeathOkLoading = false;
+          item.mob.isHistoryModalVisible = false;
+          item.mob.isHistoryOkLoading = false;
         });
         this.timerService.setIsLoading(false);
       },
@@ -202,10 +311,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.intervalId = setInterval(() => {
-      this.currentTime = Date.now();
+      this.currentProgressTime = Date.now();
     }, 1000);
 
     this.checkScreenWidth();
+    this.getHistory(this.storageService.getSessionStorage('server'));
     this.getAllBosses(1);
     this.timerService.timerList.subscribe({
       next: (res) => {
@@ -219,5 +329,12 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+
+    // this.timerList.forEach((item) => {
+    //   if (item.timeoutId) {
+    //     clearTimeout(item.timeoutId);
+    //     item.isTimerRunning = false;
+    //   }
+    // });
   }
 }

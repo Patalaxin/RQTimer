@@ -1,0 +1,45 @@
+<nz-timeline>
+  <nz-timeline-item
+    [nzColor]="item.role == 'Admin' ? 'red' : 'green'"
+    *ngFor="let item of historyList"
+  >
+    <p>
+      <nz-tag nzColor="gold"
+        ><b>{{ item.date | date : "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
+      >Пользователь
+      <nz-tag [nzColor]="item.role == 'Admin' ? 'red' : 'green'"
+        >{{ item.nickname }}
+      </nz-tag>
+      переписал
+      <nz-tag nzColor="blue" *ngIf="!(item.historyTypes == 'crashMobServer')">{{
+        item.mobName
+      }}</nz-tag>
+      <nz-tag nzColor="cyan">{{ getInputMethod(item) }}</nz-tag>
+    </p>
+    <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
+      Начальный кд:
+      <nz-tag nzColor="gold">{{ item.fromCooldown }} </nz-tag>
+    </p>
+    <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
+      Обновлённый кд:
+      <nz-tag nzColor="gold">{{ item.toCooldown }} </nz-tag>
+    </p>
+    <p
+      *ngIf="
+        !(item.historyTypes == 'crashMobServer') &&
+        !(item.historyTypes == 'respawnLost')
+      "
+    >
+      Время возрождение:
+      <nz-tag nzColor="gold"
+        >{{ item.toWillResurrect | date : "HH:mm:ss" }}
+      </nz-tag>
+    </p>
+    <!-- <p>
+      Время возрождение:
+      <nz-tag nzColor="gold"
+        >{{ item.toWillResurrect | date : "HH:mm:ss" }}
+      </nz-tag>
+    </p> -->
+  </nz-timeline-item>
+</nz-timeline>

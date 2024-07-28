@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
+import { environment } from 'src/environments/environment';
 
-const MOB_URL = 'http://localhost:3000/mob/';
+const MOB_URL = environment.apiUrl + '/mob/';
 
 @Injectable({
   providedIn: 'root',
@@ -71,20 +72,7 @@ export class TimerService {
     });
   }
 
-  setByCooldownTime(item: TimerItem): Observable<any> {
-    const headers = this.createHeaders();
-    let payload = {
-      mobName: item.mob.mobName,
-      server: item.mob.server,
-      location: item.mob.location,
-    };
-
-    return this.http.put(MOB_URL + 'updateMobByCooldown', payload, {
-      headers,
-    });
-  }
-
-  updateCooldownCounter(item: TimerItem, cooldown: number): Observable<any> {
+  setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
     const headers = this.createHeaders();
     let payload = {
       mobName: item.mob.mobName,
@@ -93,10 +81,24 @@ export class TimerService {
       cooldown,
     };
 
-    return this.http.put(MOB_URL + 'updateMobByCooldownCount', payload, {
+    return this.http.put(MOB_URL + 'updateMobByCooldown', payload, {
       headers,
     });
   }
+
+  // updateCooldownCounter(item: TimerItem, cooldown: number): Observable<any> {
+  //   const headers = this.createHeaders();
+  //   let payload = {
+  //     mobName: item.mob.mobName,
+  //     server: item.mob.server,
+  //     location: item.mob.location,
+  //     cooldown,
+  //   };
+
+  //   return this.http.put(MOB_URL + 'updateMobCooldownCounter', payload, {
+  //     headers,
+  //   });
+  // }
 
   respawnLost(item: TimerItem): Observable<any> {
     const headers = this.createHeaders();

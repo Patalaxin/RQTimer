@@ -23,6 +23,13 @@
             <nz-countdown
               [nzValue]="item.mobData.respawnTime"
               [nzFormat]="'HH:mm:ss'"
+              [nzValueStyle]="{ color: '#3F8600' }"
+              [nzValueStyle]="
+                item.mobData.respawnTime &&
+                item.mobData.respawnTime - this.currentProgressTime <= 300000
+                  ? { color: '#DF0300' }
+                  : {}
+              "
             ></nz-countdown>
             <span
               class="timer-mx-10px"
@@ -66,7 +73,7 @@
               nzType="primary"
               (click)="showDeathModal(item)"
               nz-tooltip
-              nzTooltipTitle="Переписать по точному времени смерти"
+              nzTooltipTitle="Переписать вручную"
               [nzTooltipMouseEnterDelay]="1"
               class="timer-die-button"
             >
@@ -76,16 +83,39 @@
               >
             </button>
             <nz-modal
-              [(nzVisible)]="isVisible"
-              (nzOnCancel)="cancelDeathModal()"
-              (nzOnOk)="confirmDeathModal()"
-              [nzOkLoading]="isOkLoading"
+              [(nzVisible)]="item.mob.isDeathModalVisible"
+              (nzOnCancel)="cancelDeathModal(item)"
+              (nzOnOk)="confirmDeathModal(item)"
+              [nzOkLoading]="item.mob.isDeathOkLoading"
             >
               <p *nzModalContent>
-                Выберите точное время смерти:
-                <br />
-                <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
-                <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
+                <nz-radio-group [(ngModel)]="radioValue">
+                  <label nz-radio nzValue="A"
+                    >Выберите точное время смерти:</label
+                  >
+                  <div class="timer-radio-option">
+                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
+                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
+                  </div>
+                  <label nz-radio nzValue="B"
+                    >Выберите точное время респауна:</label
+                  >
+                  <div class="timer-radio-option">
+                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
+                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
+                  </div>
+                  <label nz-radio nzValue="C"
+                    >Впишите, сколько раз по кд:</label
+                  >
+                  <div class="timer-radio-option">
+                    <nz-input-group
+                      nzPrefix="CD"
+                      style="width: 120px; margin-top: 10px"
+                    >
+                      <input type="text" nz-input [(ngModel)]="cooldown" />
+                    </nz-input-group>
+                  </div>
+                </nz-radio-group>
               </p>
             </nz-modal>
             <button
@@ -110,12 +140,24 @@
               <button
                 nz-button
                 nzType="primary"
+                (click)="showHistoryModal(item)"
                 nz-tooltip
-                nzTooltipTitle="История переписи босса/элитки"
+                nzTooltipTitle="История переписи {{ item.mob.mobName }}"
                 [nzTooltipMouseEnterDelay]="1"
               >
                 <span nz-icon nzType="history"></span>
               </button>
+              <nz-modal
+                [(nzVisible)]="item.mob.isHistoryModalVisible"
+                (nzOnCancel)="cancelHistoryModal(item)"
+                (nzOnOk)="confirmHistoryModal(item)"
+                [nzOkLoading]="item.mob.isHistoryOkLoading"
+                [nzBodyStyle]="{ maxHeight: '450px', overflow: 'scroll' }"
+              >
+                <p *nzModalContent>
+                  <app-log [historyList]="sortHistoryList(item)"></app-log>
+                </p>
+              </nz-modal>
               <nz-badge
                 [nzCount]="item.mob.plusCooldown"
                 class="timer-plus-cooldown"
@@ -171,8 +213,9 @@
               <button
                 nz-button
                 nzType="primary"
+                (click)="showHistoryModal(item)"
                 nz-tooltip
-                nzTooltipTitle="История переписи босса/элитки"
+                nzTooltipTitle="История переписи {{ item.mob.mobName }}"
                 [nzTooltipMouseEnterDelay]="1"
               >
                 <span nz-icon nzType="history"></span>

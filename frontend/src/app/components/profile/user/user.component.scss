@@ -18,3 +18,11 @@
     }
   }
 }
+
+@media only screen and (max-width: 550px) {
+  .user {
+    .update-excluded-form {
+      display: block;
+    }
+  }
+}

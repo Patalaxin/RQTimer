@@ -1,13 +1,13 @@
-<div class="profile container">
+<div class="history container">
   <nz-skeleton *ngIf="isLoading"></nz-skeleton>
 
-  <div class="profile" *ngIf="!isLoading">
+  <div class="history" *ngIf="!isLoading">
     <nz-page-header class="site-page-header" nzBackIcon>
       <nz-page-header-title>Назад</nz-page-header-title>
       <nz-page-header-extra>
         <app-info [user]="user"></app-info>
       </nz-page-header-extra>
     </nz-page-header>
-    <app-user [excludedMobs]="excludedMobs" [role]="user.role"></app-user>
+    <app-log [historyList]="historyList"></app-log>
   </div>
 </div>

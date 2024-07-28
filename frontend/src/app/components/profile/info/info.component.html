@@ -1,4 +1,8 @@
 <div class="user-info">
-  <h3 class="user-info__nickname">Никнейм: {{ user.nickname }}</h3>
-  <span class="user-info__email">Почта: {{ user.email }} </span>
+  <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
+    >Никнейм: {{ user.nickname }}
+  </nz-tag>
+  <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
+    >Почта: {{ user.email }}
+  </nz-tag>
 </div>

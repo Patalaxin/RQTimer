@@ -22,7 +22,7 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./user.component.scss'],
 })
 export class UserComponent implements OnInit, AfterViewInit {
-  @Input() excluded: any;
+  @Input() excludedMobs: any;
   @Input() role: string = '';
 
   selectedBossesCheckbox: string[] = [];
@@ -81,6 +81,7 @@ export class UserComponent implements OnInit, AfterViewInit {
     newPassword: new FormControl(''),
     confirmNewPassword: new FormControl(''),
   });
+
   changePasswordSubmitted: boolean = false;
 
   passwordVisible: boolean = false;
@@ -89,7 +90,7 @@ export class UserComponent implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private message: NzMessageService,
-    private cdref: ChangeDetectorRef
+    private cdr: ChangeDetectorRef
   ) {}
 
   get excludedBosses() {
@@ -108,7 +109,10 @@ export class UserComponent implements OnInit, AfterViewInit {
     }
 
     this.userService
-      .updateExcluded(this.selectedBossesCheckbox, this.selectedElitesCheckbox)
+      .updateExcluded([
+        ...this.selectedBossesCheckbox,
+        ...this.selectedElitesCheckbox,
+      ])
       .subscribe({
         next: (res) => {
           console.log(res);
@@ -183,8 +187,8 @@ export class UserComponent implements OnInit, AfterViewInit {
     let bossesCheckbox = document.querySelectorAll('.boss-input');
     let elitesCheckbox = document.querySelectorAll('.elite-input');
     Array.from(bossesCheckbox).map((item) => {
-      if (this.excluded.excludedBosses) {
-        this.excluded.excludedBosses.map((boss: any) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.map((boss: any) => {
           if (boss === item.textContent?.trim()) {
             (item as HTMLInputElement).click();
           }
@@ -192,14 +196,14 @@ export class UserComponent implements OnInit, AfterViewInit {
       }
     });
     Array.from(elitesCheckbox).map((item) => {
-      if (this.excluded.excludedElites) {
-        this.excluded.excludedElites.map((elite: any) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.map((elite: any) => {
           if (elite === item.textContent?.trim()) {
             (item as HTMLInputElement).click();
           }
         });
       }
     });
-    this.cdref.detectChanges();
+    this.cdr.detectChanges();
   }
 }
