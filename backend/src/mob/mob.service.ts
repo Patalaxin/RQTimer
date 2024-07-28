@@ -194,7 +194,6 @@ export class MobService implements IMob {
     history.fromCooldown = mob.mobData.cooldown;
     history.toCooldown = updateMobByCooldownDto.cooldown;
     await this.historyService.createHistory(history);
-    const previousRespawnTime: number = mob.mobData.respawnTime;
 
     await this.botService.newTimeout(
       timeoutName,
@@ -210,7 +209,6 @@ export class MobService implements IMob {
         {
           $inc: { cooldown: updateMobByCooldownDto.cooldown },
           respawnTime: nextResurrectTime,
-          deathTime: previousRespawnTime,
           respawnLost: false,
         },
         { new: true },
