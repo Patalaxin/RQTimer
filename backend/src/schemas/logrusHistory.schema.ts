@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
+import { HistoryTypes } from '../interfaces/history.interface';
 
 export type LogrusHistoryDocument = HydratedDocument<LogrusHistory>;
 
@@ -36,6 +37,10 @@ export class LogrusHistory {
   @Expose()
   @Prop()
   role: RolesTypes;
+
+  @Expose()
+  @Prop()
+  historyTypes: HistoryTypes;
 
   @Expose()
   @Prop()

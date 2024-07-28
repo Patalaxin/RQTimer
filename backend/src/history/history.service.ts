@@ -16,10 +16,13 @@ import {
 import { History } from '../interfaces/history.interface';
 import { Servers } from '../schemas/mobs.enum';
 import { GetHistoryDtoResponse } from './dto/get-history.dto';
+import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
+import { DeleteAllUsersDtoResponse } from '../users/dto/delete-user.dto';
 
 @Injectable()
 export class HistoryService {
   private historyModels: any;
+
   constructor(
     @InjectModel(GranasHistory.name)
     private granasHistoryModel: Model<GranasHistoryDocument>,
@@ -53,5 +56,17 @@ export class HistoryService {
     } catch (err) {
       throw new BadRequestException('Something went wrong');
     }
+  }
+
+  async deleteAll(server: Servers): Promise<DeleteAllHistoryDtoResponse> {
+    try {
+      const historyModel = this.historyModels.find(
+        (obj) => obj.server === server,
+      ).model;
+      await historyModel.deleteMany();
+    } catch (err) {
+      throw new BadRequestException('Something went wrong ');
+    }
+    return { message: 'All history deleted', status: 200 };
   }
 }

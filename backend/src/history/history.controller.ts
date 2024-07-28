@@ -1,6 +1,7 @@
 import {
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   Param,
   UseGuards,
@@ -9,9 +10,16 @@ import {
 import { HistoryService } from './history.service';
 import { UsersGuard } from '../guards/users.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Servers } from '../schemas/mobs.enum';
 import { GetHistoryDtoResponse } from './dto/get-history.dto';
+import { RolesTypes } from '../schemas/user.schema';
+import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 
 @ApiBearerAuth()
 @ApiTags('History API')
@@ -28,5 +36,17 @@ export class HistoryController {
     @Param('server') server: Servers,
   ): Promise<GetHistoryDtoResponse[]> {
     return await this.historyService.getAllHistory(server);
+  }
+
+  @UseGuards(UsersGuard)
+  @Roles(RolesTypes.Admin)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Delete All History by Server' })
+  @ApiOkResponse({ description: 'Success', type: DeleteAllHistoryDtoResponse })
+  @Delete('/deleteAll')
+  deleteAll(
+    @Param('server') server: Servers,
+  ): Promise<DeleteAllHistoryDtoResponse> {
+    return this.historyService.deleteAll(server);
   }
 }
