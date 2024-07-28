@@ -14,9 +14,9 @@ export class DeleteMobDtoParamsRequest {
   @IsEnum(MobName)
   mobName: MobName;
 
-  @IsEnum(Locations)
-  location: Locations;
-
   @IsEnum(Servers)
   server: Servers;
+
+  @IsEnum(Locations)
+  location: Locations;
 }

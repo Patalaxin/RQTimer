@@ -11,6 +11,7 @@ import { Expose } from 'class-transformer';
 import { Prop } from '@nestjs/mongoose';
 import { RolesTypes } from '../../schemas/user.schema';
 import { HistoryTypes } from '../../interfaces/history.interface';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class GetHistoryDtoResponse {
   @IsEnum(MobName)
@@ -52,4 +53,18 @@ export class GetHistoryDtoResponse {
   @IsBoolean()
   @IsOptional()
   crashServer?: boolean;
+}
+
+export class PaginatedHistoryDto {
+  @ApiProperty({ type: [GetHistoryDtoResponse] })
+  data: GetHistoryDtoResponse[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  pages: number;
 }

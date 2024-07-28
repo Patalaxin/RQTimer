@@ -15,7 +15,10 @@ import {
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
-import { GetHistoryDtoResponse } from './dto/get-history.dto';
+import {
+  GetHistoryDtoResponse,
+  PaginatedHistoryDto,
+} from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 
 @Injectable()
@@ -50,12 +53,7 @@ export class HistoryService {
     mobName?: MobName,
     page: number = 1,
     limit: number = 10,
-  ): Promise<{
-    data: GetHistoryDtoResponse[];
-    total: number;
-    page: number;
-    pages: number;
-  }> {
+  ): Promise<PaginatedHistoryDto> {
     try {
       const historyModel = this.historyModels.find(
         (obj) => obj.server === server,

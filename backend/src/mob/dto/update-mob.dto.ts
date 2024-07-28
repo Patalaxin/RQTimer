@@ -41,9 +41,9 @@ export class UpdateMobDtoParamsRequest {
   @IsEnum(MobName)
   mobName: MobName;
 
-  @IsEnum(Locations)
-  location: Locations;
-
   @IsEnum(Servers)
   server: Servers;
+
+  @IsEnum(Locations)
+  location: Locations;
 }
