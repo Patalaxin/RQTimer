@@ -6,6 +6,7 @@ export enum HistoryTypes {
   updateMobDateOfDeath = 'updateMobDateOfDeath',
   updateMobDateOfRespawn = 'updateMobDateOfRespawn',
   crashMobServer = 'crashMobServer',
+  respawnLost = 'respawnLost',
 }
 
 export interface History {

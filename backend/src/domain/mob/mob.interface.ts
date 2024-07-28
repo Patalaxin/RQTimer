@@ -66,5 +66,7 @@ export interface IMob {
 
   respawnLost(
     respawnLostDtoParams: RespawnLostDtoParamsRequest,
+    nickname: string,
+    role: RolesTypes,
   ): Promise<GetMobDataDtoResponse>;
 }

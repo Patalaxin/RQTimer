@@ -13,7 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Request } from 'express';
+import { request, Request } from 'express';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
@@ -102,7 +102,7 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const parsedToken = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
@@ -121,7 +121,7 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const parsedToken = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
@@ -140,7 +140,7 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const parsedToken = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
@@ -169,7 +169,7 @@ export class MobController {
     @Req() request: Request,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
-    const parsedToken = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
@@ -187,6 +187,14 @@ export class MobController {
   respawnLost(
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
-    return this.mobService.respawnLost(respawnLostDtoParams);
+    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
+      request,
+      this.jwtService,
+    );
+    return this.mobService.respawnLost(
+      respawnLostDtoParams,
+      parsedToken.nickname,
+      parsedToken.role,
+    );
   }
 }

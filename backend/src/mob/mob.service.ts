@@ -400,12 +400,25 @@ export class MobService implements IMob {
 
   async respawnLost(
     respawnLostDtoParams: RespawnLostDtoParamsRequest,
+    nickname: string,
+    role: RolesTypes,
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
       mobName: respawnLostDtoParams.mobName,
       server: respawnLostDtoParams.server,
       location: respawnLostDtoParams.location,
     };
+
+    const history: History = {
+      mobName: respawnLostDtoParams.mobName,
+      nickname: nickname,
+      server: respawnLostDtoParams.server,
+      date: Date.now(),
+      role: role,
+      historyTypes: HistoryTypes.respawnLost,
+    };
+
+    await this.historyService.createHistory(history);
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
     const mobData: MobsData = await this.mobsDataModel

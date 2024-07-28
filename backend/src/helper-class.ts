@@ -5,7 +5,7 @@ import { RolesTypes } from './schemas/user.schema';
 export class HelperClass {
   static counter: number = 0;
 
-  static getNicknameFromToken(
+  static getNicknameAndRoleFromToken(
     request: Request,
     jwtService: JwtService,
   ): { role: RolesTypes; nickname: string } {
