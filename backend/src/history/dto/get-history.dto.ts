@@ -7,6 +7,9 @@ import {
   IsString,
 } from 'class-validator';
 import { MobName, Servers } from '../../schemas/mobs.enum';
+import { Expose } from 'class-transformer';
+import { Prop } from '@nestjs/mongoose';
+import { RolesTypes } from '../../schemas/user.schema';
 
 export class GetHistoryDtoResponse {
   @IsEnum(MobName)
@@ -24,6 +27,10 @@ export class GetHistoryDtoResponse {
   @IsNumber()
   @IsNotEmpty()
   date: number;
+
+  @Expose()
+  @Prop()
+  role: RolesTypes;
 
   @IsNumber()
   @IsOptional()

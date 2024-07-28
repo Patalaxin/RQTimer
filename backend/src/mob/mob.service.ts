@@ -30,6 +30,7 @@ import {
   DeleteMobDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
+import { RolesTypes } from '../schemas/user.schema';
 
 export class MobService implements IMob {
   constructor(
@@ -163,6 +164,7 @@ export class MobService implements IMob {
 
   async updateMobByCooldown(
     nickname: string,
+    role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto = {
@@ -185,6 +187,7 @@ export class MobService implements IMob {
       nickname: nickname,
       server: updateMobByCooldownDto.server,
       date: Date.now(),
+      role: role,
     };
 
     const nextResurrectTime: number =
@@ -222,6 +225,7 @@ export class MobService implements IMob {
 
   async updateMobDateOfDeath(
     nickname: string,
+    role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
@@ -238,6 +242,7 @@ export class MobService implements IMob {
       nickname: nickname,
       server: updateMobDateOfDeathDto.server,
       date: Date.now(),
+      role: role,
     };
 
     const nextResurrectTime: number =
@@ -272,6 +277,7 @@ export class MobService implements IMob {
 
   async updateMobDateOfRespawn(
     nickname: string,
+    role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
     const getMobDto: GetMobDtoRequest = {
@@ -288,6 +294,7 @@ export class MobService implements IMob {
       nickname: nickname,
       server: updateMobDateOfRespawnDto.server,
       date: Date.now(),
+      role: role,
     };
 
     const nextResurrectTime: number = updateMobDateOfRespawnDto.dateOfRespawn;
@@ -344,6 +351,7 @@ export class MobService implements IMob {
   async crashMobServer(
     email: string,
     nickname: string,
+    role: RolesTypes,
     server: Servers,
   ): Promise<GetFullMobDtoResponse[]> {
     try {
@@ -352,6 +360,7 @@ export class MobService implements IMob {
         nickname: nickname,
         server: server,
         date: Date.now(),
+        role: role,
       };
 
       history.crashServer = true;

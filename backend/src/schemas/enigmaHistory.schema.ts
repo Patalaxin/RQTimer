@@ -4,6 +4,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
+import { RolesTypes } from './user.schema';
 
 export type EnigmaHistoryDocument = HydratedDocument<EnigmaHistory>;
 
@@ -27,6 +28,10 @@ export class EnigmaHistory {
   @Expose()
   @Prop({ required: true })
   nickname: string;
+
+  @Expose()
+  @Prop()
+  role: RolesTypes;
 
   @Expose()
   @Prop({ required: true })

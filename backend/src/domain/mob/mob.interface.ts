@@ -18,6 +18,7 @@ import {
   DeleteMobDtoResponse,
 } from '../../mob/dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from '../../mob/dto/respawn-lost.dto';
+import { RolesTypes } from '../../schemas/user.schema';
 
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<GetFullMobDtoResponse>;
@@ -36,16 +37,19 @@ export interface IMob {
 
   updateMobByCooldown(
     nickname: string,
+    role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfDeath(
     nickname: string,
+    role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfRespawn(
     nickname: string,
+    role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse>;
 
@@ -56,6 +60,7 @@ export interface IMob {
   crashMobServer(
     email: string,
     nickname: string,
+    role: string,
     server: string,
   ): Promise<GetFullMobDtoResponse[]>;
 

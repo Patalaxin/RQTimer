@@ -23,7 +23,11 @@ export class AuthService {
   ) {}
 
   private async addTokens(user: User): Promise<SignInDtoResponse> {
-    const payload = { email: user.email, nickname: user.nickname };
+    const payload = {
+      email: user.email,
+      nickname: user.nickname,
+      role: user.role,
+    };
     const accessToken: string = await this.jwtService.signAsync(payload, {
       secret: process.env.SECRET_CONSTANT,
     });

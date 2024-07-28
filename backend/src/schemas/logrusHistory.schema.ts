@@ -4,6 +4,7 @@ import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
+import { RolesTypes } from './user.schema';
 
 export type LogrusHistoryDocument = HydratedDocument<LogrusHistory>;
 
@@ -31,6 +32,10 @@ export class LogrusHistory {
   @Expose()
   @Prop({ required: true })
   date: number;
+
+  @Expose()
+  @Prop()
+  role: RolesTypes;
 
   @Expose()
   @Prop()

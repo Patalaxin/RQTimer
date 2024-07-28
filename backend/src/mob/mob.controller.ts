@@ -102,12 +102,13 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameFromToken(
       request,
       this.jwtService,
     );
     return this.mobService.updateMobByCooldown(
-      nickname,
+      parsedToken.nickname,
+      parsedToken.role,
       updateMobByCooldownDto,
     );
   }
@@ -120,12 +121,13 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameFromToken(
       request,
       this.jwtService,
     );
     return this.mobService.updateMobDateOfDeath(
-      nickname,
+      parsedToken.nickname,
+      parsedToken.role,
       updateMobDateOfDeathDto,
     );
   }
@@ -138,12 +140,13 @@ export class MobController {
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const nickname: string = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameFromToken(
       request,
       this.jwtService,
     );
     return this.mobService.updateMobDateOfRespawn(
-      nickname,
+      parsedToken.nickname,
+      parsedToken.role,
       updateMobDateOfRespawnDto,
     );
   }
@@ -166,13 +169,14 @@ export class MobController {
     @Req() request: Request,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
-    const nickname: string = HelperClass.getNicknameFromToken(
+    const parsedToken = HelperClass.getNicknameFromToken(
       request,
       this.jwtService,
     );
     return this.mobService.crashMobServer(
       email,
-      nickname,
+      parsedToken.nickname,
+      parsedToken.role,
       crashServerDtoParams.server,
     );
   }
