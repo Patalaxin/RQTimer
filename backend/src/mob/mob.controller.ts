@@ -13,7 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { request, Request } from 'express';
+import { Request } from 'express';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
@@ -185,6 +185,7 @@ export class MobController {
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('respawnLost/:mobName/:server/:location/')
   respawnLost(
+    @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
