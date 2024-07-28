@@ -53,7 +53,7 @@ export class Mob {
 
   @ApiProperty({ enum: Servers })
   @Expose()
-  @Prop()
+  @Prop({ required: true })
   server: Servers;
 
   @ApiProperty({ enum: MobsTypes })
@@ -72,3 +72,4 @@ export class Mob {
 }
 
 export const MobSchema = SchemaFactory.createForClass(Mob);
+MobSchema.index({ location: 1, mobName: 1, server: 1 }, { unique: true });

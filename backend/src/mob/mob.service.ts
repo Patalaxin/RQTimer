@@ -57,6 +57,12 @@ export class MobService implements IMob {
       await mob.save();
       return { mob: mob.toObject(), mobData: mobData.toObject() };
     } catch (err) {
+      if (err.code === 11000) {
+        // Handle unique constraint error
+        throw new BadRequestException(
+          'A mob with the same name already exists in this location on this server.',
+        );
+      }
       throw new BadRequestException(err);
     }
   }
