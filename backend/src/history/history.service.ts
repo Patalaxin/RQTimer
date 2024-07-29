@@ -15,10 +15,7 @@ import {
 } from '../schemas/logrusHistory.schema';
 import { History } from '../interfaces/history.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
-import {
-  GetHistoryDtoResponse,
-  PaginatedHistoryDto,
-} from './dto/get-history.dto';
+import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 
 @Injectable()
@@ -68,6 +65,7 @@ export class HistoryService {
       const pages: number = Math.ceil(total / limit);
       const data = await historyModel
         .find(query, { __v: 0 })
+        .sort({ date: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .lean()
