@@ -37,16 +37,17 @@ export class UsersService implements IUser {
   ) {}
 
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
-    const userEmail = await this.userModel
-      .findOne({ email: createUserDto.email })
-      .lean()
-      .exec();
-    const userNickname = await this.userModel
-      .findOne({ nickname: createUserDto.nickname })
+    const existingUser = await this.userModel
+      .findOne({
+        $or: [
+          { email: createUserDto.email },
+          { nickname: createUserDto.nickname },
+        ],
+      })
       .lean()
       .exec();
 
-    if (userEmail || userNickname) {
+    if (existingUser) {
       throw new BadRequestException(
         'A user with such an email or nickname already exists!',
       );
@@ -58,11 +59,17 @@ export class UsersService implements IUser {
     if (compareSessionId === null) {
       throw new BadRequestException('Wrong SessionId!');
     }
+    await this.sessionIdModel.deleteMany({});
     try {
-      await this.sessionIdModel.deleteMany({});
-      const newUser = await this.userModel.create(createUserDto);
-      newUser.password = await bcrypt.hash(newUser.password, 10);
-      await newUser.save();
+      const hashedPassword: string = await bcrypt.hash(
+        createUserDto.password,
+        10,
+      );
+      const newUser = await this.userModel.create({
+        ...createUserDto,
+        password: hashedPassword,
+      });
+
       return newUser.toObject();
     } catch (err) {
       throw new BadRequestException('Something went wrong!');

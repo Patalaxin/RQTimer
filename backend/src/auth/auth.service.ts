@@ -54,19 +54,13 @@ export class AuthService {
       );
     }
 
-    let user: User;
-    if (signInDto.email) {
-      user = await this.userModel.findOne({ email: signInDto.email });
-      if (!user) {
-        throw new BadRequestException('Login or password invalid');
-      }
-    } else if (signInDto.nickname) {
-      user = await this.userModel.findOne({ nickname: signInDto.nickname });
-      if (!user) {
-        throw new BadRequestException('Login or password invalid');
-      }
-    } else {
-      throw new BadRequestException('Something went wrong');
+    const query = signInDto.email
+      ? { email: signInDto.email }
+      : { nickname: signInDto.nickname };
+
+    const user: User = await this.userModel.findOne(query);
+    if (!user) {
+      throw new BadRequestException('Login or password invalid');
     }
 
     const isPasswordMatch: boolean = await bcrypt.compare(
@@ -79,9 +73,8 @@ export class AuthService {
     const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
-      sameSite: 'none',
     });
 
     return tokens;
@@ -98,38 +91,22 @@ export class AuthService {
       );
     }
     if (!userRefreshToken) {
-      throw new UnauthorizedException('Желтая клуша');
+      throw new UnauthorizedException(
+        'Refresh token is missing from the request',
+      );
     }
 
     let user: User;
     let refreshToken: string;
 
     try {
-      if (exchangeRefreshDto.email && !exchangeRefreshDto.nickname) {
-        user = await this.userModel
-          .findOne({ email: exchangeRefreshDto.email })
-          .lean()
-          .exec();
-        ({ refreshToken } = await this.tokenModel.findOne({
-          email: exchangeRefreshDto.email,
-        }));
-      }
-    } catch (err) {
-      throw new BadRequestException(
-        'There is no valid refresh token for this user',
-      );
-    }
+      const query = exchangeRefreshDto.email
+        ? { email: exchangeRefreshDto.email }
+        : { nickname: exchangeRefreshDto.nickname };
+      user = await this.userModel.findOne(query).lean().exec();
+      const tokenRecord = await this.tokenModel.findOne(query);
 
-    try {
-      if (exchangeRefreshDto.nickname && !exchangeRefreshDto.email) {
-        user = await this.userModel
-          .findOne({ nickname: exchangeRefreshDto.nickname })
-          .lean()
-          .exec();
-        ({ refreshToken } = await this.tokenModel.findOne({
-          nickname: exchangeRefreshDto.nickname,
-        }));
-      }
+      refreshToken = tokenRecord.refreshToken;
     } catch (err) {
       throw new BadRequestException(
         'There is no valid refresh token for this user',
@@ -149,9 +126,8 @@ export class AuthService {
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       maxAge: 2678400000, // 2,678,400,000 = day in milliseconds
-      sameSite: 'none',
     });
 
     return tokens;

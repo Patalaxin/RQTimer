@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
@@ -173,51 +173,40 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const getMobDto = {
-      mobName: updateMobByCooldownDto.mobName,
-      server: updateMobByCooldownDto.server,
-      location: updateMobByCooldownDto.location,
-    };
+    const { mobName, server, location, cooldown } = updateMobByCooldownDto;
+
+    const getMobDto = { mobName, server, location };
 
     const mob: GetFullMobDtoResponse = await this.findMob(getMobDto);
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     if (mob.mobData.respawnTime === null) {
       throw new BadRequestException(
-        'Respawn is lost, so it is not possible to update on a cooldown. Some date of death (dateOfDeath) or date of respawn (dateOfRespawn) must be specified',
+        'Respawn time is missing. Specify either date of death (dateOfDeath) or date of respawn (dateOfRespawn).',
       );
     }
 
-    const history: History = {
-      mobName: updateMobByCooldownDto.mobName,
-      nickname: nickname,
-      server: updateMobByCooldownDto.server,
-      date: Date.now(),
-      role: role,
-      historyTypes: HistoryTypes.updateMobByCooldown,
-    };
+    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number =
-      mob.mob.cooldownTime * updateMobByCooldownDto.cooldown +
-      mob.mobData.respawnTime;
-    history.toWillResurrect = nextResurrectTime;
-    history.fromCooldown = mob.mobData.cooldown;
-    history.toCooldown = mob.mobData.cooldown + updateMobByCooldownDto.cooldown;
-    await this.historyService.createHistory(history);
+      mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
 
-    await this.botService.newTimeout(
-      timeoutName,
-      nextResurrectTime,
-      updateMobByCooldownDto.mobName,
-      updateMobByCooldownDto.server,
-    );
+    const history: History = {
+      mobName,
+      nickname,
+      server,
+      date: Date.now(),
+      role,
+      historyTypes: HistoryTypes.updateMobByCooldown,
+      toWillResurrect: nextResurrectTime,
+      fromCooldown: mob.mobData.cooldown,
+      toCooldown: mob.mobData.cooldown + cooldown,
+    };
 
-    const mobData: MobsData = await this.mobsDataModel
+    const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        // Increment cooldown counter and update the respawn/death times
         { _id: mob.mob.mobsDataId },
         {
-          $inc: { cooldown: updateMobByCooldownDto.cooldown },
+          $inc: { cooldown },
           respawnTime: nextResurrectTime,
           respawnLost: false,
         },
@@ -227,7 +216,21 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    return { mobData };
+    if (!updatedMobData) {
+      throw new Error('Failed to update mob data.');
+    }
+
+    await Promise.all([
+      this.historyService.createHistory(history),
+      this.botService.newTimeout(
+        timeoutName,
+        nextResurrectTime,
+        mobName,
+        server,
+      ),
+    ]);
+
+    return { mobData: updatedMobData };
   }
 
   async updateMobDateOfDeath(
@@ -235,43 +238,33 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const getMobDto: GetMobDtoRequest = {
-      mobName: updateMobDateOfDeathDto.mobName,
-      server: updateMobDateOfDeathDto.server,
-      location: updateMobDateOfDeathDto.location,
-    };
+    const { mobName, server, location, dateOfDeath } = updateMobDateOfDeathDto;
+
+    const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto);
+
     const timeoutName: string = await HelperClass.generateUniqueName();
 
+    const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
+
     const history: History = {
-      mobName: updateMobDateOfDeathDto.mobName,
-      nickname: nickname,
-      server: updateMobDateOfDeathDto.server,
+      mobName,
+      nickname,
+      server,
       date: Date.now(),
-      role: role,
+      role,
       historyTypes: HistoryTypes.updateMobDateOfDeath,
+      toWillResurrect: nextResurrectTime,
     };
 
-    const nextResurrectTime: number =
-      updateMobDateOfDeathDto.dateOfDeath + mob.mob.cooldownTime; // If the mob is dead now.
-    history.toWillResurrect = nextResurrectTime;
-    await this.historyService.createHistory(history);
-
-    await this.botService.newTimeout(
-      timeoutName,
-      nextResurrectTime,
-      updateMobDateOfDeathDto.mobName,
-      updateMobDateOfDeathDto.server,
-    );
-    const mobData: MobsData = await this.mobsDataModel
+    const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        // Update the respawn at the exact time of death.
         { _id: mob.mob.mobsDataId },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
-          deathTime: updateMobDateOfDeathDto.dateOfDeath,
+          deathTime: dateOfDeath,
           respawnLost: false,
         },
         { new: true },
@@ -280,7 +273,21 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    return { mobData };
+    if (!updatedMobData) {
+      throw new Error('Failed to update mob data.');
+    }
+
+    await Promise.all([
+      this.historyService.createHistory(history),
+      this.botService.newTimeout(
+        timeoutName,
+        nextResurrectTime,
+        mobName,
+        server,
+      ),
+    ]);
+
+    return { mobData: updatedMobData };
   }
 
   async updateMobDateOfRespawn(
@@ -288,40 +295,31 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
-    const getMobDto: GetMobDtoRequest = {
-      mobName: updateMobDateOfRespawnDto.mobName,
-      server: updateMobDateOfRespawnDto.server,
-      location: updateMobDateOfRespawnDto.location,
-    };
+    const { mobName, server, location, dateOfRespawn } =
+      updateMobDateOfRespawnDto;
 
-    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
+    const getMobDto: GetMobDtoRequest = { mobName, server, location };
+
+    const mob: GetMobDtoResponse = await this.findMob(getMobDto);
+
     const timeoutName: string = await HelperClass.generateUniqueName();
 
-    const history: History = {
-      mobName: updateMobDateOfRespawnDto.mobName,
-      nickname: nickname,
-      server: updateMobDateOfRespawnDto.server,
-      date: Date.now(),
-      role: role,
-      historyTypes: HistoryTypes.updateMobDateOfRespawn,
-    };
-
-    const nextResurrectTime: number = updateMobDateOfRespawnDto.dateOfRespawn;
-    history.toWillResurrect = nextResurrectTime;
-    await this.historyService.createHistory(history);
+    const nextResurrectTime: number = dateOfRespawn;
     const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
     const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
 
-    await this.botService.newTimeout(
-      timeoutName,
-      updateMobDateOfRespawnDto.dateOfRespawn,
-      updateMobDateOfRespawnDto.mobName,
-      updateMobDateOfRespawnDto.server,
-    );
+    const history: History = {
+      mobName,
+      nickname,
+      server,
+      date: Date.now(),
+      role,
+      historyTypes: HistoryTypes.updateMobDateOfRespawn,
+      toWillResurrect: nextResurrectTime,
+    };
 
-    const mobData: MobsData = await this.mobsDataModel
+    const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        // Update the respawn at the exact time of respawn.
         { _id: mob.mob.mobsDataId },
         {
           respawnTime: nextResurrectTime,
@@ -335,25 +333,45 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    return { mobData };
+    if (!updatedMobData) {
+      throw new Error('Failed to update mob data.');
+    }
+
+    await Promise.all([
+      this.historyService.createHistory(history),
+      this.botService.newTimeout(
+        timeoutName,
+        nextResurrectTime,
+        mobName,
+        server,
+      ),
+    ]);
+
+    return { mobData: updatedMobData };
   }
 
   async deleteMob(
     deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
-    const getMobDto: GetMobDtoRequest = {
-      mobName: deleteMobDtoParams.mobName,
-      server: deleteMobDtoParams.server,
-      location: deleteMobDtoParams.location,
-    };
+    const { mobName, server, location } = deleteMobDtoParams;
 
-    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
-    await this.mobModel.deleteOne({
-      mobName: mob.mob.mobName,
-      server: mob.mob.server,
-      location: mob.mob.location,
-    });
-    await this.mobsDataModel.deleteOne({ _id: mob.mob.mobsDataId });
+    const getMobDto: GetMobDtoRequest = { mobName, server, location };
+
+    const mob: GetMobDtoResponse = await this.findMob(getMobDto);
+
+    if (!mob) {
+      throw new NotFoundException('Mob not found');
+    }
+
+    await Promise.all([
+      this.mobModel.deleteOne({
+        mobName: mob.mob.mobName,
+        server: mob.mob.server,
+        location: mob.mob.location,
+      }),
+      this.mobsDataModel.deleteOne({ _id: mob.mob.mobsDataId }),
+    ]);
+
     return { message: 'Mob deleted' };
   }
 
@@ -363,44 +381,41 @@ export class MobService implements IMob {
     role: RolesTypes,
     server: Servers,
   ): Promise<GetFullMobDtoResponse[]> {
+    const history: History = {
+      mobName: MobName.Все,
+      nickname,
+      server,
+      date: Date.now(),
+      role,
+      historyTypes: HistoryTypes.crashMobServer,
+      crashServer: true,
+    };
+
     try {
-      const history: History = {
-        mobName: MobName.Все,
-        nickname: nickname,
-        server: server,
-        date: Date.now(),
-        role: role,
-        historyTypes: HistoryTypes.crashMobServer,
-      };
-
-      history.crashServer = true;
-      await this.historyService.createHistory(history);
-
-      await this.mobsDataModel
-        .updateMany(
+      await Promise.all([
+        this.mobsDataModel.updateMany(
           {
             respawnTime: { $gte: Date.now() },
             mobTypeAdditionalTime: MobsTypes.Босс,
           },
           { $inc: { respawnTime: -300000 } },
-        )
-        .lean()
-        .exec(); // minus 5 minutes for bosses
-
-      await this.mobsDataModel
-        .updateMany(
+        ),
+        this.mobsDataModel.updateMany(
           {
             respawnTime: { $gte: Date.now() },
             mobTypeAdditionalTime: MobsTypes.Элитка,
           },
           { $inc: { respawnTime: -18000 } },
-        )
-        .lean()
-        .exec(); // minus 18 second for elites
+        ),
+      ]);
 
-      return await this.findAllMobsByUser(email, { server });
+      await this.historyService.createHistory(history);
+
+      return this.findAllMobsByUser(email, { server });
     } catch (err) {
-      throw new BadRequestException('Something went wrong!!!');
+      throw new BadRequestException(
+        'Something went wrong while crashing the server.',
+      );
     }
   }
 
@@ -409,34 +424,44 @@ export class MobService implements IMob {
     nickname: string,
     role: RolesTypes,
   ): Promise<GetMobDataDtoResponse> {
-    const getMobDto: GetMobDtoRequest = {
-      mobName: respawnLostDtoParams.mobName,
-      server: respawnLostDtoParams.server,
-      location: respawnLostDtoParams.location,
-    };
+    const { mobName, server, location } = respawnLostDtoParams;
 
     const history: History = {
-      mobName: respawnLostDtoParams.mobName,
-      nickname: nickname,
-      server: respawnLostDtoParams.server,
+      mobName,
+      nickname,
+      server,
       date: Date.now(),
-      role: role,
+      role,
       historyTypes: HistoryTypes.respawnLost,
     };
 
-    await this.historyService.createHistory(history);
+    try {
+      const mob: GetMobDtoResponse = await this.findMob({
+        mobName,
+        server,
+        location,
+      });
 
-    const mob: GetMobDtoResponse = await this.findMob(getMobDto); // Get the mob we're updating
-    const mobData: MobsData = await this.mobsDataModel
-      .findOneAndUpdate(
-        { _id: mob.mob.mobsDataId },
-        { cooldown: 0, respawnTime: null, deathTime: null, respawnLost: true },
-        { new: true },
-      )
-      .select('-__v')
-      .lean()
-      .exec();
+      const mobData: MobsData = await this.mobsDataModel
+        .findOneAndUpdate(
+          { _id: mob.mob.mobsDataId },
+          {
+            cooldown: 0,
+            respawnTime: null,
+            deathTime: null,
+            respawnLost: true,
+          },
+          { new: true },
+        )
+        .select('-__v')
+        .lean()
+        .exec();
 
-    return { mobData };
+      await this.historyService.createHistory(history);
+
+      return { mobData };
+    } catch (err) {
+      throw new BadRequestException('Failed to process respawn lost.');
+    }
   }
 }
