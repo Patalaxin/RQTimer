@@ -22,7 +22,6 @@ import { User, UserDocument } from '../schemas/user.schema';
 import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import {
   DeleteAllUsersDtoResponse,
-  DeleteUserDtoRequest,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
@@ -250,27 +249,22 @@ export class UsersService implements IUser {
     return { message: 'Role has been updated successfully', status: 200 };
   }
 
-  async deleteOne(
-    deleteUserDtoRequest: DeleteUserDtoRequest,
-  ): Promise<DeleteUserDtoResponse> {
-    const { email, nickname } = deleteUserDtoRequest;
-    if (email && nickname) {
+  async deleteOne(identifier: string): Promise<DeleteUserDtoResponse> {
+    if (!identifier) {
       throw new BadRequestException(
-        'Email and Nickname fields should not be together',
-      );
-    } else if (!email && !nickname) {
-      throw new BadRequestException(
-        'The "Email" or "Nickname" fields must be specified',
+        'The "identifier" header must be specified',
       );
     }
 
-    const deleteQuery = email ? { email: email } : { nickname: nickname };
+    const deleteQuery = {
+      $or: [{ email: identifier }, { nickname: identifier }],
+    };
 
     try {
       await this.userModel.deleteOne(deleteQuery);
       await this.tokenModel.findOneAndDelete(deleteQuery);
     } catch (err) {
-      throw new BadRequestException('Something went wrong ');
+      throw new BadRequestException('Something went wrong');
     }
     return { message: 'User deleted', status: 200 };
   }

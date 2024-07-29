@@ -16,7 +16,6 @@ import {
 } from '../../users/dto/update-user-role.dto';
 import {
   DeleteAllUsersDtoResponse,
-  DeleteUserDtoRequest,
   DeleteUserDtoResponse,
 } from '../../users/dto/delete-user.dto';
 import { SessionId } from '../../schemas/sessionID.schema';
@@ -49,9 +48,7 @@ export interface IUser {
     updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse>;
 
-  deleteOne(
-    deleteUserDtoRequest: DeleteUserDtoRequest,
-  ): Promise<DeleteUserDtoResponse>;
+  deleteOne(identifier: string): Promise<DeleteUserDtoResponse>;
 
   deleteAll(): Promise<DeleteAllUsersDtoResponse>;
 

@@ -42,7 +42,6 @@ import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
   DeleteAllUsersDtoResponse,
-  DeleteUserDtoRequest,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
@@ -158,11 +157,11 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete User By Email or Nickname' })
   @ApiOkResponse({ description: 'Success', type: DeleteUserDtoResponse })
-  @Delete()
+  @Delete('/:identifier')
   deleteOne(
-    @Body() deleteUserDtoRequest: DeleteUserDtoRequest,
+    @Param('identifier') identifier: string,
   ): Promise<DeleteUserDtoResponse> {
-    return this.userInterface.deleteOne(deleteUserDtoRequest);
+    return this.userInterface.deleteOne(identifier);
   }
 
   @UseGuards(TokensGuard)
