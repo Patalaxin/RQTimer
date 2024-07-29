@@ -1,7 +1,7 @@
 <div class="history container">
-  <nz-skeleton *ngIf="isLoading"></nz-skeleton>
+  <nz-skeleton *ngIf="isLoading | async"></nz-skeleton>
 
-  <div class="history" *ngIf="!isLoading">
+  <div class="history" *ngIf="!(isLoading | async)">
     <nz-page-header class="site-page-header" nzBackIcon>
       <nz-page-header-title>Назад</nz-page-header-title>
       <nz-page-header-extra>
@@ -9,5 +9,6 @@
       </nz-page-header-extra>
     </nz-page-header>
     <app-log [historyList]="historyList"></app-log>
+    <nz-list-empty *ngIf="historyList.length === 0"></nz-list-empty>
   </div>
 </div>

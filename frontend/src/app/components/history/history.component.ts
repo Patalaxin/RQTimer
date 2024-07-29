@@ -11,13 +11,13 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class HistoryComponent implements OnInit {
   historyList: any = [];
+  isLoading = this.historyService.isLoading;
 
   user = {
     nickname: '',
     email: '',
     role: '',
   };
-  isLoading: boolean = true;
 
   constructor(
     private authService: AuthService,
@@ -52,10 +52,10 @@ export class HistoryComponent implements OnInit {
 
   getHistory(server: string): void {
     this.historyService.getHistory(server).subscribe({
-      next: (res) => {
-        this.historyList = res;
+      next: (res: any) => {
+        this.historyList = res.data;
         this.historyList = this.historyList.reverse();
-        this.isLoading = false;
+        this.historyService.setIsLoading(false);
       },
     });
   }
@@ -75,5 +75,11 @@ export class HistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUser(1);
+    this.historyService.historyList.subscribe({
+      next: (res) => {
+        this.historyList = res;
+        console.log('history', this.historyList);
+      },
+    });
   }
 }

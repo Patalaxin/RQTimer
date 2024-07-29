@@ -108,12 +108,20 @@
                     >Впишите, сколько раз по кд:</label
                   >
                   <div class="timer-radio-option">
-                    <nz-input-group
-                      nzPrefix="CD"
-                      style="width: 120px; margin-top: 10px"
-                    >
-                      <input type="text" nz-input [(ngModel)]="cooldown" />
-                    </nz-input-group>
+                    <nz-space>
+                      <nz-input-number-group
+                        *nzSpaceItem
+                        nzPrefix="CD"
+                        style="width: 120px; margin-top: 10px"
+                      >
+                        <nz-input-number
+                          [(ngModel)]="cooldown"
+                          [nzMin]="1"
+                          [nzMax]="10"
+                          [nzStep]="1"
+                        ></nz-input-number>
+                      </nz-input-number-group>
+                    </nz-space>
                   </div>
                 </nz-radio-group>
               </p>
@@ -155,7 +163,7 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'scroll' }"
               >
                 <p *nzModalContent>
-                  <app-log [historyList]="sortHistoryList(item)"></app-log>
+                  <app-log [historyList]="historyList"></app-log>
                 </p>
               </nz-modal>
               <nz-badge
