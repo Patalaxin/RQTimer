@@ -37,7 +37,7 @@ import {
   ForgotUserPassDtoResponse,
 } from './dto/forgot-user-pass.dto';
 import { RolesGuard } from '../guards/roles.guard';
-import { UsersGuard } from '../guards/users.guard';
+import { TokensGuard } from '../guards/users.guard';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
@@ -61,7 +61,7 @@ export class UsersController {
     return new User(await this.userInterface.createUser(createUserDto));
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
@@ -71,7 +71,7 @@ export class UsersController {
     return new User(await this.userInterface.findUser(email));
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
@@ -83,7 +83,7 @@ export class UsersController {
     return new User(await this.userInterface.findUser(nicknameOrEmail));
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
@@ -92,7 +92,7 @@ export class UsersController {
     return this.userInterface.findAll();
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
@@ -117,7 +117,7 @@ export class UsersController {
     return this.userInterface.forgotPassword(forgotUserPassDto);
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
@@ -131,7 +131,7 @@ export class UsersController {
     );
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Excluded Mobs' })
@@ -145,7 +145,7 @@ export class UsersController {
     );
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
@@ -158,7 +158,7 @@ export class UsersController {
     return this.userInterface.updateRole(updateUserRoleDto);
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete User By Email or Nickname' })
@@ -170,7 +170,7 @@ export class UsersController {
     return this.userInterface.deleteOne(deleteUserDtoRequest);
   }
 
-  @UseGuards(UsersGuard)
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete All Users' })

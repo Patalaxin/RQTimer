@@ -75,6 +75,7 @@ export class AuthService {
       httpOnly: true,
       secure: true,
       maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
+      sameSite: 'none',
     });
 
     return tokens;
@@ -128,6 +129,7 @@ export class AuthService {
       httpOnly: true,
       secure: true,
       maxAge: 2678400000, // 2,678,400,000 = day in milliseconds
+      sameSite: 'none',
     });
 
     return tokens;

@@ -17,7 +17,7 @@ import { Request } from 'express';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
-import { UsersGuard } from '../guards/users.guard';
+import { TokensGuard } from '../guards/users.guard';
 import { IMob } from '../domain/mob/mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
@@ -45,7 +45,7 @@ import { CrashServerDtoParamsRequest } from './dto/crash-server.dto';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
-@UseGuards(UsersGuard)
+@UseGuards(TokensGuard)
 @Controller('mob')
 export class MobController {
   constructor(
