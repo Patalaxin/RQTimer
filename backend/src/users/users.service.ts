@@ -95,7 +95,7 @@ export class UsersService implements IUser {
     try {
       return this.userModel
         .find()
-        .select({ email: 1, _id: 1, nickname: 1 })
+        .select({ email: 1, _id: 1, nickname: 1, role: 1 })
         .lean()
         .exec();
     } catch (err) {
