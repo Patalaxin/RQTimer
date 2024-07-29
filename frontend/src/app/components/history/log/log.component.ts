@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { HistoryService } from 'src/app/services/history.service';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-log',
@@ -7,6 +9,57 @@ import { Component, Input } from '@angular/core';
 })
 export class LogComponent {
   @Input() historyList: any;
+  @Input() historyListData: any;
+  @Input() mobName: string = '';
+
+  pageSize: number = 10;
+  page: number = 1;
+
+  isLoading: boolean = false;
+
+  constructor(
+    private historyService: HistoryService,
+    private storageService: StorageService
+  ) {
+    console.log('historyList', this.historyList);
+  }
+
+  changePage($event: any, mobName: string): void {
+    this.isLoading = true;
+    this.historyService
+      .getHistory(
+        this.storageService.getSessionStorage('server'),
+        mobName,
+        Number($event),
+        Number(this.pageSize)
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.page = $event;
+          this.historyList = res.data;
+          this.isLoading = false;
+        },
+      });
+  }
+
+  changePageSize($event: any, mobName: string): void {
+    this.isLoading = true;
+    this.historyService
+      .getHistory(
+        this.storageService.getSessionStorage('server'),
+        mobName,
+        1,
+        Number($event)
+      )
+      .subscribe({
+        next: (res: any) => {
+          this.pageSize = $event;
+          this.changePage(1, mobName);
+          this.historyList = res.data;
+          this.isLoading = false;
+        },
+      });
+  }
 
   getInputMethod(item: any): string {
     const methods: { [key: string]: string } = {

@@ -1,0 +1,21 @@
+<div class="admin">
+  <nz-tabset [nzTabPosition]="tabPosition">
+    <nz-tab nzTitle="Список пользователей">
+      <div class="container">
+        <nz-tag
+          *ngFor="let item of userList"
+          [nzMode]="item.role == 'Admin' ? 'default' : 'closeable'"
+          [nzColor]="item.role == 'Admin' ? 'red' : 'green'"
+          (click)="onUserClick(item.nickname)"
+          (nzOnClose)="showUserModal($event, item.nickname)"
+        >
+          {{ item.nickname }}
+        </nz-tag>
+        <pre *ngIf="!isLoading">{{ userData | json }}</pre>
+      </div>
+      <nz-skeleton *ngIf="isLoading" class="container"></nz-skeleton>
+    </nz-tab>
+    <nz-tab nzTitle="Session ID">Content of Tab Pane 2</nz-tab>
+    <nz-tab nzTitle="Пидорас">Content of Tab Pane 3</nz-tab>
+  </nz-tabset>
+</div>

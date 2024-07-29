@@ -16,7 +16,9 @@ import { TimerService } from 'src/app/services/timer.service';
 export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   historyList: any = [];
+  historyListData: any = [];
   isLoading = this.timerService.isLoading;
+  isHistoryLoading = this.historyService.isLoading;
   currentServer: string = '';
   leftTime: number = 0;
 
@@ -104,7 +106,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   showHistoryModal(item: TimerItem): void {
     console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
-    item.mob.isHistoryModalVisible = true;
   }
 
   confirmHistoryModal(item: TimerItem): void {
@@ -116,6 +117,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getHistory(item: TimerItem): void {
+    this.historyService.setIsLoading(true);
+    item.mob.isHistoryModalVisible = true;
     this.historyService
       .getHistory(
         this.storageService.getSessionStorage('server'),
@@ -124,23 +127,12 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res: any) => {
           console.log(item.mob.mobName, res.data);
+          this.historyListData = res;
           this.historyList = res.data;
-          this.historyList = this.historyList.reverse();
-
-          return this.historyList;
+          this.historyService.setIsLoading(false);
         },
       });
   }
-
-  // sortHistoryList(item: TimerItem): any {
-  //   let historyListSorted = this.historyList.filter(
-  //     (a: any) => a.mobName === item.mob.mobName
-  //   );
-
-  //   historyListSorted.sort((a: any, b: any) => b.date - a.date);
-
-  //   return historyListSorted;
-  // }
 
   showDeathModal(item: TimerItem): void {
     item.mob.isDeathModalVisible = true;
@@ -324,6 +316,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }, 1000);
 
     this.checkScreenWidth();
+    this.exchangeRefresh();
     this.getAllBosses(1);
     this.timerService.timerList.subscribe({
       next: (res) => {

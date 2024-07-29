@@ -22,6 +22,16 @@ export class UserService {
     return this.http.get(USER_API, { headers });
   }
 
+  getAllUsers(): Observable<any> {
+    const headers = this.createHeaders();
+    return this.http.get(USER_API + 'findAll', { headers });
+  }
+
+  getSpecificUser(key: string): Observable<any> {
+    const headers = this.createHeaders();
+    return this.http.get(USER_API + 'specificUser/' + key, { headers });
+  }
+
   createUser(
     nickname: string,
     email: string,
@@ -38,6 +48,16 @@ export class UserService {
     };
     const headers = this.createHeaders();
     return this.http.post(USER_API, payload, { headers });
+  }
+
+  // deleteUser(key: string): Observable<any> {
+  //   const headers = this.createHeaders();
+  //   return this.http.delete(USER_API + key, { headers });
+  // }
+
+  deleteUser(key: string): Observable<any> {
+    const headers = this.createHeaders();
+    return this.http.delete(USER_API + key, { headers });
   }
 
   forgotPassword(

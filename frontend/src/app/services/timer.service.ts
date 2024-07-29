@@ -26,7 +26,7 @@ export class TimerService {
     this.timerList$.next(list);
   }
 
-  setIsLoading(value: boolean) {
+  setIsLoading(value: boolean): void {
     this.isLoading$.next(value);
   }
 

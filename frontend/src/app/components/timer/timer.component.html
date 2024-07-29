@@ -163,7 +163,13 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'scroll' }"
               >
                 <p *nzModalContent>
-                  <app-log [historyList]="historyList"></app-log>
+                  <nz-skeleton *ngIf="isHistoryLoading | async"></nz-skeleton>
+                  <app-log
+                    *ngIf="!(isHistoryLoading | async)"
+                    [historyList]="historyList"
+                    [historyListData]="historyListData"
+                    [mobName]="item.mob.mobName"
+                  ></app-log>
                 </p>
               </nz-modal>
               <nz-badge
@@ -273,3 +279,5 @@
     <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>
   </nz-list>
 </div>
+
+<nz-back-top [nzVisibilityHeight]="300"></nz-back-top>

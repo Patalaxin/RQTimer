@@ -49,6 +49,9 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { LogComponent } from './components/history/log/log.component';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzBackTopModule } from 'ng-zorro-antd/back-top';
+import { AdminComponent } from './components/profile/admin/admin.component';
 
 registerLocaleData(ru);
 
@@ -65,6 +68,7 @@ registerLocaleData(ru);
     UserComponent,
     HistoryComponent,
     LogComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,
@@ -99,6 +103,8 @@ registerLocaleData(ru);
     NzTimelineModule,
     NzSpaceModule,
     NzInputNumberModule,
+    NzPaginationModule,
+    NzBackTopModule,
   ],
   providers: [httpInterceptorProviders, { provide: NZ_I18N, useValue: ru_RU }],
   bootstrap: [AppComponent],
