@@ -96,6 +96,9 @@ export class AuthService {
         'Email and Nickname fields should not be together',
       );
     }
+    if (!userRefreshToken) {
+      throw new UnauthorizedException('Желтая клуша');
+    }
 
     let user: User;
     let refreshToken: string;
