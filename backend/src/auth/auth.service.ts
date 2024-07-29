@@ -79,8 +79,9 @@ export class AuthService {
     const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
+      sameSite: 'none',
     });
 
     return tokens;
@@ -148,8 +149,9 @@ export class AuthService {
 
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: false,
       maxAge: 2678400000, // 2,678,400,000 = day in milliseconds
+      sameSite: 'none',
     });
 
     return tokens;
