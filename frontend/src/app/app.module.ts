@@ -47,6 +47,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { HistoryComponent } from './components/history/history.component';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { LogComponent } from './components/history/log/log.component';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 
 registerLocaleData(ru);
 
@@ -95,6 +97,8 @@ registerLocaleData(ru);
     NzRadioModule,
     NzTagModule,
     NzTimelineModule,
+    NzSpaceModule,
+    NzInputNumberModule,
   ],
   providers: [httpInterceptorProviders, { provide: NZ_I18N, useValue: ru_RU }],
   bootstrap: [AppComponent],

@@ -6,6 +6,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { HistoryService } from 'src/app/services/history.service';
 
 @Component({
   selector: 'app-header',
@@ -16,6 +17,7 @@ export class HeaderComponent implements OnInit {
   currentServer: string = 'Гранас';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
+  historyList: any = [];
 
   serverList = [
     { label: 'Гранас', value: 'Гранас' },
@@ -27,14 +29,24 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     private storageService: StorageService,
     private timerService: TimerService,
+    private historyService: HistoryService,
     private modal: NzModalService,
     private message: NzMessageService
   ) {}
 
   setCurrentServer() {
     console.log(this.currentServer);
+    this.historyService.setIsLoading(true);
     this.timerService.setIsLoading(true);
     this.storageService.setCurrentServer(this.currentServer);
+    this.historyService.getHistory(this.currentServer).subscribe({
+      next: (res: any) => {
+        this.historyList = res.data;
+        this.historyList = this.historyList.reverse();
+        this.historyService.setHistoryList(this.historyList);
+        this.historyService.setIsLoading(false);
+      },
+    });
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         this.timerList = [...res];

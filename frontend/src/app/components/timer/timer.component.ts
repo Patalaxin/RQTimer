@@ -103,6 +103,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   showHistoryModal(item: TimerItem): void {
     console.log('showHistoryModal', item.mob.mobName);
+    this.getHistory(item);
     item.mob.isHistoryModalVisible = true;
   }
 
@@ -114,24 +115,32 @@ export class TimerComponent implements OnInit, OnDestroy {
     item.mob.isHistoryModalVisible = false;
   }
 
-  getHistory(server: string): void {
-    this.historyService.getHistory(server).subscribe({
-      next: (res) => {
-        this.historyList = res;
-        this.historyList = this.historyList.reverse();
-      },
-    });
+  getHistory(item: TimerItem): void {
+    this.historyService
+      .getHistory(
+        this.storageService.getSessionStorage('server'),
+        item.mob.mobName
+      )
+      .subscribe({
+        next: (res: any) => {
+          console.log(item.mob.mobName, res.data);
+          this.historyList = res.data;
+          this.historyList = this.historyList.reverse();
+
+          return this.historyList;
+        },
+      });
   }
 
-  sortHistoryList(item: TimerItem): any {
-    let historyListSorted = this.historyList.filter(
-      (a: any) => a.mobName === item.mob.mobName
-    );
+  // sortHistoryList(item: TimerItem): any {
+  //   let historyListSorted = this.historyList.filter(
+  //     (a: any) => a.mobName === item.mob.mobName
+  //   );
 
-    historyListSorted.sort((a: any, b: any) => a.date - b.date);
+  //   historyListSorted.sort((a: any, b: any) => b.date - a.date);
 
-    return historyListSorted;
-  }
+  //   return historyListSorted;
+  // }
 
   showDeathModal(item: TimerItem): void {
     item.mob.isDeathModalVisible = true;
@@ -315,7 +324,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     }, 1000);
 
     this.checkScreenWidth();
-    this.getHistory(this.storageService.getSessionStorage('server'));
     this.getAllBosses(1);
     this.timerService.timerList.subscribe({
       next: (res) => {
