@@ -17,7 +17,7 @@ import { Request } from 'express';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
-import { TokensGuard } from '../guards/users.guard';
+import { TokensGuard } from '../guards/tokens.guard';
 import { IMob } from '../domain/mob/mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
@@ -45,6 +45,7 @@ import { CrashServerDtoParamsRequest } from './dto/crash-server.dto';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
+@UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(TokensGuard)
 @Controller('mob')
 export class MobController {
@@ -54,7 +55,6 @@ export class MobController {
   ) {}
 
   @Roles(RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create Mob' })
   @Post()
   create(
@@ -63,9 +63,9 @@ export class MobController {
     return this.mobService.createMob(createMobDto);
   }
 
+  @Roles()
   @Get('findMob/:mobName/:server/:location/')
   @ApiOperation({ summary: 'Get Mob' })
-  @UseInterceptors(ClassSerializerInterceptor)
   getMobAndData(
     @Param() getMobDto: GetMobDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
@@ -73,7 +73,6 @@ export class MobController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Find All User Mobs' })
   @Get('/:server/')
   findAllMobsByUser(
@@ -84,7 +83,6 @@ export class MobController {
   }
 
   @Roles(RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob' })
   @Put('/:mobName/:server/:location/')
   updateMob(
@@ -95,7 +93,6 @@ export class MobController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
   @Put('/updateMobByCooldown')
   updateMobByCooldown(
@@ -114,7 +111,6 @@ export class MobController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
   @Put('/updateMobDateOfDeath')
   updateMobDateOfDeath(
@@ -133,7 +129,6 @@ export class MobController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
   @Put('/updateMobDateOfRespawn')
   updateMobDateOfRespawn(
@@ -161,7 +156,6 @@ export class MobController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/crashServer/:server')
   crashServer(

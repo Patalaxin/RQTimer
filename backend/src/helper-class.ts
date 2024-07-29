@@ -26,4 +26,9 @@ export class HelperClass {
     const actualCounter: number = ++this.counter;
     return `${actualCounter}`;
   }
+
+  static extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
 }

@@ -27,6 +27,7 @@ import {
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
+import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 
 export class UsersService implements IUser {
   constructor(
@@ -90,7 +91,7 @@ export class UsersService implements IUser {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<FindAllUsersDtoResponse[]> {
     try {
       return this.userModel
         .find()

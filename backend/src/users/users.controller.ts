@@ -37,7 +37,7 @@ import {
   ForgotUserPassDtoResponse,
 } from './dto/forgot-user-pass.dto';
 import { RolesGuard } from '../guards/roles.guard';
-import { TokensGuard } from '../guards/users.guard';
+import { TokensGuard } from '../guards/tokens.guard';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
@@ -46,15 +46,16 @@ import {
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from '../domain/user/user.interface';
+import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 
 @ApiTags('User API')
 @UseGuards(RolesGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
 export class UsersController {
   constructor(@Inject('IUser') private readonly userInterface: IUser) {}
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Create User' })
   @Post()
   async create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
@@ -63,7 +64,6 @@ export class UsersController {
 
   @UseGuards(TokensGuard)
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User' })
   @Get()
@@ -72,8 +72,7 @@ export class UsersController {
   }
 
   @UseGuards(TokensGuard)
-  @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
+  @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a Specific User By Email or Nickname' })
   @Get('specificUser/:nicknameOrEmail')
@@ -88,13 +87,12 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
   @Get('/findAll')
-  findAll(): Promise<User[]> {
+  findAll(): Promise<FindAllUsersDtoResponse[]> {
     return this.userInterface.findAll();
   }
 
   @UseGuards(TokensGuard)
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change User Password' })
   @ApiOkResponse({ description: 'Success', type: ChangeUserPassDtoResponse })
@@ -107,7 +105,6 @@ export class UsersController {
   }
 
   @Roles()
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Forgot User Password' })
   @ApiOkResponse({ description: 'Success', type: ForgotUserPassDtoResponse })
   @Put('/forgotPassword')
@@ -119,7 +116,6 @@ export class UsersController {
 
   @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Unavailable Mobs' })
   @Put('/updateUnavailable')
@@ -147,7 +143,6 @@ export class UsersController {
 
   @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update The User Role' })
   @ApiOkResponse({ description: 'Success', type: UpdateUserRoleDtoResponse })
@@ -180,8 +175,8 @@ export class UsersController {
     return this.userInterface.deleteAll();
   }
 
+  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
-  @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate Session Id' })
   @Post('/generateSessionId')

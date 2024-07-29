@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { HistoryService } from './history.service';
-import { TokensGuard } from '../guards/users.guard';
+import { TokensGuard } from '../guards/tokens.guard';
 import { Roles } from '../decorators/roles.decorator';
 import {
   ApiBearerAuth,
@@ -59,7 +59,6 @@ export class HistoryController {
     );
   }
 
-  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Delete All History by Server' })

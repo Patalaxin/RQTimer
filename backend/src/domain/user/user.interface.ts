@@ -20,13 +20,14 @@ import {
   DeleteUserDtoResponse,
 } from '../../users/dto/delete-user.dto';
 import { SessionId } from '../../schemas/sessionID.schema';
+import { FindAllUsersDtoResponse } from '../../users/dto/findAll-user.dto';
 
 export interface IUser {
   createUser(createUserDto: CreateUserDtoRequest): Promise<User>;
 
   findUser(nicknameOrEmail: string): Promise<User>;
 
-  findAll(): Promise<User[]>;
+  findAll(): Promise<FindAllUsersDtoResponse[]>;
 
   changePassword(
     email: string,

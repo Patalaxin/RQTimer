@@ -7,9 +7,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { InjectModel } from '@nestjs/mongoose';
-import { Request } from 'express';
 import { Model } from 'mongoose';
 import { RolesTypes, User, UserDocument } from '../schemas/user.schema';
+import { HelperClass } from '../helper-class';
 
 export interface DecodeResult {
   email: string;
@@ -22,14 +22,9 @@ export interface DecodeResult {
 export class RolesGuard implements CanActivate {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    public jwtService: JwtService,
-    public reflector: Reflector,
+    private jwtService: JwtService,
+    private reflector: Reflector,
   ) {}
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
-  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const allowedRoles: RolesTypes[] = this.reflector.get<RolesTypes[]>(
@@ -37,25 +32,33 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
     );
 
-    if (allowedRoles.length === 0) {
+    if (!allowedRoles || allowedRoles.length === 0) {
       return true;
     }
+
     const request = context.switchToHttp().getRequest();
-    const token: string = this.extractTokenFromHeader(request);
-    const decodedToken = this.jwtService.decode(token) as DecodeResult;
+    const token: string = HelperClass.extractTokenFromHeader(request);
+
+    let decodedToken: DecodeResult;
+    try {
+      decodedToken = this.jwtService.decode(token) as DecodeResult;
+    } catch (e) {
+      throw new BadRequestException('Invalid token');
+    }
+
     if (!decodedToken || !decodedToken.email) {
       throw new BadRequestException('Invalid token');
     }
-    try {
-      const user = await this.userModel
-        .find({ email: decodedToken.email })
-        .select({ role: 1 });
-      const userRole: RolesTypes = user[0].role;
-      return allowedRoles.includes(userRole);
-    } catch (err) {
-      throw new BadRequestException(
-        'Probably this user does not exist anymore',
-      );
+
+    const user = await this.userModel
+      .findOne({ email: decodedToken.email })
+      .select({ role: 1 });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
     }
+
+    const userRole: RolesTypes = user.role;
+    return allowedRoles.includes(userRole);
   }
 }
