@@ -202,7 +202,7 @@ export class MobService implements IMob {
       mob.mobData.respawnTime;
     history.toWillResurrect = nextResurrectTime;
     history.fromCooldown = mob.mobData.cooldown;
-    history.toCooldown = updateMobByCooldownDto.cooldown;
+    history.toCooldown = mob.mobData.cooldown + updateMobByCooldownDto.cooldown;
     await this.historyService.createHistory(history);
 
     await this.botService.newTimeout(
