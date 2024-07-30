@@ -315,6 +315,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.currentProgressTime = Date.now();
     }, 1000);
 
+    this.timerService.setIsLoading(true);
+
     this.checkScreenWidth();
     this.exchangeRefresh();
     this.getAllBosses(1);
