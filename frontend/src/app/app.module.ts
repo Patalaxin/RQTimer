@@ -21,6 +21,8 @@ import { ru_RU } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import ru from '@angular/common/locales/ru';
 
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -49,6 +51,20 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { LogComponent } from './components/history/log/log.component';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzBackTopModule } from 'ng-zorro-antd/back-top';
+import { AdminComponent } from './components/profile/admin/admin.component';
+import { NzTableModule } from 'ng-zorro-antd/table';
+
+import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
+import {
+  TuiRootModule,
+  TuiDialogModule,
+  TuiAlertModule,
+  TUI_SANITIZER,
+} from '@taiga-ui/core';
+
+import { TuiReorderModule } from '@taiga-ui/addon-table';
 
 registerLocaleData(ru);
 
@@ -65,6 +81,7 @@ registerLocaleData(ru);
     UserComponent,
     HistoryComponent,
     LogComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,
@@ -73,6 +90,7 @@ registerLocaleData(ru);
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
+    DragDropModule,
     NzFormModule,
     NzInputModule,
     NzButtonModule,
@@ -99,8 +117,19 @@ registerLocaleData(ru);
     NzTimelineModule,
     NzSpaceModule,
     NzInputNumberModule,
+    NzPaginationModule,
+    NzBackTopModule,
+    NzTableModule,
+    TuiRootModule,
+    TuiDialogModule,
+    TuiAlertModule,
+    TuiReorderModule,
   ],
-  providers: [httpInterceptorProviders, { provide: NZ_I18N, useValue: ru_RU }],
+  providers: [
+    httpInterceptorProviders,
+    { provide: NZ_I18N, useValue: ru_RU },
+    { provide: TUI_SANITIZER, useClass: NgDompurifySanitizer },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

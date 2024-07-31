@@ -14,6 +14,8 @@ export class HistoryService {
   accessToken: string = '';
   private historyList$ = new BehaviorSubject<any>([]);
   historyList = this.historyList$.asObservable();
+  private historyListData$ = new BehaviorSubject<any>([]);
+  historyListData = this.historyListData$.asObservable();
   private isLoading$ = new BehaviorSubject<boolean>(true);
   isLoading = this.isLoading$.asObservable();
 
@@ -28,6 +30,10 @@ export class HistoryService {
 
   setHistoryList(list: any) {
     this.historyList$.next(list);
+  }
+
+  setHistoryListData(list: any) {
+    this.historyListData$.next(list);
   }
 
   getHistory(server: string, mobName?: string, page?: number, limit?: number) {

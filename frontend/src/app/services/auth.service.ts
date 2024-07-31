@@ -7,6 +7,7 @@ const AUTH_API = environment.apiUrl + '/auth';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  withCredentials: true,
 };
 
 @Injectable({

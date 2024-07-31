@@ -107,6 +107,13 @@ nz-progress {
   }
 }
 
+.ant-pagination {
+  ul {
+    margin: 20px 0;
+    text-align: center;
+  }
+}
+
 .ant-dropdown {
   padding: 5px 2.5px;
   background-color: #ffffff;
@@ -122,6 +129,13 @@ nz-progress {
   margin: 20px 0;
 }
 
+.admin {
+  .ant-tag {
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+}
+
 @media only screen and (max-width: 550px) {
   h4.ant-list-item-meta-title {
     button {
@@ -135,5 +149,11 @@ nz-progress {
     font-size: 10px;
     line-height: 15px;
     padding: 0 3px;
+  }
+
+  .ant-pagination {
+    .ant-pagination-total-text {
+      display: none;
+    }
   }
 }

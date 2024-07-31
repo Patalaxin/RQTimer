@@ -11,6 +11,7 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class HistoryComponent implements OnInit {
   historyList: any = [];
+  historyListData: any = [];
   isLoading = this.historyService.isLoading;
 
   user = {
@@ -53,8 +54,8 @@ export class HistoryComponent implements OnInit {
   getHistory(server: string): void {
     this.historyService.getHistory(server).subscribe({
       next: (res: any) => {
+        this.historyListData = res;
         this.historyList = res.data;
-        this.historyList = this.historyList.reverse();
         this.historyService.setIsLoading(false);
       },
     });
@@ -79,6 +80,12 @@ export class HistoryComponent implements OnInit {
       next: (res) => {
         this.historyList = res;
         console.log('history', this.historyList);
+      },
+    });
+
+    this.historyService.historyListData.subscribe({
+      next: (res) => {
+        this.historyListData = res;
       },
     });
   }

@@ -150,6 +150,8 @@
         </button>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">Панель админа</nz-tab>
+    <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">
+      <app-admin></app-admin>
+    </nz-tab>
   </nz-tabset>
 </div>

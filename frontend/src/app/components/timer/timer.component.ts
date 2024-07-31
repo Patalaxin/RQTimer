@@ -7,6 +7,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-timer',
@@ -16,8 +17,11 @@ import { TimerService } from 'src/app/services/timer.service';
 export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   historyList: any = [];
+  historyListData: any = [];
   isLoading = this.timerService.isLoading;
+  isHistoryLoading = this.historyService.isLoading;
   currentServer: string = '';
+  currentUser: any = [];
   leftTime: number = 0;
 
   radioValue: string = 'A';
@@ -32,6 +36,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   cooldownChangeVisible: boolean = false;
 
   isScreenWidth1000: boolean = false;
+  isScreenWidth800: boolean = false;
   isScreenWidth750: boolean = false;
   isScreenWidth372: boolean = false;
   isScreenWidthInZone: boolean = false;
@@ -41,6 +46,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private authService: AuthService,
     private historyService: HistoryService,
+    private userService: UserService,
     private message: NzMessageService
   ) {
     console.log(this.isLoading);
@@ -53,9 +59,10 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   private checkScreenWidth(): void {
     this.isScreenWidth1000 = window.innerWidth <= 1000;
+    this.isScreenWidth800 = window.innerWidth <= 800;
     this.isScreenWidth750 = window.innerWidth <= 750;
     this.isScreenWidthInZone =
-      window.innerWidth <= 750 && window.innerWidth > 372;
+      window.innerWidth <= 800 && window.innerWidth > 372;
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
@@ -104,7 +111,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   showHistoryModal(item: TimerItem): void {
     console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
-    item.mob.isHistoryModalVisible = true;
   }
 
   confirmHistoryModal(item: TimerItem): void {
@@ -116,6 +122,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getHistory(item: TimerItem): void {
+    this.historyService.setIsLoading(true);
+    item.mob.isHistoryModalVisible = true;
     this.historyService
       .getHistory(
         this.storageService.getSessionStorage('server'),
@@ -124,23 +132,12 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res: any) => {
           console.log(item.mob.mobName, res.data);
+          this.historyListData = res;
           this.historyList = res.data;
-          this.historyList = this.historyList.reverse();
-
-          return this.historyList;
+          this.historyService.setIsLoading(false);
         },
       });
   }
-
-  // sortHistoryList(item: TimerItem): any {
-  //   let historyListSorted = this.historyList.filter(
-  //     (a: any) => a.mobName === item.mob.mobName
-  //   );
-
-  //   historyListSorted.sort((a: any, b: any) => b.date - a.date);
-
-  //   return historyListSorted;
-  // }
 
   showDeathModal(item: TimerItem): void {
     item.mob.isDeathModalVisible = true;
@@ -318,13 +315,33 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
+  getCurrentUser() {
+    this.userService.getUser().subscribe({
+      next: (res) => {
+        this.userService.setCurrentUser(res);
+        this.userService.currentUser.subscribe({
+          next: (res) => {
+            this.currentUser = res;
+          },
+        });
+        this.getAllBosses(1);
+      },
+    });
+  }
+
   ngOnInit(): void {
     this.intervalId = setInterval(() => {
       this.currentProgressTime = Date.now();
     }, 1000);
 
+    this.timerService.setIsLoading(true);
+
     this.checkScreenWidth();
-    this.getAllBosses(1);
+    this.exchangeRefresh();
+    // this.getAllBosses(1);
+
+    this.getCurrentUser();
+
     this.timerService.timerList.subscribe({
       next: (res) => {
         this.timerList = res;

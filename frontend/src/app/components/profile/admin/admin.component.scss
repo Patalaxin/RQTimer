@@ -1,0 +1,74 @@
+.admin {
+  .admin-d-none {
+    display: none;
+  }
+
+  .admin-d-block {
+    display: block;
+  }
+
+  .admin-buttons {
+    text-align: center;
+
+    button {
+      margin: 0 5px;
+    }
+  }
+
+  .generate-form {
+    max-width: 300px;
+    width: 100%;
+    margin: 0 auto;
+
+    .generate-form-input {
+      cursor: pointer;
+    }
+
+    .generate-form-button {
+      width: 100%;
+      margin-top: 24px;
+    }
+  }
+}
+
+h4 {
+  margin-top: 20px;
+}
+
+.admin-search-nickname {
+  padding: 8px;
+
+  input {
+    width: 188px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  button {
+    width: 90px;
+
+    .admin-search-button {
+      margin-right: 8px;
+    }
+  }
+}
+
+::ng-deep .cdk-drag-preview {
+  display: table;
+}
+
+::ng-deep .cdk-drag-placeholder {
+  opacity: 0;
+}
+
+@media only screen and (max-width: 550px) {
+  .admin {
+    padding: 5px;
+
+    .admin-buttons {
+      button {
+        margin: 0 2.5px;
+      }
+    }
+  }
+}

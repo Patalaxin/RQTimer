@@ -49,7 +49,7 @@
               nzSize="small"
               [nzStrokeWidth]="10"
               [ngClass]="{
-                'timer-d-none': isScreenWidth750
+                'timer-d-none': isScreenWidth800
               }"
             ></nz-progress>
             <span
@@ -163,7 +163,13 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'scroll' }"
               >
                 <p *nzModalContent>
-                  <app-log [historyList]="historyList"></app-log>
+                  <nz-skeleton *ngIf="isHistoryLoading | async"></nz-skeleton>
+                  <app-log
+                    *ngIf="!(isHistoryLoading | async)"
+                    [historyList]="historyList"
+                    [historyListData]="historyListData"
+                    [mobName]="item.mob.mobName"
+                  ></app-log>
                 </p>
               </nz-modal>
               <nz-badge
@@ -202,6 +208,29 @@
                 [nzTooltipMouseEnterDelay]="1"
               >
                 <span nz-icon nzType="fall"></span>
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Редактировать"
+                [nzTooltipMouseEnterDelay]="1"
+                *ngIf="currentUser.role === 'Admin'"
+              >
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Удалить"
+                nzDanger
+                [nzTooltipMouseEnterDelay]="1"
+                *ngIf="currentUser.role === 'Admin'"
+              >
+                <span nz-icon nzType="delete"></span>
               </button>
             </nz-list-item-meta-title>
           </div>
@@ -265,11 +294,53 @@
               >
                 <span nz-icon nzType="fall"></span>
               </button>
+              <button
+                nz-button
+                nzType="default"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Редактировать"
+                [nzTooltipMouseEnterDelay]="1"
+                *ngIf="currentUser.role === 'Admin'"
+              >
+                <span nz-icon nzType="edit"></span>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="onLostCooldown(item)"
+                nz-tooltip
+                nzTooltipTitle="Удалить"
+                nzDanger
+                [nzTooltipMouseEnterDelay]="1"
+                *ngIf="currentUser.role === 'Admin'"
+              >
+                <span nz-icon nzType="delete"></span>
+              </button>
             </nz-dropdown-menu>
           </div>
         </div>
       </nz-list-item>
     </nz-badge>
+    <nz-list-item
+      class="box-shadow"
+      [ngClass]="'gray'"
+      *ngIf="currentUser.role === 'Admin'"
+    >
+      <button
+        nz-button
+        nzType="default"
+        nz-tooltip
+        nzTooltipTitle="Создание босса/элитки"
+        [nzTooltipMouseEnterDelay]="1"
+        nzShape="circle"
+        class="timer-create-mobs-button"
+      >
+        <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+      </button>
+    </nz-list-item>
     <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>
   </nz-list>
 </div>
+
+<nz-back-top [nzVisibilityHeight]="300"></nz-back-top>

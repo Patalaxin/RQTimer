@@ -17,6 +17,7 @@ export class HeaderComponent implements OnInit {
   currentServer: string = 'Гранас';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
+  historyListData: any = [];
   historyList: any = [];
 
   serverList = [
@@ -41,9 +42,10 @@ export class HeaderComponent implements OnInit {
     this.storageService.setCurrentServer(this.currentServer);
     this.historyService.getHistory(this.currentServer).subscribe({
       next: (res: any) => {
+        this.historyListData = res;
         this.historyList = res.data;
-        this.historyList = this.historyList.reverse();
         this.historyService.setHistoryList(this.historyList);
+        this.historyService.setHistoryListData(this.historyListData);
         this.historyService.setIsLoading(false);
       },
     });
@@ -150,10 +152,12 @@ export class HeaderComponent implements OnInit {
   }
 
   onHistory(): void {
+    this.historyService.setIsLoading(true);
     this.router.navigate(['/history']);
   }
 
   onTimer(): void {
+    this.timerService.setIsLoading(true);
     this.router.navigate(['/timer']);
   }
 
