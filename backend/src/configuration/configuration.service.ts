@@ -1,27 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Locations,
-  MobName,
-  MobsTypes,
-  Servers,
-  ShortMobName,
-} from '../schemas/mobs.enum';
+import { bosses, elites, Locations, Servers } from '../schemas/mobs.enum';
 
 @Injectable()
 export class ConfigurationService {
-  getServers(): typeof Servers {
-    return Servers;
+  getServers(): string[] {
+    return Object.values(Servers);
   }
 
   getMobs(): {
-    MobsTypes: typeof MobsTypes;
-    MobName: typeof MobName;
-    ShortMobName: typeof ShortMobName;
+    bosses: Record<string, string>;
+    elites: Record<string, string>;
   } {
-    return { MobsTypes, MobName, ShortMobName };
+    return { bosses, elites };
   }
 
-  getLocations(): typeof Locations {
-    return Locations;
+  getLocations(): string[] {
+    return Object.values(Locations);
   }
 }
