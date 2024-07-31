@@ -17,6 +17,10 @@
     background-color: #700000;
   }
 
+  .gray {
+    background-color: #e9ecef;
+  }
+
   nz-badge {
     width: 100%;
 
@@ -67,6 +71,11 @@
       display: none;
     }
   }
+
+  .timer-create-mobs-button {
+    display: block;
+    margin: 0 auto;
+  }
 }
 
 @media only screen and (max-width: 1000px) {
@@ -86,6 +95,24 @@
   }
 }
 
+@media only screen and (max-width: 650px) {
+  .timer {
+    nz-badge {
+      .timer-d-flex-space-between {
+        .timer-right {
+          .timer-action-menu-mob {
+            display: block;
+          }
+
+          .timer-action-menu {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
 @media only screen and (max-width: 550px) {
   .timer {
     nz-badge {
@@ -96,16 +123,6 @@
       .timer-d-flex-space-between {
         padding: 5px;
         border-radius: 5px;
-
-        .timer-right {
-          .timer-action-menu-mob {
-            display: block;
-          }
-
-          .timer-action-menu {
-            display: none;
-          }
-        }
       }
     }
   }

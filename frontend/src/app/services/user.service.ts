@@ -11,11 +11,17 @@ const USER_API = environment.apiUrl + '/user/';
 })
 export class UserService {
   accessToken: string = '';
+  private currentUser$ = new BehaviorSubject<any[]>([]);
+  currentUser = this.currentUser$.asObservable();
 
   constructor(
     private http: HttpClient,
     private storageService: StorageService
   ) {}
+
+  setCurrentUser(user: any[]) {
+    this.currentUser$.next(user);
+  }
 
   getUser(): Observable<any> {
     const headers = this.createHeaders();
