@@ -6,14 +6,16 @@ import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as process from 'process';
 import { MobModule } from '../mob/mob.module';
+import { ConfigurationModule } from '../configuration/configuration.module';
+import * as process from 'process';
 
 @Module({
   imports: [
     MobModule,
     UsersModule,
     AuthModule,
+    ConfigurationModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
