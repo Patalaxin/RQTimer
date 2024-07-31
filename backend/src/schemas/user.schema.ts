@@ -38,7 +38,7 @@ export class User {
     description: 'Мобы которые не доступны пользователю',
     enum: MobName,
     isArray: true,
-    example: [MobName.Аркон, MobName.Эдвард],
+    example: [MobName.Архон, MobName.Эдвард],
   })
   @Expose()
   @Prop({ default: [] })

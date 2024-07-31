@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { bosses, elites, Locations, Servers } from '../schemas/mobs.enum';
+import { Locations, Servers } from '../schemas/mobs.enum';
+import { bossesArray, elitesArray } from './config-mob';
 
 @Injectable()
 export class ConfigurationService {
@@ -7,11 +8,8 @@ export class ConfigurationService {
     return Object.values(Servers);
   }
 
-  getMobs(): {
-    bosses: Record<string, string>;
-    elites: Record<string, string>;
-  } {
-    return { bosses, elites };
+  getMobs() {
+    return { bossesArray, elitesArray };
   }
 
   getLocations(): string[] {
