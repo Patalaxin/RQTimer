@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { MobsTypes } from "./mobs.enum";
+import { MobsTypes } from './mobs.enum';
 
 export type MobsDataDocument = HydratedDocument<MobsData>;
 

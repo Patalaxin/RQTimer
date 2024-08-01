@@ -42,6 +42,7 @@ import { HelperClass } from '../helper-class';
 import { JwtService } from '@nestjs/jwt';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { CrashServerDtoParamsRequest } from './dto/crash-server.dto';
+import { MobGateway } from './mob.gateway';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -52,6 +53,7 @@ export class MobController {
   constructor(
     @Inject('IMob') private readonly mobService: IMob,
     private jwtService: JwtService,
+    private mobGateway: MobGateway,
   ) {}
 
   @Roles(RolesTypes.Admin)
@@ -95,7 +97,7 @@ export class MobController {
   @Roles()
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
   @Put('/updateMobByCooldown')
-  updateMobByCooldown(
+  async updateMobByCooldown(
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -103,17 +105,23 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.updateMobByCooldown(
-      parsedToken.nickname,
-      parsedToken.role,
-      updateMobByCooldownDto,
-    );
+    const mob: GetMobDataDtoResponse =
+      await this.mobService.updateMobByCooldown(
+        parsedToken.nickname,
+        parsedToken.role,
+        updateMobByCooldownDto,
+      );
+    this.mobGateway.sendMobUpdate({
+      ...mob,
+      socketType: 'updateMobByCooldown',
+    });
+    return mob;
   }
 
   @Roles()
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
   @Put('/updateMobDateOfDeath')
-  updateMobDateOfDeath(
+  async updateMobDateOfDeath(
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -121,17 +129,25 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.updateMobDateOfDeath(
-      parsedToken.nickname,
-      parsedToken.role,
-      updateMobDateOfDeathDto,
-    );
+    const mob: GetMobDataDtoResponse =
+      await this.mobService.updateMobDateOfDeath(
+        parsedToken.nickname,
+        parsedToken.role,
+        updateMobDateOfDeathDto,
+      );
+
+    this.mobGateway.sendMobUpdate({
+      ...mob,
+      socketType: 'updateMobDateOfDeath',
+    });
+
+    return mob;
   }
 
   @Roles()
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
   @Put('/updateMobDateOfRespawn')
-  updateMobDateOfRespawn(
+  async updateMobDateOfRespawn(
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -139,11 +155,19 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.updateMobDateOfRespawn(
-      parsedToken.nickname,
-      parsedToken.role,
-      updateMobDateOfRespawnDto,
-    );
+    const mob: GetMobDataDtoResponse =
+      await this.mobService.updateMobDateOfRespawn(
+        parsedToken.nickname,
+        parsedToken.role,
+        updateMobDateOfRespawnDto,
+      );
+
+    this.mobGateway.sendMobUpdate({
+      ...mob,
+      socketType: 'updateMobDateOfRespawn',
+    });
+
+    return mob;
   }
 
   @Roles(RolesTypes.Admin)
@@ -158,7 +182,7 @@ export class MobController {
   @Roles()
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/crashServer/:server')
-  crashServer(
+  async crashServer(
     @GetEmailFromToken() email: string,
     @Req() request: Request,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
@@ -167,18 +191,25 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.crashMobServer(
+    const mob: GetFullMobDtoResponse[] = await this.mobService.crashMobServer(
       email,
       parsedToken.nickname,
       parsedToken.role,
       crashServerDtoParams.server,
     );
+
+    this.mobGateway.sendMobUpdate({
+      ...mob,
+      socketType: 'crashServer',
+    });
+
+    return mob;
   }
 
   @Roles()
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('respawnLost/:mobName/:server/:location/')
-  respawnLost(
+  async respawnLost(
     @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -186,10 +217,17 @@ export class MobController {
       request,
       this.jwtService,
     );
-    return this.mobService.respawnLost(
+    const mob: GetMobDataDtoResponse = await this.mobService.respawnLost(
       respawnLostDtoParams,
       parsedToken.nickname,
       parsedToken.role,
     );
+
+    this.mobGateway.sendMobUpdate({
+      ...mob,
+      socketType: 'respawnLost',
+    });
+
+    return mob;
   }
 }

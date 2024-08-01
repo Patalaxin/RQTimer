@@ -7,9 +7,14 @@ import { MobService } from './mob.service';
 import { MobController } from './mob.controller';
 import { Mob, MobSchema } from '../schemas/mob.schema';
 import { MobsData, MobsDataSchema } from '../schemas/mobsData.schema';
+import { MobGateway } from './mob.gateway';
 
 @Module({
-  providers: [MobService, { provide: 'IMob', useClass: MobService }],
+  providers: [
+    MobGateway,
+    MobService,
+    { provide: 'IMob', useClass: MobService },
+  ],
   exports: [MobService],
   imports: [
     UsersModule,
