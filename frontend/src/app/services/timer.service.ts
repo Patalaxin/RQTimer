@@ -30,6 +30,65 @@ export class TimerService {
     this.isLoading$.next(value);
   }
 
+  createMob(
+    mobName: string,
+    shortName: string,
+    location: string,
+    respawnText: string,
+    image: string,
+    cooldownTime: number,
+    server: string,
+    mobType: string
+  ): Observable<any> {
+    let payload = {
+      mobName,
+      shortName,
+      location,
+      respawnText,
+      image,
+      cooldownTime,
+      server,
+      mobType,
+    };
+    const headers = this.createHeaders();
+    return this.http.post(MOB_URL, payload, { headers });
+  }
+
+  editMob(
+    mobName: string,
+    shortName: string,
+    location: string,
+    respawnText: string,
+    image: string,
+    cooldownTime: number,
+    server: string,
+    mobType: string,
+    currentLocation: string
+  ): Observable<any> {
+    let payload = {
+      mobName,
+      shortName,
+      location,
+      respawnText,
+      image,
+      cooldownTime,
+      mobType,
+    };
+    const headers = this.createHeaders();
+    return this.http.put(
+      MOB_URL + mobName + '/' + server + '/' + currentLocation,
+      payload,
+      { headers }
+    );
+  }
+
+  deleteMob(mobName: string, server: string, location: string) {
+    const headers = this.createHeaders();
+    return this.http.delete(MOB_URL + mobName + '/' + server + '/' + location, {
+      headers,
+    });
+  }
+
   getAllBosses(server: string): Observable<any> {
     const headers = this.createHeaders();
     return this.http.get(MOB_URL + `${server}`, { headers });

@@ -1,6 +1,8 @@
 .login {
   .login-form {
-    width: 300px;
+    max-width: 300px;
+    width: 100%;
+    min-width: 250px;
 
     .login-form-mb-12px {
       margin-bottom: 12px;

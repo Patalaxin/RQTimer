@@ -16,7 +16,9 @@
       >
         <div class="timer-left">
           <nz-list-item-meta
-            [nzAvatar]="item.mob.image ? 'https://' + item.mob.image : ''"
+            [nzAvatar]="
+              item.mob.image ? 'https://www.rqtimer.ru/' + item.mob.image : ''
+            "
           >
           </nz-list-item-meta>
           <nz-list-item-meta-title>
@@ -180,10 +182,10 @@
                 <button
                   nz-button
                   nzType="primary"
-                  (click)="onPlusCooldown(item)"
                   nz-tooltip
                   nzTooltipTitle="Симуляция следующего кдшного респа"
                   [nzTooltipMouseEnterDelay]="1"
+                  (click)="onPlusCooldown(item)"
                 >
                   <span nz-icon nzType="step-forward"></span>
                 </button>
@@ -212,7 +214,7 @@
               <button
                 nz-button
                 nzType="default"
-                (click)="onLostCooldown(item)"
+                (click)="showCreateEditModal(item)"
                 nz-tooltip
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
@@ -220,10 +222,24 @@
               >
                 <span nz-icon nzType="edit"></span>
               </button>
+              <nz-modal
+                [(nzVisible)]="item.mob.isEditModalVisible"
+                (nzOnCancel)="cancelCreateEditModal(item)"
+                (nzOnOk)="confirmCreateEditModal(item)"
+                [nzOkLoading]="item.mob.isEditOkLoading"
+              >
+                <p *nzModalContent>
+                  <app-mob-modal
+                    [item]="item"
+                    (onCreateEdit)="onCreateEdit($event)"
+                  ></app-mob-modal>
+                </p>
+              </nz-modal>
+
               <button
                 nz-button
                 nzType="primary"
-                (click)="onLostCooldown(item)"
+                (click)="showDeleteModal(item)"
                 nz-tooltip
                 nzTooltipTitle="Удалить"
                 nzDanger
@@ -297,7 +313,7 @@
               <button
                 nz-button
                 nzType="default"
-                (click)="onLostCooldown(item)"
+                (click)="showCreateEditModal(item)"
                 nz-tooltip
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
@@ -323,7 +339,7 @@
       </nz-list-item>
     </nz-badge>
     <nz-list-item
-      class="box-shadow"
+      class="box-shadow timer-d-flex-space-between"
       [ngClass]="'gray'"
       *ngIf="currentUser.role === 'Admin'"
     >
@@ -335,9 +351,20 @@
         [nzTooltipMouseEnterDelay]="1"
         nzShape="circle"
         class="timer-create-mobs-button"
+        (click)="showCreateEditModal()"
       >
         <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
       </button>
+      <nz-modal
+        [(nzVisible)]="isCreateModalVisible"
+        (nzOnCancel)="cancelCreateEditModal()"
+        (nzOnOk)="confirmCreateEditModal()"
+        [nzOkLoading]="isCreateOkLoading"
+      >
+        <p *nzModalContent>
+          <app-mob-modal (onCreateEdit)="onCreateEdit($event)"></app-mob-modal>
+        </p>
+      </nz-modal>
     </nz-list-item>
     <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>
   </nz-list>

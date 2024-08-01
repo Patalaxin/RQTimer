@@ -21,44 +21,44 @@
     background-color: #e9ecef;
   }
 
+  nz-list-item {
+    margin-bottom: 10px;
+  }
+
   nz-badge {
     width: 100%;
+  }
 
-    nz-list-item {
-      margin-bottom: 10px;
+  .timer-d-flex-space-between {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+
+    .timer-left {
+      display: flex;
+      align-items: center;
+      h2 {
+        margin-bottom: 0;
+      }
+      span {
+        align-self: center;
+      }
     }
 
-    .timer-d-flex-space-between {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 20px;
-
-      .timer-left {
-        display: flex;
-        align-items: center;
-        h2 {
-          margin-bottom: 0;
-        }
-        span {
-          align-self: center;
-        }
+    .timer-right {
+      .timer-action-menu-mob {
+        display: none;
       }
 
-      .timer-right {
-        .timer-action-menu-mob {
-          display: none;
+      .timer-action-menu {
+        .timer-plus-cooldown {
+          width: auto;
+          z-index: 2;
         }
 
-        .timer-action-menu {
-          .timer-plus-cooldown {
-            width: auto;
-            z-index: 2;
-          }
-
-          .timer-cd-button {
-            width: 32px;
-            padding: 0;
-          }
+        .timer-cd-button {
+          width: 32px;
+          padding: 0;
         }
       }
     }
@@ -97,16 +97,14 @@
 
 @media only screen and (max-width: 650px) {
   .timer {
-    nz-badge {
-      .timer-d-flex-space-between {
-        .timer-right {
-          .timer-action-menu-mob {
-            display: block;
-          }
+    .timer-d-flex-space-between {
+      .timer-right {
+        .timer-action-menu-mob {
+          display: block;
+        }
 
-          .timer-action-menu {
-            display: none;
-          }
+        .timer-action-menu {
+          display: none;
         }
       }
     }
@@ -115,15 +113,13 @@
 
 @media only screen and (max-width: 550px) {
   .timer {
-    nz-badge {
-      nz-list-item {
-        margin-bottom: 5px;
-      }
+    nz-list-item {
+      margin-bottom: 5px;
+    }
 
-      .timer-d-flex-space-between {
-        padding: 5px;
-        border-radius: 5px;
-      }
+    .timer-d-flex-space-between {
+      padding: 5px;
+      border-radius: 5px;
     }
   }
 }

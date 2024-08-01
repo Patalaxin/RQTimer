@@ -16,6 +16,7 @@ export class AdminComponent implements OnInit {
   isDeleteLoading: boolean = false;
   isUserDataLoading: boolean = false;
   isTableLoading: boolean = false;
+  isGenerateLoading: boolean = false;
 
   listOfCurrentPageData: any[] = [];
   isSearchVisible: boolean = false;
@@ -233,9 +234,11 @@ export class AdminComponent implements OnInit {
   }
 
   onGenerateSessionId() {
+    this.isGenerateLoading = true;
     this.userService.generateSessionId().subscribe({
       next: (res) => {
         this.sessionId = res._id;
+        this.isGenerateLoading = false;
       },
     });
   }

@@ -1,25 +1,29 @@
 .register {
   .register-form-container {
     padding: 0 50px 20px;
+    width: 100%;
+    max-width: 1000px;
 
     .register-stepper {
       padding: 24px 0;
     }
 
     .register-form {
-      width: 1000px;
-
       .steps-content {
-        height: 550px;
+        height: 400px;
 
         .register-form-info {
           margin: 0 auto;
-          width: 300px;
+          max-width: 300px;
+          width: 100%;
         }
 
         .register-form-excluded {
+          height: 380px;
+          overflow: scroll;
           margin: 0 auto;
-          width: 600px;
+          max-width: 600px;
+          width: 100%;
           display: flex;
           justify-content: space-between;
         }
@@ -37,7 +41,21 @@
       text-align: center;
 
       button {
-        margin: 0 5px;
+        margin: 5px 5px 0;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .register {
+    .register-form-container {
+      .register-form {
+        .steps-content {
+          .register-form-excluded {
+            display: block;
+          }
+        }
       }
     }
   }

@@ -157,3 +157,9 @@ nz-progress {
     }
   }
 }
+
+@media only screen and (max-width: 450px) {
+  .form-container {
+    padding: 40px;
+  }
+}

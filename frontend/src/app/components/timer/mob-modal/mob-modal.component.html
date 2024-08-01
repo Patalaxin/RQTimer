@@ -1,0 +1,102 @@
+<div class="mob-modal container">
+  <nz-skeleton *ngIf="isLoading"></nz-skeleton>
+
+  <div *ngIf="!isLoading">
+    <div class="mob-modal-top">
+      <nz-select
+        class="mob-modal-mb-10px mob-modal-mr-5px"
+        style="width: 91px"
+        [(ngModel)]="selectedMobType"
+        (ngModelChange)="onMobTypeChange($event)"
+        [disabled]="item ? true : false"
+      >
+        <nz-option
+          *ngFor="let type of mobTypeList"
+          [nzValue]="type"
+          [nzLabel]="type"
+        ></nz-option>
+      </nz-select>
+      <nz-select
+        nzShowSearch
+        nzAllowClear
+        style="min-width: 150px"
+        class="mob-modal-mb-10px mob-modal-mr-5px"
+        [(ngModel)]="selectedMobName"
+        (ngModelChange)="onMobChange($event)"
+        [disabled]="item ? true : false"
+      >
+        <nz-option
+          *ngFor="
+            let mob of selectedMobType === 'Босс'
+              ? mobList.bossesArray
+              : mobList.elitesArray
+          "
+          [nzValue]="mob.mobName"
+          [nzLabel]="mob.mobName"
+        ></nz-option>
+      </nz-select>
+    </div>
+    <div class="mob-modal-bottom mob-modal-d-flex-space-between">
+      <div class="mob-modal-bottom-left">
+        <nz-avatar
+          [nzSize]="64"
+          [nzSrc]="
+            selectedMobName
+              ? 'https://www.rqtimer.ru/' +
+                filterByMobName(selectedMobType, selectedMobName).image
+              : ''
+          "
+        ></nz-avatar>
+      </div>
+
+      <div class="mob-modal-bottom-right">
+        <input
+          class="mob-modal-mb-10px"
+          nz-input
+          placeholder="Короткое имя"
+          [ngModel]="
+            selectedMobName
+              ? filterByMobName(selectedMobType, selectedMobName).shortName
+              : ''
+          "
+          disabled
+        />
+        <textarea
+          nz-input
+          placeholder="Текст респауна отсутствует"
+          [ngModel]="
+            selectedMobName
+              ? filterByMobName(selectedMobType, selectedMobName).respawnText
+              : ''
+          "
+          disabled
+          nzAutosize
+          style="resize: none"
+        ></textarea>
+
+        <nz-time-picker
+          class="mob-modal-ml-0 mob-modal-mb-10px"
+          style="width: 150px"
+          [(ngModel)]="selectedCooldownTime"
+          (ngModelChange)="onCooldownTimeChange($event)"
+        >
+        </nz-time-picker>
+        <nz-select
+          style="min-width: 150px"
+          nzShowSearch
+          nzAllowClear
+          class=""
+          [(ngModel)]="selectedLocation"
+          (ngModelChange)="onLocationChange($event)"
+          nzPlaceHolder="Локация"
+        >
+          <nz-option
+            *ngFor="let location of locationList"
+            [nzValue]="location"
+            [nzLabel]="location"
+          ></nz-option>
+        </nz-select>
+      </div>
+    </div>
+  </div>
+</div>
