@@ -1,9 +1,11 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
+import { GetEmailFromToken } from '../decorators/getEmail.decorator';
+import { SignOutsDtoResponse } from './dto/signOut.dto';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -32,5 +34,12 @@ export class AuthController {
       exchangeRefreshDto,
       req.cookies['refreshToken'],
     );
+  }
+
+  @ApiOperation({ summary: 'Sign Out' })
+  @ApiBearerAuth()
+  @Get('signout')
+  signOut(@GetEmailFromToken() email: string): Promise<SignOutsDtoResponse> {
+    return this.authService.signOut(email);
   }
 }

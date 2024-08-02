@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { User, UserSchema } from '../schemas/user.schema';
 import { Token, TokenSchema } from '../schemas/refreshToken.schema';
+import { AuthGateway } from './auth.gateway';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { Token, TokenSchema } from '../schemas/refreshToken.schema';
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AuthGateway],
   exports: [AuthService],
 })
 export class AuthModule {}

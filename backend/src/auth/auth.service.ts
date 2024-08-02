@@ -13,6 +13,8 @@ import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 import { Response } from 'express';
+import { AuthGateway } from './auth.gateway';
+import { SignOutsDtoResponse } from './dto/signOut.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,7 @@ export class AuthService {
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
+    private readonly authGateway: AuthGateway,
   ) {}
 
   private async addTokens(user: User): Promise<SignInDtoResponse> {
@@ -41,6 +44,8 @@ export class AuthService {
         upsert: true,
       },
     );
+
+    this.authGateway.sendUserStatusUpdate(user.email, 'online');
     return { accessToken, refreshToken };
   }
 
@@ -133,5 +138,11 @@ export class AuthService {
     });
 
     return tokens;
+  }
+
+  async signOut(email: string): Promise<SignOutsDtoResponse> {
+    await this.tokenModel.findOneAndDelete({ email: email });
+    this.authGateway.sendUserStatusUpdate(email, 'offline');
+    return { message: 'Successfully logged out', status: 200 };
   }
 }
