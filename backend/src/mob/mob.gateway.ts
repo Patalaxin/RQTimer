@@ -3,7 +3,7 @@ import { Server } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:4000'],
+    origin: ['http://localhost:4200'],
   },
 })
 export class MobGateway {
