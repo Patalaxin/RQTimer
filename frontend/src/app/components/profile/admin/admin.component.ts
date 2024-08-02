@@ -27,7 +27,10 @@ export class AdminComponent implements OnInit {
 
   sessionId: string = '';
 
+  currentUser: any;
+
   isScreenWidth800: boolean = false;
+  isScreenWidth550: boolean = false;
 
   bossList: readonly string[] = [
     'Аркон',
@@ -87,6 +90,7 @@ export class AdminComponent implements OnInit {
 
   private checkScreenWidth(): void {
     this.isScreenWidth800 = window.innerWidth <= 800;
+    this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
   getAllUsers(nickname?: any): void {
@@ -252,5 +256,12 @@ export class AdminComponent implements OnInit {
     this.checkScreenWidth();
     this.getAllUsers();
     this.onGenerateSessionId();
+
+    this.userService.currentUser.subscribe({
+      next: (res) => {
+        this.currentUser = res;
+        console.log(this.currentUser);
+      },
+    });
   }
 }

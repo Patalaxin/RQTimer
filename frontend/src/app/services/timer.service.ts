@@ -16,18 +16,24 @@ export class TimerService {
   timerList = this.timerList$.asObservable();
   private isLoading$ = new BehaviorSubject<boolean>(true);
   isLoading = this.isLoading$.asObservable();
+  private headerVisibility$ = new BehaviorSubject<boolean>(true);
+  headerVisibility = this.headerVisibility$.asObservable();
 
   constructor(
     private http: HttpClient,
     private storageService: StorageService
   ) {}
 
-  setTimerList(list: TimerItem[]) {
+  setTimerList(list: TimerItem[]): void {
     this.timerList$.next(list);
   }
 
   setIsLoading(value: boolean): void {
     this.isLoading$.next(value);
+  }
+
+  setHeaderVisibility(visible: boolean): void {
+    this.headerVisibility$.next(visible);
   }
 
   createMob(

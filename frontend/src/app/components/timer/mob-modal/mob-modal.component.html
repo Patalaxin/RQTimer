@@ -63,7 +63,7 @@
         />
         <textarea
           nz-input
-          placeholder="Текст респауна отсутствует"
+          placeholder="Текст респауна"
           [ngModel]="
             selectedMobName
               ? filterByMobName(selectedMobType, selectedMobName).respawnText
@@ -72,6 +72,7 @@
           disabled
           nzAutosize
           style="resize: none"
+          *ngIf="selectedMobType !== 'Элитка'"
         ></textarea>
 
         <nz-time-picker

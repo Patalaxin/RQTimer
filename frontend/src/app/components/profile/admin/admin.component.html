@@ -8,6 +8,7 @@
         nzShowPagination
         (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
         [nzLoading]="isTableLoading"
+        [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
       >
         <thead>
           <tr>
@@ -68,6 +69,7 @@
                 [nzTooltipMouseEnterDelay]="1"
                 (click)="onShowDeleteModal(user.nickname)"
                 nzShape="circle"
+                *ngIf="currentUser.nickname !== user.nickname"
               >
                 <span nz-icon nzType="delete"></span>
               </button>
@@ -87,11 +89,13 @@
                       class="admin-user-modal-content"
                       *ngIf="!isUserDataLoading"
                     >
-                      <div class="admin-user-modal-role">
-                        <nz-tag
-                          [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
-                          >Пользователь: {{ user.nickname }}
-                        </nz-tag>
+                      <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
+                        >Пользователь: {{ user.nickname }}
+                      </nz-tag>
+                      <div
+                        class="admin-user-modal-role"
+                        *ngIf="currentUser.nickname !== user.nickname"
+                      >
                         <h4>
                           <span
                             nz-icon
@@ -161,7 +165,7 @@
     </nz-tab>
     <nz-tab [nzTitle]="titleTemplate2">
       <div class="generate-form">
-        <nz-input-group nzPrefixIcon="number">
+        <nz-input-group nzPrefixIcon="number" class="br-50px">
           <input
             class="generate-form-input"
             nz-input
@@ -197,14 +201,13 @@
         />
         <button
           nz-button
-          nzSize="small"
           nzType="primary"
           (click)="onSearch()"
           class="admin-search-button"
         >
           Поиск
         </button>
-        <button nz-button nzSize="small" (click)="onReset()">Сброс</button>
+        <button nz-button (click)="onReset()">Сброс</button>
       </div>
     </div>
   </nz-dropdown-menu>

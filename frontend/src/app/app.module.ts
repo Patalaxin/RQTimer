@@ -67,6 +67,7 @@ import {
 } from '@taiga-ui/core';
 
 import { TuiReorderModule } from '@taiga-ui/addon-table';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 registerLocaleData(ru);
 
@@ -85,6 +86,7 @@ registerLocaleData(ru);
     LogComponent,
     AdminComponent,
     MobModalComponent,
+    NotFoundComponent,
   ],
   imports: [
     BrowserModule,

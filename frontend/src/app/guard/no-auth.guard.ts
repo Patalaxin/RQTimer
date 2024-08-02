@@ -10,7 +10,7 @@ import { StorageService } from '../services/storage.service';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard implements CanActivate {
+export class NoAuthGuard implements CanActivate {
   constructor(private storageService: StorageService, private router: Router) {}
 
   canActivate(
@@ -18,10 +18,10 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ): boolean {
     if (this.storageService.isLoggedIn()) {
-      return true;
-    } else {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/timer']);
       return false;
+    } else {
+      return true;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 
@@ -7,7 +7,7 @@ import { StorageService } from 'src/app/services/storage.service';
   templateUrl: './log.component.html',
   styleUrls: ['./log.component.scss'],
 })
-export class LogComponent {
+export class LogComponent implements OnInit {
   @Input() historyList: any;
   @Input() historyListData: any;
   @Input() mobName: string = '';
@@ -16,12 +16,22 @@ export class LogComponent {
   page: number = 1;
 
   isLoading: boolean = false;
+  isScreenWidth550: boolean = false;
 
   constructor(
     private historyService: HistoryService,
     private storageService: StorageService
   ) {
     console.log('historyList', this.historyList);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.checkScreenWidth();
+  }
+
+  private checkScreenWidth(): void {
+    this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
   changePage($event: any, mobName: string): void {
@@ -71,5 +81,9 @@ export class LogComponent {
     };
 
     return methods[item.historyTypes] || 'по тупому';
+  }
+
+  ngOnInit(): void {
+    this.checkScreenWidth();
   }
 }
