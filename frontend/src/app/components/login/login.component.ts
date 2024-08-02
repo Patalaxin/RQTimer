@@ -25,6 +25,8 @@ export class LoginComponent implements OnInit {
   submitted: boolean = false;
   passwordVisible: boolean = false;
 
+  isLoginLoading: boolean = false;
+
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
@@ -44,6 +46,8 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    this.isLoginLoading = true;
+
     this.authService
       .login(this.form.value.key, this.form.value.password)
       .subscribe({
@@ -58,6 +62,7 @@ export class LoginComponent implements OnInit {
           }
         },
         error: (err) => {
+          this.isLoginLoading = false;
           this.message.create('error', 'Неверный логин или пароль');
         },
       });

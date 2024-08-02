@@ -10,18 +10,51 @@
   margin: 0 auto;
 }
 
+// !border-radius start
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link,
+.ant-pagination-item,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector,
+.ant-input-number-affix-wrapper,
+.ant-input-number,
+.ant-picker,
+.br-50px,
+.ant-btn {
+  border-radius: 50px;
+}
+
+.nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu,
+.ant-input {
+  border-radius: 15px;
+}
+
+.ant-input-number-handler-wrap {
+  border-radius: 0 50px 50px 0;
+}
+
+.ant-input-number-handler-up {
+  border-top-right-radius: 50px;
+}
+
+.ant-input-number-handler-down {
+  border-bottom-right-radius: 50px;
+}
+// !border-radius end
+
 .background {
+  position: fixed;
   background-image: url(../src/assets/img/bg-halloween.jpeg);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   width: 100vw;
   height: 100vh;
+  z-index: 0;
 }
 
 .box-shadow {
   box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.4);
-  border-radius: 10px;
+  border-radius: 50px;
 }
 
 .form-container {
@@ -75,6 +108,10 @@
 //   text-align: center;
 // }
 
+.ant-list-split .ant-list-item {
+  border-bottom: 0;
+}
+
 .ant-picker {
   width: 40%;
   margin: 10px 5px 0;
@@ -114,10 +151,16 @@ nz-progress {
   }
 }
 
+.ant-tabs > .ant-tabs-nav .ant-tabs-nav-more,
+.ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-more {
+  display: none;
+}
+
 .ant-dropdown {
   padding: 5px 2.5px;
   background-color: #ffffff;
-  border-radius: 5px;
+  // border-radius: 5px;
+  border-radius: 15px;
   box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.4);
 
   button {
@@ -133,6 +176,12 @@ nz-progress {
   .ant-tag {
     margin-bottom: 8px;
     cursor: pointer;
+  }
+}
+
+@media only screen and (max-width: 800px) {
+  .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab {
+    padding: 8px 8px 8px 12px;
   }
 }
 
@@ -155,5 +204,11 @@ nz-progress {
     .ant-pagination-total-text {
       display: none;
     }
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .form-container {
+    padding: 40px;
   }
 }

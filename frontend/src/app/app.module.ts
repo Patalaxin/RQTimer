@@ -16,6 +16,10 @@ import { TimerComponent } from './components/timer/timer.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { InfoComponent } from './components/profile/info/info.component';
 import { UserComponent } from './components/profile/user/user.component';
+import { MobModalComponent } from './components/timer/mob-modal/mob-modal.component';
+import { HistoryComponent } from './components/history/history.component';
+import { AdminComponent } from './components/profile/admin/admin.component';
+import { LogComponent } from './components/history/log/log.component';
 import { NZ_I18N } from 'ng-zorro-antd/i18n';
 import { ru_RU } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
@@ -46,15 +50,13 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { HistoryComponent } from './components/history/history.component';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
-import { LogComponent } from './components/history/log/log.component';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzBackTopModule } from 'ng-zorro-antd/back-top';
-import { AdminComponent } from './components/profile/admin/admin.component';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
 import {
@@ -65,6 +67,7 @@ import {
 } from '@taiga-ui/core';
 
 import { TuiReorderModule } from '@taiga-ui/addon-table';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 registerLocaleData(ru);
 
@@ -82,6 +85,8 @@ registerLocaleData(ru);
     HistoryComponent,
     LogComponent,
     AdminComponent,
+    MobModalComponent,
+    NotFoundComponent,
   ],
   imports: [
     BrowserModule,
@@ -120,6 +125,7 @@ registerLocaleData(ru);
     NzPaginationModule,
     NzBackTopModule,
     NzTableModule,
+    NzAvatarModule,
     TuiRootModule,
     TuiDialogModule,
     TuiAlertModule,

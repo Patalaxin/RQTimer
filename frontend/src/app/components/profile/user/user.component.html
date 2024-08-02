@@ -76,7 +76,7 @@
         </div>
         <nz-form-item>
           <nz-form-control class="update-excluded-form-center">
-            <button nz-button nzType="primary">Обновить</button>
+            <button nz-button nzType="primary" nzShape="round">Обновить</button>
           </nz-form-control>
         </nz-form-item>
       </form>
@@ -89,7 +89,11 @@
       >
         <nz-form-item>
           <nz-form-control nzErrorTip="Введите старый пароль!">
-            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+            <nz-input-group
+              nzPrefixIcon="lock"
+              [nzSuffix]="suffixTemplate"
+              class="br-50px"
+            >
               <input
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
@@ -104,7 +108,11 @@
         </nz-form-item>
         <nz-form-item>
           <nz-form-control nzErrorTip="Введите новый пароль!">
-            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+            <nz-input-group
+              nzPrefixIcon="lock"
+              [nzSuffix]="suffixTemplate"
+              class="br-50px"
+            >
               <input
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
@@ -119,7 +127,11 @@
         </nz-form-item>
         <nz-form-item>
           <nz-form-control nzErrorTip="Новый пароль не совпадает!">
-            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+            <nz-input-group
+              nzPrefixIcon="lock"
+              [nzSuffix]="suffixTemplate"
+              class="br-50px"
+            >
               <input
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
@@ -145,6 +157,7 @@
           [nzType]="'primary'"
           type="submit"
           [disabled]="!changePasswordForm.valid"
+          nzShape="round"
         >
           Поменять пароль
         </button>

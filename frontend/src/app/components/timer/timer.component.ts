@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { BehaviorSubject } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
@@ -41,13 +42,19 @@ export class TimerComponent implements OnInit, OnDestroy {
   isScreenWidth372: boolean = false;
   isScreenWidthInZone: boolean = false;
 
+  isCreateModalVisible: boolean = false;
+  isCreateOkLoading: boolean = false;
+
+  createEditItem: any;
+
   constructor(
     private timerService: TimerService,
     private storageService: StorageService,
     private authService: AuthService,
     private historyService: HistoryService,
     private userService: UserService,
-    private message: NzMessageService
+    private message: NzMessageService,
+    private modal: NzModalService
   ) {
     console.log(this.isLoading);
   }
@@ -101,11 +108,13 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onClickTimerItem(item: TimerItem): void {
-    let data: string = `${item.mob.shortName} - ${moment(
-      item.mobData.respawnTime
-    ).format('HH:mm:ss')}`;
-    this.message.create('success', `${data}`);
-    navigator.clipboard.writeText(data);
+    if (item.mobData.respawnTime) {
+      let data: string = `${item.mob.shortName} - ${moment(
+        item.mobData.respawnTime
+      ).format('HH:mm:ss')}`;
+      this.message.create('success', `${data}`);
+      navigator.clipboard.writeText(data);
+    }
   }
 
   showHistoryModal(item: TimerItem): void {
@@ -135,6 +144,121 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.setIsLoading(false);
+        },
+      });
+  }
+
+  showCreateEditModal(item?: TimerItem): void {
+    if (item) {
+      item.mob.isEditModalVisible = true;
+    }
+    if (!item) {
+      this.isCreateModalVisible = true;
+    }
+  }
+
+  confirmCreateEditModal(item?: TimerItem) {
+    if (!item) {
+      this.isCreateModalVisible = false;
+      this.timerService.setIsLoading(true);
+      this.timerService
+        .createMob(
+          this.createEditItem.mobName,
+          this.createEditItem.shortName,
+          this.createEditItem.location,
+          this.createEditItem.respawnText,
+          this.createEditItem.image,
+          this.createEditItem.cooldownTime,
+          this.storageService.getSessionStorage('server'),
+          this.createEditItem.mobType
+        )
+        .subscribe({
+          next: (res) => {
+            this.getAllBosses(1);
+            this.message.create('success', `Босс/элитка успешно создан(а).`);
+          },
+          error: (error) => {
+            this.timerService.setIsLoading(false);
+            this.message.create('error', `Не удалось создать босса/элитку.`);
+          },
+        });
+    }
+
+    if (item) {
+      item.mob.isEditModalVisible = false;
+      this.timerService.setIsLoading(true);
+      this.timerService
+        .editMob(
+          this.createEditItem.mobName,
+          this.createEditItem.shortName,
+          this.createEditItem.location,
+          this.createEditItem.respawnText,
+          this.createEditItem.image,
+          this.createEditItem.cooldownTime,
+          this.storageService.getSessionStorage('server'),
+          this.createEditItem.mobType,
+          this.createEditItem.currentLocation
+        )
+
+        .subscribe({
+          next: (res) => {
+            this.getAllBosses(1);
+            this.message.create(
+              'success',
+              `Босс/элитка успешно отредактирован(а).`
+            );
+          },
+          error: (error) => {
+            this.timerService.setIsLoading(false);
+            this.message.create(
+              'error',
+              `Не удалось отредактировать босса/элитку.`
+            );
+          },
+        });
+    }
+  }
+
+  cancelCreateEditModal(item?: TimerItem) {
+    if (!item) {
+      this.isCreateModalVisible = false;
+    }
+
+    if (item) {
+      item.mob.isEditModalVisible = false;
+    }
+  }
+
+  onCreateEdit(item: any) {
+    this.createEditItem = { ...item };
+    console.log('onCreateEdit', this.createEditItem);
+  }
+
+  showDeleteModal(item: TimerItem): void {
+    this.modal.confirm({
+      nzTitle: 'Внимание',
+      nzContent: `<b style="color: red;">Вы точно хотите удалить ${item.mob.mobName}?</b>`,
+      nzOkText: 'Да',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzOnOk: () => this.onDelete(item),
+      nzCancelText: 'Нет',
+      nzOnCancel: () => console.log('Cancel'),
+    });
+  }
+
+  onDelete(item: TimerItem): void {
+    this.timerService.setIsLoading(true);
+    this.timerService
+      .deleteMob(
+        item.mob.mobName,
+        this.storageService.getSessionStorage('server'),
+        item.mob.location
+      )
+      .subscribe({
+        next: (res) => {
+          this.getAllBosses(1);
+          this.message.create('success', `${item.mob.mobName} успешно удалён.`);
         },
       });
   }
@@ -246,6 +370,10 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses(1);
         this.message.create('success', 'Респ был успешно переписан по кд');
       },
+      error: (error) => {
+        this.message.create('error', 'Респ утерян');
+        this.timerService.setIsLoading(false);
+      },
     });
   }
 
@@ -287,6 +415,8 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isDeathOkLoading = false;
           item.mob.isHistoryModalVisible = false;
           item.mob.isHistoryOkLoading = false;
+          item.mob.isEditModalVisible = false;
+          item.mob.isEditOkLoading = false;
         });
         this.timerService.setIsLoading(false);
       },

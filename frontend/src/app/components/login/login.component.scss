@@ -1,6 +1,8 @@
 .login {
   .login-form {
-    width: 300px;
+    max-width: 300px;
+    width: 100%;
+    min-width: 250px;
 
     .login-form-mb-12px {
       margin-bottom: 12px;
@@ -16,6 +18,33 @@
 
     .login-form-center {
       text-align: center;
+    }
+  }
+
+  .login-link {
+    margin: 20px 0 0;
+    max-width: 300px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    a {
+      flex: 1;
+      margin: 0 5px;
+      img {
+        width: 100%; /* Изображения занимают всю ширину родительского контейнера (ссылки) */
+        height: auto; /* Сохраняет соотношение сторон изображения */
+        aspect-ratio: 2/1; /* Соотношение сторон */
+        display: block;
+        border-radius: 5px;
+      }
+    }
+
+    a:first-child {
+      margin-left: 0;
+    }
+
+    a:last-child {
+      margin-right: 0;
     }
   }
 }

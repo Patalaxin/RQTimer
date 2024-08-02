@@ -2,15 +2,20 @@
   padding: 10px 0;
 
   .orange {
-    background-color: #b18b01;
+    background-color: #fcdc94;
+    // background-color: #b18b01;
+    // background-color: rgba(177, 139, 1, 0.7);
   }
 
   .green {
-    background-color: #64b101;
+    background-color: #bacd92;
+    // background-color: #64b101;
+    // background-color: rgba(100, 177, 1, 0.7);
   }
 
   .white {
-    background-color: #ffff;
+    // background-color: #ffff;
+    background-color: rgba(255, 255, 255, 0.7);
   }
 
   .red {
@@ -18,47 +23,47 @@
   }
 
   .gray {
-    background-color: #e9ecef;
+    background-color: rgba(255, 255, 255, 0.7);
+  }
+
+  nz-list-item {
+    margin-bottom: 10px;
   }
 
   nz-badge {
     width: 100%;
+  }
 
-    nz-list-item {
-      margin-bottom: 10px;
+  .timer-d-flex-space-between {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+
+    .timer-left {
+      display: flex;
+      align-items: center;
+      h2 {
+        margin-bottom: 0;
+      }
+      span {
+        align-self: center;
+      }
     }
 
-    .timer-d-flex-space-between {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 20px;
-
-      .timer-left {
-        display: flex;
-        align-items: center;
-        h2 {
-          margin-bottom: 0;
-        }
-        span {
-          align-self: center;
-        }
+    .timer-right {
+      .timer-action-menu-mob {
+        display: none;
       }
 
-      .timer-right {
-        .timer-action-menu-mob {
-          display: none;
+      .timer-action-menu {
+        .timer-plus-cooldown {
+          width: auto;
+          z-index: 2;
         }
 
-        .timer-action-menu {
-          .timer-plus-cooldown {
-            width: auto;
-            z-index: 2;
-          }
-
-          .timer-cd-button {
-            width: 32px;
-            padding: 0;
-          }
+        .timer-cd-button {
+          width: 32px;
+          padding: 0;
         }
       }
     }
@@ -74,7 +79,7 @@
 
   .timer-create-mobs-button {
     display: block;
-    margin: 0 auto;
+    margin: 2.5px auto;
   }
 }
 
@@ -88,7 +93,8 @@
         height: 32px;
         padding: 2.4px 0;
         font-size: 16px;
-        border-radius: 2px;
+        // border-radius: 2px;
+        border-radius: 50px;
         vertical-align: -3px;
       }
     }
@@ -97,16 +103,14 @@
 
 @media only screen and (max-width: 650px) {
   .timer {
-    nz-badge {
-      .timer-d-flex-space-between {
-        .timer-right {
-          .timer-action-menu-mob {
-            display: block;
-          }
+    .timer-d-flex-space-between {
+      .timer-right {
+        .timer-action-menu-mob {
+          display: block;
+        }
 
-          .timer-action-menu {
-            display: none;
-          }
+        .timer-action-menu {
+          display: none;
         }
       }
     }
@@ -115,15 +119,14 @@
 
 @media only screen and (max-width: 550px) {
   .timer {
-    nz-badge {
-      nz-list-item {
-        margin-bottom: 5px;
-      }
+    nz-list-item {
+      margin-bottom: 5px;
+    }
 
-      .timer-d-flex-space-between {
-        padding: 5px;
-        border-radius: 5px;
-      }
+    .timer-d-flex-space-between {
+      padding: 5px;
+      // border-radius: 5px;
+      border-radius: 50px;
     }
   }
 }

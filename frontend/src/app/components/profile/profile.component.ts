@@ -27,6 +27,7 @@ export class ProfileComponent implements OnInit {
   getUser(retryCount: number) {
     this.userService.getUser().subscribe({
       next: (res) => {
+        this.userService.setCurrentUser(res);
         console.log('getUser', res);
         this.user = {
           nickname: res.nickname,

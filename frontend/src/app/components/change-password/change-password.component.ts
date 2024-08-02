@@ -9,6 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { UserService } from 'src/app/services/user.service';
+import Validation from 'src/app/utils/validtion';
 
 @Component({
   selector: 'app-change-password',
@@ -20,6 +21,7 @@ export class ChangePasswordComponent implements OnInit {
     email: new FormControl(''),
     sessionId: new FormControl(''),
     newPassword: new FormControl(''),
+    confirmPassword: new FormControl(''),
   });
   submitted: boolean = false;
   passwordVisible: boolean = false;
@@ -70,10 +72,16 @@ export class ChangePasswordComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.form = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      sessionId: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(3)]],
-    });
+    this.form = this.formBuilder.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        sessionId: ['', [Validators.required]],
+        newPassword: ['', [Validators.required, Validators.minLength(3)]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      {
+        validators: [Validation.match('newPassword', 'confirmPassword')],
+      }
+    );
   }
 }

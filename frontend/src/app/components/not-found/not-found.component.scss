@@ -1,0 +1,34 @@
+.background {
+  background-image: url(../../../assets/img/not-found.jpeg);
+  // filter: grayscale(80%);
+}
+
+.not-found {
+  text-align: center;
+
+  h1 {
+    font-size: 200px;
+    line-height: 200px;
+    margin: 0;
+  }
+
+  p {
+    font-size: 48px;
+    line-height: 48px;
+  }
+}
+
+@media only screen and (max-width: 650px) {
+  .not-found {
+    h1 {
+      font-size: 150px;
+      line-height: 150px;
+      margin: 0;
+    }
+
+    p {
+      font-size: 35px;
+      line-height: 35px;
+    }
+  }
+}

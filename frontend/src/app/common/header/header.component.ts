@@ -112,6 +112,7 @@ export class HeaderComponent implements OnInit {
 
   onCrashServer() {
     this.getCurrentServer();
+    this.timerService.setIsLoading(true);
     console.log(this.currentServer);
     this.timerService.crashServerBosses(this.currentServer).subscribe({
       next: (res) => {

@@ -6,6 +6,7 @@
   [nzShowTotal]="rangeTemplate"
   (nzPageIndexChange)="changePage($event, mobName)"
   (nzPageSizeChange)="changePageSize($event, mobName)"
+  [nzSize]="!isScreenWidth550 ? 'default' : 'small'"
 ></nz-pagination>
 
 <ng-template #rangeTemplate let-range="range" let-total>
@@ -62,6 +63,7 @@
       </p> -->
     </nz-timeline-item>
   </nz-timeline>
+  <nz-list-empty *ngIf="historyList.length === 0"></nz-list-empty>
 </div>
 
 <!-- <nz-pagination

@@ -7,19 +7,26 @@ import { TimerComponent } from './components/timer/timer.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AuthGuard } from './guard/auth.guard';
 import { HistoryComponent } from './components/history/history.component';
+import { NoAuthGuard } from './guard/no-auth.guard';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent, canActivate: [AuthGuard] },
-  { path: 'register', component: RegisterComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
+  {
+    path: 'register',
+    component: RegisterComponent,
+    canActivate: [NoAuthGuard],
+  },
   {
     path: 'change-password',
     component: ChangePasswordComponent,
-    canActivate: [AuthGuard],
+    canActivate: [NoAuthGuard],
   },
-  { path: 'timer', component: TimerComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'history', component: HistoryComponent },
+  { path: 'timer', component: TimerComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: '**', component: NotFoundComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({
