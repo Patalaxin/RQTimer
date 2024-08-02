@@ -1,9 +1,9 @@
+<div class="header-background"></div>
 <div class="header" *ngIf="isLoggedIn()">
   <div class="header-left">
     <nz-select
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
-      nzSize="small"
       (ngModelChange)="setCurrentServer()"
     ></nz-select>
     <button
@@ -14,6 +14,7 @@
       nzTooltipTitle="Обновить"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
+      nzShape="circle"
     >
       <span nz-icon nzType="reload"></span>
     </button>
@@ -25,6 +26,7 @@
       nzTooltipTitle="Скопировать респы"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
+      nzShape="circle"
     >
       <span nz-icon nzType="copy"></span>
     </button>
@@ -35,6 +37,7 @@
       nzTooltipTitle="Учитывать падение сервера"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
+      nzShape="circle"
     >
       <span nz-icon nzType="api" (click)="onCrashServer()"></span>
     </button>
@@ -49,6 +52,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/history')"
+      nzShape="circle"
     >
       <span nz-icon nzType="history"></span>
     </button>
@@ -61,6 +65,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/timer')"
+      nzShape="circle"
     >
       <span nz-icon nzType="clock-circle"></span>
     </button>
@@ -73,6 +78,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/profile')"
+      nzShape="circle"
     >
       <span nz-icon nzType="user"></span>
     </button>
@@ -85,6 +91,7 @@
       nzTooltipTitle="Выход"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
+      nzShape="circle"
     >
       <span nz-icon nzType="logout"></span>
     </button>

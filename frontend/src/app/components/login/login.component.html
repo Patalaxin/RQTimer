@@ -3,7 +3,7 @@
     <form nz-form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
       <nz-form-item>
         <nz-form-control nzErrorTip="Введите почту или никнейм!">
-          <nz-input-group nzPrefixIcon="user">
+          <nz-input-group nzPrefixIcon="user" class="br-50px">
             <input
               nz-input
               formControlName="key"
@@ -16,7 +16,11 @@
       </nz-form-item>
       <nz-form-item>
         <nz-form-control nzErrorTip="Введите пароль!">
-          <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+          <nz-input-group
+            nzPrefixIcon="lock"
+            [nzSuffix]="suffixTemplate"
+            class="br-50px"
+          >
             <input
               nz-input
               [type]="passwordVisible ? 'text' : 'password'"
@@ -46,6 +50,7 @@
         type="submit"
         [disabled]="!form.valid"
         [nzLoading]="isLoginLoading"
+        nzShape="round"
       >
         Войти
       </button>
@@ -54,5 +59,16 @@
         <a [routerLink]="['/register']">Зарегистрируйтесь</a>
       </div>
     </form>
+    <div class="login-link">
+      <a href="">
+        <img src="../../../assets/img/lesta-banner.png" alt="" />
+      </a>
+      <a href="">
+        <img src="../../../assets/img/rqcalc-banner.png" alt="" />
+      </a>
+      <a href="">
+        <img src="../../../assets/img/rqwiki-banner.png" alt="" />
+      </a>
+    </div>
   </div>
 </div>

@@ -55,6 +55,7 @@
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
                 (click)="onShowUserModal(user)"
+                nzShape="circle"
               >
                 <span nz-icon nzType="edit"></span>
               </button>
@@ -66,6 +67,7 @@
                 nzTooltipTitle="Удалить"
                 [nzTooltipMouseEnterDelay]="1"
                 (click)="onShowDeleteModal(user.nickname)"
+                nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
               </button>

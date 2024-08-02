@@ -21,7 +21,7 @@
           <div class="register-form-info">
             <nz-form-item>
               <nz-form-control nzErrorTip="Введите никнейм!">
-                <nz-input-group nzPrefixIcon="user">
+                <nz-input-group nzPrefixIcon="user" class="br-50px">
                   <input
                     nz-input
                     formControlName="nickname"
@@ -35,7 +35,7 @@
             </nz-form-item>
             <nz-form-item>
               <nz-form-control nzErrorTip="Введите почту!">
-                <nz-input-group nzPrefixIcon="mail">
+                <nz-input-group nzPrefixIcon="mail" class="br-50px">
                   <input
                     nz-input
                     formControlName="email"
@@ -49,7 +49,11 @@
             </nz-form-item>
             <nz-form-item>
               <nz-form-control nzErrorTip="Введите пароль!">
-                <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+                <nz-input-group
+                  nzPrefixIcon="lock"
+                  [nzSuffix]="suffixTemplate"
+                  class="br-50px"
+                >
                   <input
                     nz-input
                     [type]="passwordVisible ? 'text' : 'password'"
@@ -64,7 +68,11 @@
             </nz-form-item>
             <nz-form-item>
               <nz-form-control nzErrorTip="Пароль не совпадает!">
-                <nz-input-group nzPrefixIcon="lock" [nzSuffix]="suffixTemplate">
+                <nz-input-group
+                  nzPrefixIcon="lock"
+                  [nzSuffix]="suffixTemplate"
+                  class="br-50px"
+                >
                   <input
                     nz-input
                     [type]="passwordVisible ? 'text' : 'password'"
@@ -86,7 +94,7 @@
             </ng-template>
             <nz-form-item class="register-form-mb-12px">
               <nz-form-control nzErrorTip="Введите Session ID!">
-                <nz-input-group nzPrefixIcon="number">
+                <nz-input-group nzPrefixIcon="number" class="br-50px">
                   <input
                     nz-input
                     formControlName="sessionId"
@@ -187,6 +195,7 @@
           nzType="default"
           (click)="prev()"
           *ngIf="currentStep > 0"
+          nzShape="round"
         >
           <span>Назад</span>
         </button>
@@ -196,6 +205,7 @@
           (click)="next()"
           *ngIf="currentStep < 1"
           [disabled]="!form.valid"
+          nzShape="round"
         >
           <span>Вперёд</span>
         </button>
@@ -204,6 +214,7 @@
           nzType="primary"
           (click)="done()"
           *ngIf="currentStep === 1"
+          nzShape="round"
         >
           <span>Зарегистрироваться</span>
         </button>

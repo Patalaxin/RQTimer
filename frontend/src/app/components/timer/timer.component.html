@@ -2,7 +2,11 @@
 
 <div class="timer container" *ngIf="!(isLoading | async)">
   <nz-list nzItemLayout="horizontal">
-    <nz-badge *ngFor="let item of timerList" [nzCount]="item.mobData.cooldown">
+    <nz-badge
+      *ngFor="let item of timerList"
+      [nzCount]="item.mobData.cooldown"
+      [nzOffset]="[-5, 5]"
+    >
       <nz-list-item
         class="timer-d-flex-space-between box-shadow"
         [ngClass]="
@@ -78,6 +82,7 @@
               nzTooltipTitle="Переписать вручную"
               [nzTooltipMouseEnterDelay]="1"
               class="timer-die-button"
+              nzShape="round"
             >
               <span nz-icon nzType="edit"></span>
               <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
@@ -136,6 +141,7 @@
               nzTooltipTitle="Переписать по (текущему времени - 10 сек)"
               [nzTooltipMouseEnterDelay]="1"
               class="timer-die-button"
+              nzShape="round"
             >
               <span nz-icon nzType="scan"></span>
               <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
@@ -154,6 +160,7 @@
                 nz-tooltip
                 nzTooltipTitle="История переписи {{ item.mob.mobName }}"
                 [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
               >
                 <span nz-icon nzType="history"></span>
               </button>
@@ -186,6 +193,7 @@
                   nzTooltipTitle="Симуляция следующего кдшного респа"
                   [nzTooltipMouseEnterDelay]="1"
                   (click)="onPlusCooldown(item)"
+                  nzShape="circle"
                 >
                   <span nz-icon nzType="step-forward"></span>
                 </button>
@@ -198,6 +206,7 @@
                 nz-tooltip
                 nzTooltipTitle="Переписать по кд"
                 [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
               >
                 <span>CD</span>
               </button>
@@ -208,6 +217,7 @@
                 nz-tooltip
                 nzTooltipTitle="Респ утерян"
                 [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
               >
                 <span nz-icon nzType="fall"></span>
               </button>
@@ -219,6 +229,7 @@
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
                 *ngIf="currentUser.role === 'Admin'"
+                nzShape="circle"
               >
                 <span nz-icon nzType="edit"></span>
               </button>
@@ -245,6 +256,7 @@
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
                 *ngIf="currentUser.role === 'Admin'"
+                nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
               </button>
@@ -259,6 +271,7 @@
               nzTrigger="click"
               [nzDropdownMenu]="menu"
               nzPlacement="bottomRight"
+              nzShape="circle"
             >
               <span nz-icon nzType="menu-unfold"></span>
             </button>
@@ -270,6 +283,7 @@
                 nz-tooltip
                 nzTooltipTitle="История переписи {{ item.mob.mobName }}"
                 [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
               >
                 <span nz-icon nzType="history"></span>
               </button>
@@ -277,6 +291,7 @@
                 [nzCount]="item.mob.plusCooldown"
                 class="timer-plus-cooldown"
                 [nzOffset]="[-7, 3]"
+                nzShape="circle"
               >
                 <button
                   nz-button
@@ -285,6 +300,7 @@
                   nz-tooltip
                   nzTooltipTitle="Симуляция следующего кдшного респа"
                   [nzTooltipMouseEnterDelay]="1"
+                  nzShape="circle"
                 >
                   <span nz-icon nzType="step-forward"></span>
                 </button>
@@ -297,6 +313,7 @@
                 nzTooltipTitle="Переписать по кд"
                 [nzTooltipMouseEnterDelay]="1"
                 style="width: 32px; padding: 0"
+                nzShape="circle"
               >
                 <span>CD</span>
               </button>
@@ -307,6 +324,7 @@
                 nz-tooltip
                 nzTooltipTitle="Респ утерян"
                 [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
               >
                 <span nz-icon nzType="fall"></span>
               </button>
@@ -318,6 +336,7 @@
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
                 *ngIf="currentUser.role === 'Admin'"
+                nzShape="circle"
               >
                 <span nz-icon nzType="edit"></span>
               </button>
@@ -330,6 +349,7 @@
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
                 *ngIf="currentUser.role === 'Admin'"
+                nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
               </button>
