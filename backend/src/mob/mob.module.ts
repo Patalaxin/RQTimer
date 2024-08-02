@@ -20,8 +20,8 @@ import { MobGateway } from './mob.gateway';
     UsersModule,
     HistoryModule,
     BotModule,
-    MongooseModule.forFeature([{ name: Mob.name, schema: MobSchema }]),
     MongooseModule.forFeature([
+      { name: Mob.name, schema: MobSchema },
       { name: MobsData.name, schema: MobsDataSchema },
     ]),
   ],

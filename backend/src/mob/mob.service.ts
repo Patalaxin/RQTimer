@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
 import { TelegramBotService } from '../telegramBot/bot.service';
-import { IMob } from '../domain/mob/mob.interface';
+import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import { Mob, MobDocument } from '../schemas/mob.schema';
 import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
@@ -20,7 +20,7 @@ import {
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
 import { HelperClass } from '../helper-class';
-import { History, HistoryTypes } from '../interfaces/history.interface';
+import { History, HistoryTypes } from '../history/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';

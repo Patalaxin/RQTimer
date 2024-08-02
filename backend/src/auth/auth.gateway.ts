@@ -5,24 +5,41 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: ['http://localhost:4000'],
+  },
+})
 export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private jwtService: JwtService) {}
+
   @WebSocketServer()
   server: Server;
 
   private onlineUsers = new Map<string, string>(); // email -> socketId
 
-  handleConnection(client: Socket) {
-    console.log(`Client connected: ${client.id}`);
-    client.on('register', (email: string) => {
-      this.onlineUsers.set(email, client.id);
-      this.sendUserStatusUpdate(email, 'online');
-    });
+  async handleConnection(client: Socket) {
+    const token = client.handshake.query.token as string;
+    try {
+      await this.jwtService.verifyAsync(token, {
+        secret: process.env.SECRET_CONSTANT,
+      });
 
-    client.on('ping', () => {
-      client.emit('pong');
-    });
+      console.log(`Client connected: ${client.id}`);
+      client.on('register', (email: string) => {
+        this.onlineUsers.set(email, client.id);
+        this.sendUserStatusUpdate(email, 'online');
+      });
+
+      client.on('ping', () => {
+        client.emit('pong');
+      });
+    } catch (error) {
+      console.error('Token verification failed:', error.message);
+      client.disconnect();
+    }
   }
 
   handleDisconnect(client: Socket) {

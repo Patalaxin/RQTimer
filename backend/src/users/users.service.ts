@@ -24,7 +24,7 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
-import { IUser } from '../domain/user/user.interface';
+import { IUser } from './user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 

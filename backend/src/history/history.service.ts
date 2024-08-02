@@ -13,7 +13,7 @@ import {
   LogrusHistory,
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
-import { History } from '../interfaces/history.interface';
+import { History } from './history.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';

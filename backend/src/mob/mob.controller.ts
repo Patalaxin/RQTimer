@@ -18,7 +18,7 @@ import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
 import { TokensGuard } from '../guards/tokens.guard';
-import { IMob } from '../domain/mob/mob.interface';
+import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,

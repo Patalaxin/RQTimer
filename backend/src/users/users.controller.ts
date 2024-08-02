@@ -44,7 +44,7 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
-import { IUser } from '../domain/user/user.interface';
+import { IUser } from './user.interface';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 
 @ApiTags('User API')

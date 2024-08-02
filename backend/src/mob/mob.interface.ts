@@ -1,24 +1,24 @@
-import { CreateMobDtoRequest } from '../../mob/dto/create-mob.dto';
+import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
-} from '../../mob/dto/get-mob.dto';
-import { GetMobsDtoRequest } from '../../mob/dto/get-all-mobs.dto';
+} from './dto/get-mob.dto';
+import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
-} from '../../mob/dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from '../../mob/dto/update-mob-by-cooldown.dto';
-import { UpdateMobDateOfDeathDtoRequest } from '../../mob/dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from '../../mob/dto/update-mob-date-of-respawn.dto';
+} from './dto/update-mob.dto';
+import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
+import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
+import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
-} from '../../mob/dto/delete-mob.dto';
-import { RespawnLostDtoParamsRequest } from '../../mob/dto/respawn-lost.dto';
-import { RolesTypes } from '../../schemas/user.schema';
+} from './dto/delete-mob.dto';
+import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
+import { RolesTypes } from '../schemas/user.schema';
 
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<GetFullMobDtoResponse>;
