@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
     credentials: true,
   },
 })
+// test
 export class MobGateway {
   @WebSocketServer()
   server: Server;
