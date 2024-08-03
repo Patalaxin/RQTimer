@@ -7,13 +7,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 
-@WebSocketGateway({
-  cors: {
-    origin: ['http://localhost:4200'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
-  },
-})
+@WebSocketGateway({ cors: '*:*' })
 export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private jwtService: JwtService) {}
 

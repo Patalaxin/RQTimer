@@ -1,13 +1,7 @@
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
-@WebSocketGateway({
-  cors: {
-    origin: ['http://localhost:4200'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Authorization',
-  },
-})
+@WebSocketGateway({ cors: '*:*' })
 export class MobGateway {
   @WebSocketServer()
   server: Server;
