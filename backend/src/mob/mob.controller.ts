@@ -112,6 +112,7 @@ export class MobController {
         updateMobByCooldownDto,
       );
     this.mobGateway.sendMobUpdate({
+      ...updateMobByCooldownDto,
       ...mob,
       socketType: 'updateMobByCooldown',
     });
@@ -137,6 +138,7 @@ export class MobController {
       );
 
     this.mobGateway.sendMobUpdate({
+      ...updateMobDateOfDeathDto,
       ...mob,
       socketType: 'updateMobDateOfDeath',
     });
@@ -163,6 +165,7 @@ export class MobController {
       );
 
     this.mobGateway.sendMobUpdate({
+      ...updateMobDateOfRespawnDto,
       ...mob,
       socketType: 'updateMobDateOfRespawn',
     });
@@ -224,6 +227,7 @@ export class MobController {
     );
 
     this.mobGateway.sendMobUpdate({
+      ...respawnLostDtoParams,
       ...mob,
       socketType: 'respawnLost',
     });
