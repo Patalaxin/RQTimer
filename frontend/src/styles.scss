@@ -23,8 +23,7 @@
   border-radius: 50px;
 }
 
-.nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu,
-.ant-input {
+.nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu {
   border-radius: 15px;
 }
 
@@ -160,7 +159,7 @@ nz-progress {
   padding: 5px 2.5px;
   background-color: #ffffff;
   // border-radius: 5px;
-  border-radius: 50px;
+  border-radius: 20px;
   box-shadow: 0px 8px 28px -9px rgba(0, 0, 0, 0.4);
 
   button {
