@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { RolesTypes } from '../../schemas/user.schema';
+import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class FindAllUsersDtoResponse {
   @ApiProperty()
@@ -11,6 +12,7 @@ export class FindAllUsersDtoResponse {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsNickname()
   nickname: string;
 
   @ApiProperty()

@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { RolesTypes } from '../../schemas/user.schema';
+import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class UpdateUserRoleDtoRequest {
   @IsEmail()
@@ -17,6 +18,7 @@ export class UpdateUserRoleDtoRequest {
 
   @IsString()
   @IsNotEmpty()
+  @IsNickname()
   @IsOptional()
   nickname?: string;
 

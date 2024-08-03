@@ -1,11 +1,8 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ConfigurationService } from './configuration.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { TokensGuard } from '../guards/tokens.guard';
+import { ApiTags } from '@nestjs/swagger';
 
-@ApiBearerAuth()
 @ApiTags('Configuration API')
-@UseGuards(TokensGuard)
 @Controller('configuration')
 export class ConfigurationController {
   constructor(private readonly configurationService: ConfigurationService) {}

@@ -159,10 +159,14 @@ export class UsersService implements IUser {
       10,
     );
 
-    await this.userModel
+    const updatedUser = await this.userModel
       .findOneAndUpdate(query, { password: hashedNewPassword }, { new: true })
       .lean()
       .exec();
+
+    if (!updatedUser) {
+      throw new BadRequestException('User not found!');
+    }
 
     return { message: 'Password successfully changed', status: 200 };
   }

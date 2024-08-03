@@ -9,6 +9,7 @@ import {
 import { MobName } from '../../schemas/mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPassword } from '../../decorators/isPassword.decorator';
+import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class CreateUserDtoRequest {
   @IsString()
@@ -17,6 +18,7 @@ export class CreateUserDtoRequest {
 
   @IsString()
   @IsNotEmpty()
+  @IsNickname()
   nickname: string;
 
   @IsEmail()

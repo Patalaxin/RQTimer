@@ -8,6 +8,7 @@ import {
   IsString,
 } from 'class-validator';
 import { MobName } from '../../schemas/mobs.enum';
+import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class UpdateUnavailableDto {
   @IsArray()
@@ -22,6 +23,7 @@ export class UpdateUnavailableDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsNickname()
   @IsOptional()
   nickname?: string;
 }

@@ -30,14 +30,18 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       console.log(`Client connected: ${client.id}`);
+
       client.on('register', (email: string) => {
         this.onlineUsers.set(email, client.id);
         this.sendUserStatusUpdate(email, 'online');
+        this.sendOnlineUsersList(client);
       });
 
       client.on('ping', () => {
         client.emit('pong');
       });
+
+      this.sendOnlineUsersList(client); // Send the current list of online users
     } catch (error) {
       console.error('Token verification failed:', error.message);
       client.disconnect();
@@ -50,6 +54,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       (entry) => entry[1] === client.id,
     )?.[0];
     if (email) {
+      this.onlineUsers.delete(email); // Remove the user from online users list
       setTimeout(() => {
         if (!this.onlineUsers.has(email)) {
           this.sendUserStatusUpdate(email, 'offline');
@@ -60,5 +65,10 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   sendUserStatusUpdate(email: string, status: 'online' | 'offline') {
     this.server.emit('userStatusUpdate', { email, status });
+  }
+
+  sendOnlineUsersList(client: Socket) {
+    const onlineUsers = Array.from(this.onlineUsers.keys());
+    client.emit('onlineUsersList', onlineUsers);
   }
 }
