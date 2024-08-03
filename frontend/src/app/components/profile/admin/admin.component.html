@@ -193,12 +193,16 @@
   <nz-dropdown-menu #menu="nzDropdownMenu">
     <div class="ant-table-filter-dropdown">
       <div class="admin-search-nickname">
-        <input
-          type="text"
-          nz-input
-          placeholder="Поиск юзера..."
-          [(ngModel)]="searchValue"
-        />
+        <div class="admin-search-input">
+          <nz-input-group nzPrefixIcon="user" class="br-50px">
+            <input
+              type="text"
+              nz-input
+              placeholder="Поиск юзера..."
+              [(ngModel)]="searchValue"
+            />
+          </nz-input-group>
+        </div>
         <button
           nz-button
           nzType="primary"

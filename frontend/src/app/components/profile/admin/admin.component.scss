@@ -35,20 +35,23 @@ h4 {
   margin-top: 20px;
 }
 
-.admin-search-nickname {
-  padding: 8px;
+.ant-table-filter-dropdown {
+  border-radius: 18px;
 
-  input {
-    width: 188px;
-    margin-bottom: 8px;
-    display: block;
-  }
+  .admin-search-nickname {
+    padding: 8px;
 
-  button {
-    width: 90px;
+    .admin-search-input {
+      width: 188px;
+      margin-bottom: 8px;
+      display: block;
+    }
 
-    .admin-search-button {
-      margin-right: 8px;
+    button {
+      width: 90px;
+      .admin-search-button {
+        margin-right: 8px;
+      }
     }
   }
 }
