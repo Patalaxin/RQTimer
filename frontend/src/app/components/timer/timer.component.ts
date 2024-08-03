@@ -2,13 +2,14 @@ import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
+import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
   selector: 'app-timer',
@@ -16,6 +17,8 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnInit, OnDestroy {
+  private mobUpdateSubscription: Subscription | undefined;
+
   timerList: TimerItem[] = [];
   historyList: any = [];
   historyListData: any = [];
@@ -53,6 +56,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private historyService: HistoryService,
     private userService: UserService,
+    private websocketService: WebsocketService,
     private message: NzMessageService,
     private modal: NzModalService
   ) {
@@ -460,6 +464,16 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.websocketService.connect(
+      this.storageService.getSessionStorage('token')
+    );
+    this.mobUpdateSubscription = this.websocketService
+      .onMobUpdate()
+      .subscribe((res: any) => {
+        console.log('Mob update received:', res);
+        // Обновите данные в вашем компоненте в соответствии с полученными данными
+      });
+
     this.intervalId = setInterval(() => {
       this.currentProgressTime = Date.now();
     }, 1000);
@@ -481,6 +495,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.mobUpdateSubscription) {
+      this.mobUpdateSubscription.unsubscribe();
+    }
+    this.websocketService.disconnect();
+
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
