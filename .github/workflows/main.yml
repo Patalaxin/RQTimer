@@ -31,8 +31,12 @@ jobs:
           password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
+            set -e  # Остановить выполнение при ошибках
+            
+            # Обновление и сборка бэкенда
             cd TimerRQ
             git pull
+            
             cd backend
             if [ -f .env ]; then rm .env; fi
             echo "DATABASE_USER_TEST=${{ secrets.DATABASE_USER_TEST }}" >> .env
@@ -44,8 +48,18 @@ jobs:
             echo "SECRET_CONSTANT=${{ secrets.SECRET_CONSTANT }}" >> .env
             npm install
             npm run build
+            
+            # Перезапуск бэкенда
             cd dist
             pm2 restart main
-            sudo service nginx restart
-
             
+            # Обновление фронтенда
+            cd ../../frontend
+            git pull
+            npm install
+            npm run build
+            
+            sudo cp -r dist/* /var/www/rqtimer/
+            
+            # Перезагрузка Nginx
+            sudo service nginx reload
