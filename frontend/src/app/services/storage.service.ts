@@ -19,7 +19,7 @@ export class StorageService {
   }
 
   setCurrentServer(server: string) {
-    window.sessionStorage.setItem(SERVER, server);
+    window.localStorage.setItem(SERVER, server);
   }
 
   setSessionStorage(key: string, token: any): void {
@@ -33,8 +33,8 @@ export class StorageService {
 
     window.sessionStorage.setItem(ACCESS_TOKEN, token);
 
-    if (!window.sessionStorage.getItem(SERVER)) {
-      window.sessionStorage.setItem(SERVER, this.currentServer);
+    if (!window.localStorage.getItem(SERVER)) {
+      window.localStorage.setItem(SERVER, this.currentServer);
     }
   }
 
@@ -43,7 +43,7 @@ export class StorageService {
       email: window.sessionStorage.getItem(EMAIL),
       nickname: window.sessionStorage.getItem(NICKNAME),
       token: window.sessionStorage.getItem(ACCESS_TOKEN),
-      server: window.sessionStorage.getItem(SERVER),
+      server: window.localStorage.getItem(SERVER),
     };
 
     if (sessionStorage.email && key === 'email') {
