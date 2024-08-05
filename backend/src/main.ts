@@ -4,6 +4,10 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
