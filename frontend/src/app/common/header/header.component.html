@@ -2,6 +2,7 @@
 <div class="header" *ngIf="isLoggedIn()">
   <div class="header-left">
     <nz-select
+      style="width: 95px"
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
       (ngModelChange)="setCurrentServer()"

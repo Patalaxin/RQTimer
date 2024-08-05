@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -8,6 +8,8 @@ import { environment } from 'src/environments/environment';
 })
 export class WebsocketService {
   private socket: Socket | undefined;
+  private mobUpdateSubject$: BehaviorSubject<any> = new BehaviorSubject(null);
+  mobUpdateSubject = this.mobUpdateSubject$.asObservable();
 
   constructor() {}
 
@@ -15,18 +17,14 @@ export class WebsocketService {
     this.socket = io(environment.apiUrl, {
       query: { token },
     });
+
+    this.socket.on('mobUpdate', (res: any) => {
+      this.mobUpdateSubject$.next(res);
+    });
   }
 
-  onMobUpdate(): Observable<any> {
-    return new Observable((observer) => {
-      if (!this.socket) {
-        console.error('Socket is not connected. Call connect() first.');
-        return;
-      }
-      this.socket.on('mobUpdate', (res: any) => {
-        observer.next(res);
-      });
-    });
+  getMobUpdates(): Observable<any> {
+    return this.mobUpdateSubject;
   }
 
   disconnect(): void {

@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validtion';
 
@@ -23,47 +24,8 @@ export class RegisterComponent implements OnInit {
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
-  bossesCheckboxList = [
-    { value: 'Аркон', type: 'Боссы' },
-    { value: 'Архон', type: 'Боссы' },
-    { value: 'Баксбакуалануксивайе', type: 'Боссы' },
-    { value: 'Воко', type: 'Боссы' },
-    { value: 'Гигантская Тортолла', type: 'Боссы' },
-    { value: 'Денгур Кровавый топор', type: 'Боссы' },
-    { value: 'Деструктор', type: 'Боссы' },
-    { value: 'Древний Энт', type: 'Боссы' },
-    { value: 'Зверомор', type: 'Боссы' },
-    { value: 'Королева Крыс', type: 'Боссы' },
-    { value: 'Пружинка', type: 'Боссы' },
-    { value: 'Тёмный Шаман', type: 'Боссы' },
-    { value: 'Хьюго', type: 'Боссы' },
-    { value: 'Эдвард', type: 'Боссы' },
-  ];
-
-  elitesCheckboxList = [
-    { value: 'Альфа Самец', type: 'Элитка' },
-    { value: 'Богатый Упырь', type: 'Элитка' },
-    { value: 'Жужелица Тёмная', type: 'Элитка' },
-    { value: 'Золотой Таракан', type: 'Элитка' },
-    { value: 'Кабан Вожак', type: 'Элитка' },
-    { value: 'Королева Термитов', type: 'Элитка' },
-    { value: 'Королевская Терния', type: 'Элитка' },
-    { value: 'Королевский Паук', type: 'Элитка' },
-    { value: 'Лякуша', type: 'Элитка' },
-    { value: 'Мега Ирекс', type: 'Элитка' },
-    { value: 'Пещерный Волк', type: 'Элитка' },
-    { value: 'Пламярык', type: 'Элитка' },
-    { value: 'Превосходный пожиратель моземия', type: 'Элитка' },
-    { value: 'Превосходный пожиратель элениума', type: 'Элитка' },
-    { value: 'Самка Жужа', type: 'Элитка' },
-    { value: 'Слепоглаз', type: 'Элитка' },
-    { value: 'Советник Остина', type: 'Элитка' },
-    { value: 'Тринадцатый Крыс', type: 'Элитка' },
-    { value: 'Тёмный Оракул', type: 'Элитка' },
-    { value: 'Фараон', type: 'Элитка' },
-    { value: 'Хозяин', type: 'Элитка' },
-    { value: 'Чёрная Вдова', type: 'Элитка' },
-  ];
+  bossesCheckboxList: any;
+  elitesCheckboxList: any;
 
   form: FormGroup = new FormGroup({
     nickname: new FormControl(''),
@@ -80,6 +42,7 @@ export class RegisterComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
+    private configurationService: ConfigurationService,
     private message: NzMessageService,
     private router: Router
   ) {}
@@ -107,6 +70,18 @@ export class RegisterComponent implements OnInit {
 
   get excludedElites() {
     return this.form.controls['excludedElites'] as FormArray;
+  }
+
+  getMobs() {
+    this.configurationService.getMobs().subscribe({
+      next: (res) => {
+        console.log(res);
+        this.bossesCheckboxList = res.bossesArray;
+        this.elitesCheckboxList = res.elitesArray;
+        this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
+        this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
+      },
+    });
   }
 
   onRegister(): void {
@@ -149,11 +124,11 @@ export class RegisterComponent implements OnInit {
   }
 
   onChangeCheckbox(value: string[], type: string): void {
-    if (type === 'Боссы') {
+    if (type === 'Босс') {
       this.selectedBossesCheckbox = value;
     }
 
-    if (type === 'Элитки') {
+    if (type === 'Элитка') {
       this.selectedElitesCheckbox = value;
     }
   }
@@ -180,7 +155,6 @@ export class RegisterComponent implements OnInit {
       }
     );
 
-    this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
-    this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
+    this.getMobs();
   }
 }

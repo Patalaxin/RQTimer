@@ -116,7 +116,7 @@
               <nz-form-control>
                 <nz-checkbox-wrapper
                   style="width: 100%"
-                  (nzOnChange)="onChangeCheckbox($event, 'Боссы')"
+                  (nzOnChange)="onChangeCheckbox($event, 'Босс')"
                 >
                   <div>
                     <h4>
@@ -140,9 +140,9 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="bossesCheckboxList[i].value"
+                        [nzValue]="bossesCheckboxList[i].mobName"
                       >
-                        {{ bossesCheckboxList[i].value }}
+                        {{ bossesCheckboxList[i].mobName }}
                       </label>
                     </div>
                   </div>
@@ -153,7 +153,7 @@
               <nz-form-control>
                 <nz-checkbox-wrapper
                   style="width: 100%"
-                  (nzOnChange)="onChangeCheckbox($event, 'Элитки')"
+                  (nzOnChange)="onChangeCheckbox($event, 'Элитка')"
                 >
                   <div>
                     <h4>
@@ -177,9 +177,9 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="elitesCheckboxList[i].value"
+                        [nzValue]="elitesCheckboxList[i].mobName"
                       >
-                        {{ elitesCheckboxList[i].value }}
+                        {{ elitesCheckboxList[i].mobName }}
                       </label>
                     </div>
                   </div>

@@ -1,4 +1,6 @@
-<div class="user">
+<nz-skeleton *ngIf="isLoading" class="container"></nz-skeleton>
+
+<div class="user" *ngIf="!isLoading">
   <nz-tabset>
     <nz-tab nzTitle="Настройки отображения">
       <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
@@ -7,7 +9,7 @@
             <nz-form-control>
               <nz-checkbox-wrapper
                 style="width: 100%"
-                (nzOnChange)="onChangeCheckbox($event, 'Боссы')"
+                (nzOnChange)="onChangeCheckbox($event, 'Босс')"
               >
                 <div>
                   <h4>
@@ -29,9 +31,9 @@
                       nz-checkbox
                       [formControlName]="i"
                       class="boss-input"
-                      [nzValue]="bossesCheckboxList[i].value"
+                      [nzValue]="bossesCheckboxList[i].mobName"
                     >
-                      {{ bossesCheckboxList[i].value }}
+                      {{ bossesCheckboxList[i].mobName }}
                     </label>
                   </div>
                 </div>
@@ -42,7 +44,7 @@
             <nz-form-control>
               <nz-checkbox-wrapper
                 style="width: 100%"
-                (nzOnChange)="onChangeCheckbox($event, 'Элитки')"
+                (nzOnChange)="onChangeCheckbox($event, 'Элитка')"
               >
                 <div>
                   <h4>
@@ -64,9 +66,9 @@
                       nz-checkbox
                       [formControlName]="i"
                       class="elite-input"
-                      [nzValue]="elitesCheckboxList[i].value"
+                      [nzValue]="elitesCheckboxList[i].mobName"
                     >
-                      {{ elitesCheckboxList[i].value }}
+                      {{ elitesCheckboxList[i].mobName }}
                     </label>
                   </div>
                 </div>

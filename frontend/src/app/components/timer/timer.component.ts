@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
@@ -122,6 +122,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showHistoryModal(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
   }
@@ -153,6 +156,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showCreateEditModal(item?: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     if (item) {
       item.mob.isEditModalVisible = true;
     }
@@ -239,6 +245,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showDeleteModal(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.modal.confirm({
       nzTitle: 'Внимание',
       nzContent: `<b style="color: red;">Вы точно хотите удалить ${item.mob.mobName}?</b>`,
@@ -268,6 +277,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showDeathModal(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
     this.currentTime = Date.now();
@@ -336,6 +348,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onDieNow(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.timerService.setIsLoading(true);
     this.currentTime = Date.now();
     console.log('onDieNow', item);
@@ -357,6 +372,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onPlusCooldown(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     item.mob.plusCooldown++;
     if (item.mobData.respawnTime) {
       item.mobData.respawnTime += item.mob.cooldownTime;
@@ -364,6 +382,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onSetByCooldownTime(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.timerService.setIsLoading(true);
     this.timerService.setByCooldownTime(item, 1).subscribe({
       next: (res) => {
@@ -382,6 +403,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onLostCooldown(item: TimerItem): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.timerService.setIsLoading(true);
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
@@ -464,11 +488,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.websocketService.connect(
-      this.storageService.getSessionStorage('token')
-    );
     this.mobUpdateSubscription = this.websocketService
-      .onMobUpdate()
+      .getMobUpdates()
       .subscribe((res: any) => {
         console.log('Mob update received:', res);
         // Обновите данные в вашем компоненте в соответствии с полученными данными
@@ -498,7 +519,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.mobUpdateSubscription) {
       this.mobUpdateSubscription.unsubscribe();
     }
-    this.websocketService.disconnect();
 
     if (this.intervalId) {
       clearInterval(this.intervalId);

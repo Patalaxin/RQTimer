@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  Input,
-  OnInit,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -13,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validtion';
 
@@ -21,54 +16,17 @@ import Validation from 'src/app/utils/validtion';
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
 })
-export class UserComponent implements OnInit, AfterViewInit {
+export class UserComponent implements OnInit {
   @Input() excludedMobs: any;
   @Input() role: string = '';
+
+  isLoading: boolean = true;
 
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
-  bossesCheckboxList = [
-    { value: 'Аркон', type: 'Боссы' },
-    { value: 'Архон', type: 'Боссы' },
-    { value: 'Баксбакуалануксивайе', type: 'Боссы' },
-    { value: 'Воко', type: 'Боссы' },
-    { value: 'Гигантская Тортолла', type: 'Боссы' },
-    { value: 'Денгур Кровавый топор', type: 'Боссы' },
-    { value: 'Деструктор', type: 'Боссы' },
-    { value: 'Древний Энт', type: 'Боссы' },
-    { value: 'Зверомор', type: 'Боссы' },
-    { value: 'Королева Крыс', type: 'Боссы' },
-    { value: 'Пружинка', type: 'Боссы' },
-    { value: 'Тёмный Шаман', type: 'Боссы' },
-    { value: 'Хьюго', type: 'Боссы' },
-    { value: 'Эдвард', type: 'Боссы' },
-  ];
-
-  elitesCheckboxList = [
-    { value: 'Альфа Самец', type: 'Элитка' },
-    { value: 'Богатый Упырь', type: 'Элитка' },
-    { value: 'Жужелица Тёмная', type: 'Элитка' },
-    { value: 'Золотой Таракан', type: 'Элитка' },
-    { value: 'Кабан Вожак', type: 'Элитка' },
-    { value: 'Королева Термитов', type: 'Элитка' },
-    { value: 'Королевская Терния', type: 'Элитка' },
-    { value: 'Королевский Паук', type: 'Элитка' },
-    { value: 'Лякуша', type: 'Элитка' },
-    { value: 'Мега Ирекс', type: 'Элитка' },
-    { value: 'Пещерный Волк', type: 'Элитка' },
-    { value: 'Пламярык', type: 'Элитка' },
-    { value: 'Превосходный пожиратель моземия', type: 'Элитка' },
-    { value: 'Превосходный пожиратель элениума', type: 'Элитка' },
-    { value: 'Самка Жужа', type: 'Элитка' },
-    { value: 'Слепоглаз', type: 'Элитка' },
-    { value: 'Советник Остина', type: 'Элитка' },
-    { value: 'Тринадцатый Крыс', type: 'Элитка' },
-    { value: 'Тёмный Оракул', type: 'Элитка' },
-    { value: 'Фараон', type: 'Элитка' },
-    { value: 'Хозяин', type: 'Элитка' },
-    { value: 'Чёрная Вдова', type: 'Элитка' },
-  ];
+  bossesCheckboxList: any;
+  elitesCheckboxList: any;
 
   excludedForm: FormGroup = new FormGroup({
     excludedBosses: new FormArray([]),
@@ -89,6 +47,7 @@ export class UserComponent implements OnInit, AfterViewInit {
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
+    private configurationService: ConfigurationService,
     private message: NzMessageService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -99,6 +58,23 @@ export class UserComponent implements OnInit, AfterViewInit {
 
   get excludedElites() {
     return this.excludedForm.controls['excludedElites'] as FormArray;
+  }
+
+  getMobs() {
+    this.configurationService.getMobs().subscribe({
+      next: (res) => {
+        console.log(res);
+        this.bossesCheckboxList = res.bossesArray;
+        this.elitesCheckboxList = res.elitesArray;
+        this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
+        this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
+        this.isLoading = false;
+
+        // Ожидание завершения добавления чекбоксов и обновление DOM
+        this.cdr.detectChanges();
+        this.checkExcludedMobs();
+      },
+    });
   }
 
   onUpdateExcluded(): void {
@@ -147,11 +123,11 @@ export class UserComponent implements OnInit, AfterViewInit {
   }
 
   onChangeCheckbox(value: string[], type: string): void {
-    if (type === 'Боссы') {
+    if (type === 'Босс') {
       this.selectedBossesCheckbox = value;
     }
 
-    if (type === 'Элитки') {
+    if (type === 'Элитка') {
       this.selectedElitesCheckbox = value;
     }
   }
@@ -160,6 +136,31 @@ export class UserComponent implements OnInit, AfterViewInit {
     checkboxList.forEach(() => {
       control.push(new FormControl());
     });
+  }
+
+  private checkExcludedMobs(): void {
+    let bossesCheckbox = document.querySelectorAll('.boss-input');
+    let elitesCheckbox = document.querySelectorAll('.elite-input');
+    Array.from(bossesCheckbox).forEach((item) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.forEach((boss: any) => {
+          if (boss === item.textContent?.trim()) {
+            console.log('boss', boss, 'checkbox', item.textContent?.trim());
+            (item as HTMLInputElement).click();
+          }
+        });
+      }
+    });
+    Array.from(elitesCheckbox).forEach((item) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.forEach((elite: any) => {
+          if (elite === item.textContent?.trim()) {
+            (item as HTMLInputElement).click();
+          }
+        });
+      }
+    });
+    this.cdr.detectChanges();
   }
 
   ngOnInit(): void {
@@ -179,31 +180,6 @@ export class UserComponent implements OnInit, AfterViewInit {
       }
     );
 
-    this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
-    this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
-  }
-
-  ngAfterViewInit(): void {
-    let bossesCheckbox = document.querySelectorAll('.boss-input');
-    let elitesCheckbox = document.querySelectorAll('.elite-input');
-    Array.from(bossesCheckbox).map((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.map((boss: any) => {
-          if (boss === item.textContent?.trim()) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    Array.from(elitesCheckbox).map((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.map((elite: any) => {
-          if (elite === item.textContent?.trim()) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    this.cdr.detectChanges();
+    this.getMobs();
   }
 }

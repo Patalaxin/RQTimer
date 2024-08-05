@@ -71,7 +71,7 @@
           "
           disabled
           nzAutosize
-          style="resize: none"
+          style="resize: none; border-radius: 15px"
           *ngIf="selectedMobType !== 'Элитка'"
         ></textarea>
 
@@ -80,6 +80,7 @@
           style="width: 150px"
           [(ngModel)]="selectedCooldownTime"
           (ngModelChange)="onCooldownTimeChange($event)"
+          nzNowText=" "
         >
         </nz-time-picker>
         <nz-select

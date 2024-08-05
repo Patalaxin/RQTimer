@@ -3,6 +3,7 @@ import { UserService } from 'src/app/services/user.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 
 @Component({
   selector: 'app-admin',
@@ -32,53 +33,15 @@ export class AdminComponent implements OnInit {
   isScreenWidth800: boolean = false;
   isScreenWidth550: boolean = false;
 
-  bossList: readonly string[] = [
-    'Аркон',
-    'Архон',
-    'Баксбакуалануксивайе',
-    'Воко',
-    'Гигантская Тортолла',
-    'Денгур Кровавый топор',
-    'Деструктор',
-    'Древний Энт',
-    'Зверомор',
-    'Королева Крыс',
-    'Пружинка',
-    'Тёмный Шаман',
-    'Хьюго',
-    'Эдвард',
-  ];
-
-  eliteList: readonly string[] = [
-    'Альфа Самец',
-    'Богатый Упырь',
-    'Жужелица Тёмная',
-    'Золотой Таракан',
-    'Кабан Вожак',
-    'Королева Термитов',
-    'Королевская Терния',
-    'Королевский Паук',
-    'Лякуша',
-    'Мега Ирекс',
-    'Пещерный Волк',
-    'Пламярык',
-    'Прев. пожиратель моземия',
-    'Прев. пожиратель элениума',
-    'Самка Жужа',
-    'Слепоглаз',
-    'Советник Остина',
-    'Тринадцатый Крыс',
-    'Тёмный Оракул',
-    'Фараон',
-    'Хозяин',
-    'Чёрная Вдова',
-  ];
+  bossList: string[] = [];
+  eliteList: string[] = [];
 
   availableBossList: any;
   availableEliteList: any;
 
   constructor(
     private userService: UserService,
+    private configurationService: ConfigurationService,
     private modal: NzModalService,
     private message: NzMessageService
   ) {}
@@ -114,6 +77,19 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  getMobs() {
+    this.configurationService.getMobs().subscribe({
+      next: (res) => {
+        res.bossesArray.map((boss: any) => {
+          this.bossList.push(boss.mobName);
+        });
+        res.elitesArray.map((elite: any) => {
+          this.eliteList.push(elite.mobName);
+        });
+      },
+    });
+  }
+
   onReset(): void {
     this.searchValue = '';
     this.onSearch();
@@ -144,10 +120,10 @@ export class AdminComponent implements OnInit {
         this.userData = res;
         console.log('getSpecificUser', res);
         this.availableBossList = this.bossList.filter(
-          (item) => !res.unavailableMobs.includes(item)
+          (item: any) => !res.unavailableMobs.includes(item)
         );
         this.availableEliteList = this.eliteList.filter(
-          (item) => !res.unavailableMobs.includes(item)
+          (item: any) => !res.unavailableMobs.includes(item)
         );
         this.isUserDataLoading = false;
       },
@@ -187,10 +163,10 @@ export class AdminComponent implements OnInit {
     }
 
     let unavailableBossList = this.bossList.filter(
-      (item) => !this.availableBossList.includes(item)
+      (item: any) => !this.availableBossList.includes(item)
     );
     let unavailableEliteList = this.eliteList.filter(
-      (item) => !this.availableEliteList.includes(item)
+      (item: any) => !this.availableEliteList.includes(item)
     );
 
     this.isTableLoading = true;
@@ -255,6 +231,7 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.checkScreenWidth();
     this.getAllUsers();
+    this.getMobs();
     this.onGenerateSessionId();
 
     this.userService.currentUser.subscribe({

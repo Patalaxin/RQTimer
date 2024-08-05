@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AuthService } from 'src/app/services/auth.service';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
@@ -32,6 +33,7 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private storageService: StorageService,
+    // private configurationService: ConfigurationService,
     private message: NzMessageService
   ) {}
 
@@ -68,7 +70,20 @@ export class LoginComponent implements OnInit {
       });
   }
 
+  // getServers(): void {
+  //   this.configurationService.getServers().subscribe({
+  //     next: (res) => {
+  //       let serverList: any[] = [];
+  //       res.map((server: any) => {
+  //         serverList.push({ label: server, value: server });
+  //       });
+  //       this.configurationService.setServerList(serverList);
+  //     },
+  //   });
+  // }
+
   ngOnInit(): void {
+    // this.getServers();
     this.form = this.formBuilder.group({
       key: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(3)]],

@@ -13,6 +13,8 @@
           item.mobData.respawnTime
             ? item.mobData.cooldown
               ? 'orange'
+              : this.currentProgressTime > item.mobData.respawnTime
+              ? 'red'
               : 'green'
             : 'white'
         "
@@ -23,6 +25,9 @@
             [nzAvatar]="
               item.mob.image ? 'https://www.rqtimer.ru/' + item.mob.image : ''
             "
+            nz-tooltip
+            [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
+            [nzTooltipMouseEnterDelay]="1"
           >
           </nz-list-item-meta>
           <nz-list-item-meta-title>
@@ -116,18 +121,20 @@
                   >
                   <div class="timer-radio-option">
                     <nz-space>
-                      <nz-input-number-group
+                      <nz-input-group
                         *nzSpaceItem
-                        nzPrefix="CD"
                         style="width: 120px; margin-top: 10px"
                       >
-                        <nz-input-number
+                        <input
+                          nz-input
                           [(ngModel)]="cooldown"
-                          [nzMin]="1"
-                          [nzMax]="10"
-                          [nzStep]="1"
-                        ></nz-input-number>
-                      </nz-input-number-group>
+                          type="number"
+                          min="1"
+                          max="10"
+                          step="1"
+                          class="br-50px"
+                        />
+                      </nz-input-group>
                     </nz-space>
                   </div>
                 </nz-radio-group>
@@ -235,9 +242,8 @@
               </button>
               <nz-modal
                 [(nzVisible)]="item.mob.isEditModalVisible"
+                [nzFooter]="editFooter"
                 (nzOnCancel)="cancelCreateEditModal(item)"
-                (nzOnOk)="confirmCreateEditModal(item)"
-                [nzOkLoading]="item.mob.isEditOkLoading"
               >
                 <p *nzModalContent>
                   <app-mob-modal
@@ -245,6 +251,24 @@
                     (onCreateEdit)="onCreateEdit($event)"
                   ></app-mob-modal>
                 </p>
+
+                <ng-template #editFooter>
+                  <button
+                    nz-button
+                    nzType="default"
+                    (click)="cancelCreateEditModal(item)"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="confirmCreateEditModal(item)"
+                    [nzLoading]="item.mob.isEditOkLoading"
+                  >
+                    Редактировать
+                  </button>
+                </ng-template>
               </nz-modal>
 
               <button
@@ -377,13 +401,26 @@
       </button>
       <nz-modal
         [(nzVisible)]="isCreateModalVisible"
+        [nzFooter]="createFooter"
         (nzOnCancel)="cancelCreateEditModal()"
-        (nzOnOk)="confirmCreateEditModal()"
-        [nzOkLoading]="isCreateOkLoading"
       >
         <p *nzModalContent>
           <app-mob-modal (onCreateEdit)="onCreateEdit($event)"></app-mob-modal>
         </p>
+
+        <ng-template #createFooter>
+          <button nz-button nzType="default" (click)="cancelCreateEditModal()">
+            Отмена
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            (click)="confirmCreateEditModal()"
+            [nzLoading]="isCreateOkLoading"
+          >
+            Создать
+          </button>
+        </ng-template>
       </nz-modal>
     </nz-list-item>
     <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>

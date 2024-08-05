@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -7,13 +7,14 @@ import { TimerItem } from 'src/app/interfaces/timer-item';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { HistoryService } from 'src/app/services/history.service';
+import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   currentServer: string = 'Гранас';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
@@ -31,6 +32,7 @@ export class HeaderComponent implements OnInit {
     private storageService: StorageService,
     private timerService: TimerService,
     private historyService: HistoryService,
+    private websocketService: WebsocketService,
     private modal: NzModalService,
     private message: NzMessageService
   ) {}
@@ -74,7 +76,9 @@ export class HeaderComponent implements OnInit {
   }
 
   getCurrentServer() {
-    this.currentServer = this.storageService.getSessionStorage('server');
+    if (this.storageService.getSessionStorage('server')) {
+      this.currentServer = this.storageService.getSessionStorage('server');
+    }
   }
 
   copyRespText() {
@@ -171,10 +175,18 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.websocketService.connect(
+      this.storageService.getSessionStorage('token')
+    );
+
     this.getCurrentServer();
     this.router.events.subscribe(() => {
       this.updateRoute();
     });
     this.updateRoute();
+  }
+
+  ngOnDestroy(): void {
+    this.websocketService.disconnect();
   }
 }
