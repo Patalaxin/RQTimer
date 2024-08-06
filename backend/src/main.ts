@@ -29,7 +29,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {});
+  SwaggerModule.setup('swagger', app, document, {});
 
   app.use(cookieParser());
   app.enableCors(corsOptions);
