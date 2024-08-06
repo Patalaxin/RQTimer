@@ -38,7 +38,7 @@ export class LogComponent implements OnInit {
     this.isLoading = true;
     this.historyService
       .getHistory(
-        this.storageService.getSessionStorage('server'),
+        this.storageService.getLocalStorage('server'),
         mobName,
         Number($event),
         Number(this.pageSize)
@@ -56,7 +56,7 @@ export class LogComponent implements OnInit {
     this.isLoading = true;
     this.historyService
       .getHistory(
-        this.storageService.getSessionStorage('server'),
+        this.storageService.getLocalStorage('server'),
         mobName,
         1,
         Number($event)

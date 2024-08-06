@@ -76,8 +76,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getCurrentServer() {
-    if (this.storageService.getSessionStorage('server')) {
-      this.currentServer = this.storageService.getSessionStorage('server');
+    if (this.storageService.getLocalStorage('server')) {
+      this.currentServer = this.storageService.getLocalStorage('server');
     }
   }
 
@@ -175,9 +175,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.storageService.getSessionStorage('token')) {
+    if (this.storageService.getLocalStorage('token')) {
       this.websocketService.connect(
-        this.storageService.getSessionStorage('token')
+        this.storageService.getLocalStorage('token')
       );
     }
 

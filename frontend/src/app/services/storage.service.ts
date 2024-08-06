@@ -12,9 +12,9 @@ export class StorageService {
   currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
 
   clean(): void {
-    // window.sessionStorage.clear();
-    window.sessionStorage.removeItem(EMAIL);
-    window.sessionStorage.removeItem(NICKNAME);
+    // window.localStorage.clear();
+    window.localStorage.removeItem(EMAIL);
+    window.localStorage.removeItem(NICKNAME);
     window.localStorage.removeItem(ACCESS_TOKEN);
   }
 
@@ -22,13 +22,13 @@ export class StorageService {
     window.localStorage.setItem(SERVER, server);
   }
 
-  setStorage(key: string, token: any): void {
+  setLocalStorage(key: string, token: any): void {
     this.clean();
 
     if (key.includes('@')) {
-      window.sessionStorage.setItem(EMAIL, key);
+      window.localStorage.setItem(EMAIL, key);
     } else {
-      window.sessionStorage.setItem(NICKNAME, key);
+      window.localStorage.setItem(NICKNAME, key);
     }
 
     window.localStorage.setItem(ACCESS_TOKEN, token);
@@ -38,28 +38,28 @@ export class StorageService {
     }
   }
 
-  getSessionStorage(key: string): any {
-    const sessionStorage = {
-      email: window.sessionStorage.getItem(EMAIL),
-      nickname: window.sessionStorage.getItem(NICKNAME),
+  getLocalStorage(key: string): any {
+    const localStorage = {
+      email: window.localStorage.getItem(EMAIL),
+      nickname: window.localStorage.getItem(NICKNAME),
       token: window.localStorage.getItem(ACCESS_TOKEN),
       server: window.localStorage.getItem(SERVER),
     };
 
-    if (sessionStorage.email && key === 'email') {
-      return sessionStorage.email;
+    if (localStorage.email && key === 'email') {
+      return localStorage.email;
     }
 
-    if (sessionStorage.nickname && key === 'nickname') {
-      return sessionStorage.nickname;
+    if (localStorage.nickname && key === 'nickname') {
+      return localStorage.nickname;
     }
 
-    if (sessionStorage.token && key === 'token') {
-      return sessionStorage.token;
+    if (localStorage.token && key === 'token') {
+      return localStorage.token;
     }
 
-    if (sessionStorage.server && key === 'server') {
-      return sessionStorage.server;
+    if (localStorage.server && key === 'server') {
+      return localStorage.server;
     }
 
     return '';

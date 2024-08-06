@@ -135,7 +135,7 @@ export class UserService {
   }
 
   private createHeaders(): HttpHeaders {
-    this.accessToken = this.storageService.getSessionStorage('token');
+    this.accessToken = this.storageService.getLocalStorage('token');
     return new HttpHeaders({ 'Content-Type': 'application/json' }).set(
       'Authorization',
       `Bearer ${this.accessToken}`

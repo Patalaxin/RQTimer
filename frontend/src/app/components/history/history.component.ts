@@ -37,7 +37,7 @@ export class HistoryComponent implements OnInit {
           role: res.role,
         };
 
-        this.getHistory(this.storageService.getSessionStorage('server'));
+        this.getHistory(this.storageService.getLocalStorage('server'));
       },
       error: (err) => {
         console.log('getUser error', err);
@@ -71,13 +71,13 @@ export class HistoryComponent implements OnInit {
 
   private exchangeRefresh() {
     let key =
-      Object.keys(this.storageService.getSessionStorage('email')).length === 0
-        ? this.storageService.getSessionStorage('nickname')
-        : this.storageService.getSessionStorage('email');
+      Object.keys(this.storageService.getLocalStorage('email')).length === 0
+        ? this.storageService.getLocalStorage('nickname')
+        : this.storageService.getLocalStorage('email');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
-        this.storageService.setStorage(key, res.accessToken);
+        this.storageService.setLocalStorage(key, res.accessToken);
       },
     });
   }

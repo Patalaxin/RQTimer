@@ -181,7 +181,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     item.mob.isHistoryModalVisible = true;
     this.historyService
       .getHistory(
-        this.storageService.getSessionStorage('server'),
+        this.storageService.getLocalStorage('server'),
         item.mob.mobName
       )
       .subscribe({
@@ -218,7 +218,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.createEditItem.respawnText,
           this.createEditItem.image,
           this.createEditItem.cooldownTime,
-          this.storageService.getSessionStorage('server'),
+          this.storageService.getLocalStorage('server'),
           this.createEditItem.mobType
         )
         .subscribe({
@@ -244,7 +244,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.createEditItem.respawnText,
           this.createEditItem.image,
           this.createEditItem.cooldownTime,
-          this.storageService.getSessionStorage('server'),
+          this.storageService.getLocalStorage('server'),
           this.createEditItem.mobType,
           this.createEditItem.currentLocation
         )
@@ -304,7 +304,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService
       .deleteMob(
         item.mob.mobName,
-        this.storageService.getSessionStorage('server'),
+        this.storageService.getLocalStorage('server'),
         item.mob.location
       )
       .subscribe({
@@ -459,7 +459,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getAllBosses(retryCount: number): void {
-    this.currentServer = this.storageService.getSessionStorage('server');
+    this.currentServer = this.storageService.getLocalStorage('server');
     console.log(this.currentServer);
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
@@ -501,13 +501,13 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   private exchangeRefresh() {
     let key =
-      Object.keys(this.storageService.getSessionStorage('email')).length === 0
-        ? this.storageService.getSessionStorage('nickname')
-        : this.storageService.getSessionStorage('email');
+      Object.keys(this.storageService.getLocalStorage('email')).length === 0
+        ? this.storageService.getLocalStorage('nickname')
+        : this.storageService.getLocalStorage('email');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
-        this.storageService.setStorage(key, res.accessToken);
+        this.storageService.setLocalStorage(key, res.accessToken);
       },
     });
   }

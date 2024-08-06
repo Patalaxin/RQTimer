@@ -19,7 +19,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const accessToken = this.storageService.getSessionStorage('token');
+    const accessToken = this.storageService.getLocalStorage('token');
 
     const headers: HttpHeaders = req.headers.set(
       'Authorization',
