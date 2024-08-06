@@ -59,7 +59,10 @@ jobs:
             npm install
             npm run build
             
-            sudo cp -r dist/* /var/www/rqtimer/
+            # Обновление фронтенд конфига для nginx
+            sudo rm -rf /var/www/rqtimer/
+            sudo mkdir -p /var/www/rqtimer/
+            sudo cp -r /root/TimerRQ/frontend/dist/rq-timer-fe/* /var/www/rqtimer/
             
             # Перезагрузка Nginx
             sudo service nginx reload
