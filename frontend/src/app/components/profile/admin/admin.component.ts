@@ -1,7 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 
@@ -106,10 +105,6 @@ export class AdminComponent implements OnInit {
     this.isTableLoading = true;
     this.listOfCurrentPageData = listOfCurrentPageData;
     this.isTableLoading = false;
-  }
-
-  onDrop(event: CdkDragDrop<string[]>): void {
-    moveItemInArray(this.userList, event.previousIndex, event.currentIndex);
   }
 
   getSpecificUser(nickname: string): void {

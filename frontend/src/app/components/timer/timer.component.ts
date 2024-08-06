@@ -125,7 +125,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         `${item.mob.mobName} - ${item.mob.location}`,
         {
           body: `${item.mob.mobName} реснется через ${minute} минут.`,
-          icon: 'https://www.rqtimer.ru/' + item.mob.image,
+          icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
           vibrate: [200, 100, 200],
         }
       );
@@ -143,7 +143,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         `${item.mob.mobName} - ${item.mob.location}`,
         {
           body: `${item.mob.respawnText}`,
-          icon: 'https://www.rqtimer.ru/' + item.mob.image,
+          icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
           vibrate: [200, 100, 200],
         }
       );
@@ -162,7 +162,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   showHistoryModal(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
@@ -196,7 +196,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   showCreateEditModal(item?: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     if (item) {
       item.mob.isEditModalVisible = true;
@@ -285,7 +285,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   showDeleteModal(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     this.modal.confirm({
       nzTitle: 'Внимание',
@@ -317,7 +317,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   showDeathModal(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
@@ -388,7 +388,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onDieNow(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     this.timerService.setIsLoading(true);
     this.currentTime = Date.now();
@@ -412,7 +412,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onPlusCooldown(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     item.mob.plusCooldown++;
     if (item.mobData.respawnTime) {
@@ -422,7 +422,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onSetByCooldownTime(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     this.timerService.setIsLoading(true);
     this.timerService.setByCooldownTime(item, 1).subscribe({
@@ -443,7 +443,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onLostCooldown(item: TimerItem): void {
     if (event) {
-      event.stopPropagation();
+      this.stopPropagation(event);
     }
     this.timerService.setIsLoading(true);
     console.log('onDieNow', item);
@@ -524,6 +524,10 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses(1);
       },
     });
+  }
+
+  stopPropagation(event: Event) {
+    event.stopPropagation();
   }
 
   ngOnInit(): void {

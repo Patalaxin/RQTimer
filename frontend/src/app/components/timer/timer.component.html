@@ -23,7 +23,9 @@
         <div class="timer-left">
           <nz-list-item-meta
             [nzAvatar]="
-              item.mob.image ? 'https://www.rqtimer.ru/' + item.mob.image : ''
+              item.mob.image
+                ? 'https://www.rqtimer.ru/static/' + item.mob.image
+                : ''
             "
             nz-tooltip
             [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
@@ -293,6 +295,7 @@
               nz-button
               nz-dropdown
               nzTrigger="click"
+              (click)="this.stopPropagation($event)"
               [nzDropdownMenu]="menu"
               nzPlacement="bottomRight"
               nzShape="circle"

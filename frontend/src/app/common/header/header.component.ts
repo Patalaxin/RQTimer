@@ -175,9 +175,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.websocketService.connect(
-      this.storageService.getSessionStorage('token')
-    );
+    if (this.storageService.getSessionStorage('token')) {
+      this.websocketService.connect(
+        this.storageService.getSessionStorage('token')
+      );
+    }
 
     this.getCurrentServer();
     this.router.events.subscribe(() => {

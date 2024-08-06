@@ -62,13 +62,20 @@ export class MobModalComponent implements OnInit {
   onMobTypeChange(mobType: string) {
     if (mobType === 'Босс') {
       this.selectedMobName = this.mobList.bossesArray[0].mobName;
+      if (this.selectedMobName) {
+        this.onMobChange(this.selectedMobName);
+      }
       return;
     }
     this.selectedMobName = this.mobList.elitesArray[0].mobName;
+    if (this.selectedMobName) {
+      this.onMobChange(this.selectedMobName);
+    }
     return;
   }
 
   onMobChange(mobName: string) {
+    console.log(mobName);
     this.createEditItem = {
       ...this.filterByMobName(this.selectedMobType, mobName),
     };
