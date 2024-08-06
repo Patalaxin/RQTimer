@@ -112,26 +112,19 @@ export class TimerComponent implements OnInit, OnDestroy {
     return 0;
   }
 
-  checkAndNotify(item: TimerItem): void {
-    if (item.mobData.respawnTime)
-      console.log(
-        Math.ceil(
-          (item.mobData.respawnTime - this.currentProgressTime) / 1000
-        ) * 1000
-      );
+  checkAndNotify(item: TimerItem, minute: number): void {
     if (
       item.mobData.respawnTime &&
-      Math.ceil((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
+      Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
         1000 ==
-        60000 &&
+        minute * 60000 &&
       'Notification' in window &&
       Notification.permission === 'granted'
     ) {
-      console.log('Showing remaining notification for:', item.mob.mobName);
       const notification = new Notification(
         `${item.mob.mobName} - ${item.mob.location}`,
         {
-          body: `${item.mob.mobName} реснется через 5 минут.`,
+          body: `${item.mob.mobName} реснется через ${minute} минут.`,
           icon: 'https://www.rqtimer.ru/' + item.mob.image,
           vibrate: [200, 100, 200],
         }
@@ -146,7 +139,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       'Notification' in window &&
       Notification.permission === 'granted'
     ) {
-      console.log('Showing respawn notification for:', item.mob.mobName);
       const notification = new Notification(
         `${item.mob.mobName} - ${item.mob.location}`,
         {
@@ -548,7 +540,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.intervalId = setInterval(() => {
       this.currentProgressTime = Date.now();
-      this.timerList.forEach((item) => this.checkAndNotify(item));
+      this.timerList.forEach((item) => this.checkAndNotify(item, 1));
     }, 1000);
 
     this.timerService.setIsLoading(true);

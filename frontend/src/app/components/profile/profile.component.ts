@@ -51,6 +51,14 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  onBack(e: Event): void {
+    (
+      (e.target as HTMLElement)
+        .closest('div')
+        ?.querySelector('.ant-page-header-back') as HTMLElement
+    ).click();
+  }
+
   private exchangeRefresh() {
     let key =
       Object.keys(this.storageService.getSessionStorage('email')).length === 0
