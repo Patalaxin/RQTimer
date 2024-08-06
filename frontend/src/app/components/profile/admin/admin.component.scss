@@ -56,14 +56,6 @@ h4 {
   }
 }
 
-::ng-deep .cdk-drag-preview {
-  display: table;
-}
-
-::ng-deep .cdk-drag-placeholder {
-  opacity: 0;
-}
-
 @media only screen and (max-width: 550px) {
   .admin {
     padding: 5px;

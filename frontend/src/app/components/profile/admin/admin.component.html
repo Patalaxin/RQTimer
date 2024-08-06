@@ -37,8 +37,8 @@
             <th class="admin-buttons">Действия</th>
           </tr>
         </thead>
-        <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
-          <tr *ngFor="let user of userList" cdkDrag>
+        <tbody>
+          <tr *ngFor="let user of userList">
             <td nzCustomFilter>
               {{ user.nickname }}
             </td>
