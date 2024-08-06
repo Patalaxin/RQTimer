@@ -69,7 +69,7 @@ export class HistoryComponent implements OnInit {
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
-        this.storageService.setSessionStorage(key, res.accessToken);
+        this.storageService.setStorage(key, res.accessToken);
       },
     });
   }

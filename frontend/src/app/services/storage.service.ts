@@ -22,7 +22,7 @@ export class StorageService {
     window.localStorage.setItem(SERVER, server);
   }
 
-  setSessionStorage(key: string, token: any): void {
+  setStorage(key: string, token: any): void {
     this.clean();
 
     if (key.includes('@')) {
