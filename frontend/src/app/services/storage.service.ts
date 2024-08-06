@@ -15,7 +15,7 @@ export class StorageService {
     // window.sessionStorage.clear();
     window.sessionStorage.removeItem(EMAIL);
     window.sessionStorage.removeItem(NICKNAME);
-    window.sessionStorage.removeItem(ACCESS_TOKEN);
+    window.localStorage.removeItem(ACCESS_TOKEN);
   }
 
   setCurrentServer(server: string) {
@@ -31,7 +31,7 @@ export class StorageService {
       window.sessionStorage.setItem(NICKNAME, key);
     }
 
-    window.sessionStorage.setItem(ACCESS_TOKEN, token);
+    window.localStorage.setItem(ACCESS_TOKEN, token);
 
     if (!window.localStorage.getItem(SERVER)) {
       window.localStorage.setItem(SERVER, this.currentServer);
@@ -42,7 +42,7 @@ export class StorageService {
     const sessionStorage = {
       email: window.sessionStorage.getItem(EMAIL),
       nickname: window.sessionStorage.getItem(NICKNAME),
-      token: window.sessionStorage.getItem(ACCESS_TOKEN),
+      token: window.localStorage.getItem(ACCESS_TOKEN),
       server: window.localStorage.getItem(SERVER),
     };
 
@@ -66,6 +66,6 @@ export class StorageService {
   }
 
   isLoggedIn(): any {
-    return !!window.sessionStorage.getItem(ACCESS_TOKEN);
+    return !!window.localStorage.getItem(ACCESS_TOKEN);
   }
 }
