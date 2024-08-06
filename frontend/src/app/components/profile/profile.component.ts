@@ -51,6 +51,14 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  onBack(e: Event): void {
+    (
+      (e.target as HTMLElement)
+        .closest('div')
+        ?.querySelector('.ant-page-header-back') as HTMLElement
+    ).click();
+  }
+
   private exchangeRefresh() {
     let key =
       Object.keys(this.storageService.getSessionStorage('email')).length === 0
@@ -59,7 +67,7 @@ export class ProfileComponent implements OnInit {
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
-        this.storageService.setSessionStorage(key, res.accessToken);
+        this.storageService.setStorage(key, res.accessToken);
       },
     });
   }

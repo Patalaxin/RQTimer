@@ -1,5 +1,9 @@
 <div class="login background">
   <div class="form-container">
+    <div class="form-logo">
+      <img src="../../../assets/img/logo.png" alt="" />
+      <h2>RQTimer</h2>
+    </div>
     <form nz-form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
       <nz-form-item>
         <nz-form-control nzErrorTip="Введите почту или никнейм!">
@@ -75,6 +79,31 @@
       >
         <img src="../../../assets/img/rqwiki-banner.png" alt="" />
       </a>
+    </div>
+    <div class="login-support login-form-center">
+      <span>Поддержка:</span>
+      <div class="login-support-buttons">
+        <a
+          href="https://t.me/FlamingoJouhatsu"
+          target="_blank"
+          nz-button
+          nzType="primary"
+          nzShape="round"
+        >
+          <span nz-icon nzType="dingding" nzTheme="outline"></span>
+          <span>Рассказывай</span>
+        </a>
+        <a
+          href="https://t.me/JalaPenio"
+          target="_blank"
+          nz-button
+          nzType="primary"
+          nzShape="round"
+        >
+          <span nz-icon nzType="dingding" nzTheme="outline"></span>
+          <span>Рисовый</span>
+        </a>
+      </div>
     </div>
   </div>
 </div>

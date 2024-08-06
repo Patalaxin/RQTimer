@@ -18,6 +18,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 })
 export class TimerComponent implements OnInit, OnDestroy {
   private mobUpdateSubscription: Subscription | undefined;
+  permission: string = '';
 
   timerList: TimerItem[] = [];
   historyList: any = [];
@@ -109,6 +110,44 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
 
     return 0;
+  }
+
+  checkAndNotify(item: TimerItem, minute: number): void {
+    if (
+      item.mobData.respawnTime &&
+      Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
+        1000 ==
+        minute * 60000 &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      const notification = new Notification(
+        `${item.mob.mobName} - ${item.mob.location}`,
+        {
+          body: `${item.mob.mobName} реснется через ${minute} минут.`,
+          icon: 'https://www.rqtimer.ru/' + item.mob.image,
+          vibrate: [200, 100, 200],
+        }
+      );
+    }
+
+    if (
+      item.mobData.respawnTime &&
+      Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
+        1000 ==
+        0 &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      const notification = new Notification(
+        `${item.mob.mobName} - ${item.mob.location}`,
+        {
+          body: `${item.mob.respawnText}`,
+          icon: 'https://www.rqtimer.ru/' + item.mob.image,
+          vibrate: [200, 100, 200],
+        }
+      );
+    }
   }
 
   onClickTimerItem(item: TimerItem): void {
@@ -468,7 +507,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
-        this.storageService.setSessionStorage(key, res.accessToken);
+        this.storageService.setStorage(key, res.accessToken);
       },
     });
   }
@@ -488,6 +527,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    Notification.requestPermission().then((perm) => {
+      this.permission = perm;
+    });
+
     this.mobUpdateSubscription = this.websocketService
       .getMobUpdates()
       .subscribe((res: any) => {
@@ -497,6 +540,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.intervalId = setInterval(() => {
       this.currentProgressTime = Date.now();
+      this.timerList.forEach((item) => this.checkAndNotify(item, 1));
     }, 1000);
 
     this.timerService.setIsLoading(true);

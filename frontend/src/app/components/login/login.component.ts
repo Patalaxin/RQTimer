@@ -55,10 +55,7 @@ export class LoginComponent implements OnInit {
       .subscribe({
         next: (res) => {
           console.log('authService', res);
-          this.storageService.setSessionStorage(
-            this.form.value.key,
-            res.accessToken
-          );
+          this.storageService.setStorage(this.form.value.key, res.accessToken);
           if (res.accessToken) {
             this.router.navigate(['/timer']);
           }

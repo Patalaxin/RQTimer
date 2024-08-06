@@ -1,4 +1,23 @@
 .login {
+  .form-container {
+    padding: 20px 50px;
+  }
+
+  .form-logo {
+    position: relative;
+    text-align: center;
+    margin-bottom: 30px;
+
+    h2 {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 40px;
+      font-weight: 600;
+    }
+  }
+
   .login-form {
     max-width: 300px;
     width: 100%;
@@ -15,10 +34,10 @@
     .login-form-button {
       width: 100%;
     }
+  }
 
-    .login-form-center {
-      text-align: center;
-    }
+  .login-form-center {
+    text-align: center;
   }
 
   .login-link {
@@ -46,5 +65,23 @@
     a:last-child {
       margin-right: 0;
     }
+  }
+
+  .login-support {
+    margin-top: 16px;
+
+    .login-support-buttons {
+      margin-top: 16px;
+
+      a {
+        margin: 2.5px;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .form-container {
+    padding: 20px 40px;
   }
 }
