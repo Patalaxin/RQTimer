@@ -32,6 +32,10 @@ export class AuthService {
     return this.http.post(AUTH_API + '/login', payload, httpOptions);
   }
 
+  signOut(): Observable<any> {
+    return this.http.get(AUTH_API + '/signout', httpOptions);
+  }
+
   exchangeRefresh(key: string): Observable<any> {
     console.log(key);
     let payload = {};

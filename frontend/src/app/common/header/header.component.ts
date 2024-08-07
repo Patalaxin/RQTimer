@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { HistoryService } from 'src/app/services/history.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -32,6 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private timerService: TimerService,
     private historyService: HistoryService,
+    private authService: AuthService,
     private websocketService: WebsocketService,
     private modal: NzModalService,
     private message: NzMessageService
@@ -152,8 +154,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.storageService.clean();
-    this.onLogin();
+    this.authService.signOut().subscribe({
+      next: (res) => {
+        this.storageService.clean();
+        this.onLogin();
+      },
+    });
   }
 
   onHistory(): void {

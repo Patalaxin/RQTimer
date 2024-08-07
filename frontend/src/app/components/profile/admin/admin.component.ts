@@ -227,7 +227,6 @@ export class AdminComponent implements OnInit {
     this.checkScreenWidth();
     this.getAllUsers();
     this.getMobs();
-    this.onGenerateSessionId();
 
     this.userService.currentUser.subscribe({
       next: (res) => {

@@ -113,6 +113,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   checkAndNotify(item: TimerItem, minute: number): void {
+    const playSound = () => {
+      const audio = new Audio('../../../assets/audio/notification.mp3');
+      audio.play();
+    };
+
     if (
       item.mobData.respawnTime &&
       Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
@@ -129,6 +134,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           vibrate: [200, 100, 200],
         }
       );
+      playSound();
     }
 
     if (
@@ -147,6 +153,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           vibrate: [200, 100, 200],
         }
       );
+      playSound();
     }
   }
 
