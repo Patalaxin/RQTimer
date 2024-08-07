@@ -35,12 +35,14 @@
       nz-button
       nzType="primary"
       nz-tooltip
+      (click)="showCrashServerModal()"
       nzTooltipTitle="Учитывать падение сервера"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      *ngIf="currentRoute == '/timer'"
     >
-      <span nz-icon nzType="api" (click)="onCrashServer()"></span>
+      <span nz-icon nzType="api"></span>
     </button>
   </div>
   <div class="header-right">

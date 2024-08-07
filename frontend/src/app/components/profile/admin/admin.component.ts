@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -10,6 +10,9 @@ import { ConfigurationService } from 'src/app/services/configuration.service';
   styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {
+  @Input() bossList: string[] = [];
+  @Input() eliteList: string[] = [];
+
   userList: any = [];
   userSearchList: any = [];
   userData: any;
@@ -31,9 +34,6 @@ export class AdminComponent implements OnInit {
 
   isScreenWidth800: boolean = false;
   isScreenWidth550: boolean = false;
-
-  bossList: string[] = [];
-  eliteList: string[] = [];
 
   availableBossList: any;
   availableEliteList: any;
@@ -72,19 +72,6 @@ export class AdminComponent implements OnInit {
         if (nickname) {
           this.message.create('success', `Пользователь ${nickname} удалён`);
         }
-      },
-    });
-  }
-
-  getMobs() {
-    this.configurationService.getMobs().subscribe({
-      next: (res) => {
-        res.bossesArray.map((boss: any) => {
-          this.bossList.push(boss.mobName);
-        });
-        res.elitesArray.map((elite: any) => {
-          this.eliteList.push(elite.mobName);
-        });
       },
     });
   }
@@ -226,7 +213,6 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.checkScreenWidth();
     this.getAllUsers();
-    this.getMobs();
 
     this.userService.currentUser.subscribe({
       next: (res) => {

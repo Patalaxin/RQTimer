@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -21,6 +23,8 @@ export class HistoryComponent implements OnInit {
   };
 
   constructor(
+    private router: Router,
+    private timerService: TimerService,
     private authService: AuthService,
     private userService: UserService,
     private storageService: StorageService,
@@ -46,7 +50,17 @@ export class HistoryComponent implements OnInit {
             this.exchangeRefresh();
             this.getUser(--retryCount);
           }
+          this.onLogout();
         }
+      },
+    });
+  }
+
+  onLogout(): void {
+    this.authService.signOut().subscribe({
+      next: (res) => {
+        this.storageService.clean();
+        this.router.navigate(['/login']);
       },
     });
   }
@@ -59,6 +73,11 @@ export class HistoryComponent implements OnInit {
         this.historyService.setIsLoading(false);
       },
     });
+  }
+
+  onTimer(): void {
+    this.timerService.setIsLoading(true);
+    this.router.navigate(['/timer']);
   }
 
   onBack(e: Event): void {

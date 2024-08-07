@@ -28,6 +28,9 @@ export class UserComponent implements OnInit {
   bossesCheckboxList: any;
   elitesCheckboxList: any;
 
+  bossList: string[] = [];
+  eliteList: string[] = [];
+
   excludedForm: FormGroup = new FormGroup({
     excludedBosses: new FormArray([]),
     excludedElites: new FormArray([]),
@@ -64,6 +67,12 @@ export class UserComponent implements OnInit {
     this.configurationService.getMobs().subscribe({
       next: (res) => {
         console.log(res);
+        res.bossesArray.map((boss: any) => {
+          this.bossList.push(boss.mobName);
+        });
+        res.elitesArray.map((elite: any) => {
+          this.eliteList.push(elite.mobName);
+        });
         this.bossesCheckboxList = res.bossesArray;
         this.elitesCheckboxList = res.elitesArray;
         this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);

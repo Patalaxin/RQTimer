@@ -166,7 +166,7 @@
       </form>
     </nz-tab>
     <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">
-      <app-admin></app-admin>
+      <app-admin [bossList]="bossList" [eliteList]="eliteList"></app-admin>
     </nz-tab>
   </nz-tabset>
 </div>

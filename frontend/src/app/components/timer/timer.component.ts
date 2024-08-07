@@ -1,4 +1,5 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -52,6 +53,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   createEditItem: any;
 
   constructor(
+    private router: Router,
     private timerService: TimerService,
     private storageService: StorageService,
     private authService: AuthService,
@@ -501,7 +503,17 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.exchangeRefresh();
             this.getAllBosses(--retryCount);
           }
+          this.onLogout();
         }
+      },
+    });
+  }
+
+  onLogout(): void {
+    this.authService.signOut().subscribe({
+      next: (res) => {
+        this.storageService.clean();
+        this.router.navigate(['/login']);
       },
     });
   }
@@ -557,7 +569,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.setIsLoading(true);
 
     this.checkScreenWidth();
-    // this.exchangeRefresh();
 
     this.getCurrentUser();
 
@@ -577,12 +588,5 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
-
-    // this.timerList.forEach((item) => {
-    //   if (item.timeoutId) {
-    //     clearTimeout(item.timeoutId);
-    //     item.isTimerRunning = false;
-    //   }
-    // });
   }
 }

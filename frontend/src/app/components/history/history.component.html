@@ -1,9 +1,9 @@
 <nz-skeleton *ngIf="isLoading | async" class="container"></nz-skeleton>
 
 <div *ngIf="!(isLoading | async)" class="history container">
-  <nz-page-header class="site-page-header" nzBackIcon>
+  <nz-page-header class="site-page-header" nzBackIcon (nzBack)="onTimer()">
     <nz-page-header-title (click)="onBack($event)" style="cursor: pointer"
-      >Назад</nz-page-header-title
+      >Таймер</nz-page-header-title
     >
     <nz-page-header-extra>
       <app-info [user]="user"></app-info>

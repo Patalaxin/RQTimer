@@ -116,6 +116,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
+  showCrashServerModal() {
+    this.modal.confirm({
+      nzTitle: 'Внимание',
+      nzContent:
+        '<b>Вы точно хотите переписать все респы с учётом падения сервера?</b>',
+      nzOkText: 'Да',
+      nzOnOk: () => this.onCrashServer(),
+      nzCancelText: 'Нет',
+      nzOnCancel: () => console.log('Cancel'),
+    });
+  }
+
   onCrashServer() {
     this.getCurrentServer();
     this.timerService.setIsLoading(true);
@@ -143,7 +155,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   showLogoutModal(): void {
     this.modal.confirm({
       nzTitle: 'Внимание',
-      nzContent: '<b style="color: red;">Вы точно хотите выйти?</b>',
+      nzContent: '<b>Вы точно хотите выйти?</b>',
       nzOkText: 'Да',
       nzOkType: 'primary',
       nzOkDanger: true,
