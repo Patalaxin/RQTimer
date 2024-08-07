@@ -226,6 +226,7 @@ export class MobService implements IMob {
         timeoutName,
         nextResurrectTime,
         mobName,
+        location,
         server,
       ),
     ]);
@@ -283,6 +284,7 @@ export class MobService implements IMob {
         timeoutName,
         nextResurrectTime,
         mobName,
+        location,
         server,
       ),
     ]);
@@ -343,6 +345,7 @@ export class MobService implements IMob {
         timeoutName,
         nextResurrectTime,
         mobName,
+        location,
         server,
       ),
     ]);

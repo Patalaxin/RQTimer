@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import * as process from 'process';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { Servers } from '../schemas/mobs.enum';
+import { Locations, Servers } from '../schemas/mobs.enum';
 
 @Injectable()
 export class TelegramBotService {
@@ -31,22 +31,23 @@ export class TelegramBotService {
     name: string,
     respawnTime: number,
     mobName: string,
+    location: Locations,
     server: Servers,
   ): Promise<void> {
     try {
-      const time: number = respawnTime - Date.now() - 300000;
-      if (time <= Date.now()) {
+      const time: number = respawnTime - Date.now() - 300000; // 300000 - 5 minute
+      if (time <= 0) {
         return;
       }
+
       const callback = () => {
         const botToken = this.botModel.find(
           (obj) => obj.server === server,
         ).token;
         this.bot.sendMessage(
           botToken,
-          `${mobName} реснется меньше чем через 5 минут!!!`,
+          `${mobName} в локации "${location}" реснется меньше чем через 5 минут!`,
         );
-        this.bot.stopPolling();
         this.schedulerRegistry.deleteTimeout(name);
       };
 
