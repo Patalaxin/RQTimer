@@ -39,7 +39,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Sign Out' })
   @ApiBearerAuth()
   @Get('signout')
-  signOut(@GetEmailFromToken() email: string): Promise<SignOutsDtoResponse> {
-    return this.authService.signOut(email);
+  signOut(
+    @Res({ passthrough: true }) res: Response,
+    @GetEmailFromToken() email: string,
+  ): Promise<SignOutsDtoResponse> {
+    return this.authService.signOut(res, email);
   }
 }

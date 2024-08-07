@@ -140,9 +140,17 @@ export class AuthService {
     return tokens;
   }
 
-  async signOut(email: string): Promise<SignOutsDtoResponse> {
+  async signOut(res: Response, email: string): Promise<SignOutsDtoResponse> {
     await this.tokenModel.findOneAndDelete({ email: email });
     this.authGateway.sendUserStatusUpdate(email, 'offline');
+
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      secure: true,
+      maxAge: 0,
+      sameSite: 'none',
+    });
+
     return { message: 'Successfully logged out', status: 200 };
   }
 }
