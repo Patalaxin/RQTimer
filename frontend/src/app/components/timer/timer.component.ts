@@ -557,8 +557,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.setIsLoading(true);
 
     this.checkScreenWidth();
-    this.exchangeRefresh();
-    // this.getAllBosses(1);
+    // this.exchangeRefresh();
 
     this.getCurrentUser();
 
