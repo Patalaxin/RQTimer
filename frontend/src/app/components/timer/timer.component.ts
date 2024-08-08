@@ -120,42 +120,42 @@ export class TimerComponent implements OnInit, OnDestroy {
       audio.play();
     };
 
-    if (
-      item.mobData.respawnTime &&
-      Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
-        1000 ==
-        minute * 60000 &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
-    ) {
-      const notification = new Notification(
-        `${item.mob.mobName} - ${item.mob.location}`,
-        {
-          body: `${item.mob.mobName} реснется через ${minute} минут.`,
-          icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
-          vibrate: [200, 100, 200],
-        }
-      );
-      playSound();
-    }
+    if ('Notification' in window && Notification.permission === 'granted') {
+      if (
+        item.mobData.respawnTime &&
+        Math.round(
+          (item.mobData.respawnTime - this.currentProgressTime) / 1000
+        ) *
+          1000 ==
+          minute * 60000
+      ) {
+        const notification = new Notification(
+          `${item.mob.mobName} - ${item.mob.location}`,
+          {
+            body: `${item.mob.mobName} реснется через ${minute} минут.`,
+            icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
+          }
+        );
+        playSound();
+      }
 
-    if (
-      item.mobData.respawnTime &&
-      Math.round((item.mobData.respawnTime - this.currentProgressTime) / 1000) *
-        1000 ==
-        0 &&
-      'Notification' in window &&
-      Notification.permission === 'granted'
-    ) {
-      const notification = new Notification(
-        `${item.mob.mobName} - ${item.mob.location}`,
-        {
-          body: `${item.mob.respawnText}`,
-          icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
-          vibrate: [200, 100, 200],
-        }
-      );
-      playSound();
+      if (
+        item.mobData.respawnTime &&
+        Math.round(
+          (item.mobData.respawnTime - this.currentProgressTime) / 1000
+        ) *
+          1000 ==
+          0
+      ) {
+        const notification = new Notification(
+          `${item.mob.mobName} - ${item.mob.location}`,
+          {
+            body: `${item.mob.respawnText}`,
+            icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
+          }
+        );
+        playSound();
+      }
     }
   }
 
@@ -200,6 +200,11 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.historyList = res.data;
           this.historyService.setIsLoading(false);
         },
+        error: (err) => {
+          if (err.status === 401) {
+            this.exchangeRefresh();
+          }
+        },
       });
   }
 
@@ -232,10 +237,13 @@ export class TimerComponent implements OnInit, OnDestroy {
         )
         .subscribe({
           next: (res) => {
-            this.getAllBosses(1);
+            this.getAllBosses();
             this.message.create('success', `Босс/элитка успешно создан(а).`);
           },
-          error: (error) => {
+          error: (err) => {
+            if (err.status === 401) {
+              this.exchangeRefresh();
+            }
             this.timerService.setIsLoading(false);
             this.message.create('error', `Не удалось создать босса/элитку.`);
           },
@@ -260,13 +268,16 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         .subscribe({
           next: (res) => {
-            this.getAllBosses(1);
+            this.getAllBosses();
             this.message.create(
               'success',
               `Босс/элитка успешно отредактирован(а).`
             );
           },
-          error: (error) => {
+          error: (err) => {
+            if (err.status === 401) {
+              this.exchangeRefresh();
+            }
             this.timerService.setIsLoading(false);
             this.message.create(
               'error',
@@ -318,8 +329,13 @@ export class TimerComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (res) => {
-          this.getAllBosses(1);
+          this.getAllBosses();
           this.message.create('success', `${item.mob.mobName} успешно удалён.`);
+        },
+        error: (err) => {
+          if (err.status === 401) {
+            this.exchangeRefresh();
+          }
         },
       });
   }
@@ -351,13 +367,18 @@ export class TimerComponent implements OnInit, OnDestroy {
             //   clearTimeout(item.timeoutId);
             //   item.isTimerRunning = false;
             // }
-            this.getAllBosses(1);
+            this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
             this.message.create(
               'success',
               'Респ был успешно обновлён по точному времени смерти'
             );
+          },
+          error: (err) => {
+            if (err.status === 401) {
+              this.exchangeRefresh();
+            }
           },
         });
     }
@@ -367,13 +388,18 @@ export class TimerComponent implements OnInit, OnDestroy {
         .setByRespawnTime(this.currentItem, moment(this.currentTime).valueOf())
         .subscribe({
           next: (res) => {
-            this.getAllBosses(1);
+            this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
             this.message.create(
               'success',
               'Респ был успешно обновлён по точному времени респауна'
             );
+          },
+          error: (err) => {
+            if (err.status === 401) {
+              this.exchangeRefresh();
+            }
           },
         });
     }
@@ -383,13 +409,18 @@ export class TimerComponent implements OnInit, OnDestroy {
         .setByCooldownTime(this.currentItem, Number(this.cooldown))
         .subscribe({
           next: (res) => {
-            this.getAllBosses(1);
+            this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
             this.message.create(
               'success',
               `Респ был успешно обновлён по кд ${this.cooldown} раз`
             );
+          },
+          error: (err) => {
+            if (err.status === 401) {
+              this.exchangeRefresh();
+            }
           },
         });
     }
@@ -410,11 +441,16 @@ export class TimerComponent implements OnInit, OnDestroy {
           //   clearTimeout(item.timeoutId);
           //   item.isTimerRunning = false;
           // }
-          this.getAllBosses(1);
+          this.getAllBosses();
           this.message.create(
             'success',
             'Респ был успешно переписан кнопкой "Упал сейчас"'
           );
+        },
+        error: (err) => {
+          if (err.status === 401) {
+            this.exchangeRefresh();
+          }
         },
       });
   }
@@ -440,10 +476,13 @@ export class TimerComponent implements OnInit, OnDestroy {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
         // }
-        this.getAllBosses(1);
+        this.getAllBosses();
         this.message.create('success', 'Респ был успешно переписан по кд');
       },
-      error: (error) => {
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh();
+        }
         this.message.create('error', 'Респ утерян');
         this.timerService.setIsLoading(false);
       },
@@ -462,28 +501,24 @@ export class TimerComponent implements OnInit, OnDestroy {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
         // }
-        this.getAllBosses(1);
+        this.getAllBosses();
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh();
+        }
       },
     });
   }
 
-  getAllBosses(retryCount: number): void {
+  getAllBosses(): void {
     this.currentServer = this.storageService.getLocalStorage('server');
     console.log(this.currentServer);
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         console.log(res);
         this.timerList = [...res];
-        this.timerList = this.timerList.sort((a, b) => {
-          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
-
-          if (a.mobData.respawnTime && b.mobData.respawnTime) {
-            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
-          }
-
-          return 0;
-        });
+        this.sortTimerList(this.timerList);
 
         this.timerList.map((item) => {
           item.mob.plusCooldown = 0;
@@ -497,20 +532,15 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.timerService.setIsLoading(false);
       },
       error: (err) => {
-        console.log('getUser error', err);
         if (err.status === 401) {
-          if (retryCount > 0) {
-            this.exchangeRefresh();
-            this.getAllBosses(--retryCount);
-          }
-          this.onLogout();
+          this.exchangeRefresh();
         }
       },
     });
   }
 
   sortTimerList(timerList: TimerItem[]): void {
-    this.timerList = timerList.sort((a, b) => {
+    timerList = timerList.sort((a, b) => {
       if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
       if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
 
@@ -540,11 +570,18 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         console.log('exchangeRefresh', res);
         this.storageService.setLocalStorage(key, res.accessToken);
+        this.getAllBosses();
+      },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
       },
     });
   }
 
-  getCurrentUser(retryCount: number) {
+  getCurrentUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.setCurrentUser(res);
@@ -553,16 +590,11 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.currentUser = res;
           },
         });
-        this.getAllBosses(1);
+        this.getAllBosses();
       },
       error: (err) => {
-        console.log('getUser error', err);
         if (err.status === 401) {
-          if (retryCount > 0) {
-            this.exchangeRefresh();
-            this.getCurrentUser(--retryCount);
-          }
-          this.onLogout();
+          this.exchangeRefresh();
         }
       },
     });
@@ -572,9 +604,17 @@ export class TimerComponent implements OnInit, OnDestroy {
     event.stopPropagation();
   }
 
-  updateItem(item: TimerItem, res: any): void {
-    console.log(item);
-    item.mobData = res.mobData;
+  updateItem(timerList: TimerItem[], res: any): void {
+    timerList.forEach((item) => {
+      if (
+        item.mob.mobName === res.mobName &&
+        item.mob.location === res.location &&
+        item.mob.server === res.server
+      ) {
+        item.mobData = res.mobData;
+        this.sortTimerList(timerList);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -586,16 +626,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       .getMobUpdates()
       .subscribe((res: any) => {
         console.log('Mob update received:', res);
-        // Обновите данные в вашем компоненте в соответствии с полученными данными
-        this.timerList.forEach((item) => {
-          if (
-            item.mob.mobName === res.mobName &&
-            item.mob.location === res.location &&
-            item.mob.server === res.server
-          ) {
-            this.updateItem(item, res);
-          }
-        });
+        if (res) {
+          this.updateItem(this.timerList, res);
+        }
       });
 
     this.intervalId = setInterval(() => {
@@ -607,7 +640,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.checkScreenWidth();
 
-    this.getCurrentUser(1);
+    this.getCurrentUser();
 
     this.timerService.timerList.subscribe({
       next: (res) => {

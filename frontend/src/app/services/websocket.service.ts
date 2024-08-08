@@ -14,7 +14,8 @@ export class WebsocketService {
   constructor() {}
 
   connect(token: string): void {
-    this.socket = io(environment.apiUrl, {
+    this.socket = io(environment.url, {
+      path: '/api/socket.io',
       query: { token },
     });
 

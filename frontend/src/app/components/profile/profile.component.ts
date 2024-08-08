@@ -28,7 +28,7 @@ export class ProfileComponent implements OnInit {
     private storageService: StorageService
   ) {}
 
-  getUser(retryCount: number) {
+  getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.setCurrentUser(res);
@@ -44,13 +44,8 @@ export class ProfileComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.log('getUser error', err);
         if (err.status === 401) {
-          if (retryCount > 0) {
-            this.exchangeRefresh();
-            this.getUser(--retryCount);
-          }
-          this.onLogout();
+          this.exchangeRefresh();
         }
       },
     });
@@ -87,11 +82,17 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         console.log('exchangeRefresh', res);
         this.storageService.setLocalStorage(key, res.accessToken);
+        this.getUser();
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.onLogout();
+        }
       },
     });
   }
 
   ngOnInit(): void {
-    this.getUser(1);
+    this.getUser();
   }
 }

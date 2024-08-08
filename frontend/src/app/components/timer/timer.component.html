@@ -34,15 +34,19 @@
           </nz-list-item-meta>
           <nz-list-item-meta-title>
             <nz-countdown
+              *ngIf="item.mobData.respawnTime"
               [nzValue]="item.mobData.respawnTime"
               [nzFormat]="'HH:mm:ss'"
-              [nzValueStyle]="{ color: '#3F8600' }"
               [nzValueStyle]="
-                item.mobData.respawnTime &&
                 item.mobData.respawnTime - this.currentProgressTime <= 300000
                   ? { color: '#ff4d4f' }
                   : {}
               "
+            ></nz-countdown>
+            <nz-countdown
+              *ngIf="!item.mobData.respawnTime"
+              [nzValue]="undefined"
+              [nzFormat]="'HH:mm:ss'"
             ></nz-countdown>
             <span
               class="timer-mx-10px"

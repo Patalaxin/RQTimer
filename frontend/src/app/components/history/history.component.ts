@@ -31,7 +31,7 @@ export class HistoryComponent implements OnInit {
     private historyService: HistoryService
   ) {}
 
-  getUser(retryCount: number) {
+  getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
         console.log('getUser', res);
@@ -44,13 +44,8 @@ export class HistoryComponent implements OnInit {
         this.getHistory(this.storageService.getLocalStorage('server'));
       },
       error: (err) => {
-        console.log('getUser error', err);
         if (err.status === 401) {
-          if (retryCount > 0) {
-            this.exchangeRefresh();
-            this.getUser(--retryCount);
-          }
-          this.onLogout();
+          this.exchangeRefresh();
         }
       },
     });
@@ -97,12 +92,18 @@ export class HistoryComponent implements OnInit {
       next: (res) => {
         console.log('exchangeRefresh', res);
         this.storageService.setLocalStorage(key, res.accessToken);
+        this.getUser();
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.onLogout();
+        }
       },
     });
   }
 
   ngOnInit(): void {
-    this.getUser(1);
+    this.getUser();
     this.historyService.historyList.subscribe({
       next: (res) => {
         this.historyList = res;
