@@ -9,6 +9,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { HistoryService } from 'src/app/services/history.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -21,6 +22,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   historyListData: any = [];
   historyList: any = [];
+
+  isOnlineSubscription: Subscription | undefined;
+  isOnline: 'online' | 'offline' | undefined;
 
   serverList = [
     { label: 'Гранас', value: 'Гранас' },
@@ -203,9 +207,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.storageService.getLocalStorage('token')) {
       this.websocketService.connect(
-        this.storageService.getLocalStorage('token')
+        this.storageService.getLocalStorage('token'),
+        this.storageService.getLocalStorage('email')
       );
     }
+
+    this.isOnlineSubscription = this.websocketService
+      .getIsOnline()
+      .subscribe((res: any) => {
+        if (res) {
+          console.log('isOnline', res);
+          this.isOnline = res.status;
+        }
+      });
+
+    this.isOnlineSubscription = this.websocketService
+      .getOnlineUserList()
+      .subscribe((res: any) => {
+        if (res) {
+          console.log('onlineUserList', res);
+        }
+      });
 
     this.getCurrentServer();
     this.router.events.subscribe(() => {
@@ -215,6 +237,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.isOnlineSubscription) {
+      this.isOnlineSubscription.unsubscribe();
+    }
+
     this.websocketService.disconnect();
   }
 }
