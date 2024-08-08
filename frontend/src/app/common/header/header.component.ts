@@ -217,7 +217,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .subscribe((res: any) => {
         if (res) {
           console.log('isOnline', res);
-          this.isOnline = res.status;
+          if (this.storageService.getLocalStorage('email') === res.email) {
+            this.isOnline = res.status;
+          }
         }
       });
 
