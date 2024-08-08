@@ -14,7 +14,7 @@ export class WebsocketService {
   constructor() {}
 
   connect(token: string): void {
-    this.socket = io(environment.apiUrl, {
+    this.socket = io('https://www.rqtimer.ru/', {
       query: { token },
     });
 
