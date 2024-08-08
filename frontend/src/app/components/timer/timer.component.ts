@@ -618,6 +618,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.timerService.setHeaderVisibility(true);
     Notification.requestPermission().then((perm) => {
       this.permission = perm;
     });

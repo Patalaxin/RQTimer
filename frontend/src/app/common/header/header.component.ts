@@ -180,6 +180,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: (res) => {
+        this.timerService.setHeaderVisibility(false);
         this.storageService.clean();
         this.onLogin();
       },

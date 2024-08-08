@@ -1,4 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewChecked,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TimerService } from './services/timer.service';
@@ -8,12 +13,16 @@ import { TimerService } from './services/timer.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewChecked {
   title = 'rq-timer-fe';
   showBackground: boolean = false;
   isVisible: boolean = false;
 
-  constructor(private router: Router, private timerService: TimerService) {}
+  constructor(
+    private router: Router,
+    private timerService: TimerService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.timerService.headerVisibility.subscribe({
@@ -27,6 +36,10 @@ export class AppComponent implements OnInit {
       .subscribe((event: any) => {
         this.checkRoute(event.urlAfterRedirects);
       });
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges(); // Применяем изменения после всех проверок
   }
 
   checkRoute(url: string) {

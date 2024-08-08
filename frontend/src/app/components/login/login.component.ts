@@ -54,7 +54,6 @@ export class LoginComponent implements OnInit {
       .login(this.form.value.key, this.form.value.password)
       .subscribe({
         next: (res) => {
-          console.log('authService', res);
           this.storageService.setLocalStorage(
             this.form.value.key,
             res.accessToken

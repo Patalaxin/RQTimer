@@ -16,7 +16,7 @@ export class TimerService {
   timerList = this.timerList$.asObservable();
   private isLoading$ = new BehaviorSubject<boolean>(true);
   isLoading = this.isLoading$.asObservable();
-  private headerVisibility$ = new BehaviorSubject<boolean>(true);
+  private headerVisibility$ = new BehaviorSubject<boolean>(false);
   headerVisibility = this.headerVisibility$.asObservable();
 
   constructor(
