@@ -509,6 +509,19 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
+  sortTimerList(timerList: TimerItem[]): void {
+    this.timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
+      }
+
+      return 0;
+    });
+  }
+
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: (res) => {
@@ -531,7 +544,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCurrentUser() {
+  getCurrentUser(retryCount: number) {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.setCurrentUser(res);
@@ -542,11 +555,26 @@ export class TimerComponent implements OnInit, OnDestroy {
         });
         this.getAllBosses(1);
       },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          if (retryCount > 0) {
+            this.exchangeRefresh();
+            this.getCurrentUser(--retryCount);
+          }
+          this.onLogout();
+        }
+      },
     });
   }
 
   stopPropagation(event: Event) {
     event.stopPropagation();
+  }
+
+  updateItem(item: TimerItem, res: any): void {
+    console.log(item);
+    item.mobData = res.mobData;
   }
 
   ngOnInit(): void {
@@ -559,6 +587,15 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe((res: any) => {
         console.log('Mob update received:', res);
         // Обновите данные в вашем компоненте в соответствии с полученными данными
+        this.timerList.forEach((item) => {
+          if (
+            item.mob.mobName === res.mobName &&
+            item.mob.location === res.location &&
+            item.mob.server === res.server
+          ) {
+            this.updateItem(item, res);
+          }
+        });
       });
 
     this.intervalId = setInterval(() => {
@@ -570,7 +607,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.checkScreenWidth();
 
-    this.getCurrentUser();
+    this.getCurrentUser(1);
 
     this.timerService.timerList.subscribe({
       next: (res) => {

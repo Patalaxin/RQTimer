@@ -44,15 +44,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.historyService.setIsLoading(true);
     this.timerService.setIsLoading(true);
     this.storageService.setCurrentServer(this.currentServer);
-    this.historyService.getHistory(this.currentServer).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.setHistoryList(this.historyList);
-        this.historyService.setHistoryListData(this.historyListData);
-        this.historyService.setIsLoading(false);
-      },
-    });
+    this.getHistory();
+    this.getAllBosses();
+  }
+
+  getCurrentServer() {
+    if (this.storageService.getLocalStorage('server')) {
+      this.currentServer = this.storageService.getLocalStorage('server');
+    }
+  }
+
+  getAllBosses(): void {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         this.timerList = [...res];
@@ -77,10 +79,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCurrentServer() {
-    if (this.storageService.getLocalStorage('server')) {
-      this.currentServer = this.storageService.getLocalStorage('server');
-    }
+  getHistory(): void {
+    this.historyService.getHistory(this.currentServer).subscribe({
+      next: (res: any) => {
+        this.historyListData = res;
+        this.historyList = res.data;
+        this.historyService.setHistoryList(this.historyList);
+        this.historyService.setHistoryListData(this.historyListData);
+        this.historyService.setIsLoading(false);
+      },
+    });
   }
 
   copyRespText() {
@@ -134,7 +142,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     console.log(this.currentServer);
     this.timerService.crashServerBosses(this.currentServer).subscribe({
       next: (res) => {
-        this.setCurrentServer();
+        this.getAllBosses();
         this.message.create('success', 'Респы теперь с учётом падения сервера');
       },
     });
