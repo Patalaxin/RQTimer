@@ -421,26 +421,24 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
     this.timerService.setIsLoading(true);
     console.log('onDieNow', item);
-    this.currentTime = Date.now();
-    this.timerService.setByDeathTime(item, this.currentTime - 10000).subscribe({
+    this.timerService.getWorldTime().subscribe({
       next: (res) => {
-        this.getAllBosses();
-        this.message.create(
-          'success',
-          'Респ был успешно переписан кнопкой "Упал сейчас"'
-        );
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.currentTime = res.unixtime;
+        this.timerService
+          .setByDeathTime(item, this.currentTime - 10000)
+          .subscribe({
+            next: (res) => {
+              this.getAllBosses();
+              this.message.create('success', 'Респ был успешно переписан');
+            },
+            error: (err) => {
+              if (err.status === 401) {
+                this.exchangeRefresh();
+              }
+            },
+          });
       },
     });
-    // this.timerService.getWorldTime().subscribe({
-    // next: (res) => {
-    // this.currentTime = res.unixtime;
-    // },
-    // });
   }
 
   onPlusCooldown(item: TimerItem): void {
@@ -620,10 +618,15 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
       });
 
-    this.intervalId = setInterval(() => {
-      this.currentProgressTime = Date.now();
-      this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-    }, 1000);
+    this.timerService.getWorldTime().subscribe({
+      next: (res) => {
+        this.currentProgressTime = res.unixtime;
+        this.intervalId = setInterval(() => {
+          this.currentProgressTime += 1000;
+          this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+        }, 1000);
+      },
+    });
 
     this.timerService.setIsLoading(true);
 
