@@ -421,33 +421,26 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
     this.timerService.setIsLoading(true);
     console.log('onDieNow', item);
-    this.timerService.getWorldTime().subscribe({
+    this.currentTime = Date.now();
+    this.timerService.setByDeathTime(item, this.currentTime - 10000).subscribe({
       next: (res) => {
-        this.currentTime = res.unixtime;
-        console.log(
-          '===>',
-          Date.now(),
-          res.unixtime,
-          moment(this.currentTime).valueOf()
+        this.getAllBosses();
+        this.message.create(
+          'success',
+          'Респ был успешно переписан кнопкой "Упал сейчас"'
         );
-        this.timerService
-          .setByDeathTime(item, this.currentTime - 10000)
-          .subscribe({
-            next: (res) => {
-              this.getAllBosses();
-              this.message.create(
-                'success',
-                'Респ был успешно переписан кнопкой "Упал сейчас"'
-              );
-            },
-            error: (err) => {
-              if (err.status === 401) {
-                this.exchangeRefresh();
-              }
-            },
-          });
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh();
+        }
       },
     });
+    // this.timerService.getWorldTime().subscribe({
+    // next: (res) => {
+    // this.currentTime = res.unixtime;
+    // },
+    // });
   }
 
   onPlusCooldown(item: TimerItem): void {
