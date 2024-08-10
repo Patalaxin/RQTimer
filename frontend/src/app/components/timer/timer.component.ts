@@ -31,8 +31,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   leftTime: number = 0;
 
   radioValue: string = 'A';
-  currentTime: number = Date.now();
-  currentProgressTime: number = Date.now();
+  currentTime: number = 0;
+  currentProgressTime: number = 0;
   currentItem: any;
   cooldown: number = 1;
 
@@ -97,17 +97,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       item.mobData.respawnTime &&
       this.currentProgressTime >= item.mobData.respawnTime
     ) {
-      // let remainingTime = item.mobData.respawnTime - this.currentProgressTime;
-
-      // if (remainingTime <= 0 && !item.isTimerRunning) {
-      //   item.isTimerRunning = true;
-      //   console.log('Запуск таймера на 1 минут...', item.mob.mobName);
-      //   item.timeoutId = setTimeout(() => {
-      //     this.onSetByCooldownTime(item);
-      //     item.isTimerRunning = false;
-      //   }, 1 * 60 * 1000);
-      // }
-
       return 100;
     }
 
@@ -431,28 +420,34 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.stopPropagation(event);
     }
     this.timerService.setIsLoading(true);
-    this.currentTime = Date.now();
     console.log('onDieNow', item);
-    this.timerService
-      .setByDeathTime(item, moment(this.currentTime).valueOf() - 10000)
-      .subscribe({
-        next: (res) => {
-          // if (item.timeoutId) {
-          //   clearTimeout(item.timeoutId);
-          //   item.isTimerRunning = false;
-          // }
-          this.getAllBosses();
-          this.message.create(
-            'success',
-            'Респ был успешно переписан кнопкой "Упал сейчас"'
-          );
-        },
-        error: (err) => {
-          if (err.status === 401) {
-            this.exchangeRefresh();
-          }
-        },
-      });
+    this.timerService.getWorldTime().subscribe({
+      next: (res) => {
+        this.currentTime = res.unixtime;
+        console.log(
+          '===>',
+          Date.now(),
+          res.unixtime,
+          moment(this.currentTime).valueOf()
+        );
+        this.timerService
+          .setByDeathTime(item, this.currentTime - 10000)
+          .subscribe({
+            next: (res) => {
+              this.getAllBosses();
+              this.message.create(
+                'success',
+                'Респ был успешно переписан кнопкой "Упал сейчас"'
+              );
+            },
+            error: (err) => {
+              if (err.status === 401) {
+                this.exchangeRefresh();
+              }
+            },
+          });
+      },
+    });
   }
 
   onPlusCooldown(item: TimerItem): void {

@@ -36,6 +36,10 @@ export class TimerService {
     this.headerVisibility$.next(visible);
   }
 
+  getWorldTime(): Observable<any> {
+    return this.http.get('https://worldtimeapi.org/api/timezone/Etc/UTC');
+  }
+
   createMob(
     mobName: string,
     shortName: string,
