@@ -31,8 +31,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   leftTime: number = 0;
 
   radioValue: string = 'A';
-  currentTime: number = 0;
-  currentProgressTime: number = 0;
+  currentTime: number = Date.now();
+  currentProgressTime: number = Date.now();
   currentItem: any;
   cooldown: number = 1;
 
@@ -423,7 +423,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     console.log('onDieNow', item);
     this.timerService.getWorldTime().subscribe({
       next: (res) => {
-        this.currentTime = res.unixtime;
+        this.currentTime = res.timestamp;
         this.timerService
           .setByDeathTime(item, this.currentTime - 10000)
           .subscribe({
@@ -620,7 +620,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.timerService.getWorldTime().subscribe({
       next: (res) => {
-        this.currentProgressTime = res.unixtime;
+        this.currentProgressTime = res.timestamp;
         this.intervalId = setInterval(() => {
           this.currentProgressTime += 1000;
           this.timerList.forEach((item) => this.checkAndNotify(item, 1));
