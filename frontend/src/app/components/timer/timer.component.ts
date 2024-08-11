@@ -1,4 +1,10 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -18,14 +24,24 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private timerService = inject(TimerService);
+  private storageService = inject(StorageService);
+  private authService = inject(AuthService);
+  private historyService = inject(HistoryService);
+  private userService = inject(UserService);
+  private websocketService = inject(WebsocketService);
+  private messageService = inject(NzMessageService);
+  private modalService = inject(NzModalService);
+
   private mobUpdateSubscription: Subscription | undefined;
   permission: string = '';
 
   timerList: TimerItem[] = [];
   historyList: any = [];
   historyListData: any = [];
-  isLoading = this.timerService.isLoading;
-  isHistoryLoading = this.historyService.isLoading;
+  isLoading = this.timerService.isLoading$;
+  isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
   currentUser: any = [];
   leftTime: number = 0;
@@ -52,23 +68,59 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   createEditItem: any;
 
-  constructor(
-    private router: Router,
-    private timerService: TimerService,
-    private storageService: StorageService,
-    private authService: AuthService,
-    private historyService: HistoryService,
-    private userService: UserService,
-    private websocketService: WebsocketService,
-    private message: NzMessageService,
-    private modal: NzModalService
-  ) {
-    console.log(this.isLoading);
-  }
-
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.checkScreenWidth();
+  }
+
+  ngOnInit(): void {
+    this.timerService.headerVisibility = true;
+    Notification.requestPermission().then((perm) => {
+      this.permission = perm;
+    });
+
+    this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
+      (res: any) => {
+        console.log('Mob update received:', res);
+        if (res) {
+          this.updateItem(this.timerList, res);
+        }
+      }
+    );
+
+    // this.timerService.getWorldTime().subscribe({
+    //   next: (res) => {
+    //     this.currentProgressTime = res.timestamp;
+    this.currentProgressTime = Date.now();
+    this.intervalId = setInterval(() => {
+      this.currentProgressTime += 1000;
+      this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+    }, 1000);
+    //   },
+    // });
+
+    this.timerService.isLoading = true;
+
+    this.checkScreenWidth();
+
+    this.getCurrentUser();
+
+    this.timerService.timerList$.subscribe({
+      next: (res) => {
+        this.timerList = res;
+        console.log('timer', this.timerList);
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.mobUpdateSubscription) {
+      this.mobUpdateSubscription.unsubscribe();
+    }
+
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 
   private checkScreenWidth(): void {
@@ -153,7 +205,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       let data: string = `${item.mob.shortName} - ${moment(
         item.mobData.respawnTime
       ).format('HH:mm:ss')}`;
-      this.message.create('success', `${data}`);
+      this.messageService.create('success', `${data}`);
       navigator.clipboard.writeText(data);
     }
   }
@@ -175,7 +227,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getHistory(item: TimerItem): void {
-    this.historyService.setIsLoading(true);
+    this.historyService.isLoading = true;
     item.mob.isHistoryModalVisible = true;
     this.historyService
       .getHistory(
@@ -187,7 +239,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           console.log(item.mob.mobName, res.data);
           this.historyListData = res;
           this.historyList = res.data;
-          this.historyService.setIsLoading(false);
+          this.historyService.isLoading = false;
         },
         error: (err) => {
           if (err.status === 401) {
@@ -212,53 +264,46 @@ export class TimerComponent implements OnInit, OnDestroy {
   confirmCreateEditModal(item?: TimerItem) {
     if (!item) {
       this.isCreateModalVisible = false;
-      this.timerService.setIsLoading(true);
+      this.timerService.isLoading = true;
       this.timerService
         .createMob(
-          this.createEditItem.mobName,
-          this.createEditItem.shortName,
-          this.createEditItem.location,
-          this.createEditItem.respawnText,
-          this.createEditItem.image,
-          this.createEditItem.cooldownTime,
-          this.storageService.getLocalStorage('server'),
-          this.createEditItem.mobType
+          this.createEditItem,
+          this.storageService.getLocalStorage('server')
         )
         .subscribe({
           next: (res) => {
             this.getAllBosses();
-            this.message.create('success', `Босс/элитка успешно создан(а).`);
+            this.messageService.create(
+              'success',
+              `Босс/элитка успешно создан(а).`
+            );
           },
           error: (err) => {
             if (err.status === 401) {
               this.exchangeRefresh();
             }
-            this.timerService.setIsLoading(false);
-            this.message.create('error', `Не удалось создать босса/элитку.`);
+            this.timerService.isLoading = false;
+            this.messageService.create(
+              'error',
+              `Не удалось создать босса/элитку.`
+            );
           },
         });
     }
 
     if (item) {
       item.mob.isEditModalVisible = false;
-      this.timerService.setIsLoading(true);
+      this.timerService.isLoading = true;
       this.timerService
         .editMob(
-          this.createEditItem.mobName,
-          this.createEditItem.shortName,
-          this.createEditItem.location,
-          this.createEditItem.respawnText,
-          this.createEditItem.image,
-          this.createEditItem.cooldownTime,
-          this.storageService.getLocalStorage('server'),
-          this.createEditItem.mobType,
-          this.createEditItem.currentLocation
+          this.createEditItem,
+          this.storageService.getLocalStorage('server')
         )
 
         .subscribe({
           next: (res) => {
             this.getAllBosses();
-            this.message.create(
+            this.messageService.create(
               'success',
               `Босс/элитка успешно отредактирован(а).`
             );
@@ -267,8 +312,8 @@ export class TimerComponent implements OnInit, OnDestroy {
             if (err.status === 401) {
               this.exchangeRefresh();
             }
-            this.timerService.setIsLoading(false);
-            this.message.create(
+            this.timerService.isLoading = false;
+            this.messageService.create(
               'error',
               `Не удалось отредактировать босса/элитку.`
             );
@@ -296,7 +341,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (event) {
       this.stopPropagation(event);
     }
-    this.modal.confirm({
+    this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent: `<b style="color: red;">Вы точно хотите удалить ${item.mob.mobName}?</b>`,
       nzOkText: 'Да',
@@ -309,7 +354,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onDelete(item: TimerItem): void {
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     this.timerService
       .deleteMob(
         item.mob.mobName,
@@ -319,7 +364,10 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.getAllBosses();
-          this.message.create('success', `${item.mob.mobName} успешно удалён.`);
+          this.messageService.create(
+            'success',
+            `${item.mob.mobName} успешно удалён.`
+          );
         },
         error: (err) => {
           if (err.status === 401) {
@@ -344,12 +392,12 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   confirmDeathModal(item: TimerItem): void {
     item.mob.isDeathOkLoading = true;
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     console.log('confirm', this.currentItem);
     console.log(moment(this.currentTime).format('HH:mm:ss'));
     if (this.radioValue == 'A') {
       this.timerService
-        .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
+        .setByDeathTime(this.currentItem, this.currentTime)
         .subscribe({
           next: (res) => {
             // if (item.timeoutId) {
@@ -359,7 +407,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
-            this.message.create(
+            this.messageService.create(
               'success',
               'Респ был успешно обновлён по точному времени смерти'
             );
@@ -374,13 +422,13 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     if (this.radioValue == 'B') {
       this.timerService
-        .setByRespawnTime(this.currentItem, moment(this.currentTime).valueOf())
+        .setByRespawnTime(this.currentItem, this.currentTime)
         .subscribe({
           next: (res) => {
             this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
-            this.message.create(
+            this.messageService.create(
               'success',
               'Респ был успешно обновлён по точному времени респауна'
             );
@@ -401,7 +449,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.getAllBosses();
             item.mob.isDeathModalVisible = false;
             item.mob.isDeathOkLoading = false;
-            this.message.create(
+            this.messageService.create(
               'success',
               `Респ был успешно обновлён по кд ${this.cooldown} раз`
             );
@@ -419,26 +467,25 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (event) {
       this.stopPropagation(event);
     }
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     console.log('onDieNow', item);
-    this.timerService.getWorldTime().subscribe({
+    // this.timerService.getWorldTime().subscribe({
+    //   next: (res) => {
+    //     this.currentTime = res.timestamp;
+    this.currentTime = Date.now();
+    this.timerService.setByDeathTime(item, this.currentTime - 10000).subscribe({
       next: (res) => {
-        this.currentTime = res.timestamp;
-        this.timerService
-          .setByDeathTime(item, this.currentTime - 10000)
-          .subscribe({
-            next: (res) => {
-              this.getAllBosses();
-              this.message.create('success', 'Респ был успешно переписан');
-            },
-            error: (err) => {
-              if (err.status === 401) {
-                this.exchangeRefresh();
-              }
-            },
-          });
+        this.getAllBosses();
+        this.messageService.create('success', 'Респ был успешно переписан');
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh();
+        }
       },
     });
+    //   },
+    // });
   }
 
   onPlusCooldown(item: TimerItem): void {
@@ -455,7 +502,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (event) {
       this.stopPropagation(event);
     }
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     this.timerService.setByCooldownTime(item, 1).subscribe({
       next: (res) => {
         // if (item.timeoutId) {
@@ -463,14 +510,17 @@ export class TimerComponent implements OnInit, OnDestroy {
         //   item.isTimerRunning = false;
         // }
         this.getAllBosses();
-        this.message.create('success', 'Респ был успешно переписан по кд');
+        this.messageService.create(
+          'success',
+          'Респ был успешно переписан по кд'
+        );
       },
       error: (err) => {
         if (err.status === 401) {
           this.exchangeRefresh();
         }
-        this.message.create('error', 'Респ утерян');
-        this.timerService.setIsLoading(false);
+        this.messageService.create('error', 'Респ утерян');
+        this.timerService.isLoading = false;
       },
     });
   }
@@ -479,7 +529,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (event) {
       this.stopPropagation(event);
     }
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
       next: (res) => {
@@ -506,7 +556,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.timerList = [...res];
         this.sortTimerList(this.timerList);
 
-        this.timerList.map((item) => {
+        this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
           item.mob.isDeathModalVisible = false;
           item.mob.isDeathOkLoading = false;
@@ -515,7 +565,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isEditModalVisible = false;
           item.mob.isEditOkLoading = false;
         });
-        this.timerService.setIsLoading(false);
+        this.timerService.isLoading = false;
       },
       error: (err) => {
         if (err.status === 401) {
@@ -531,7 +581,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
 
       if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
+        return a.mobData.respawnTime - b.mobData.respawnTime;
       }
 
       return 0;
@@ -548,10 +598,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private exchangeRefresh() {
-    let key =
-      Object.keys(this.storageService.getLocalStorage('email')).length === 0
-        ? this.storageService.getLocalStorage('nickname')
-        : this.storageService.getLocalStorage('email');
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
@@ -570,8 +619,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   getCurrentUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
-        this.userService.setCurrentUser(res);
-        this.userService.currentUser.subscribe({
+        this.userService.currentUser = res;
+        this.userService.currentUser$.subscribe({
           next: (res) => {
             this.currentUser = res;
           },
@@ -601,54 +650,5 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.sortTimerList(timerList);
       }
     });
-  }
-
-  ngOnInit(): void {
-    this.timerService.setHeaderVisibility(true);
-    Notification.requestPermission().then((perm) => {
-      this.permission = perm;
-    });
-
-    this.mobUpdateSubscription = this.websocketService
-      .getMobUpdates()
-      .subscribe((res: any) => {
-        console.log('Mob update received:', res);
-        if (res) {
-          this.updateItem(this.timerList, res);
-        }
-      });
-
-    this.timerService.getWorldTime().subscribe({
-      next: (res) => {
-        this.currentProgressTime = res.timestamp;
-        this.intervalId = setInterval(() => {
-          this.currentProgressTime += 1000;
-          this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-        }, 1000);
-      },
-    });
-
-    this.timerService.setIsLoading(true);
-
-    this.checkScreenWidth();
-
-    this.getCurrentUser();
-
-    this.timerService.timerList.subscribe({
-      next: (res) => {
-        this.timerList = res;
-        console.log('timer', this.timerList);
-      },
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.mobUpdateSubscription) {
-      this.mobUpdateSubscription.unsubscribe();
-    }
-
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
   }
 }

@@ -1,8 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { createHeaders } from '../utils/http';
 
 const CONFIGURATION_API = environment.apiUrl + '/configuration/';
 
@@ -10,39 +11,31 @@ const CONFIGURATION_API = environment.apiUrl + '/configuration/';
   providedIn: 'root',
 })
 export class ConfigurationService {
-  accessToken: string = '';
-  private serverList$ = new BehaviorSubject<any[]>([]);
-  serverList = this.serverList$.asObservable();
+  private http = inject(HttpClient);
+  private storageService = inject(StorageService);
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
+  private serverListSubject$ = new BehaviorSubject<any[]>([]);
 
-  setServerList(list: any[]): void {
-    this.serverList$.next(list);
+  get serverList$(): Observable<any[]> {
+    return this.serverListSubject$.asObservable();
+  }
+
+  set serverList(list: any[]) {
+    this.serverListSubject$.next(list);
   }
 
   getServers(): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(CONFIGURATION_API + 'servers', { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${CONFIGURATION_API}servers`, { headers });
   }
 
   getMobs(): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(CONFIGURATION_API + 'mobs', { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${CONFIGURATION_API}mobs`, { headers });
   }
 
   getLocations(): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(CONFIGURATION_API + 'locations', { headers });
-  }
-
-  private createHeaders(): HttpHeaders {
-    this.accessToken = this.storageService.getLocalStorage('token');
-    return new HttpHeaders({ 'Content-Type': 'application/json' }).set(
-      'Authorization',
-      `Bearer ${this.accessToken}`
-    );
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${CONFIGURATION_API}locations`, { headers });
   }
 }

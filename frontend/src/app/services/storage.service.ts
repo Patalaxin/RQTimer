@@ -1,9 +1,5 @@
 import { Injectable } from '@angular/core';
-
-const EMAIL = 'email';
-const NICKNAME = 'nickname';
-const ACCESS_TOKEN = 'access-token';
-const SERVER = 'server';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,60 +8,48 @@ export class StorageService {
   currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
 
   clean(): void {
-    // window.localStorage.clear();
-    window.localStorage.removeItem(EMAIL);
-    window.localStorage.removeItem(NICKNAME);
-    window.localStorage.removeItem(ACCESS_TOKEN);
+    window.localStorage.removeItem(environment.localStorage.EMAIL);
+    window.localStorage.removeItem(environment.localStorage.NICKNAME);
+    window.localStorage.removeItem(environment.localStorage.ACCESS_TOKEN);
   }
 
   setCurrentServer(server: string) {
-    window.localStorage.setItem(SERVER, server);
+    window.localStorage.setItem(environment.localStorage.SERVER, server);
   }
 
   setLocalStorage(key: string, token: any): void {
     this.clean();
 
-    if (key.includes('@')) {
-      window.localStorage.setItem(EMAIL, key);
-    } else {
-      window.localStorage.setItem(NICKNAME, key);
-    }
+    key.includes('@')
+      ? window.localStorage.setItem(environment.localStorage.EMAIL, key)
+      : window.localStorage.setItem(environment.localStorage.NICKNAME, key);
 
-    window.localStorage.setItem(ACCESS_TOKEN, token);
+    window.localStorage.setItem(environment.localStorage.ACCESS_TOKEN, token);
 
-    if (!window.localStorage.getItem(SERVER)) {
-      window.localStorage.setItem(SERVER, this.currentServer);
-    }
+    if (!window.localStorage.getItem(environment.localStorage.SERVER))
+      window.localStorage.setItem(
+        environment.localStorage.SERVER,
+        this.currentServer
+      );
   }
 
   getLocalStorage(key: string): any {
-    const localStorage = {
-      email: window.localStorage.getItem(EMAIL),
-      nickname: window.localStorage.getItem(NICKNAME),
-      token: window.localStorage.getItem(ACCESS_TOKEN),
-      server: window.localStorage.getItem(SERVER),
-    };
+    let storageKey = '';
 
-    if (localStorage.email && key === 'email') {
-      return localStorage.email;
-    }
+    if (key === 'email') storageKey = environment.localStorage.EMAIL;
 
-    if (localStorage.nickname && key === 'nickname') {
-      return localStorage.nickname;
-    }
+    if (key === 'nickname') storageKey = environment.localStorage.NICKNAME;
 
-    if (localStorage.token && key === 'token') {
-      return localStorage.token;
-    }
+    if (key === 'token') storageKey = environment.localStorage.ACCESS_TOKEN;
 
-    if (localStorage.server && key === 'server') {
-      return localStorage.server;
-    }
+    if (key === 'server') storageKey = environment.localStorage.SERVER;
 
-    return '';
+    const value = window.localStorage.getItem(storageKey);
+
+    return value ? value : '';
   }
 
   isLoggedIn(): any {
-    return !!window.localStorage.getItem(ACCESS_TOKEN);
+    return !!window.localStorage.getItem(environment.localStorage.ACCESS_TOKEN);
   }
 }

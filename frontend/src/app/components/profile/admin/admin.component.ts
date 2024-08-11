@@ -1,8 +1,7 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { UserService } from 'src/app/services/user.service';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { Component, HostListener, Input, OnInit, inject } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ConfigurationService } from 'src/app/services/configuration.service';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-admin',
@@ -10,6 +9,10 @@ import { ConfigurationService } from 'src/app/services/configuration.service';
   styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {
+  private userService = inject(UserService);
+  private modalService = inject(NzModalService);
+  private messageService = inject(NzMessageService);
+
   @Input() bossList: string[] = [];
   @Input() eliteList: string[] = [];
 
@@ -38,16 +41,21 @@ export class AdminComponent implements OnInit {
   availableBossList: any;
   availableEliteList: any;
 
-  constructor(
-    private userService: UserService,
-    private configurationService: ConfigurationService,
-    private modal: NzModalService,
-    private message: NzMessageService
-  ) {}
-
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.checkScreenWidth();
+  }
+
+  ngOnInit(): void {
+    this.checkScreenWidth();
+    this.getAllUsers();
+
+    this.userService.currentUser$.subscribe({
+      next: (res) => {
+        this.currentUser = res;
+        console.log(this.currentUser);
+      },
+    });
   }
 
   private checkScreenWidth(): void {
@@ -70,7 +78,10 @@ export class AdminComponent implements OnInit {
         this.isTableLoading = false;
 
         if (nickname) {
-          this.message.create('success', `Пользователь ${nickname} удалён`);
+          this.messageService.create(
+            'success',
+            `Пользователь ${nickname} удалён`
+          );
         }
       },
     });
@@ -113,7 +124,7 @@ export class AdminComponent implements OnInit {
   }
 
   onShowDeleteModal(nickname: string): void {
-    this.modal.confirm({
+    this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent: `<b style="color: red;">Вы точно хотите удалить пользователя ${nickname}?</b>`,
       nzOkText: 'Да',
@@ -136,7 +147,7 @@ export class AdminComponent implements OnInit {
 
       this.userService.updateRole(item.nickname, role).subscribe({
         next: (res) => {
-          this.message.create(
+          this.messageService.create(
             'success',
             `Роль пользователя ${item.nickname} успешно обновлён`
           );
@@ -162,7 +173,7 @@ export class AdminComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.getAllUsers();
-          this.message.create(
+          this.messageService.create(
             'success',
             `Настройки доступности для пользователя ${item.nickname} успешно обновлены`
           );
@@ -206,19 +217,7 @@ export class AdminComponent implements OnInit {
   }
 
   onSessionIdClick(sessionId: string) {
-    this.message.create('success', `Session ID успешно скопирован!`);
+    this.messageService.create('success', `Session ID успешно скопирован!`);
     navigator.clipboard.writeText(sessionId);
-  }
-
-  ngOnInit(): void {
-    this.checkScreenWidth();
-    this.getAllUsers();
-
-    this.userService.currentUser.subscribe({
-      next: (res) => {
-        this.currentUser = res;
-        console.log(this.currentUser);
-      },
-    });
   }
 }

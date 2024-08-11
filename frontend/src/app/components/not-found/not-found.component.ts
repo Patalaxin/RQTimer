@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TimerService } from 'src/app/services/timer.service';
 
@@ -8,18 +8,19 @@ import { TimerService } from 'src/app/services/timer.service';
   styleUrls: ['./not-found.component.scss'],
 })
 export class NotFoundComponent {
-  constructor(private router: Router, private timerService: TimerService) {}
-
-  onTimer(): void {
-    this.timerService.setIsLoading(true);
-    this.router.navigate(['/timer']);
-  }
+  private router = inject(Router);
+  private timerService = inject(TimerService);
 
   ngOnInit() {
-    this.timerService.setHeaderVisibility(false);
+    this.timerService.headerVisibility = false;
   }
 
   ngOnDestroy() {
-    this.timerService.setHeaderVisibility(true);
+    this.timerService.headerVisibility = true;
+  }
+
+  onTimer(): void {
+    this.timerService.isLoading = true;
+    this.router.navigate(['/timer']);
   }
 }

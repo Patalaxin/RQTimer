@@ -1,15 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { StorageService } from 'src/app/services/storage.service';
-import { TimerService } from 'src/app/services/timer.service';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { TimerItem } from 'src/app/interfaces/timer-item';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { HistoryService } from 'src/app/services/history.service';
-import { WebsocketService } from 'src/app/services/websocket.service';
-import { AuthService } from 'src/app/services/auth.service';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
+import { TimerItem } from 'src/app/interfaces/timer-item';
+import { AuthService } from 'src/app/services/auth.service';
+import { HistoryService } from 'src/app/services/history.service';
+import { StorageService } from 'src/app/services/storage.service';
+import { TimerService } from 'src/app/services/timer.service';
+import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
   selector: 'app-header',
@@ -17,6 +17,15 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private router = inject(Router);
+  private storageService = inject(StorageService);
+  private timerService = inject(TimerService);
+  private historyService = inject(HistoryService);
+  private authService = inject(AuthService);
+  private websocketService = inject(WebsocketService);
+  private modalService = inject(NzModalService);
+  private messageService = inject(NzMessageService);
+
   currentServer: string = 'Гранас';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
@@ -32,21 +41,55 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { label: 'Логрус', value: 'Логрус' },
   ];
 
-  constructor(
-    private router: Router,
-    private storageService: StorageService,
-    private timerService: TimerService,
-    private historyService: HistoryService,
-    private authService: AuthService,
-    private websocketService: WebsocketService,
-    private modal: NzModalService,
-    private message: NzMessageService
-  ) {}
+  constructor() {
+    this.getCurrentServer();
+  }
+
+  ngOnInit(): void {
+    if (this.storageService.getLocalStorage('token')) {
+      this.websocketService.connect(
+        this.storageService.getLocalStorage('token'),
+        this.storageService.getLocalStorage('email')
+      );
+    }
+
+    this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
+      (res: any) => {
+        if (res) {
+          console.log('isOnline', res);
+          if (this.storageService.getLocalStorage('email') === res.email) {
+            this.isOnline = res.status;
+          }
+        }
+      }
+    );
+
+    this.isOnlineSubscription = this.websocketService.onlineUserList$.subscribe(
+      (res: any) => {
+        if (res) {
+          console.log('onlineUserList', res);
+        }
+      }
+    );
+
+    this.router.events.subscribe(() => {
+      this.updateRoute();
+    });
+    this.updateRoute();
+  }
+
+  ngOnDestroy(): void {
+    if (this.isOnlineSubscription) {
+      this.isOnlineSubscription.unsubscribe();
+    }
+
+    this.websocketService.disconnect();
+  }
 
   setCurrentServer() {
     console.log(this.currentServer);
-    this.historyService.setIsLoading(true);
-    this.timerService.setIsLoading(true);
+    this.historyService.isLoading = true;
+    this.timerService.isLoading = true;
     this.storageService.setCurrentServer(this.currentServer);
     this.getHistory();
     this.getAllBosses();
@@ -54,31 +97,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentServer() {
     if (this.storageService.getLocalStorage('server')) {
-      this.currentServer = this.storageService.getLocalStorage('server');
     }
+  }
+
+  sortTimerList(timerList: TimerItem[]): void {
+    timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime - b.mobData.respawnTime;
+      }
+
+      return 0;
+    });
   }
 
   getAllBosses(): void {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         this.timerList = [...res];
-        this.timerList = this.timerList.sort((a, b) => {
-          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+        this.sortTimerList(this.timerList);
 
-          if (a.mobData.respawnTime && b.mobData.respawnTime) {
-            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
-          }
+        this.timerService.timerList = this.timerList;
 
-          return 0;
-        });
-
-        this.timerService.setTimerList(this.timerList);
-
-        this.timerList.map((item) => {
+        this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
         });
-        this.timerService.setIsLoading(false);
+        this.timerService.isLoading = false;
       },
     });
   }
@@ -88,9 +134,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.historyListData = res;
         this.historyList = res.data;
-        this.historyService.setHistoryList(this.historyList);
-        this.historyService.setHistoryListData(this.historyListData);
-        this.historyService.setIsLoading(false);
+        this.historyService.historyList = this.historyList;
+        this.historyService.historyListData = this.historyListData;
+        this.historyService.isLoading = false;
       },
     });
   }
@@ -102,17 +148,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         this.timerList = [...res];
-        this.timerList = this.timerList.sort((a, b) => {
-          if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-          if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+        this.sortTimerList(this.timerList);
 
-          if (a.mobData.respawnTime && b.mobData.respawnTime) {
-            return a.mobData.respawnTime > b.mobData.respawnTime ? 1 : -1;
-          }
-
-          return 0;
-        });
-        this.timerList.map((item) => {
+        this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
           if (item.mobData.respawnTime) {
             data.push(
@@ -122,14 +160,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
             );
           }
         });
-        this.message.create('success', 'Респы были успешно скопированы');
+        this.messageService.create('success', 'Респы были успешно скопированы');
         navigator.clipboard.writeText(data.join(',\n'));
       },
     });
   }
 
   showCrashServerModal() {
-    this.modal.confirm({
+    this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent:
         '<b>Вы точно хотите переписать все респы с учётом падения сервера?</b>',
@@ -142,12 +180,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onCrashServer() {
     this.getCurrentServer();
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     console.log(this.currentServer);
     this.timerService.crashServerBosses(this.currentServer).subscribe({
       next: (res) => {
         this.getAllBosses();
-        this.message.create('success', 'Респы теперь с учётом падения сервера');
+        this.messageService.create(
+          'success',
+          'Респы теперь с учётом падения сервера'
+        );
       },
     });
   }
@@ -165,7 +206,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   showLogoutModal(): void {
-    this.modal.confirm({
+    this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent: '<b>Вы точно хотите выйти?</b>',
       nzOkText: 'Да',
@@ -180,7 +221,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: (res) => {
-        this.timerService.setHeaderVisibility(false);
+        this.timerService.headerVisibility = false;
         this.storageService.clean();
         this.onLogin();
       },
@@ -188,12 +229,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onHistory(): void {
-    this.historyService.setIsLoading(true);
+    this.historyService.isLoading = true;
     this.router.navigate(['/history']);
   }
 
   onTimer(): void {
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     this.router.navigate(['/timer']);
   }
 
@@ -203,47 +244,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateRoute(): void {
     this.currentRoute = this.router.url;
-  }
-
-  ngOnInit(): void {
-    if (this.storageService.getLocalStorage('token')) {
-      this.websocketService.connect(
-        this.storageService.getLocalStorage('token'),
-        this.storageService.getLocalStorage('email')
-      );
-    }
-
-    this.isOnlineSubscription = this.websocketService
-      .getIsOnline()
-      .subscribe((res: any) => {
-        if (res) {
-          console.log('isOnline', res);
-          if (this.storageService.getLocalStorage('email') === res.email) {
-            this.isOnline = res.status;
-          }
-        }
-      });
-
-    this.isOnlineSubscription = this.websocketService
-      .getOnlineUserList()
-      .subscribe((res: any) => {
-        if (res) {
-          console.log('onlineUserList', res);
-        }
-      });
-
-    this.getCurrentServer();
-    this.router.events.subscribe(() => {
-      this.updateRoute();
-    });
-    this.updateRoute();
-  }
-
-  ngOnDestroy(): void {
-    if (this.isOnlineSubscription) {
-      this.isOnlineSubscription.unsubscribe();
-    }
-
-    this.websocketService.disconnect();
   }
 }

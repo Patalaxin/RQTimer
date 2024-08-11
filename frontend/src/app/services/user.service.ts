@@ -1,8 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
+import { createHeaders } from '../utils/http';
 
 const USER_API = environment.apiUrl + '/user/';
 
@@ -10,55 +11,46 @@ const USER_API = environment.apiUrl + '/user/';
   providedIn: 'root',
 })
 export class UserService {
-  accessToken: string = '';
-  private currentUser$ = new BehaviorSubject<any[]>([]);
-  currentUser = this.currentUser$.asObservable();
+  private http = inject(HttpClient);
+  private storageService = inject(StorageService);
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
+  private currentUserSubject$ = new BehaviorSubject<any[]>([]);
 
-  setCurrentUser(user: any[]) {
-    this.currentUser$.next(user);
+  get currentUser$(): Observable<any[]> {
+    return this.currentUserSubject$.asObservable();
+  }
+
+  set currentUser(user: any[]) {
+    this.currentUserSubject$.next(user);
   }
 
   getUser(): Observable<any> {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     return this.http.get(USER_API, { headers });
   }
 
   getAllUsers(): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(USER_API + 'findAll', { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${USER_API}findAll`, { headers });
   }
 
   getSpecificUser(key: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(USER_API + 'specificUser/' + key, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${USER_API}specificUser/${key}`, { headers });
   }
 
-  createUser(
-    nickname: string,
-    email: string,
-    password: string,
-    sessionId: string,
-    excludedMobs: string[]
-  ): Observable<any> {
+  createUser(user: any, excludedMobs: string[]): Observable<any> {
     let payload = {
-      nickname,
-      email,
-      password,
-      sessionId,
+      ...user,
       excludedMobs,
     };
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     return this.http.post(USER_API, payload, { headers });
   }
 
   deleteUser(key: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.delete(USER_API + key, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.delete(`${USER_API}${key}`, { headers });
   }
 
   forgotPassword(
@@ -71,8 +63,8 @@ export class UserService {
       sessionId,
       newPassword,
     };
-    const headers = this.createHeaders();
-    return this.http.put(USER_API + 'forgotPassword', payload, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.put(`${USER_API}forgotPassword`, payload, { headers });
   }
 
   changePassword(oldPassword: string, newPassword: string): Observable<any> {
@@ -80,65 +72,38 @@ export class UserService {
       oldPassword,
       newPassword,
     };
-    const headers = this.createHeaders();
-    return this.http.put(USER_API + 'changePassword', payload, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.put(`${USER_API}changePassword`, payload, { headers });
   }
 
   updateRole(key: string, role: string): Observable<any> {
-    const headers = this.createHeaders();
-
-    let payload = {};
-    if (key.includes('@')) {
-      payload = {
-        email: key,
-        role,
-      };
-    } else {
-      payload = {
-        nickname: key,
-        role,
-      };
-    }
-    return this.http.put(USER_API + 'updateRole', payload, { headers });
+    const headers = createHeaders(this.storageService);
+    let payload = this.createUserPayload(key, { role });
+    return this.http.put(`${USER_API}updateRole`, payload, { headers });
   }
 
   updateExcluded(excludedMobs: string[]): Observable<any> {
     let payload = {
       excludedMobs,
     };
-    const headers = this.createHeaders();
-    return this.http.put(USER_API + 'updateExcluded', payload, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.put(`${USER_API}updateExcluded`, payload, { headers });
   }
 
   updateUnavailable(key: string, unavailableMobs: string[]): Observable<any> {
-    let payload = {};
-    if (key.includes('@')) {
-      payload = {
-        email: key,
-        unavailableMobs,
-      };
-    } else {
-      payload = {
-        nickname: key,
-        unavailableMobs,
-      };
-    }
-
-    const headers = this.createHeaders();
-    return this.http.put(USER_API + 'updateUnavailable', payload, { headers });
+    let payload = this.createUserPayload(key, { unavailableMobs });
+    const headers = createHeaders(this.storageService);
+    return this.http.put(`${USER_API}updateUnavailable`, payload, { headers });
   }
 
   generateSessionId(): Observable<any> {
     let payload = {};
-    const headers = this.createHeaders();
-    return this.http.post(USER_API + 'generateSessionId', payload, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.post(`${USER_API}generateSessionId`, payload, { headers });
   }
 
-  private createHeaders(): HttpHeaders {
-    this.accessToken = this.storageService.getLocalStorage('token');
-    return new HttpHeaders({ 'Content-Type': 'application/json' }).set(
-      'Authorization',
-      `Bearer ${this.accessToken}`
-    );
+  private createUserPayload(key: string, additionalData: object): object {
+    const payload = key.includes('@') ? { email: key } : { nickname: key };
+    return { ...payload, ...additionalData };
   }
 }

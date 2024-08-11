@@ -204,7 +204,7 @@
           nzType="default"
           (click)="next()"
           *ngIf="currentStep < 1"
-          [disabled]="!form.valid"
+          [disabled]="form.invalid"
           nzShape="round"
         >
           <span>Вперёд</span>

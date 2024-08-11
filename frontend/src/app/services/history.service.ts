@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
-import { BehaviorSubject } from 'rxjs';
-import { TimerItem } from '../interfaces/timer-item';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { createHeaders } from '../utils/http';
 
 const HISTORY_API = environment.apiUrl + '/history/';
 
@@ -11,58 +11,50 @@ const HISTORY_API = environment.apiUrl + '/history/';
   providedIn: 'root',
 })
 export class HistoryService {
-  accessToken: string = '';
-  private historyList$ = new BehaviorSubject<any>([]);
-  historyList = this.historyList$.asObservable();
-  private historyListData$ = new BehaviorSubject<any>([]);
-  historyListData = this.historyListData$.asObservable();
-  private isLoading$ = new BehaviorSubject<boolean>(true);
-  isLoading = this.isLoading$.asObservable();
+  private http = inject(HttpClient);
+  private storageService = inject(StorageService);
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
+  private historyListSubject$ = new BehaviorSubject<any>([]);
+  private historyListDataSubject$ = new BehaviorSubject<any>([]);
+  private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
 
-  setIsLoading(value: boolean) {
-    this.isLoading$.next(value);
+  get historyList$(): Observable<any[]> {
+    return this.historyListSubject$.asObservable();
   }
 
-  setHistoryList(list: any) {
-    this.historyList$.next(list);
+  get historyListData$(): Observable<any[]> {
+    return this.historyListDataSubject$.asObservable();
   }
 
-  setHistoryListData(list: any) {
-    this.historyListData$.next(list);
+  get isLoading$(): Observable<boolean> {
+    return this.isLoadingSubject$.asObservable();
+  }
+
+  set historyList(list: any) {
+    this.historyListSubject$.next(list);
+  }
+
+  set historyListData(list: any) {
+    this.historyListDataSubject$.next(list);
+  }
+
+  set isLoading(value: boolean) {
+    this.isLoadingSubject$.next(value);
   }
 
   getHistory(server: string, mobName?: string, page?: number, limit?: number) {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     let params = new HttpParams();
 
-    if (mobName) {
-      params = params.set('mobName', mobName);
-    }
+    if (mobName) params = params.set('mobName', mobName);
 
-    if (page) {
-      params = params.set('page', page);
-    }
+    if (page) params = params.set('page', page);
 
-    if (limit) {
-      params = params.set('limit', limit);
-    }
+    if (limit) params = params.set('limit', limit);
 
-    return this.http.get(HISTORY_API + 'findAll/' + server, {
+    return this.http.get(`${HISTORY_API}findAll/${server}`, {
       params,
       headers,
     });
-  }
-
-  private createHeaders(): HttpHeaders {
-    this.accessToken = this.storageService.getLocalStorage('token');
-    return new HttpHeaders({ 'Content-Type': 'application/json' }).set(
-      'Authorization',
-      `Bearer ${this.accessToken}`
-    );
   }
 }

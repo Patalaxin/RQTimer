@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
-  FormBuilder,
   FormControl,
   FormGroup,
   Validators,
@@ -19,6 +18,11 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private configurationService = inject(ConfigurationService);
+  private messageService = inject(NzMessageService);
+
   currentStep: number = 0;
 
   selectedBossesCheckbox: string[] = [];
@@ -27,25 +31,32 @@ export class RegisterComponent implements OnInit {
   bossesCheckboxList: any;
   elitesCheckboxList: any;
 
-  form: FormGroup = new FormGroup({
-    nickname: new FormControl(''),
-    email: new FormControl(''),
-    password: new FormControl(''),
-    confirmPassword: new FormControl(''),
-    sessionId: new FormControl(''),
-    excludedBosses: new FormArray([]),
-    excludedElites: new FormArray([]),
-  });
+  form: FormGroup = new FormGroup(
+    {
+      nickname: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      confirmPassword: new FormControl('', [Validators.required]),
+      sessionId: new FormControl('', [Validators.required]),
+      excludedBosses: new FormArray([]),
+      excludedElites: new FormArray([]),
+    },
+    {
+      validators: [Validation.match('password', 'confirmPassword')],
+    }
+  );
   submitted: boolean = false;
   passwordVisible: boolean = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService,
-    private configurationService: ConfigurationService,
-    private message: NzMessageService,
-    private router: Router
-  ) {}
+  ngOnInit(): void {
+    this.getMobs();
+  }
 
   prev(): void {
     this.currentStep--;
@@ -60,7 +71,7 @@ export class RegisterComponent implements OnInit {
     console.log('done');
   }
 
-  get f(): { [key: string]: AbstractControl } {
+  get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
   }
 
@@ -91,18 +102,20 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
+    console.log('===>', this.form.value);
+
+    const { confirmPassword, excludedBosses, excludedElites, ...userInfo } =
+      this.form.value;
+
     this.userService
-      .createUser(
-        this.form.value.nickname,
-        this.form.value.email,
-        this.form.value.password,
-        this.form.value.sessionId,
-        [...this.selectedBossesCheckbox, ...this.selectedElitesCheckbox]
-      )
+      .createUser(userInfo, [
+        ...this.selectedBossesCheckbox,
+        ...this.selectedElitesCheckbox,
+      ])
       .subscribe({
         next: (res) => {
           console.log(res);
-          this.message.create('success', 'Пользователь успешно создан');
+          this.messageService.create('success', 'Пользователь успешно создан');
           this.router.navigate(['/login']);
         },
         error: (err) => {
@@ -110,12 +123,12 @@ export class RegisterComponent implements OnInit {
             err.message ===
             'A user with such an email or nickname already exists!'
           ) {
-            return this.message.create(
+            return this.messageService.create(
               'error',
               'Пользователь с данным никнеймом или почтой уже существует'
             );
           }
-          return this.message.create(
+          return this.messageService.create(
             'error',
             'Ошибка, обратитесь к создателям таймера'
           );
@@ -137,24 +150,5 @@ export class RegisterComponent implements OnInit {
     checkboxList.forEach(() => {
       control.push(new FormControl());
     });
-  }
-
-  ngOnInit(): void {
-    this.form = this.formBuilder.group(
-      {
-        nickname: ['', [Validators.required, Validators.minLength(3)]],
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(3)]],
-        confirmPassword: ['', [Validators.required]],
-        sessionId: ['', [Validators.required]],
-        excludedBosses: this.formBuilder.array([]),
-        excludedElites: this.formBuilder.array([]),
-      },
-      {
-        validators: [Validation.match('password', 'confirmPassword')],
-      }
-    );
-
-    this.getMobs();
   }
 }

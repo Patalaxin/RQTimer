@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
@@ -12,9 +12,16 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./history.component.scss'],
 })
 export class HistoryComponent implements OnInit {
+  private router = inject(Router);
+  private timerService = inject(TimerService);
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private storageService = inject(StorageService);
+  private historyService = inject(HistoryService);
+
   historyList: any = [];
   historyListData: any = [];
-  isLoading = this.historyService.isLoading;
+  isLoading = this.historyService.isLoading$;
 
   user = {
     nickname: '',
@@ -22,14 +29,21 @@ export class HistoryComponent implements OnInit {
     role: '',
   };
 
-  constructor(
-    private router: Router,
-    private timerService: TimerService,
-    private authService: AuthService,
-    private userService: UserService,
-    private storageService: StorageService,
-    private historyService: HistoryService
-  ) {}
+  ngOnInit(): void {
+    this.getUser();
+    this.historyService.historyList$.subscribe({
+      next: (res) => {
+        this.historyList = res;
+        console.log('history', this.historyList);
+      },
+    });
+
+    this.historyService.historyListData$.subscribe({
+      next: (res) => {
+        this.historyListData = res;
+      },
+    });
+  }
 
   getUser() {
     this.userService.getUser().subscribe({
@@ -65,13 +79,13 @@ export class HistoryComponent implements OnInit {
       next: (res: any) => {
         this.historyListData = res;
         this.historyList = res.data;
-        this.historyService.setIsLoading(false);
+        this.historyService.isLoading = false;
       },
     });
   }
 
   onTimer(): void {
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     this.router.navigate(['/timer']);
   }
 
@@ -84,10 +98,9 @@ export class HistoryComponent implements OnInit {
   }
 
   private exchangeRefresh() {
-    let key =
-      Object.keys(this.storageService.getLocalStorage('email')).length === 0
-        ? this.storageService.getLocalStorage('nickname')
-        : this.storageService.getLocalStorage('email');
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
@@ -98,22 +111,6 @@ export class HistoryComponent implements OnInit {
         if (err.status === 401) {
           this.onLogout();
         }
-      },
-    });
-  }
-
-  ngOnInit(): void {
-    this.getUser();
-    this.historyService.historyList.subscribe({
-      next: (res) => {
-        this.historyList = res;
-        console.log('history', this.historyList);
-      },
-    });
-
-    this.historyService.historyListData.subscribe({
-      next: (res) => {
-        this.historyListData = res;
       },
     });
   }

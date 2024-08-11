@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
   FormControl,
   FormGroup,
   Validators,
@@ -10,7 +9,6 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AuthService } from 'src/app/services/auth.service';
-import { ConfigurationService } from 'src/app/services/configuration.service';
 import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
@@ -19,25 +17,28 @@ import { StorageService } from 'src/app/services/storage.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private storageService = inject(StorageService);
+  private messageService = inject(NzMessageService);
+
   form: FormGroup = new FormGroup({
-    key: new FormControl(''),
-    password: new FormControl(''),
+    key: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    password: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+    ]),
   });
   submitted: boolean = false;
   passwordVisible: boolean = false;
 
   isLoginLoading: boolean = false;
 
-  constructor(
-    private router: Router,
-    private formBuilder: FormBuilder,
-    private authService: AuthService,
-    private storageService: StorageService,
-    // private configurationService: ConfigurationService,
-    private message: NzMessageService
-  ) {}
+  ngOnInit(): void {
+    // this.getServers();
+  }
 
-  get f(): { [key: string]: AbstractControl } {
+  get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
   }
 
@@ -64,7 +65,7 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           this.isLoginLoading = false;
-          this.message.create('error', 'Неверный логин или пароль');
+          this.messageService.create('error', 'Неверный логин или пароль');
         },
       });
   }
@@ -80,12 +81,4 @@ export class LoginComponent implements OnInit {
   //     },
   //   });
   // }
-
-  ngOnInit(): void {
-    // this.getServers();
-    this.form = this.formBuilder.group({
-      key: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(3)]],
-    });
-  }
 }

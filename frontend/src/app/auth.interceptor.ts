@@ -1,15 +1,14 @@
-import { Injectable } from '@angular/core';
 import {
-  HttpEvent,
-  HttpInterceptor,
-  HttpHandler,
-  HttpRequest,
   HTTP_INTERCEPTORS,
+  HttpEvent,
+  HttpHandler,
   HttpHeaders,
+  HttpInterceptor,
+  HttpRequest,
 } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { StorageService } from './services/storage.service';
-import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -11,6 +11,12 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
+  private router = inject(Router);
+  private timerService = inject(TimerService);
+  private authService = inject(AuthService);
+  private userService = inject(UserService);
+  private storageService = inject(StorageService);
+
   user = {
     nickname: '',
     email: '',
@@ -20,18 +26,14 @@ export class ProfileComponent implements OnInit {
   excludedMobs = [];
   isLoading: boolean = true;
 
-  constructor(
-    private router: Router,
-    private timerService: TimerService,
-    private authService: AuthService,
-    private userService: UserService,
-    private storageService: StorageService
-  ) {}
+  ngOnInit(): void {
+    this.getUser();
+  }
 
   getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
-        this.userService.setCurrentUser(res);
+        this.userService.currentUser = res;
         console.log('getUser', res);
         this.user = {
           nickname: res.nickname,
@@ -61,7 +63,7 @@ export class ProfileComponent implements OnInit {
   }
 
   onTimer(): void {
-    this.timerService.setIsLoading(true);
+    this.timerService.isLoading = true;
     this.router.navigate(['/timer']);
   }
 
@@ -74,10 +76,9 @@ export class ProfileComponent implements OnInit {
   }
 
   private exchangeRefresh() {
-    let key =
-      Object.keys(this.storageService.getLocalStorage('email')).length === 0
-        ? this.storageService.getLocalStorage('nickname')
-        : this.storageService.getLocalStorage('email');
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
@@ -90,9 +91,5 @@ export class ProfileComponent implements OnInit {
         }
       },
     });
-  }
-
-  ngOnInit(): void {
-    this.getUser();
   }
 }

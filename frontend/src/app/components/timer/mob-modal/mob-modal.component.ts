@@ -1,5 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-// import * as moment from 'moment';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import * as moment from 'moment-timezone';
 
 import { TimerItem } from 'src/app/interfaces/timer-item';
@@ -22,6 +28,8 @@ export interface CreateItem {
   styleUrls: ['./mob-modal.component.scss'],
 })
 export class MobModalComponent implements OnInit {
+  private configurationService = inject(ConfigurationService);
+
   @Input() item: TimerItem | undefined;
   @Output() onCreateEdit: EventEmitter<any> = new EventEmitter<any>();
 
@@ -37,7 +45,30 @@ export class MobModalComponent implements OnInit {
 
   createEditItem: CreateItem = {};
 
-  constructor(private configurationService: ConfigurationService) {}
+  ngOnInit(): void {
+    let userTimezone = moment.tz.guess();
+    let diffTimeZone = moment.tz(userTimezone).utcOffset() * 60000;
+
+    if (this.item) {
+      this.selectedMobType = this.item.mob.mobType;
+      this.selectedMobName = this.item.mob.mobName;
+      this.selectedLocation = this.item.mob.location;
+      this.selectedCooldownTime = moment(
+        this.item.mob.cooldownTime + 946598400000 - diffTimeZone
+      ).valueOf();
+      this.createEditItem = {
+        mobName: this.item.mob.mobName,
+        shortName: this.item.mob.shortName,
+        location: this.item.mob.location,
+        respawnText: this.item.mob.respawnText,
+        image: this.item.mob.image,
+        cooldownTime: this.formatCooldownTime(this.item.mob.cooldownTime, true),
+        mobType: this.item.mob.mobType,
+        currentLocation: this.item.mob.location,
+      };
+    }
+    this.getMobs();
+  }
 
   getMobs(): void {
     this.configurationService.getMobs().subscribe({
@@ -133,30 +164,5 @@ export class MobModalComponent implements OnInit {
       );
     }
     return this.mobList.elitesArray.find((mob: any) => mob.mobName === mobName);
-  }
-
-  ngOnInit(): void {
-    let userTimezone = moment.tz.guess();
-    let diffTimeZone = moment.tz(userTimezone).utcOffset() * 60000;
-
-    if (this.item) {
-      this.selectedMobType = this.item.mob.mobType;
-      this.selectedMobName = this.item.mob.mobName;
-      this.selectedLocation = this.item.mob.location;
-      this.selectedCooldownTime = moment(
-        this.item.mob.cooldownTime + 946598400000 - diffTimeZone
-      ).valueOf();
-      this.createEditItem = {
-        mobName: this.item.mob.mobName,
-        shortName: this.item.mob.shortName,
-        location: this.item.mob.location,
-        respawnText: this.item.mob.respawnText,
-        image: this.item.mob.image,
-        cooldownTime: this.formatCooldownTime(this.item.mob.cooldownTime, true),
-        mobType: this.item.mob.mobType,
-        currentLocation: this.item.mob.location,
-      };
-    }
-    this.getMobs();
   }
 }

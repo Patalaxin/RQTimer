@@ -1,11 +1,11 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
@@ -17,6 +17,11 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./user.component.scss'],
 })
 export class UserComponent implements OnInit {
+  private userService = inject(UserService);
+  private configurationService = inject(ConfigurationService);
+  private messageService = inject(NzMessageService);
+  private cdr = inject(ChangeDetectorRef);
+
   @Input() excludedMobs: any;
   @Input() role: string = '';
 
@@ -37,23 +42,29 @@ export class UserComponent implements OnInit {
   });
   excludedSubmitted: boolean = false;
 
-  changePasswordForm: FormGroup = new FormGroup({
-    oldPassword: new FormControl(''),
-    newPassword: new FormControl(''),
-    confirmNewPassword: new FormControl(''),
-  });
-
+  changePasswordForm: FormGroup = new FormGroup(
+    {
+      oldPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      newPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      confirmNewPassword: new FormControl('', [Validators.required]),
+    },
+    {
+      validators: [Validation.match('newPassword', 'confirmNewPassword')],
+    }
+  );
   changePasswordSubmitted: boolean = false;
 
   passwordVisible: boolean = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService,
-    private configurationService: ConfigurationService,
-    private message: NzMessageService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  ngOnInit(): void {
+    this.getMobs();
+  }
 
   get excludedBosses() {
     return this.excludedForm.controls['excludedBosses'] as FormArray;
@@ -67,10 +78,10 @@ export class UserComponent implements OnInit {
     this.configurationService.getMobs().subscribe({
       next: (res) => {
         console.log(res);
-        res.bossesArray.map((boss: any) => {
+        res.bossesArray.forEach((boss: any) => {
           this.bossList.push(boss.mobName);
         });
-        res.elitesArray.map((elite: any) => {
+        res.elitesArray.forEach((elite: any) => {
           this.eliteList.push(elite.mobName);
         });
         this.bossesCheckboxList = res.bossesArray;
@@ -101,7 +112,7 @@ export class UserComponent implements OnInit {
       .subscribe({
         next: (res) => {
           console.log(res);
-          this.message.create(
+          this.messageService.create(
             'success',
             'Настройки отображения успешно обновлены'
           );
@@ -124,7 +135,7 @@ export class UserComponent implements OnInit {
       .subscribe({
         next: (res) => {
           console.log(res);
-          this.message.create('success', 'Пароль успешно изменён');
+          this.messageService.create('success', 'Пароль успешно изменён');
 
           this.changePasswordForm.reset();
         },
@@ -170,25 +181,5 @@ export class UserComponent implements OnInit {
       }
     });
     this.cdr.detectChanges();
-  }
-
-  ngOnInit(): void {
-    this.excludedForm = this.formBuilder.group({
-      excludedBosses: this.formBuilder.array([]),
-      excludedElites: this.formBuilder.array([]),
-    });
-
-    this.changePasswordForm = this.formBuilder.group(
-      {
-        oldPassword: ['', [Validators.required, Validators.minLength(3)]],
-        newPassword: ['', [Validators.required, Validators.minLength(3)]],
-        confirmNewPassword: ['', [Validators.required]],
-      },
-      {
-        validators: [Validation.match('newPassword', 'confirmNewPassword')],
-      }
-    );
-
-    this.getMobs();
   }
 }

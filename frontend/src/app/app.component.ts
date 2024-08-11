@@ -3,8 +3,9 @@ import {
   ChangeDetectorRef,
   Component,
   OnInit,
+  inject,
 } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TimerService } from './services/timer.service';
 
@@ -14,18 +15,16 @@ import { TimerService } from './services/timer.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, AfterViewChecked {
+  private router = inject(Router);
+  private timerService = inject(TimerService);
+  private cdr = inject(ChangeDetectorRef);
+
   title = 'rq-timer-fe';
   showBackground: boolean = false;
   isVisible: boolean = false;
 
-  constructor(
-    private router: Router,
-    private timerService: TimerService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit() {
-    this.timerService.headerVisibility.subscribe({
+    this.timerService.headerVisibility$.subscribe({
       next: (res) => {
         this.isVisible = res;
       },

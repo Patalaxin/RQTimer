@@ -52,7 +52,7 @@
         class="login-form-button login-form-mb-16px"
         [nzType]="'primary'"
         type="submit"
-        [disabled]="!form.valid"
+        [disabled]="form.invalid"
         [nzLoading]="isLoginLoading"
         nzShape="round"
       >

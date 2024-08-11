@@ -4,4 +4,10 @@ export const environment = {
   apiUrl: 'https://www.rqtimer.ru/api',
   // apiUrl: 'http://localhost:3000',
   timezoneDb: '4WO2T6BMUPV3',
+  localStorage: {
+    EMAIL: 'email',
+    NICKNAME: 'nickname',
+    ACCESS_TOKEN: 'access-token',
+    SERVER: 'server',
+  },
 };

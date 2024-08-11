@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
 import { environment } from 'src/environments/environment';
+import { createHeaders } from '../utils/http';
 
 const MOB_URL = environment.apiUrl + '/mob/';
 
@@ -11,112 +12,84 @@ const MOB_URL = environment.apiUrl + '/mob/';
   providedIn: 'root',
 })
 export class TimerService {
-  accessToken: string = '';
-  private timerList$ = new BehaviorSubject<TimerItem[]>([]);
-  timerList = this.timerList$.asObservable();
-  private isLoading$ = new BehaviorSubject<boolean>(true);
-  isLoading = this.isLoading$.asObservable();
-  private headerVisibility$ = new BehaviorSubject<boolean>(false);
-  headerVisibility = this.headerVisibility$.asObservable();
+  private http = inject(HttpClient);
+  private storageService = inject(StorageService);
 
-  constructor(
-    private http: HttpClient,
-    private storageService: StorageService
-  ) {}
+  private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
+  private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
+  private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
 
-  setTimerList(list: TimerItem[]): void {
-    this.timerList$.next(list);
+  get timerList$(): Observable<TimerItem[]> {
+    return this.timerListSubject$.asObservable();
   }
 
-  setIsLoading(value: boolean): void {
-    this.isLoading$.next(value);
+  get isLoading$(): Observable<boolean> {
+    return this.isLoadingSubject$.asObservable();
   }
 
-  setHeaderVisibility(visible: boolean): void {
-    this.headerVisibility$.next(visible);
+  get headerVisibility$(): Observable<boolean> {
+    return this.headerVisibilitySubject$.asObservable();
+  }
+
+  set timerList(list: TimerItem[]) {
+    this.timerListSubject$.next(list);
+  }
+
+  set isLoading(value: boolean) {
+    this.isLoadingSubject$.next(value);
+  }
+
+  set headerVisibility(visible: boolean) {
+    this.headerVisibilitySubject$.next(visible);
   }
 
   getWorldTime(): Observable<any> {
     return this.http.get(
-      `http://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`
+      `https://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`
     );
   }
 
-  createMob(
-    mobName: string,
-    shortName: string,
-    location: string,
-    respawnText: string,
-    image: string,
-    cooldownTime: number,
-    server: string,
-    mobType: string
-  ): Observable<any> {
+  createMob(item: any, server: string): Observable<any> {
     let payload = {
-      mobName,
-      shortName,
-      location,
-      respawnText,
-      image,
-      cooldownTime,
+      ...item,
       server,
-      mobType,
     };
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     return this.http.post(MOB_URL, payload, { headers });
   }
 
-  editMob(
-    mobName: string,
-    shortName: string,
-    location: string,
-    respawnText: string,
-    image: string,
-    cooldownTime: number,
-    server: string,
-    mobType: string,
-    currentLocation: string
-  ): Observable<any> {
+  editMob(item: any, server: string): Observable<any> {
+    const { currentLocation, ...itemInfo } = item;
     let payload = {
-      mobName,
-      shortName,
-      location,
-      respawnText,
-      image,
-      cooldownTime,
-      mobType,
+      ...itemInfo,
     };
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     return this.http.put(
-      MOB_URL + mobName + '/' + server + '/' + currentLocation,
+      `${MOB_URL}${item.mobName}/${server}/${currentLocation}`,
       payload,
       { headers }
     );
   }
 
   deleteMob(mobName: string, server: string, location: string) {
-    const headers = this.createHeaders();
-    return this.http.delete(MOB_URL + mobName + '/' + server + '/' + location, {
+    const headers = createHeaders(this.storageService);
+    return this.http.delete(`${MOB_URL}${mobName}/${server}/${location}`, {
       headers,
     });
   }
 
   getAllBosses(server: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.get(MOB_URL + `${server}`, { headers });
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${MOB_URL}${server}`, { headers });
   }
 
   crashServerBosses(server: string): Observable<any> {
-    const headers = this.createHeaders();
-    return this.http.post(
-      MOB_URL + 'crashServer/' + `${server}`,
-      {},
-      { headers }
-    );
+    const headers = createHeaders(this.storageService);
+    return this.http.post(`${MOB_URL}crashServer/${server}`, {}, { headers });
   }
 
   setByDeathTime(item: TimerItem, dateOfDeath: number): Observable<any> {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     let payload = {
       dateOfDeath,
       mobName: item.mob.mobName,
@@ -124,13 +97,13 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(MOB_URL + 'updateMobDateOfDeath', payload, {
+    return this.http.put(`${MOB_URL}updateMobDateOfDeath`, payload, {
       headers,
     });
   }
 
   setByRespawnTime(item: TimerItem, dateOfRespawn: number): Observable<any> {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     let payload = {
       dateOfRespawn,
       mobName: item.mob.mobName,
@@ -138,13 +111,13 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(MOB_URL + 'updateMobDateOfRespawn', payload, {
+    return this.http.put(`${MOB_URL}updateMobDateOfRespawn`, payload, {
       headers,
     });
   }
 
   setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     let payload = {
       mobName: item.mob.mobName,
       server: item.mob.server,
@@ -152,58 +125,21 @@ export class TimerService {
       cooldown,
     };
 
-    return this.http.put(MOB_URL + 'updateMobByCooldown', payload, {
+    return this.http.put(`${MOB_URL}updateMobByCooldown`, payload, {
       headers,
     });
   }
 
-  // updateCooldownCounter(item: TimerItem, cooldown: number): Observable<any> {
-  //   const headers = this.createHeaders();
-  //   let payload = {
-  //     mobName: item.mob.mobName,
-  //     server: item.mob.server,
-  //     location: item.mob.location,
-  //     cooldown,
-  //   };
-
-  //   return this.http.put(MOB_URL + 'updateMobCooldownCounter', payload, {
-  //     headers,
-  //   });
-  // }
-
   respawnLost(item: TimerItem): Observable<any> {
-    const headers = this.createHeaders();
+    const headers = createHeaders(this.storageService);
     let payload = {};
 
-    console.log(
-      'respawnLost/' +
-        item.mob.mobName +
-        '/' +
-        item.mob.location +
-        '/' +
-        item.mob.server
-    );
-
     return this.http.put(
-      MOB_URL +
-        'respawnLost/' +
-        item.mob.mobName +
-        '/' +
-        item.mob.server +
-        '/' +
-        item.mob.location,
+      `${MOB_URL}respawnLost/${item.mob.mobName}/${item.mob.server}/${item.mob.location}`,
       payload,
       {
         headers,
       }
-    );
-  }
-
-  private createHeaders(): HttpHeaders {
-    this.accessToken = this.storageService.getLocalStorage('token');
-    return new HttpHeaders({ 'Content-Type': 'application/json' }).set(
-      'Authorization',
-      `Bearer ${this.accessToken}`
     );
   }
 }

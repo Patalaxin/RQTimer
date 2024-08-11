@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
   FormControl,
   FormGroup,
   Validators,
@@ -16,24 +15,29 @@ import Validation from 'src/app/utils/validtion';
   templateUrl: './change-password.component.html',
   styleUrls: ['./change-password.component.scss'],
 })
-export class ChangePasswordComponent implements OnInit {
-  form: FormGroup = new FormGroup({
-    email: new FormControl(''),
-    sessionId: new FormControl(''),
-    newPassword: new FormControl(''),
-    confirmPassword: new FormControl(''),
-  });
+export class ChangePasswordComponent {
+  private router = inject(Router);
+  private userService = inject(UserService);
+  private messageService = inject(NzMessageService);
+
+  form: FormGroup = new FormGroup(
+    {
+      email: new FormControl('', [Validators.required, Validators.email]),
+      sessionId: new FormControl('', [Validators.required]),
+      newPassword: new FormControl('', [
+        Validators.required,
+        Validators.minLength(3),
+      ]),
+      confirmPassword: new FormControl('', [Validators.required]),
+    },
+    {
+      validators: [Validation.match('newPassword', 'confirmPassword')],
+    }
+  );
   submitted: boolean = false;
   passwordVisible: boolean = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private userService: UserService,
-    private router: Router,
-    private message: NzMessageService
-  ) {}
-
-  get f(): { [key: string]: AbstractControl } {
+  get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
   }
 
@@ -54,12 +58,12 @@ export class ChangePasswordComponent implements OnInit {
         next: (res) => {
           console.log(res);
           if (res.message === 'Password successfully changed') {
-            this.message.create('success', 'Пароль успешно изменён');
+            this.messageService.create('success', 'Пароль успешно изменён');
             this.router.navigate(['/login']);
           }
         },
         error: (err) => {
-          this.message.create(
+          this.messageService.create(
             'error',
             'Ошибка, обратитесь к создателям таймера'
           );
@@ -69,19 +73,5 @@ export class ChangePasswordComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/login']);
-  }
-
-  ngOnInit(): void {
-    this.form = this.formBuilder.group(
-      {
-        email: ['', [Validators.required, Validators.email]],
-        sessionId: ['', [Validators.required]],
-        newPassword: ['', [Validators.required, Validators.minLength(3)]],
-        confirmPassword: ['', [Validators.required]],
-      },
-      {
-        validators: [Validation.match('newPassword', 'confirmPassword')],
-      }
-    );
   }
 }

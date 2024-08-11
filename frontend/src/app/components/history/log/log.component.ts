@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit, inject } from '@angular/core';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 
@@ -8,6 +8,9 @@ import { StorageService } from 'src/app/services/storage.service';
   styleUrls: ['./log.component.scss'],
 })
 export class LogComponent implements OnInit {
+  private historyService = inject(HistoryService);
+  private storageService = inject(StorageService);
+
   @Input() historyList: any;
   @Input() historyListData: any;
   @Input() mobName: string = '';
@@ -18,15 +21,12 @@ export class LogComponent implements OnInit {
   isLoading: boolean = false;
   isScreenWidth550: boolean = false;
 
-  constructor(
-    private historyService: HistoryService,
-    private storageService: StorageService
-  ) {
-    console.log('historyList', this.historyList);
-  }
-
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
+    this.checkScreenWidth();
+  }
+
+  ngOnInit(): void {
     this.checkScreenWidth();
   }
 
@@ -81,9 +81,5 @@ export class LogComponent implements OnInit {
     };
 
     return methods[item.historyTypes] || 'по тупому';
-  }
-
-  ngOnInit(): void {
-    this.checkScreenWidth();
   }
 }
