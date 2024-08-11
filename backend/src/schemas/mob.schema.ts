@@ -66,6 +66,10 @@ export class Mob {
   @Prop()
   __v: number;
 
+  @ApiProperty()
+  @Exclude()
+  _id: mongoose.Types.ObjectId;
+
   constructor(partial: Partial<Mob>) {
     Object.assign(this, partial);
   }

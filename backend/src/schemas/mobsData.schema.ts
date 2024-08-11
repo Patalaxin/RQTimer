@@ -45,6 +45,10 @@ export class MobsData {
   @Prop({ required: true })
   mobTypeAdditionalTime: MobsTypes;
 
+  @ApiProperty()
+  @Expose()
+  _id: mongoose.Types.ObjectId;
+
   constructor(partial: Partial<MobsData>) {
     Object.assign(this, partial);
   }

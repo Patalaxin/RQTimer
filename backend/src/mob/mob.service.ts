@@ -9,6 +9,7 @@ import { Mob, MobDocument } from '../schemas/mob.schema';
 import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
 import {
   GetFullMobDtoResponse,
+  GetFullMobWithUnixDtoResponse,
   GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
@@ -31,6 +32,28 @@ import {
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
+import { UnixtimeService } from '../unixtime/unixtime.service';
+
+function promiseWithTimeout<T>(
+  promise: Promise<T>,
+  timeout: number,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error('Request timed out')),
+      timeout,
+    );
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
 
 export class MobService implements IMob {
   constructor(
@@ -41,6 +64,7 @@ export class MobService implements IMob {
     private usersService: UsersService,
     private historyService: HistoryService,
     private botService: TelegramBotService,
+    private readonly unixtimeService: UnixtimeService,
   ) {}
 
   async createMob(
@@ -67,8 +91,10 @@ export class MobService implements IMob {
     }
   }
 
-  async findMob(getMobDto: GetMobDtoRequest): Promise<GetFullMobDtoResponse> {
-    const mob: Mob = await this.mobModel
+  async findMob(
+    getMobDto: GetMobDtoRequest,
+  ): Promise<GetFullMobWithUnixDtoResponse> {
+    const mob = await this.mobModel
       .findOne(
         {
           mobName: getMobDto.mobName,
@@ -79,30 +105,47 @@ export class MobService implements IMob {
       )
       .lean()
       .exec();
+
     if (!mob) {
       throw new BadRequestException('Mob not found');
     }
 
-    const mobData: MobsData = await this.mobsDataModel
-      .findOne({ _id: mob.mobsDataId }, { __v: 0, _id: 0 })
-      .lean()
-      .exec();
-    if (!mobData) {
-      throw new BadRequestException('Mob data not found');
-    }
+    const [mobData, unixtimeResponse] = await Promise.all([
+      this.mobsDataModel
+        .findOne({ _id: mob.mobsDataId }, { __v: 0, _id: 0 })
+        .lean()
+        .exec()
+        .then((mobData) => {
+          if (!mobData) {
+            throw new BadRequestException('Mob data not found');
+          }
+          return mobData;
+        }),
+
+      promiseWithTimeout(this.unixtimeService.getUnixTime(), 10000).catch(
+        () => ({ unixTime: Date.now() }),
+      ),
+    ]);
 
     return {
       mob,
       mobData,
+      unixtime: unixtimeResponse.unixTime,
     };
   }
 
   async findAllMobsByUser(
     email: string,
     getMobsDto: GetMobsDtoRequest,
-  ): Promise<GetFullMobDtoResponse[]> {
-    const { excludedMobs, unavailableMobs } =
-      await this.usersService.findUser(email);
+  ): Promise<GetFullMobWithUnixDtoResponse[]> {
+    const [userData, unixtimeResponse] = await Promise.all([
+      this.usersService.findUser(email),
+      promiseWithTimeout(this.unixtimeService.getUnixTime(), 10000).catch(
+        () => ({ unixTime: Date.now() }),
+      ),
+    ]);
+
+    const { excludedMobs, unavailableMobs } = userData;
 
     const undisplayedMobs: string[] = excludedMobs.concat(
       unavailableMobs.filter((item) => excludedMobs.indexOf(item) === -1),
@@ -120,31 +163,38 @@ export class MobService implements IMob {
       )
       .lean()
       .exec();
-    if (!mobs) {
+
+    if (!mobs || mobs.length === 0) {
       throw new BadRequestException('No mobs found for the given server');
     }
-    const mobDataPromises = mobs.map(async (mob) => {
-      const mobDataId = mob.mobsDataId ? mob.mobsDataId.toString() : null;
 
-      const mobData: MobsData = await this.mobsDataModel
-        .findOne({ _id: mob.mobsDataId }, { __v: 0, _id: 0 })
-        .lean()
-        .exec();
+    const mobDataIds = mobs.map((mob) => mob.mobsDataId).filter(Boolean);
+
+    const mobsData: MobsData[] = await this.mobsDataModel
+      .find({ _id: { $in: mobDataIds } }, { __v: 0 })
+      .lean()
+      .exec();
+
+    const mobsDataMap = new Map<string, MobsData>();
+    mobsData.forEach((data) => {
+      mobsDataMap.set(data._id.toString(), data);
+    });
+
+    return mobs.map((mob) => {
+      const mobData = mobsDataMap.get(mob.mobsDataId?.toString() || '');
 
       if (!mobData) {
-        throw new BadRequestException('Mob data not found');
+        throw new BadRequestException(
+          `Mob data not found for mob ${mob.mobName}`,
+        );
       }
 
       return {
-        mob: {
-          ...mob,
-          mobsDataId: mobDataId,
-        },
+        mob,
         mobData,
+        unixtime: unixtimeResponse.unixTime,
       };
     });
-
-    return await Promise.all(mobDataPromises);
   }
 
   async updateMob(

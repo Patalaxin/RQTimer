@@ -29,12 +29,10 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
         secret: process.env.SECRET_CONSTANT,
       });
 
-      console.log(`Client connected: ${client.id}`);
-
       client.on('register', (email: string) => {
         this.onlineUsers.set(email, client.id);
         this.sendUserStatusUpdate(email, 'online');
-        this.sendOnlineUsersList(client);
+        this.sendOnlineUsersList(client); // Send the current list of online users
       });
 
       client.on('ping', () => {
@@ -43,7 +41,6 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.sendOnlineUsersList(client); // Send the current list of online users
     } catch (error) {
-      console.error('Token verification failed:', error.message);
       client.disconnect();
     }
   }

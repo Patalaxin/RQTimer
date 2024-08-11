@@ -31,6 +31,22 @@ export class GetFullMobDtoResponse {
   mobData: MobsData;
 }
 
+export class GetFullMobWithUnixDtoResponse {
+  @ApiProperty()
+  @Expose()
+  @Type(() => Mob)
+  mob: Mob;
+
+  @ApiProperty()
+  @Expose()
+  @Type(() => MobsData)
+  mobData: MobsData;
+
+  @ApiProperty({ description: 'Unix time at the time of response generation' })
+  @Expose()
+  unixtime: number;
+}
+
 export class GetMobDtoResponse {
   @Expose()
   @Type(() => Mob)

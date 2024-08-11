@@ -9,12 +9,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import * as process from 'process';
+import { UnixtimeModule } from '../unixtime/unixtime.module';
 
 @Module({
   imports: [
     MobModule,
     UsersModule,
     AuthModule,
+    UnixtimeModule,
     ConfigurationModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

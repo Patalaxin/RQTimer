@@ -8,6 +8,7 @@ import { MobController } from './mob.controller';
 import { Mob, MobSchema } from '../schemas/mob.schema';
 import { MobsData, MobsDataSchema } from '../schemas/mobsData.schema';
 import { MobGateway } from './mob.gateway';
+import { UnixtimeModule } from '../unixtime/unixtime.module';
 
 @Module({
   providers: [
@@ -20,6 +21,7 @@ import { MobGateway } from './mob.gateway';
     UsersModule,
     HistoryModule,
     BotModule,
+    UnixtimeModule,
     MongooseModule.forFeature([
       { name: Mob.name, schema: MobSchema },
       { name: MobsData.name, schema: MobsDataSchema },
