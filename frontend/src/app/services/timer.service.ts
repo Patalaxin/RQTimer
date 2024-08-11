@@ -38,7 +38,7 @@ export class TimerService {
 
   getWorldTime(): Observable<any> {
     return this.http.get(
-      'https://api.timezonedb.com/v2.1/get-time-zone?key=4WO2T6BMUPV3&format=json&by=zone&zone=UTC'
+      `http://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`
     );
   }
 
