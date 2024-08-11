@@ -34,27 +34,6 @@ import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { UnixtimeService } from '../unixtime/unixtime.service';
 
-function promiseWithTimeout<T>(
-  promise: Promise<T>,
-  timeout: number,
-): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error('Request timed out')),
-      timeout,
-    );
-    promise
-      .then((value) => {
-        clearTimeout(timer);
-        resolve(value);
-      })
-      .catch((error) => {
-        clearTimeout(timer);
-        reject(error);
-      });
-  });
-}
-
 export class MobService implements IMob {
   constructor(
     @InjectModel(Mob.name)
@@ -122,9 +101,7 @@ export class MobService implements IMob {
           return mobData;
         }),
 
-      promiseWithTimeout(this.unixtimeService.getUnixTime(), 10000).catch(
-        () => ({ unixTime: Date.now() }),
-      ),
+      this.unixtimeService.getUnixTime(),
     ]);
 
     return {
@@ -140,9 +117,7 @@ export class MobService implements IMob {
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const [userData, unixtimeResponse] = await Promise.all([
       this.usersService.findUser(email),
-      promiseWithTimeout(this.unixtimeService.getUnixTime(), 10000).catch(
-        () => ({ unixTime: Date.now() }),
-      ),
+      this.unixtimeService.getUnixTime(),
     ]);
 
     const { excludedMobs, unavailableMobs } = userData;
