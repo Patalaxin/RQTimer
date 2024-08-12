@@ -95,24 +95,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.getAllBosses();
   }
 
-  getCurrentServer() {
-    if (this.storageService.getLocalStorage('server')) {
-    }
-  }
-
-  private sortTimerList(timerList: TimerItem[]): void {
-    timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
-
-      if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime - b.mobData.respawnTime;
-      }
-
-      return 0;
-    });
-  }
-
   getAllBosses(): void {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
@@ -244,5 +226,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateRoute(): void {
     this.currentRoute = this.router.url;
+  }
+
+  private getCurrentServer() {
+    if (this.storageService.getLocalStorage('server')) {
+      this.currentServer = this.storageService.getLocalStorage('server');
+    }
+  }
+
+  private sortTimerList(timerList: TimerItem[]): void {
+    timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime - b.mobData.respawnTime;
+      }
+
+      return 0;
+    });
   }
 }
