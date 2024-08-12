@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit,
-  inject,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -31,7 +25,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private websocketService = inject(WebsocketService);
   private modalService = inject(NzModalService);
   private messageService = inject(NzMessageService);
-  private cdr = inject(ChangeDetectorRef);
 
   currentServer: string = 'Гранас';
   currentRoute: string = '';
@@ -101,8 +94,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private sortTimerList(timerList: TimerItem[]): void {
     timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+      if (!a.mobData.respawnTime) return 1;
+      if (!b.mobData.respawnTime) return -1;
 
       if (a.mobData.respawnTime && b.mobData.respawnTime) {
         return a.mobData.respawnTime - b.mobData.respawnTime;
@@ -110,7 +103,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       return 0;
     });
-    this.cdr.detectChanges();
   }
 
   setCurrentServer() {

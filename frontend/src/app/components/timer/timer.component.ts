@@ -1,5 +1,4 @@
 import {
-  ChangeDetectorRef,
   Component,
   HostListener,
   OnDestroy,
@@ -34,7 +33,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   private websocketService = inject(WebsocketService);
   private messageService = inject(NzMessageService);
   private modalService = inject(NzModalService);
-  private cdr = inject(ChangeDetectorRef);
 
   private mobUpdateSubscription: Subscription | undefined;
   permission: string = '';
@@ -159,8 +157,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   private sortTimerList(timerList: TimerItem[]): void {
     timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+      if (!a.mobData.respawnTime) return 1;
+      if (!b.mobData.respawnTime) return -1;
 
       if (a.mobData.respawnTime && b.mobData.respawnTime) {
         return a.mobData.respawnTime - b.mobData.respawnTime;
@@ -168,7 +166,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       return 0;
     });
-    this.cdr.detectChanges();
   }
 
   private checkScreenWidth(): void {
