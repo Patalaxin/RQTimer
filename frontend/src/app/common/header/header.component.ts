@@ -1,4 +1,10 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -25,6 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private websocketService = inject(WebsocketService);
   private modalService = inject(NzModalService);
   private messageService = inject(NzMessageService);
+  private cdr = inject(ChangeDetectorRef);
 
   currentServer: string = 'Гранас';
   currentRoute: string = '';
@@ -103,6 +110,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
       return 0;
     });
+    this.cdr.detectChanges();
   }
 
   setCurrentServer() {

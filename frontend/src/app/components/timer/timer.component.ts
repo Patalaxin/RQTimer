@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   HostListener,
   OnDestroy,
@@ -33,6 +34,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private websocketService = inject(WebsocketService);
   private messageService = inject(NzMessageService);
   private modalService = inject(NzModalService);
+  private cdr = inject(ChangeDetectorRef);
 
   private mobUpdateSubscription: Subscription | undefined;
   permission: string = '';
@@ -166,6 +168,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       return 0;
     });
+    this.cdr.detectChanges();
   }
 
   private checkScreenWidth(): void {
