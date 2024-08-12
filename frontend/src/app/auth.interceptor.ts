@@ -18,19 +18,19 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    const accessToken = this.storageService.getLocalStorage('token');
-
-    const headers: HttpHeaders = req.headers.set(
-      'Authorization',
-      `Bearer ${accessToken}`
-    );
-
     const newReq = req.clone({
       withCredentials: true,
-      headers: headers,
+      headers: this.addAuthorizationHeader(req.headers),
     });
 
     return next.handle(newReq);
+  }
+
+  private addAuthorizationHeader(headers: HttpHeaders): HttpHeaders {
+    const accessToken = this.storageService.getLocalStorage('token');
+    return accessToken
+      ? headers.set('Authorization', `Bearer ${accessToken}`)
+      : headers;
   }
 }
 

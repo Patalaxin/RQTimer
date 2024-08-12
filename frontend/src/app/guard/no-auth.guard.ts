@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
+  ActivatedRouteSnapshot,
   CanActivate,
   Router,
-  ActivatedRouteSnapshot,
   RouterStateSnapshot,
 } from '@angular/router';
 import { StorageService } from '../services/storage.service';
@@ -17,11 +17,16 @@ export class NoAuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    if (this.storageService.isLoggedIn()) {
+    return this.checkIfNotLoggedIn();
+  }
+
+  private checkIfNotLoggedIn(): boolean {
+    const isLoggedIn = this.storageService.isLoggedIn();
+
+    if (isLoggedIn) {
       this.router.navigate(['/timer']);
-      return false;
-    } else {
-      return true;
     }
+
+    return !isLoggedIn;
   }
 }

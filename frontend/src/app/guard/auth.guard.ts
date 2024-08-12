@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
+  ActivatedRouteSnapshot,
   CanActivate,
   Router,
-  ActivatedRouteSnapshot,
   RouterStateSnapshot,
 } from '@angular/router';
 import { StorageService } from '../services/storage.service';
@@ -17,11 +17,16 @@ export class AuthGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean {
-    if (this.storageService.isLoggedIn()) {
-      return true;
-    } else {
+    return this.checkLogin();
+  }
+
+  private checkLogin(): boolean {
+    const isLoggedIn = this.storageService.isLoggedIn();
+
+    if (!isLoggedIn) {
       this.router.navigate(['/login']);
-      return false;
     }
+
+    return isLoggedIn;
   }
 }
