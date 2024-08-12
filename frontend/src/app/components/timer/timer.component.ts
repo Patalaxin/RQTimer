@@ -123,6 +123,51 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  private exchangeRefresh() {
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        this.getAllBosses();
+      },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
+  private updateItem(timerList: TimerItem[], res: any): void {
+    timerList.forEach((item) => {
+      if (
+        item.mob.mobName === res.mobName &&
+        item.mob.location === res.location &&
+        item.mob.server === res.server
+      ) {
+        item.mobData = res.mobData;
+        this.sortTimerList(timerList);
+      }
+    });
+  }
+
+  private sortTimerList(timerList: TimerItem[]): void {
+    timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime - b.mobData.respawnTime;
+      }
+
+      return 0;
+    });
+  }
+
   private checkScreenWidth(): void {
     this.isScreenWidth1000 = window.innerWidth <= 1000;
     this.isScreenWidth800 = window.innerWidth <= 800;
@@ -132,72 +177,58 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
-  updatePercent(item: TimerItem): number {
-    if (
-      item.mobData.respawnTime &&
-      item.mobData.deathTime &&
-      this.currentProgressTime < item.mobData.respawnTime
-    ) {
-      return (
-        ((this.currentProgressTime - item.mobData.deathTime) /
-          (item.mobData.respawnTime - item.mobData.deathTime)) *
-        100
-      );
-    }
-
-    if (
-      item.mobData.respawnTime &&
-      this.currentProgressTime >= item.mobData.respawnTime
-    ) {
-      return 100;
-    }
-
-    return 0;
-  }
-
-  checkAndNotify(item: TimerItem, minute: number): void {
+  private checkAndNotify(item: TimerItem, minute: number): void {
     const playSound = () => {
       const audio = new Audio('../../../assets/audio/notification.mp3');
       audio.play();
     };
 
-    if ('Notification' in window && Notification.permission === 'granted') {
-      if (
-        item.mobData.respawnTime &&
-        Math.round(
-          (item.mobData.respawnTime - this.currentProgressTime) / 1000
-        ) *
-          1000 ==
-          minute * 60000
-      ) {
-        const notification = new Notification(
-          `${item.mob.mobName} - ${item.mob.location}`,
-          {
-            body: `${item.mob.mobName} реснется через ${minute} минут.`,
-            icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
-          }
-        );
-        playSound();
-      }
+    const sendNotification = (title: string, body: string) => {
+      const notification = new Notification(title, {
+        body,
+        icon: `https://www.rqtimer.ru/static/${item.mob.image}`,
+      });
+      playSound();
+    };
 
-      if (
-        item.mobData.respawnTime &&
-        Math.round(
-          (item.mobData.respawnTime - this.currentProgressTime) / 1000
-        ) *
-          1000 ==
-          0
-      ) {
-        const notification = new Notification(
-          `${item.mob.mobName} - ${item.mob.location}`,
-          {
-            body: `${item.mob.respawnText}`,
-            icon: 'https://www.rqtimer.ru/static/' + item.mob.image,
-          }
-        );
-        playSound();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      if (item.mobData.respawnTime) {
+        const timeDifference =
+          Math.round(
+            (item.mobData.respawnTime - this.currentProgressTime) / 1000
+          ) * 1000;
+
+        if (timeDifference === minute * 60000) {
+          sendNotification(
+            `${item.mob.mobName} - ${item.mob.location}`,
+            `${item.mob.mobName} реснется через ${minute} минут.`
+          );
+        }
+
+        if (timeDifference === 0) {
+          sendNotification(
+            `${item.mob.mobName} - ${item.mob.location}`,
+            `${item.mob.respawnText}`
+          );
+        }
       }
     }
+  }
+
+  updatePercent(item: TimerItem): number {
+    const { respawnTime, deathTime } = item.mobData;
+
+    if (respawnTime && deathTime) {
+      if (this.currentProgressTime < respawnTime) {
+        const progressTime = this.currentProgressTime - deathTime;
+        const fullTime = respawnTime - deathTime;
+        return (progressTime / fullTime) * 100;
+      }
+
+      return 100;
+    }
+
+    return 0;
   }
 
   onClickTimerItem(item: TimerItem): void {
@@ -262,63 +293,48 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   confirmCreateEditModal(item?: TimerItem) {
+    const handleResponse = (successMessage: string, errorMessage: string) => ({
+      next: () => {
+        this.getAllBosses();
+        this.messageService.create('success', successMessage);
+      },
+      error: (err: any) => {
+        if (err.status === 401) {
+          this.exchangeRefresh();
+        }
+        this.timerService.isLoading = false;
+        this.messageService.create('error', errorMessage);
+      },
+    });
+
+    this.timerService.isLoading = true;
+
     if (!item) {
       this.isCreateModalVisible = false;
-      this.timerService.isLoading = true;
       this.timerService
         .createMob(
           this.createEditItem,
           this.storageService.getLocalStorage('server')
         )
-        .subscribe({
-          next: (res) => {
-            this.getAllBosses();
-            this.messageService.create(
-              'success',
-              `Босс/элитка успешно создан(а).`
-            );
-          },
-          error: (err) => {
-            if (err.status === 401) {
-              this.exchangeRefresh();
-            }
-            this.timerService.isLoading = false;
-            this.messageService.create(
-              'error',
-              `Не удалось создать босса/элитку.`
-            );
-          },
-        });
-    }
-
-    if (item) {
+        .subscribe(
+          handleResponse(
+            'Босс/элитка успешно создан(а).',
+            'Не удалось создать босса/элитку.'
+          )
+        );
+    } else {
       item.mob.isEditModalVisible = false;
-      this.timerService.isLoading = true;
       this.timerService
         .editMob(
           this.createEditItem,
           this.storageService.getLocalStorage('server')
         )
-
-        .subscribe({
-          next: (res) => {
-            this.getAllBosses();
-            this.messageService.create(
-              'success',
-              `Босс/элитка успешно отредактирован(а).`
-            );
-          },
-          error: (err) => {
-            if (err.status === 401) {
-              this.exchangeRefresh();
-            }
-            this.timerService.isLoading = false;
-            this.messageService.create(
-              'error',
-              `Не удалось отредактировать босса/элитку.`
-            );
-          },
-        });
+        .subscribe(
+          handleResponse(
+            'Босс/элитка успешно отредактирован(а).',
+            'Не удалось отредактировать босса/элитку.'
+          )
+        );
     }
   }
 
@@ -391,75 +407,61 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   confirmDeathModal(item: TimerItem): void {
+    const handleSuccess = (message: string) => {
+      this.getAllBosses();
+      item.mob.isDeathModalVisible = false;
+      item.mob.isDeathOkLoading = false;
+      this.messageService.create('success', message);
+    };
+
+    const handleError = (err: any) => {
+      if (err.status === 401) {
+        this.exchangeRefresh();
+      }
+    };
+
+    const radioActions: any = {
+      A: () =>
+        this.timerService
+          .setByDeathTime(this.currentItem, this.currentTime)
+          .subscribe({
+            next: () =>
+              handleSuccess(
+                'Респ был успешно обновлён по точному времени смерти'
+              ),
+            error: handleError,
+          }),
+      B: () =>
+        this.timerService
+          .setByRespawnTime(this.currentItem, this.currentTime)
+          .subscribe({
+            next: () =>
+              handleSuccess(
+                'Респ был успешно обновлён по точному времени респауна'
+              ),
+            error: handleError,
+          }),
+      C: () =>
+        this.timerService
+          .setByCooldownTime(this.currentItem, Number(this.cooldown))
+          .subscribe({
+            next: () =>
+              handleSuccess(
+                `Респ был успешно обновлён по кд ${this.cooldown} раз`
+              ),
+            error: handleError,
+          }),
+    };
+
     item.mob.isDeathOkLoading = true;
     this.timerService.isLoading = true;
+
     console.log('confirm', this.currentItem);
     console.log(moment(this.currentTime).format('HH:mm:ss'));
-    if (this.radioValue == 'A') {
-      this.timerService
-        .setByDeathTime(this.currentItem, this.currentTime)
-        .subscribe({
-          next: (res) => {
-            // if (item.timeoutId) {
-            //   clearTimeout(item.timeoutId);
-            //   item.isTimerRunning = false;
-            // }
-            this.getAllBosses();
-            item.mob.isDeathModalVisible = false;
-            item.mob.isDeathOkLoading = false;
-            this.messageService.create(
-              'success',
-              'Респ был успешно обновлён по точному времени смерти'
-            );
-          },
-          error: (err) => {
-            if (err.status === 401) {
-              this.exchangeRefresh();
-            }
-          },
-        });
-    }
 
-    if (this.radioValue == 'B') {
-      this.timerService
-        .setByRespawnTime(this.currentItem, this.currentTime)
-        .subscribe({
-          next: (res) => {
-            this.getAllBosses();
-            item.mob.isDeathModalVisible = false;
-            item.mob.isDeathOkLoading = false;
-            this.messageService.create(
-              'success',
-              'Респ был успешно обновлён по точному времени респауна'
-            );
-          },
-          error: (err) => {
-            if (err.status === 401) {
-              this.exchangeRefresh();
-            }
-          },
-        });
-    }
-
-    if (this.radioValue == 'C') {
-      this.timerService
-        .setByCooldownTime(this.currentItem, Number(this.cooldown))
-        .subscribe({
-          next: (res) => {
-            this.getAllBosses();
-            item.mob.isDeathModalVisible = false;
-            item.mob.isDeathOkLoading = false;
-            this.messageService.create(
-              'success',
-              `Респ был успешно обновлён по кд ${this.cooldown} раз`
-            );
-          },
-          error: (err) => {
-            if (err.status === 401) {
-              this.exchangeRefresh();
-            }
-          },
-        });
+    const action = radioActions[this.radioValue];
+    if (action) {
+      action();
     }
   }
 
@@ -474,7 +476,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     //     this.currentTime = res.timestamp;
     this.currentTime = Date.now();
     this.timerService.setByDeathTime(item, this.currentTime - 10000).subscribe({
-      next: (res) => {
+      next: () => {
         this.getAllBosses();
         this.messageService.create('success', 'Респ был успешно переписан');
       },
@@ -504,7 +506,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
     this.timerService.isLoading = true;
     this.timerService.setByCooldownTime(item, 1).subscribe({
-      next: (res) => {
+      next: () => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
@@ -532,7 +534,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.isLoading = true;
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
-      next: (res) => {
+      next: () => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
@@ -577,7 +579,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onLogout(): void {
     this.authService.signOut().subscribe({
-      next: (res) => {
+      next: () => {
         this.storageService.clean();
         this.router.navigate(['/login']);
       },
@@ -605,50 +607,5 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   stopPropagation(event: Event) {
     event.stopPropagation();
-  }
-
-  private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getAllBosses();
-      },
-      error: (err) => {
-        console.log('getUser error', err);
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
-  }
-
-  private updateItem(timerList: TimerItem[], res: any): void {
-    timerList.forEach((item) => {
-      if (
-        item.mob.mobName === res.mobName &&
-        item.mob.location === res.location &&
-        item.mob.server === res.server
-      ) {
-        item.mobData = res.mobData;
-        this.sortTimerList(timerList);
-      }
-    });
-  }
-
-  private sortTimerList(timerList: TimerItem[]): void {
-    timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
-
-      if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime - b.mobData.respawnTime;
-      }
-
-      return 0;
-    });
   }
 }

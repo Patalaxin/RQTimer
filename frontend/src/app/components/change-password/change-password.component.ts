@@ -62,7 +62,7 @@ export class ChangePasswordComponent {
             this.router.navigate(['/login']);
           }
         },
-        error: (err) => {
+        error: () => {
           this.messageService.create(
             'error',
             'Ошибка, обратитесь к создателям таймера'

@@ -171,7 +171,7 @@ export class AdminComponent implements OnInit {
         ...unavailableEliteList,
       ])
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.getAllUsers();
           this.messageService.create(
             'success',
@@ -189,7 +189,7 @@ export class AdminComponent implements OnInit {
     console.log('delete');
     this.isTableLoading = true;
     this.userService.deleteUser(nickname).subscribe({
-      next: (res) => {
+      next: () => {
         this.getAllUsers(nickname);
       },
     });

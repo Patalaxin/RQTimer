@@ -70,6 +70,20 @@ export class MobModalComponent implements OnInit {
     this.getMobs();
   }
 
+  private formatCooldownTime(
+    cooldownTime: number,
+    utc: boolean = false
+  ): number {
+    const date = new Date(cooldownTime);
+    return utc
+      ? date.getUTCHours() * 3600000 +
+          date.getUTCMinutes() * 60000 +
+          date.getUTCSeconds() * 1000
+      : date.getHours() * 3600000 +
+          date.getMinutes() * 60000 +
+          date.getSeconds() * 1000;
+  }
+
   getMobs(): void {
     this.configurationService.getMobs().subscribe({
       next: (res) => {
@@ -121,19 +135,5 @@ export class MobModalComponent implements OnInit {
     const mobArray =
       mobType === 'Босс' ? this.mobList.bossesArray : this.mobList.elitesArray;
     return mobArray.find((mob: any) => mob.mobName === mobName);
-  }
-
-  private formatCooldownTime(
-    cooldownTime: number,
-    utc: boolean = false
-  ): number {
-    const date = new Date(cooldownTime);
-    return utc
-      ? date.getUTCHours() * 3600000 +
-          date.getUTCMinutes() * 60000 +
-          date.getUTCSeconds() * 1000
-      : date.getHours() * 3600000 +
-          date.getMinutes() * 60000 +
-          date.getSeconds() * 1000;
   }
 }

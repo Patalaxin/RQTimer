@@ -30,6 +30,24 @@ export class ProfileComponent implements OnInit {
     this.getUser();
   }
 
+  private exchangeRefresh() {
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        this.getUser();
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
   getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
@@ -73,23 +91,5 @@ export class ProfileComponent implements OnInit {
         .closest('div')
         ?.querySelector('.ant-page-header-back') as HTMLElement
     ).click();
-  }
-
-  private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getUser();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
   }
 }

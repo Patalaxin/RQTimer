@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
+import { CoreModule } from './modules/core/core.module';
+import { SharedModule } from './modules/shared/shared.module';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './common/header/header.component';
@@ -17,8 +19,14 @@ import { RegisterComponent } from './components/register/register.component';
 import { MobModalComponent } from './components/timer/mob-modal/mob-modal.component';
 import { TimerComponent } from './components/timer/timer.component';
 
-import { CoreModule } from './modules/core/core.module';
-import { SharedModule } from './modules/shared/shared.module';
+import { registerLocaleData } from '@angular/common';
+import ru from '@angular/common/locales/ru';
+import { NZ_I18N, ru_RU } from 'ng-zorro-antd/i18n';
+
+import { TUI_SANITIZER } from '@taiga-ui/core';
+import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
+
+registerLocaleData(ru);
 
 @NgModule({
   declarations: [
@@ -38,6 +46,10 @@ import { SharedModule } from './modules/shared/shared.module';
     NotFoundComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, CoreModule, SharedModule],
+  providers: [
+    { provide: NZ_I18N, useValue: ru_RU },
+    { provide: TUI_SANITIZER, useClass: NgDompurifySanitizer },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

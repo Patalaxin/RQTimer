@@ -45,6 +45,24 @@ export class HistoryComponent implements OnInit {
     });
   }
 
+  private exchangeRefresh() {
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        this.getUser();
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
   getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
@@ -67,7 +85,7 @@ export class HistoryComponent implements OnInit {
 
   onLogout(): void {
     this.authService.signOut().subscribe({
-      next: (res) => {
+      next: () => {
         this.storageService.clean();
         this.router.navigate(['/login']);
       },
@@ -95,23 +113,5 @@ export class HistoryComponent implements OnInit {
         .closest('div')
         ?.querySelector('.ant-page-header-back') as HTMLElement
     ).click();
-  }
-
-  private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getUser();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
   }
 }

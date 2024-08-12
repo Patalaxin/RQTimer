@@ -66,6 +66,37 @@ export class UserComponent implements OnInit {
     this.getMobs();
   }
 
+  private addCheckbox(checkboxList: any[], control: FormArray): void {
+    checkboxList.forEach(() => {
+      control.push(new FormControl());
+    });
+  }
+
+  private checkExcludedMobs(): void {
+    let bossesCheckbox = document.querySelectorAll('.boss-input');
+    let elitesCheckbox = document.querySelectorAll('.elite-input');
+    Array.from(bossesCheckbox).forEach((item) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.forEach((boss: any) => {
+          if (boss === item.textContent?.trim()) {
+            console.log('boss', boss, 'checkbox', item.textContent?.trim());
+            (item as HTMLInputElement).click();
+          }
+        });
+      }
+    });
+    Array.from(elitesCheckbox).forEach((item) => {
+      if (this.excludedMobs) {
+        this.excludedMobs.forEach((elite: any) => {
+          if (elite === item.textContent?.trim()) {
+            (item as HTMLInputElement).click();
+          }
+        });
+      }
+    });
+    this.cdr.detectChanges();
+  }
+
   get excludedBosses() {
     return this.excludedForm.controls['excludedBosses'] as FormArray;
   }
@@ -149,36 +180,5 @@ export class UserComponent implements OnInit {
     if (type === 'Элитка') {
       this.selectedElitesCheckbox = value;
     }
-  }
-
-  private addCheckbox(checkboxList: any[], control: FormArray): void {
-    checkboxList.forEach(() => {
-      control.push(new FormControl());
-    });
-  }
-
-  private checkExcludedMobs(): void {
-    let bossesCheckbox = document.querySelectorAll('.boss-input');
-    let elitesCheckbox = document.querySelectorAll('.elite-input');
-    Array.from(bossesCheckbox).forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((boss: any) => {
-          if (boss === item.textContent?.trim()) {
-            console.log('boss', boss, 'checkbox', item.textContent?.trim());
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    Array.from(elitesCheckbox).forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((elite: any) => {
-          if (elite === item.textContent?.trim()) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    this.cdr.detectChanges();
   }
 }

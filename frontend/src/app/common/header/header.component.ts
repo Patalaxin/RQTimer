@@ -86,6 +86,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.websocketService.disconnect();
   }
 
+  private getCurrentServer() {
+    if (this.storageService.getLocalStorage('server')) {
+      this.currentServer = this.storageService.getLocalStorage('server');
+    }
+  }
+
+  private sortTimerList(timerList: TimerItem[]): void {
+    timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime - b.mobData.respawnTime;
+      }
+
+      return 0;
+    });
+  }
+
   setCurrentServer() {
     console.log(this.currentServer);
     this.historyService.isLoading = true;
@@ -202,7 +221,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onLogout(): void {
     this.authService.signOut().subscribe({
-      next: (res) => {
+      next: () => {
         this.timerService.headerVisibility = false;
         this.storageService.clean();
         this.onLogin();
@@ -226,24 +245,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateRoute(): void {
     this.currentRoute = this.router.url;
-  }
-
-  private getCurrentServer() {
-    if (this.storageService.getLocalStorage('server')) {
-      this.currentServer = this.storageService.getLocalStorage('server');
-    }
-  }
-
-  private sortTimerList(timerList: TimerItem[]): void {
-    timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
-
-      if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime - b.mobData.respawnTime;
-      }
-
-      return 0;
-    });
   }
 }

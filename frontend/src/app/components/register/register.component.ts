@@ -58,6 +58,12 @@ export class RegisterComponent implements OnInit {
     this.getMobs();
   }
 
+  private addCheckbox(checkboxList: any[], control: FormArray): void {
+    checkboxList.forEach(() => {
+      control.push(new FormControl());
+    });
+  }
+
   prev(): void {
     this.currentStep--;
   }
@@ -142,11 +148,5 @@ export class RegisterComponent implements OnInit {
     if (type === 'Элитка') {
       this.selectedElitesCheckbox = value;
     }
-  }
-
-  private addCheckbox(checkboxList: any[], control: FormArray): void {
-    checkboxList.forEach(() => {
-      control.push(new FormControl());
-    });
   }
 }
