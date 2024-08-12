@@ -423,7 +423,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     const radioActions: any = {
       A: () =>
         this.timerService
-          .setByDeathTime(this.currentItem, this.currentTime)
+          .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
           .subscribe({
             next: () =>
               handleSuccess(
@@ -433,7 +433,10 @@ export class TimerComponent implements OnInit, OnDestroy {
           }),
       B: () =>
         this.timerService
-          .setByRespawnTime(this.currentItem, this.currentTime)
+          .setByRespawnTime(
+            this.currentItem,
+            moment(this.currentTime).valueOf()
+          )
           .subscribe({
             next: () =>
               handleSuccess(
