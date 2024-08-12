@@ -139,10 +139,6 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    if (!mobs || mobs.length === 0) {
-      throw new BadRequestException('No mobs found for the given server');
-    }
-
     const mobDataIds = mobs.map((mob) => mob.mobsDataId).filter(Boolean);
 
     const mobsData: MobsData[] = await this.mobsDataModel
