@@ -575,43 +575,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  sortTimerList(timerList: TimerItem[]): void {
-    timerList = timerList.sort((a, b) => {
-      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
-      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
-
-      if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime - b.mobData.respawnTime;
-      }
-
-      return 0;
-    });
-  }
-
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: (res) => {
         this.storageService.clean();
         this.router.navigate(['/login']);
-      },
-    });
-  }
-
-  private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getAllBosses();
-      },
-      error: (err) => {
-        console.log('getUser error', err);
-        if (err.status === 401) {
-          this.onLogout();
-        }
       },
     });
   }
@@ -639,7 +607,26 @@ export class TimerComponent implements OnInit, OnDestroy {
     event.stopPropagation();
   }
 
-  updateItem(timerList: TimerItem[], res: any): void {
+  private exchangeRefresh() {
+    let key = !this.storageService.getLocalStorage('email')
+      ? this.storageService.getLocalStorage('nickname')
+      : this.storageService.getLocalStorage('email');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        this.getAllBosses();
+      },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
+  private updateItem(timerList: TimerItem[], res: any): void {
     timerList.forEach((item) => {
       if (
         item.mob.mobName === res.mobName &&
@@ -649,6 +636,19 @@ export class TimerComponent implements OnInit, OnDestroy {
         item.mobData = res.mobData;
         this.sortTimerList(timerList);
       }
+    });
+  }
+
+  private sortTimerList(timerList: TimerItem[]): void {
+    timerList = timerList.sort((a, b) => {
+      if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
+      if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
+
+      if (a.mobData.respawnTime && b.mobData.respawnTime) {
+        return a.mobData.respawnTime - b.mobData.respawnTime;
+      }
+
+      return 0;
     });
   }
 }

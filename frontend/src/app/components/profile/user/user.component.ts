@@ -90,7 +90,6 @@ export class UserComponent implements OnInit {
         this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
         this.isLoading = false;
 
-        // Ожидание завершения добавления чекбоксов и обновление DOM
         this.cdr.detectChanges();
         this.checkExcludedMobs();
       },

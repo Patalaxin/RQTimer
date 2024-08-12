@@ -102,8 +102,6 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    console.log('===>', this.form.value);
-
     const { confirmPassword, excludedBosses, excludedElites, ...userInfo } =
       this.form.value;
 

@@ -84,25 +84,17 @@ export class MobModalComponent implements OnInit {
       next: (res) => {
         this.locationList = res;
         this.isLoading = false;
-        console.log('mobList', this.mobList);
-        console.log('locationList', this.locationList);
       },
     });
   }
 
-  onMobTypeChange(mobType: string) {
-    if (mobType === 'Босс') {
-      this.selectedMobName = this.mobList.bossesArray[0].mobName;
-      if (this.selectedMobName) {
-        this.onMobChange(this.selectedMobName);
-      }
-      return;
-    }
-    this.selectedMobName = this.mobList.elitesArray[0].mobName;
+  onMobTypeChange(mobType: string): void {
+    const mobArray =
+      mobType === 'Босс' ? this.mobList.bossesArray : this.mobList.elitesArray;
+    this.selectedMobName = mobArray[0].mobName;
     if (this.selectedMobName) {
       this.onMobChange(this.selectedMobName);
     }
-    return;
   }
 
   onMobChange(mobName: string) {
@@ -110,17 +102,11 @@ export class MobModalComponent implements OnInit {
     this.createEditItem = {
       ...this.filterByMobName(this.selectedMobType, mobName),
     };
-
-    console.log(
-      'this.filterByMobName(this.selectedMobType, mobName)',
-      this.createEditItem
-    );
     this.onCreateEdit.emit(this.createEditItem);
   }
 
   onLocationChange(location: string) {
     this.createEditItem.location = location;
-    console.log('cooldownTime', this.createEditItem);
     this.onCreateEdit.emit(this.createEditItem);
   }
 
@@ -128,41 +114,26 @@ export class MobModalComponent implements OnInit {
     this.createEditItem.cooldownTime = this.formatCooldownTime(
       moment(cooldownTime).valueOf()
     );
-    console.log('cooldownTime', this.createEditItem);
-
     this.onCreateEdit.emit(this.createEditItem);
   }
 
-  formatCooldownTime(cooldownTime: number, utc: boolean = false) {
-    let date = new Date(cooldownTime);
-    let formattedCooldownTime: number = 0;
-
-    if (utc) {
-      formattedCooldownTime =
-        date.getUTCHours() * 60 * 60 * 1000 +
-        date.getUTCMinutes() * 60 * 1000 +
-        date.getUTCSeconds() * 1000;
-
-      console.log('utc format', formattedCooldownTime);
-      return formattedCooldownTime;
-    }
-
-    formattedCooldownTime =
-      date.getHours() * 60 * 60 * 1000 +
-      date.getMinutes() * 60 * 1000 +
-      date.getSeconds() * 1000;
-
-    console.log('format', formattedCooldownTime);
-
-    return formattedCooldownTime;
+  filterByMobName(mobType: string, mobName: string): any {
+    const mobArray =
+      mobType === 'Босс' ? this.mobList.bossesArray : this.mobList.elitesArray;
+    return mobArray.find((mob: any) => mob.mobName === mobName);
   }
 
-  filterByMobName(mobType: string, mobName: string) {
-    if (mobType === 'Босс') {
-      return this.mobList.bossesArray.find(
-        (mob: any) => mob.mobName === mobName
-      );
-    }
-    return this.mobList.elitesArray.find((mob: any) => mob.mobName === mobName);
+  private formatCooldownTime(
+    cooldownTime: number,
+    utc: boolean = false
+  ): number {
+    const date = new Date(cooldownTime);
+    return utc
+      ? date.getUTCHours() * 3600000 +
+          date.getUTCMinutes() * 60000 +
+          date.getUTCSeconds() * 1000
+      : date.getHours() * 3600000 +
+          date.getMinutes() * 60000 +
+          date.getSeconds() * 1000;
   }
 }

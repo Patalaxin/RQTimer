@@ -100,7 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  sortTimerList(timerList: TimerItem[]): void {
+  private sortTimerList(timerList: TimerItem[]): void {
     timerList = timerList.sort((a, b) => {
       if (a.mobData.respawnLost && a.mobData.respawnLost == true) return 1;
       if (b.mobData.respawnLost && b.mobData.respawnLost == true) return -1;
