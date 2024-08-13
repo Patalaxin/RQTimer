@@ -29,6 +29,14 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
+  document.servers = [
+    {
+      url: 'https://www.rqtimer.ru/api',
+      description: 'API server',
+    },
+  ];
+
   SwaggerModule.setup('swagger', app, document, {});
 
   app.use(cookieParser());
