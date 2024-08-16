@@ -76,9 +76,9 @@ export class MobService implements IMob {
     const mob = await this.mobModel
       .findOne(
         {
-          mobName: getMobDto.mobName,
-          server: getMobDto.server,
-          location: getMobDto.location,
+          mobName: getMobDto.server,
+          server: getMobDto.location,
+          location: getMobDto.mobName,
         },
         { __v: 0, _id: 0 },
       )
@@ -175,9 +175,9 @@ export class MobService implements IMob {
     const mob: Mob = await this.mobModel
       .findOneAndUpdate(
         {
-          mobName: updateMobDtoParams.mobName,
-          server: updateMobDtoParams.server,
-          location: updateMobDtoParams.location,
+          mobName: updateMobDtoParams.server,
+          server: updateMobDtoParams.location,
+          location: updateMobDtoParams.mobName,
         },
         { $set: updateMobDtoBody },
         { new: true },
@@ -389,9 +389,9 @@ export class MobService implements IMob {
 
     await Promise.all([
       this.mobModel.deleteOne({
-        mobName: mob.mob.mobName,
-        server: mob.mob.server,
-        location: mob.mob.location,
+        mobName: mob.mob.server,
+        server: mob.mob.location,
+        location: mob.mob.mobName,
       }),
       this.mobsDataModel.deleteOne({ _id: mob.mob.mobsDataId }),
     ]);
@@ -448,7 +448,7 @@ export class MobService implements IMob {
     nickname: string,
     role: RolesTypes,
   ): Promise<GetMobDataDtoResponse> {
-    const { mobName, server, location } = respawnLostDtoParams;
+    const { server, location, mobName } = respawnLostDtoParams;
 
     const history: History = {
       mobName,

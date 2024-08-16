@@ -23,7 +23,7 @@ export class AuthController {
 
   @ApiOperation({ summary: 'Exchange Refresh Token' })
   @ApiBearerAuth()
-  @Post('exchangeRefresh')
+  @Post('exchange-refresh')
   exchangeRefresh(
     @Res({ passthrough: true }) res: Response,
     @Req() req: Request,

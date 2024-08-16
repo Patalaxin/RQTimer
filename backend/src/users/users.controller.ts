@@ -50,7 +50,7 @@ import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 @ApiTags('User API')
 @UseGuards(RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
-@Controller('user')
+@Controller('users')
 export class UsersController {
   constructor(@Inject('IUser') private readonly userInterface: IUser) {}
 
@@ -74,18 +74,18 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a Specific User By Email or Nickname' })
-  @Get('specificUser/:nicknameOrEmail')
+  @Get('specific-user/:identifier')
   async getUserByEmailOrNickname(
-    @Param('nicknameOrEmail') nicknameOrEmail: string,
+    @Param('identifier') identifier: string,
   ): Promise<User> {
-    return new User(await this.userInterface.findUser(nicknameOrEmail));
+    return new User(await this.userInterface.findUser(identifier));
   }
 
   @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
-  @Get('/findAll')
+  @Get('/list')
   findAll(): Promise<FindAllUsersDtoResponse[]> {
     return this.userInterface.findAll();
   }
@@ -95,7 +95,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change User Password' })
   @ApiOkResponse({ description: 'Success', type: ChangeUserPassDtoResponse })
-  @Put('/changePassword')
+  @Put('/change-password')
   changePassword(
     @GetEmailFromToken() email: string,
     @Body() updateUserPassDto: ChangeUserPassDtoRequest,
@@ -106,7 +106,7 @@ export class UsersController {
   @Roles()
   @ApiOperation({ summary: 'Forgot User Password' })
   @ApiOkResponse({ description: 'Success', type: ForgotUserPassDtoResponse })
-  @Put('/forgotPassword')
+  @Put('/forgot-password')
   forgotPassword(
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
@@ -117,7 +117,7 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Unavailable Mobs' })
-  @Put('/updateUnavailable')
+  @Put('/unavailable')
   async updateUnavailable(
     @Body() updateUnavailableDto: UpdateUnavailableDto,
   ): Promise<User> {
@@ -130,7 +130,7 @@ export class UsersController {
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Excluded Mobs' })
-  @Put('/updateExcluded')
+  @Put('/excluded')
   async updateExcluded(
     @GetEmailFromToken() email: string,
     @Body() updateExcludedDto: UpdateExcludedDto,
@@ -145,7 +145,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update The User Role' })
   @ApiOkResponse({ description: 'Success', type: UpdateUserRoleDtoResponse })
-  @Put('/updateRole')
+  @Put('/role')
   updateRole(
     @Body() updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
@@ -169,7 +169,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete All Users' })
   @ApiOkResponse({ description: 'Success', type: DeleteAllUsersDtoResponse })
-  @Delete('/deleteAll')
+  @Delete()
   deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     return this.userInterface.deleteAll();
   }
@@ -178,7 +178,7 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate Session Id' })
-  @Post('/generateSessionId')
+  @Post('/session-id')
   async generateSessionId(): Promise<SessionId> {
     try {
       return new SessionId(await this.userInterface.generateSessionId());

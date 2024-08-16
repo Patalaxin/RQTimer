@@ -48,7 +48,7 @@ import { MobGateway } from './mob.gateway';
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(TokensGuard)
-@Controller('mob')
+@Controller('mobs')
 export class MobController {
   constructor(
     @Inject('IMob') private readonly mobService: IMob,
@@ -66,7 +66,7 @@ export class MobController {
   }
 
   @Roles()
-  @Get('findMob/:mobName/:server/:location/')
+  @Get('/:server/:location/:mobName/')
   @ApiOperation({ summary: 'Get Mob' })
   getMobAndData(
     @Param() getMobDto: GetMobDtoRequest,
@@ -86,7 +86,7 @@ export class MobController {
 
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Update Mob' })
-  @Put('/:mobName/:server/:location/')
+  @Put('/:server/:location/:mobName/')
   updateMob(
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
@@ -96,7 +96,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
-  @Put('/updateMobByCooldown')
+  @Put('/cooldown')
   async updateMobByCooldown(
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
@@ -121,7 +121,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
-  @Put('/updateMobDateOfDeath')
+  @Put('/date-of-death')
   async updateMobDateOfDeath(
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
@@ -148,7 +148,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
-  @Put('/updateMobDateOfRespawn')
+  @Put('/date-of-respawn')
   async updateMobDateOfRespawn(
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
@@ -175,7 +175,7 @@ export class MobController {
 
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Delete Mob' })
-  @Delete(':mobName/:server/:location/')
+  @Delete(':server/:location/:mobName/')
   deleteOne(
     @Param() deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
@@ -184,7 +184,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Crash Mob Server' })
-  @Post('/crashServer/:server')
+  @Post('/crash-server/:server')
   async crashServer(
     @GetEmailFromToken() email: string,
     @Req() request: Request,
@@ -211,7 +211,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Mob Respawn Lost' })
-  @Put('respawnLost/:mobName/:server/:location/')
+  @Put('respawn-lost/:server/:location/:mobName/')
   async respawnLost(
     @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,

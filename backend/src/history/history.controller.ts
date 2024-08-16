@@ -44,7 +44,7 @@ export class HistoryController {
     description: 'Successfully fetched history',
     type: PaginatedHistoryDto,
   })
-  @Get('/findAll/:server')
+  @Get('/list/:server')
   async findAll(
     @Param('server') server: Servers,
     @Query('mobName') mobName?: MobName,
@@ -64,7 +64,7 @@ export class HistoryController {
   @ApiOperation({ summary: 'Delete All History by Server' })
   @ApiParam({ name: 'server', enum: Servers })
   @ApiOkResponse({ description: 'Success', type: DeleteAllHistoryDtoResponse })
-  @Delete('/deleteAll')
+  @Delete()
   deleteAll(
     @Param('server') server: Servers,
   ): Promise<DeleteAllHistoryDtoResponse> {

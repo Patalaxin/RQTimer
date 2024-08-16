@@ -13,11 +13,11 @@ import { UnixtimeModule } from '../unixtime/unixtime.module';
 
 @Module({
   imports: [
-    MobModule,
-    UsersModule,
     AuthModule,
-    UnixtimeModule,
+    UsersModule,
+    MobModule,
     ConfigurationModule,
+    UnixtimeModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
