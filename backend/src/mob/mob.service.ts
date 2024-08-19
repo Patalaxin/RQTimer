@@ -175,9 +175,9 @@ export class MobService implements IMob {
     const mob: Mob = await this.mobModel
       .findOneAndUpdate(
         {
-          mobName: updateMobDtoParams.server,
-          server: updateMobDtoParams.location,
-          location: updateMobDtoParams.mobName,
+          server: updateMobDtoParams.server,
+          location: updateMobDtoParams.location,
+          mobName: updateMobDtoParams.mobName,
         },
         { $set: updateMobDtoBody },
         { new: true },
@@ -389,9 +389,9 @@ export class MobService implements IMob {
 
     await Promise.all([
       this.mobModel.deleteOne({
-        mobName: mob.mob.server,
-        server: mob.mob.location,
-        location: mob.mob.mobName,
+        server: mob.mob.server,
+        location: mob.mob.location,
+        mobName: mob.mob.mobName,
       }),
       this.mobsDataModel.deleteOne({ _id: mob.mob.mobsDataId }),
     ]);
