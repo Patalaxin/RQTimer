@@ -76,9 +76,9 @@ export class MobService implements IMob {
     const mob = await this.mobModel
       .findOne(
         {
-          mobName: getMobDto.server,
-          server: getMobDto.location,
-          location: getMobDto.mobName,
+          server: getMobDto.server,
+          location: getMobDto.location,
+          mobName: getMobDto.mobName,
         },
         { __v: 0, _id: 0 },
       )

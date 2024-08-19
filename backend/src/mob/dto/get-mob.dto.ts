@@ -6,10 +6,6 @@ import { MobsData } from '../../schemas/mobsData.schema';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetMobDtoRequest {
-  @IsEnum(MobName)
-  @IsNotEmpty()
-  mobName: MobName;
-
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
@@ -17,6 +13,10 @@ export class GetMobDtoRequest {
   @IsEnum(Locations)
   @IsNotEmpty()
   location: Locations;
+
+  @IsEnum(MobName)
+  @IsNotEmpty()
+  mobName: MobName;
 }
 
 export class GetFullMobDtoResponse {
