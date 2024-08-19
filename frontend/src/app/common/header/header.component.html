@@ -1,16 +1,15 @@
-<div class="header-background"></div>
 <div class="header" *ngIf="isLoggedIn()">
   <div class="header-left">
     <nz-select
       style="width: 95px"
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
-      (ngModelChange)="setCurrentServer()"
+      (ngModelChange)="updateCurrentServer()"
     ></nz-select>
     <button
       nz-button
       nzType="primary"
-      (click)="setCurrentServer()"
+      (click)="updateCurrentServer()"
       nz-tooltip
       nzTooltipTitle="Обновить"
       nzTooltipPlacement="bottom"

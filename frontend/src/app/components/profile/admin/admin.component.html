@@ -43,7 +43,7 @@
               {{ user.nickname }}
             </td>
             <td>
-              <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'">
+              <nz-tag [nzColor]="getUserColor(user.role)">
                 {{ user.role }}
               </nz-tag>
             </td>
@@ -89,7 +89,7 @@
                       class="admin-user-modal-content"
                       *ngIf="!isUserDataLoading"
                     >
-                      <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
+                      <nz-tag [nzColor]="getUserColor(user.role)"
                         >Пользователь: {{ user.nickname }}
                       </nz-tag>
                       <div
@@ -220,7 +220,7 @@
     <span nz-icon nzType="usergroup-add"></span>
     <span
       [ngClass]="{
-        'admin-d-none': isScreenWidth800
+        'admin-d-none': isScreenWidth800,
       }"
       >Список юзеров</span
     >
@@ -229,7 +229,7 @@
     <span nz-icon nzType="number"></span>
     <span
       [ngClass]="{
-        'admin-d-none': isScreenWidth800
+        'admin-d-none': isScreenWidth800,
       }"
       >Session ID</span
     >
@@ -238,7 +238,7 @@
     <span nz-icon nzType="question-circle"></span>
     <span
       [ngClass]="{
-        'admin-d-none': isScreenWidth800
+        'admin-d-none': isScreenWidth800,
       }"
       >Пидорас</span
     >

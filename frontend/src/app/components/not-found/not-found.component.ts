@@ -8,8 +8,8 @@ import { TimerService } from 'src/app/services/timer.service';
   styleUrls: ['./not-found.component.scss'],
 })
 export class NotFoundComponent {
-  private router = inject(Router);
-  private timerService = inject(TimerService);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
 
   ngOnInit() {
     this.timerService.headerVisibility = false;

@@ -1,10 +1,10 @@
 import {
   Component,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
-  inject,
 } from '@angular/core';
 import * as moment from 'moment-timezone';
 
@@ -28,7 +28,7 @@ export interface CreateItem {
   styleUrls: ['./mob-modal.component.scss'],
 })
 export class MobModalComponent implements OnInit {
-  private configurationService = inject(ConfigurationService);
+  private readonly configurationService = inject(ConfigurationService);
 
   @Input() item: TimerItem | undefined;
   @Output() onCreateEdit: EventEmitter<any> = new EventEmitter<any>();
@@ -54,7 +54,7 @@ export class MobModalComponent implements OnInit {
       this.selectedMobName = this.item.mob.mobName;
       this.selectedLocation = this.item.mob.location;
       this.selectedCooldownTime = moment(
-        this.item.mob.cooldownTime + 946598400000 - diffTimeZone
+        this.item.mob.cooldownTime + 946598400000 - diffTimeZone,
       ).valueOf();
       this.createEditItem = {
         mobName: this.item.mob.mobName,
@@ -72,7 +72,7 @@ export class MobModalComponent implements OnInit {
 
   private formatCooldownTime(
     cooldownTime: number,
-    utc: boolean = false
+    utc: boolean = false,
   ): number {
     const date = new Date(cooldownTime);
     return utc
@@ -126,7 +126,7 @@ export class MobModalComponent implements OnInit {
 
   onCooldownTimeChange(cooldownTime: string) {
     this.createEditItem.cooldownTime = this.formatCooldownTime(
-      moment(cooldownTime).valueOf()
+      moment(cooldownTime).valueOf(),
     );
     this.onCreateEdit.emit(this.createEditItem);
   }

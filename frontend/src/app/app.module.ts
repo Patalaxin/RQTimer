@@ -19,7 +19,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { MobModalComponent } from './components/timer/mob-modal/mob-modal.component';
 import { TimerComponent } from './components/timer/timer.component';
 
-import { registerLocaleData } from '@angular/common';
+import { NgOptimizedImage, registerLocaleData } from '@angular/common';
 import ru from '@angular/common/locales/ru';
 import { NZ_I18N, ru_RU } from 'ng-zorro-antd/i18n';
 
@@ -45,7 +45,13 @@ registerLocaleData(ru);
     MobModalComponent,
     NotFoundComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, CoreModule, SharedModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    CoreModule,
+    SharedModule,
+    NgOptimizedImage,
+  ],
   providers: [
     { provide: NZ_I18N, useValue: ru_RU },
     { provide: TUI_SANITIZER, useClass: NgDompurifySanitizer },

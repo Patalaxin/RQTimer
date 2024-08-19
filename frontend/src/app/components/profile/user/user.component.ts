@@ -1,9 +1,9 @@
 import {
   ChangeDetectorRef,
   Component,
+  inject,
   Input,
   OnInit,
-  inject,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -17,10 +17,10 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./user.component.scss'],
 })
 export class UserComponent implements OnInit {
-  private userService = inject(UserService);
-  private configurationService = inject(ConfigurationService);
-  private messageService = inject(NzMessageService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly userService = inject(UserService);
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly messageService = inject(NzMessageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() excludedMobs: any;
   @Input() role: string = '';
@@ -56,7 +56,7 @@ export class UserComponent implements OnInit {
     },
     {
       validators: [Validation.match('newPassword', 'confirmNewPassword')],
-    }
+    },
   );
   changePasswordSubmitted: boolean = false;
 
@@ -75,7 +75,7 @@ export class UserComponent implements OnInit {
   private checkExcludedMobs(): void {
     let bossesCheckbox = document.querySelectorAll('.boss-input');
     let elitesCheckbox = document.querySelectorAll('.elite-input');
-    Array.from(bossesCheckbox).forEach((item) => {
+    bossesCheckbox.forEach((item) => {
       if (this.excludedMobs) {
         this.excludedMobs.forEach((boss: any) => {
           if (boss === item.textContent?.trim()) {
@@ -85,7 +85,7 @@ export class UserComponent implements OnInit {
         });
       }
     });
-    Array.from(elitesCheckbox).forEach((item) => {
+    elitesCheckbox.forEach((item) => {
       if (this.excludedMobs) {
         this.excludedMobs.forEach((elite: any) => {
           if (elite === item.textContent?.trim()) {
@@ -144,7 +144,7 @@ export class UserComponent implements OnInit {
           console.log(res);
           this.messageService.create(
             'success',
-            'Настройки отображения успешно обновлены'
+            'Настройки отображения успешно обновлены',
           );
         },
       });
@@ -160,7 +160,7 @@ export class UserComponent implements OnInit {
     this.userService
       .changePassword(
         this.changePasswordForm.value.oldPassword,
-        this.changePasswordForm.value.newPassword
+        this.changePasswordForm.value.newPassword,
       )
       .subscribe({
         next: (res) => {

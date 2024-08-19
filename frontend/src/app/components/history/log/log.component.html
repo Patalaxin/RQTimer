@@ -18,14 +18,14 @@
 
   <nz-timeline *ngIf="!isLoading">
     <nz-timeline-item
-      [nzColor]="item.role == 'Admin' ? 'red' : 'green'"
+      [nzColor]="getUserColor(item.role)"
       *ngFor="let item of historyList"
     >
       <p>
         <nz-tag nzColor="gold"
-          ><b>{{ item.date | date : "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
+          ><b>{{ item.date | date: "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
         >Пользователь
-        <nz-tag [nzColor]="item.role == 'Admin' ? 'red' : 'green'"
+        <nz-tag [nzColor]="getUserColor(item.role)"
           >{{ item.nickname }}
         </nz-tag>
         переписал
@@ -52,7 +52,7 @@
       >
         Время возрождение:
         <nz-tag nzColor="gold"
-          >{{ item.toWillResurrect | date : "HH:mm:ss" }}
+          >{{ item.toWillResurrect | date: "HH:mm:ss" }}
         </nz-tag>
       </p>
       <!-- <p>

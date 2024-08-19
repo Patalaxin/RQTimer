@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
+
+const EMAIL: string = 'email';
+const NICKNAME: string = 'nickname';
+const ACCESS_TOKEN: string = 'token';
+const SERVER: string = 'server';
 
 @Injectable({
   providedIn: 'root',
@@ -8,48 +12,34 @@ export class StorageService {
   currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
 
   clean(): void {
-    window.localStorage.removeItem(environment.localStorage.EMAIL);
-    window.localStorage.removeItem(environment.localStorage.NICKNAME);
-    window.localStorage.removeItem(environment.localStorage.ACCESS_TOKEN);
+    window.localStorage.removeItem(EMAIL);
+    window.localStorage.removeItem(NICKNAME);
+    window.localStorage.removeItem(ACCESS_TOKEN);
   }
 
   setCurrentServer(server: string) {
-    window.localStorage.setItem(environment.localStorage.SERVER, server);
+    window.localStorage.setItem(SERVER, server);
   }
 
   setLocalStorage(key: string, token: any): void {
     this.clean();
 
     key.includes('@')
-      ? window.localStorage.setItem(environment.localStorage.EMAIL, key)
-      : window.localStorage.setItem(environment.localStorage.NICKNAME, key);
+      ? window.localStorage.setItem(EMAIL, key)
+      : window.localStorage.setItem(NICKNAME, key);
 
-    window.localStorage.setItem(environment.localStorage.ACCESS_TOKEN, token);
+    window.localStorage.setItem(ACCESS_TOKEN, token);
 
-    if (!window.localStorage.getItem(environment.localStorage.SERVER))
-      window.localStorage.setItem(
-        environment.localStorage.SERVER,
-        this.currentServer
-      );
+    if (!window.localStorage.getItem(SERVER))
+      window.localStorage.setItem(SERVER, this.currentServer);
   }
 
-  getLocalStorage(key: string): any {
-    let storageKey = '';
-
-    if (key === 'email') storageKey = environment.localStorage.EMAIL;
-
-    if (key === 'nickname') storageKey = environment.localStorage.NICKNAME;
-
-    if (key === 'token') storageKey = environment.localStorage.ACCESS_TOKEN;
-
-    if (key === 'server') storageKey = environment.localStorage.SERVER;
-
-    const value = window.localStorage.getItem(storageKey);
-
-    return value ? value : '';
+  getLocalStorage(key: 'email' | 'nickname' | 'token' | 'server'): any {
+    const value = window.localStorage.getItem(key);
+    return value ?? '';
   }
 
   isLoggedIn(): any {
-    return !!window.localStorage.getItem(environment.localStorage.ACCESS_TOKEN);
+    return !!window.localStorage.getItem(ACCESS_TOKEN);
   }
 }

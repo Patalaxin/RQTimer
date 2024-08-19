@@ -1,18 +1,18 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { createHeaders } from '../utils/http';
 
-const HISTORY_API = environment.apiUrl + '/history/';
-
 @Injectable({
   providedIn: 'root',
 })
 export class HistoryService {
-  private http = inject(HttpClient);
-  private storageService = inject(StorageService);
+  private readonly http = inject(HttpClient);
+  private readonly storageService = inject(StorageService);
+
+  HISTORY_API = environment.apiUrl + '/history/';
 
   private historyListSubject$ = new BehaviorSubject<any>([]);
   private historyListDataSubject$ = new BehaviorSubject<any>([]);
@@ -52,7 +52,7 @@ export class HistoryService {
 
     if (limit) params = params.set('limit', limit);
 
-    return this.http.get(`${HISTORY_API}findAll/${server}`, {
+    return this.http.get(`${this.HISTORY_API}list/${server}`, {
       params,
       headers,
     });

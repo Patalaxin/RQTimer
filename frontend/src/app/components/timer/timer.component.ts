@@ -1,9 +1,9 @@
 import {
   Component,
   HostListener,
+  inject,
   OnDestroy,
   OnInit,
-  inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
@@ -24,15 +24,15 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private timerService = inject(TimerService);
-  private storageService = inject(StorageService);
-  private authService = inject(AuthService);
-  private historyService = inject(HistoryService);
-  private userService = inject(UserService);
-  private websocketService = inject(WebsocketService);
-  private messageService = inject(NzMessageService);
-  private modalService = inject(NzModalService);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
+  private readonly storageService = inject(StorageService);
+  private readonly authService = inject(AuthService);
+  private readonly historyService = inject(HistoryService);
+  private readonly userService = inject(UserService);
+  private readonly websocketService = inject(WebsocketService);
+  private readonly messageService = inject(NzMessageService);
+  private readonly modalService = inject(NzModalService);
 
   private mobUpdateSubscription: Subscription | undefined;
   permission: string = '';
@@ -44,18 +44,14 @@ export class TimerComponent implements OnInit, OnDestroy {
   isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
   currentUser: any = [];
-  leftTime: number = 0;
 
-  radioValue: string = 'A';
+  radioValue: string = 'death';
   currentTime: number = Date.now();
   currentProgressTime: number = Date.now();
   currentItem: any;
   cooldown: number = 1;
 
-  percent: number = 0;
   intervalId: any;
-
-  cooldownChangeVisible: boolean = false;
 
   isScreenWidth1000: boolean = false;
   isScreenWidth800: boolean = false;
@@ -69,7 +65,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   createEditItem: any;
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
+  onResize(): void {
     this.checkScreenWidth();
   }
 
@@ -85,7 +81,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (res) {
           this.updateItem(this.timerList, res);
         }
-      }
+      },
     );
 
     // this.timerService.getWorldTime().subscribe({
@@ -124,9 +120,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
+    let key =
+      this.storageService.getLocalStorage('email') ||
+      this.storageService.getLocalStorage('nickname');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);
@@ -156,15 +152,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
-    timerList = timerList.sort((a, b) => {
+    this.timerList = timerList.sort((a, b) => {
       if (!a.mobData.respawnTime) return 1;
       if (!b.mobData.respawnTime) return -1;
 
-      if (a.mobData.respawnTime && b.mobData.respawnTime) {
-        return a.mobData.respawnTime - b.mobData.respawnTime;
-      }
-
-      return 0;
+      return a.mobData.respawnTime - b.mobData.respawnTime;
     });
   }
 
@@ -184,7 +176,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const sendNotification = (title: string, body: string) => {
-      const notification = new Notification(title, {
+      new Notification(title, {
         body,
         icon: `https://www.rqtimer.ru/static/${item.mob.image}`,
       });
@@ -195,20 +187,20 @@ export class TimerComponent implements OnInit, OnDestroy {
       if (item.mobData.respawnTime) {
         const timeDifference =
           Math.round(
-            (item.mobData.respawnTime - this.currentProgressTime) / 1000
+            (item.mobData.respawnTime - this.currentProgressTime) / 1000,
           ) * 1000;
 
         if (timeDifference === minute * 60000) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.mobName} реснется через ${minute} минут.`
+            `${item.mob.mobName} реснется через ${minute} минут.`,
           );
         }
 
         if (timeDifference === 0) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.respawnText}`
+            `${item.mob.respawnText}`,
           );
         }
       }
@@ -234,7 +226,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onClickTimerItem(item: TimerItem): void {
     if (item.mobData.respawnTime) {
       let data: string = `${item.mob.shortName} - ${moment(
-        item.mobData.respawnTime
+        item.mobData.respawnTime,
       ).format('HH:mm:ss')}`;
       this.messageService.create('success', `${data}`);
       navigator.clipboard.writeText(data);
@@ -242,9 +234,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showHistoryModal(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
   }
@@ -263,7 +253,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.historyService
       .getHistory(
         this.storageService.getLocalStorage('server'),
-        item.mob.mobName
+        item.mob.mobName,
       )
       .subscribe({
         next: (res: any) => {
@@ -281,9 +271,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showCreateEditModal(item?: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     if (item) {
       item.mob.isEditModalVisible = true;
     }
@@ -314,26 +302,26 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.timerService
         .createMob(
           this.createEditItem,
-          this.storageService.getLocalStorage('server')
+          this.storageService.getLocalStorage('server'),
         )
         .subscribe(
           handleResponse(
             'Босс/элитка успешно создан(а).',
-            'Не удалось создать босса/элитку.'
-          )
+            'Не удалось создать босса/элитку.',
+          ),
         );
     } else {
       item.mob.isEditModalVisible = false;
       this.timerService
         .editMob(
           this.createEditItem,
-          this.storageService.getLocalStorage('server')
+          this.storageService.getLocalStorage('server'),
         )
         .subscribe(
           handleResponse(
             'Босс/элитка успешно отредактирован(а).',
-            'Не удалось отредактировать босса/элитку.'
-          )
+            'Не удалось отредактировать босса/элитку.',
+          ),
         );
     }
   }
@@ -354,9 +342,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showDeleteModal(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent: `<b style="color: red;">Вы точно хотите удалить ${item.mob.mobName}?</b>`,
@@ -375,14 +361,14 @@ export class TimerComponent implements OnInit, OnDestroy {
       .deleteMob(
         item.mob.mobName,
         this.storageService.getLocalStorage('server'),
-        item.mob.location
+        item.mob.location,
       )
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.getAllBosses();
           this.messageService.create(
             'success',
-            `${item.mob.mobName} успешно удалён.`
+            `${item.mob.mobName} успешно удалён.`,
           );
         },
         error: (err) => {
@@ -394,9 +380,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showDeathModal(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
     this.currentTime = Date.now();
@@ -421,36 +405,36 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const radioActions: any = {
-      A: () =>
+      death: () =>
         this.timerService
           .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
           .subscribe({
             next: () =>
               handleSuccess(
-                'Респ был успешно обновлён по точному времени смерти'
+                'Респ был успешно обновлён по точному времени смерти',
               ),
             error: handleError,
           }),
-      B: () =>
+      respawn: () =>
         this.timerService
           .setByRespawnTime(
             this.currentItem,
-            moment(this.currentTime).valueOf()
+            moment(this.currentTime).valueOf(),
           )
           .subscribe({
             next: () =>
               handleSuccess(
-                'Респ был успешно обновлён по точному времени респауна'
+                'Респ был успешно обновлён по точному времени респауна',
               ),
             error: handleError,
           }),
-      C: () =>
+      cd: () =>
         this.timerService
           .setByCooldownTime(this.currentItem, Number(this.cooldown))
           .subscribe({
             next: () =>
               handleSuccess(
-                `Респ был успешно обновлён по кд ${this.cooldown} раз`
+                `Респ был успешно обновлён по кд ${this.cooldown} раз`,
               ),
             error: handleError,
           }),
@@ -469,9 +453,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onDieNow(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     this.timerService.isLoading = true;
     console.log('onDieNow', item);
     // this.timerService.getWorldTime().subscribe({
@@ -494,9 +476,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onPlusCooldown(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     item.mob.plusCooldown++;
     if (item.mobData.respawnTime) {
       item.mobData.respawnTime += item.mob.cooldownTime;
@@ -504,9 +484,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onSetByCooldownTime(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     this.timerService.isLoading = true;
     this.timerService.setByCooldownTime(item, 1).subscribe({
       next: () => {
@@ -517,7 +495,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses();
         this.messageService.create(
           'success',
-          'Респ был успешно переписан по кд'
+          'Респ был успешно переписан по кд',
         );
       },
       error: (err) => {
@@ -531,9 +509,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onLostCooldown(item: TimerItem): void {
-    if (event) {
-      this.stopPropagation(event);
-    }
+    event?.stopPropagation();
     this.timerService.isLoading = true;
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
@@ -558,8 +534,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         console.log(res);
-        this.timerList = [...res];
-        this.sortTimerList(this.timerList);
+        this.sortTimerList([...res]);
 
         this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
@@ -606,9 +581,5 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
       },
     });
-  }
-
-  stopPropagation(event: Event) {
-    event.stopPropagation();
   }
 }
