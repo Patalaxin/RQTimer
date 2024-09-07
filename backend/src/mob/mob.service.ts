@@ -101,13 +101,13 @@ export class MobService implements IMob {
           return mobData;
         }),
 
-      this.unixtimeService.getUnixTime(),
+      this.unixtimeService.getUnixtime(),
     ]);
 
     return {
       mob,
       mobData,
-      unixtime: unixtimeResponse.unixTime,
+      unixtime: unixtimeResponse.unixtime,
     };
   }
 
@@ -117,7 +117,7 @@ export class MobService implements IMob {
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const [userData, unixtimeResponse] = await Promise.all([
       this.usersService.findUser(email),
-      this.unixtimeService.getUnixTime(),
+      this.unixtimeService.getUnixtime(),
     ]);
 
     const { excludedMobs, unavailableMobs } = userData;
@@ -163,7 +163,7 @@ export class MobService implements IMob {
       return {
         mob,
         mobData,
-        unixtime: unixtimeResponse.unixTime,
+        unixtime: unixtimeResponse.unixtime,
       };
     });
   }
