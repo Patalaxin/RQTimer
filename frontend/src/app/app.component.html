@@ -1,4 +1,4 @@
-<div *ngIf="showBackground" class="background"></div>
+<div [class.background]="showBackground"></div>
 <tui-root>
   <app-header *ngIf="isVisible"></app-header>
   <router-outlet></router-outlet>

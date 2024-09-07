@@ -1,15 +1,15 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-
-const AUTH_API = environment.apiUrl + '/auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+
+  private readonly AUTH_API = environment.apiUrl + '/auth';
 
   private get httpOptions() {
     return {
@@ -26,19 +26,19 @@ export class AuthService {
 
   login(key: string, password: string): Observable<any> {
     const payload = this.createPayload(key, password);
-    return this.http.post(`${AUTH_API}/login`, payload, this.httpOptions);
+    return this.http.post(`${this.AUTH_API}/login`, payload, this.httpOptions);
   }
 
   exchangeRefresh(key: string): Observable<any> {
     const payload = this.createPayload(key);
     return this.http.post(
-      `${AUTH_API}/exchangeRefresh`,
+      `${this.AUTH_API}/exchange-refresh`,
       payload,
-      this.httpOptions
+      this.httpOptions,
     );
   }
 
   signOut(): Observable<any> {
-    return this.http.get(`${AUTH_API}/signout`, this.httpOptions);
+    return this.http.get(`${this.AUTH_API}/signout`, this.httpOptions);
   }
 }

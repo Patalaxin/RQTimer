@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -17,10 +17,10 @@ import { StorageService } from 'src/app/services/storage.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit {
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private storageService = inject(StorageService);
-  private messageService = inject(NzMessageService);
+  private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
+  private readonly storageService = inject(StorageService);
+  private readonly messageService = inject(NzMessageService);
 
   form: FormGroup = new FormGroup({
     key: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -33,6 +33,24 @@ export class LoginComponent implements OnInit {
   passwordVisible: boolean = false;
 
   isLoginLoading: boolean = false;
+
+  images: any[] = [
+    {
+      name: 'lesta',
+      src: '../../../assets/img/lesta-banner.avif',
+      link: 'https://lesta.games/',
+    },
+    {
+      name: 'rqcalc',
+      src: '../../../assets/img/rqcalc-banner.avif',
+      link: 'https://www.dropbox.com/scl/fi/1b5ansnztahmuzkhyovtb/RqCalcWPF.7z?rlkey=4wm5tninqzbyo8tsggvffroq8&e=2&st=t40n87c5&dl=0',
+    },
+    {
+      name: 'rqwiki',
+      src: '../../../assets/img/rqwiki-banner.avif',
+      link: 'https://royalquest.info/index.php/%D0%97%D0%B0%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0',
+    },
+  ];
 
   ngOnInit(): void {
     // this.getServers();
@@ -57,13 +75,13 @@ export class LoginComponent implements OnInit {
         next: (res) => {
           this.storageService.setLocalStorage(
             this.form.value.key,
-            res.accessToken
+            res.accessToken,
           );
           if (res.accessToken) {
             this.router.navigate(['/timer']);
           }
         },
-        error: (err) => {
+        error: () => {
           this.isLoginLoading = false;
           this.messageService.create('error', 'Неверный логин или пароль');
         },

@@ -16,9 +16,9 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./change-password.component.scss'],
 })
 export class ChangePasswordComponent {
-  private router = inject(Router);
-  private userService = inject(UserService);
-  private messageService = inject(NzMessageService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly messageService = inject(NzMessageService);
 
   form: FormGroup = new FormGroup(
     {
@@ -32,7 +32,7 @@ export class ChangePasswordComponent {
     },
     {
       validators: [Validation.match('newPassword', 'confirmPassword')],
-    }
+    },
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
@@ -52,7 +52,7 @@ export class ChangePasswordComponent {
       .forgotPassword(
         this.form.value.email,
         this.form.value.sessionId,
-        this.form.value.newPassword
+        this.form.value.newPassword,
       )
       .subscribe({
         next: (res) => {
@@ -65,7 +65,7 @@ export class ChangePasswordComponent {
         error: () => {
           this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера'
+            'Ошибка, обратитесь к создателям таймера',
           );
         },
       });

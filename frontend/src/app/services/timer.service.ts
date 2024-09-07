@@ -1,19 +1,19 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
 import { environment } from 'src/environments/environment';
 import { createHeaders } from '../utils/http';
 
-const MOB_URL = environment.apiUrl + '/mob/';
-
 @Injectable({
   providedIn: 'root',
 })
 export class TimerService {
-  private http = inject(HttpClient);
-  private storageService = inject(StorageService);
+  private readonly http = inject(HttpClient);
+  private readonly storageService = inject(StorageService);
+
+  private readonly MOB_URL = environment.apiUrl + '/mobs/';
 
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
@@ -45,7 +45,7 @@ export class TimerService {
 
   getWorldTime(): Observable<any> {
     return this.http.get(
-      `https://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`
+      `https://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`,
     );
   }
 
@@ -55,37 +55,42 @@ export class TimerService {
       server,
     };
     const headers = createHeaders(this.storageService);
-    return this.http.post(MOB_URL, payload, { headers });
+    return this.http.post(this.MOB_URL, payload, { headers });
   }
 
   editMob(item: any, server: string): Observable<any> {
     const { currentLocation, ...itemInfo } = item;
-    let payload = {
-      ...itemInfo,
-    };
+    let payload = itemInfo;
     const headers = createHeaders(this.storageService);
     return this.http.put(
-      `${MOB_URL}${item.mobName}/${server}/${currentLocation}`,
+      `${this.MOB_URL}/${server}/${currentLocation}/${item.mobName}`,
       payload,
-      { headers }
+      { headers },
     );
   }
 
   deleteMob(mobName: string, server: string, location: string) {
     const headers = createHeaders(this.storageService);
-    return this.http.delete(`${MOB_URL}${mobName}/${server}/${location}`, {
-      headers,
-    });
+    return this.http.delete(
+      `${this.MOB_URL}/${server}/${location}/${mobName}`,
+      {
+        headers,
+      },
+    );
   }
 
   getAllBosses(server: string): Observable<any> {
     const headers = createHeaders(this.storageService);
-    return this.http.get(`${MOB_URL}${server}`, { headers });
+    return this.http.get(`${this.MOB_URL}${server}`, { headers });
   }
 
   crashServerBosses(server: string): Observable<any> {
     const headers = createHeaders(this.storageService);
-    return this.http.post(`${MOB_URL}crashServer/${server}`, {}, { headers });
+    return this.http.post(
+      `${this.MOB_URL}crash-server/${server}`,
+      {},
+      { headers },
+    );
   }
 
   setByDeathTime(item: TimerItem, dateOfDeath: number): Observable<any> {
@@ -97,7 +102,7 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${MOB_URL}updateMobDateOfDeath`, payload, {
+    return this.http.put(`${this.MOB_URL}date-of-death`, payload, {
       headers,
     });
   }
@@ -111,7 +116,7 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${MOB_URL}updateMobDateOfRespawn`, payload, {
+    return this.http.put(`${this.MOB_URL}date-of-respawn`, payload, {
       headers,
     });
   }
@@ -125,7 +130,7 @@ export class TimerService {
       cooldown,
     };
 
-    return this.http.put(`${MOB_URL}updateMobByCooldown`, payload, {
+    return this.http.put(`${this.MOB_URL}cooldown`, payload, {
       headers,
     });
   }
@@ -135,11 +140,11 @@ export class TimerService {
     let payload = {};
 
     return this.http.put(
-      `${MOB_URL}respawnLost/${item.mob.mobName}/${item.mob.server}/${item.mob.location}`,
+      `${this.MOB_URL}respawn-lost/${item.mob.server}/${item.mob.location}/${item.mob.mobName}`,
       payload,
       {
         headers,
-      }
+      },
     );
   }
 }

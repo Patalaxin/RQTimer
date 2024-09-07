@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, inject } from '@angular/core';
+import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { UserService } from 'src/app/services/user.service';
@@ -9,9 +9,9 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./admin.component.scss'],
 })
 export class AdminComponent implements OnInit {
-  private userService = inject(UserService);
-  private modalService = inject(NzModalService);
-  private messageService = inject(NzMessageService);
+  private readonly userService = inject(UserService);
+  private readonly modalService = inject(NzModalService);
+  private readonly messageService = inject(NzMessageService);
 
   @Input() bossList: string[] = [];
   @Input() eliteList: string[] = [];
@@ -19,7 +19,6 @@ export class AdminComponent implements OnInit {
   userList: any = [];
   userSearchList: any = [];
   userData: any;
-  isDeleteLoading: boolean = false;
   isUserDataLoading: boolean = false;
   isTableLoading: boolean = false;
   isGenerateLoading: boolean = false;
@@ -42,7 +41,7 @@ export class AdminComponent implements OnInit {
   availableEliteList: any;
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event): void {
+  onResize(): void {
     this.checkScreenWidth();
   }
 
@@ -63,6 +62,10 @@ export class AdminComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
+  getUserColor(role: string): any {
+    return role == 'Admin' ? 'red' : 'green';
+  }
+
   getAllUsers(nickname?: any): void {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
@@ -80,7 +83,7 @@ export class AdminComponent implements OnInit {
         if (nickname) {
           this.messageService.create(
             'success',
-            `Пользователь ${nickname} удалён`
+            `Пользователь ${nickname} удалён`,
           );
         }
       },
@@ -95,7 +98,7 @@ export class AdminComponent implements OnInit {
   onSearch(): void {
     this.isSearchVisible = false;
     this.userList = this.userSearchList.filter(
-      (item: any) => item.nickname.indexOf(this.searchValue) !== -1
+      (item: any) => item.nickname.indexOf(this.searchValue) !== -1,
     );
   }
 
@@ -113,10 +116,10 @@ export class AdminComponent implements OnInit {
         this.userData = res;
         console.log('getSpecificUser', res);
         this.availableBossList = this.bossList.filter(
-          (item: any) => !res.unavailableMobs.includes(item)
+          (item: any) => !res.unavailableMobs.includes(item),
         );
         this.availableEliteList = this.eliteList.filter(
-          (item: any) => !res.unavailableMobs.includes(item)
+          (item: any) => !res.unavailableMobs.includes(item),
         );
         this.isUserDataLoading = false;
       },
@@ -146,20 +149,20 @@ export class AdminComponent implements OnInit {
       let role = item.role === 'Admin' ? 'User' : 'Admin';
 
       this.userService.updateRole(item.nickname, role).subscribe({
-        next: (res) => {
+        next: () => {
           this.messageService.create(
             'success',
-            `Роль пользователя ${item.nickname} успешно обновлён`
+            `Роль пользователя ${item.nickname} успешно обновлён`,
           );
         },
       });
     }
 
     let unavailableBossList = this.bossList.filter(
-      (item: any) => !this.availableBossList.includes(item)
+      (item: any) => !this.availableBossList.includes(item),
     );
     let unavailableEliteList = this.eliteList.filter(
-      (item: any) => !this.availableEliteList.includes(item)
+      (item: any) => !this.availableEliteList.includes(item),
     );
 
     this.isTableLoading = true;
@@ -175,7 +178,7 @@ export class AdminComponent implements OnInit {
           this.getAllUsers();
           this.messageService.create(
             'success',
-            `Настройки доступности для пользователя ${item.nickname} успешно обновлены`
+            `Настройки доступности для пользователя ${item.nickname} успешно обновлены`,
           );
         },
       });
@@ -197,11 +200,7 @@ export class AdminComponent implements OnInit {
 
   onRoleChange(event: any, role: string): void {
     console.log('event', event, 'role', role);
-    if (role !== event) {
-      this.isRoleChanged = true;
-    } else {
-      this.isRoleChanged = false;
-    }
+    this.isRoleChanged = role !== event;
 
     console.log('onRoleChange', this.isRoleChanged);
   }
