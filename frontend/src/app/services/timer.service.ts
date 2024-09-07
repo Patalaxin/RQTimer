@@ -43,10 +43,9 @@ export class TimerService {
     this.headerVisibilitySubject$.next(visible);
   }
 
-  getWorldTime(): Observable<any> {
-    return this.http.get(
-      `https://api.timezonedb.com/v2.1/get-time-zone?key=${environment.timezoneDb}&format=json&by=zone&zone=UTC`,
-    );
+  getUnixtime(): Observable<any> {
+    const headers = createHeaders(this.storageService);
+    return this.http.get(`${environment.apiUrl}/unixtime`, { headers });
   }
 
   createMob(item: any, server: string): Observable<any> {

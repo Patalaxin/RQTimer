@@ -102,7 +102,7 @@
                 formControlName="oldPassword"
                 placeholder="Старый пароль"
                 name="mix"
-                minlength="3"
+                minlength="6"
                 required
               />
             </nz-input-group>
@@ -121,7 +121,7 @@
                 formControlName="newPassword"
                 placeholder="Новый пароль"
                 name="mix"
-                minlength="3"
+                minlength="6"
                 required
               />
             </nz-input-group>
@@ -145,6 +145,10 @@
               />
             </nz-input-group>
           </nz-form-control>
+          <p class="password-text">
+            • Пароль должен содержать как минимум одну цифру и одну заглавную
+            букву. Длина пароля от 6 до 64 символов.
+          </p>
         </nz-form-item>
         <ng-template #suffixTemplate>
           <span

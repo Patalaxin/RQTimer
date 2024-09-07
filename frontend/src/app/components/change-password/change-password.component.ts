@@ -26,7 +26,8 @@ export class ChangePasswordComponent {
       sessionId: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
-        Validators.minLength(3),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
+        Validators.minLength(6),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
     },

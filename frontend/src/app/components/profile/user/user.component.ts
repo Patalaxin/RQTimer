@@ -46,11 +46,13 @@ export class UserComponent implements OnInit {
     {
       oldPassword: new FormControl('', [
         Validators.required,
-        Validators.minLength(3),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
+        Validators.minLength(6),
       ]),
       newPassword: new FormControl('', [
         Validators.required,
-        Validators.minLength(3),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
+        Validators.minLength(6),
       ]),
       confirmNewPassword: new FormControl('', [Validators.required]),
     },

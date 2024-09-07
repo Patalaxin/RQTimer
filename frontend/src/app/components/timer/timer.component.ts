@@ -46,8 +46,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   currentUser: any = [];
 
   radioValue: string = 'death';
-  currentTime: number = Date.now();
-  currentProgressTime: number = Date.now();
+  currentTime: number = 0;
+  currentProgressTime: number = 0;
   currentItem: any;
   cooldown: number = 1;
 
@@ -84,16 +84,15 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     );
 
-    // this.timerService.getWorldTime().subscribe({
-    //   next: (res) => {
-    //     this.currentProgressTime = res.timestamp;
-    this.currentProgressTime = Date.now();
-    this.intervalId = setInterval(() => {
-      this.currentProgressTime += 1000;
-      this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-    }, 1000);
-    //   },
-    // });
+    this.timerService.getUnixtime().subscribe({
+      next: (res) => {
+        this.currentProgressTime = res.unixtime;
+        this.intervalId = setInterval(() => {
+          this.currentProgressTime += 1000;
+          this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+        }, 1000);
+      },
+    });
 
     this.timerService.isLoading = true;
 
@@ -383,7 +382,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
-    this.currentTime = Date.now();
+    this.currentTime = this.currentProgressTime;
   }
 
   cancelDeathModal(item: TimerItem): void {
@@ -456,23 +455,27 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     this.timerService.isLoading = true;
     console.log('onDieNow', item);
-    // this.timerService.getWorldTime().subscribe({
-    //   next: (res) => {
-    //     this.currentTime = res.timestamp;
-    this.currentTime = Date.now();
-    this.timerService.setByDeathTime(item, this.currentTime - 10000).subscribe({
-      next: () => {
-        this.getAllBosses();
-        this.messageService.create('success', 'Респ был успешно переписан');
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+    this.timerService.getUnixtime().subscribe({
+      next: (res) => {
+        this.currentTime = res.unixtime;
+        this.timerService
+          .setByDeathTime(item, this.currentTime - 10000)
+          .subscribe({
+            next: () => {
+              this.getAllBosses();
+              this.messageService.create(
+                'success',
+                'Респ был успешно переписан',
+              );
+            },
+            error: (err) => {
+              if (err.status === 401) {
+                this.exchangeRefresh();
+              }
+            },
+          });
       },
     });
-    //   },
-    // });
   }
 
   onPlusCooldown(item: TimerItem): void {
@@ -534,6 +537,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         console.log(res);
+        this.currentTime = res[0].unixtime;
+        this.currentProgressTime = res[0].unixtime;
+        console.log('cT', this.currentTime, 'cPT', this.currentProgressTime);
         this.sortTimerList([...res]);
 
         this.timerList.forEach((item) => {

@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
     key: new FormControl('', [Validators.required, Validators.minLength(3)]),
     password: new FormControl('', [
       Validators.required,
-      Validators.minLength(3),
+      Validators.minLength(6),
     ]),
   });
   submitted: boolean = false;
