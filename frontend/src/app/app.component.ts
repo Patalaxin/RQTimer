@@ -2,8 +2,8 @@ import {
   AfterViewChecked,
   ChangeDetectorRef,
   Component,
-  OnInit,
   inject,
+  OnInit,
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -15,9 +15,9 @@ import { TimerService } from './services/timer.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, AfterViewChecked {
-  private router = inject(Router);
-  private timerService = inject(TimerService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   title = 'rq-timer-fe';
   showBackground: boolean = false;

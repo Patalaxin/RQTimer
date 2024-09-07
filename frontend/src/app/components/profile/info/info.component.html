@@ -1,8 +1,6 @@
 <div class="user-info">
-  <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
+  <nz-tag [nzColor]="getUserColor(user.role)"
     >Никнейм: {{ user.nickname }}
   </nz-tag>
-  <nz-tag [nzColor]="user.role == 'Admin' ? 'red' : 'green'"
-    >Почта: {{ user.email }}
-  </nz-tag>
+  <nz-tag [nzColor]="getUserColor(user.role)">Почта: {{ user.email }} </nz-tag>
 </div>

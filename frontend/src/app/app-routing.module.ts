@@ -11,7 +11,6 @@ import { NoAuthGuard } from './guard/no-auth.guard';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
   {
     path: 'register',
@@ -26,6 +25,7 @@ const routes: Routes = [
   { path: 'timer', component: TimerComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', component: NotFoundComponent, canActivate: [AuthGuard] },
 ];
 

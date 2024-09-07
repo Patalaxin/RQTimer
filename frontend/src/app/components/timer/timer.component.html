@@ -14,8 +14,8 @@
             ? item.mobData.cooldown
               ? 'orange'
               : this.currentProgressTime > item.mobData.respawnTime
-              ? 'red'
-              : 'green'
+                ? 'red'
+                : 'green'
             : 'white'
         "
         (click)="onClickTimerItem(item)"
@@ -51,12 +51,12 @@
             <span
               class="timer-mx-10px"
               [ngClass]="{
-                'timer-d-none': isScreenWidth750
+                'timer-d-none': isScreenWidth750,
               }"
             >
               {{
                 item.mobData.deathTime
-                  ? (item.mobData.deathTime | date : "HH:mm:ss")
+                  ? (item.mobData.deathTime | date: "HH:mm:ss")
                   : "00:00:00"
               }}
             </span>
@@ -66,18 +66,18 @@
               nzSize="small"
               [nzStrokeWidth]="10"
               [ngClass]="{
-                'timer-d-none': isScreenWidth800
+                'timer-d-none': isScreenWidth800,
               }"
             ></nz-progress>
             <span
               [ngClass]="{
                 'timer-mx-10px': isScreenWidthInZone,
-                'timer-d-none': isScreenWidth372
+                'timer-d-none': isScreenWidth372,
               }"
             >
               {{
                 item.mobData.respawnTime
-                  ? (item.mobData.respawnTime | date : "HH:mm:ss")
+                  ? (item.mobData.respawnTime | date: "HH:mm:ss")
                   : "00:00:00"
               }}
             </span>
@@ -108,21 +108,21 @@
             >
               <p *nzModalContent>
                 <nz-radio-group [(ngModel)]="radioValue">
-                  <label nz-radio nzValue="A"
+                  <label nz-radio nzValue="death"
                     >Выберите точное время смерти:</label
                   >
                   <div class="timer-radio-option">
                     <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
                     <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
                   </div>
-                  <label nz-radio nzValue="B"
+                  <label nz-radio nzValue="respawn"
                     >Выберите точное время респауна:</label
                   >
                   <div class="timer-radio-option">
                     <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
                     <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
                   </div>
-                  <label nz-radio nzValue="C"
+                  <label nz-radio nzValue="cd"
                     >Впишите, сколько раз по кд:</label
                   >
                   <div class="timer-radio-option">
@@ -299,7 +299,7 @@
               nz-button
               nz-dropdown
               nzTrigger="click"
-              (click)="this.stopPropagation($event)"
+              (click)="$event.stopPropagation()"
               [nzDropdownMenu]="menu"
               nzPlacement="bottomRight"
               nzShape="circle"
@@ -322,7 +322,6 @@
                 [nzCount]="item.mob.plusCooldown"
                 class="timer-plus-cooldown"
                 [nzOffset]="[-7, 3]"
-                nzShape="circle"
               >
                 <button
                   nz-button

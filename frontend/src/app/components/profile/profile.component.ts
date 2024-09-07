@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -11,11 +11,11 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  private router = inject(Router);
-  private timerService = inject(TimerService);
-  private authService = inject(AuthService);
-  private userService = inject(UserService);
-  private storageService = inject(StorageService);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
+  private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly storageService = inject(StorageService);
 
   user = {
     nickname: '',
@@ -31,9 +31,9 @@ export class ProfileComponent implements OnInit {
   }
 
   private exchangeRefresh() {
-    let key = !this.storageService.getLocalStorage('email')
-      ? this.storageService.getLocalStorage('nickname')
-      : this.storageService.getLocalStorage('email');
+    let key =
+      this.storageService.getLocalStorage('email') ||
+      this.storageService.getLocalStorage('nickname');
     this.authService.exchangeRefresh(key).subscribe({
       next: (res) => {
         console.log('exchangeRefresh', res);

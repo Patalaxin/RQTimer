@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit, inject } from '@angular/core';
+import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 
@@ -8,8 +8,8 @@ import { StorageService } from 'src/app/services/storage.service';
   styleUrls: ['./log.component.scss'],
 })
 export class LogComponent implements OnInit {
-  private historyService = inject(HistoryService);
-  private storageService = inject(StorageService);
+  private readonly historyService = inject(HistoryService);
+  private readonly storageService = inject(StorageService);
 
   @Input() historyList: any;
   @Input() historyListData: any;
@@ -34,6 +34,10 @@ export class LogComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
+  getUserColor(role: string): any {
+    return role == 'Admin' ? 'red' : 'green';
+  }
+
   changePage($event: any, mobName: string): void {
     this.isLoading = true;
     this.historyService
@@ -41,7 +45,7 @@ export class LogComponent implements OnInit {
         this.storageService.getLocalStorage('server'),
         mobName,
         Number($event),
-        Number(this.pageSize)
+        Number(this.pageSize),
       )
       .subscribe({
         next: (res: any) => {
@@ -59,7 +63,7 @@ export class LogComponent implements OnInit {
         this.storageService.getLocalStorage('server'),
         mobName,
         1,
-        Number($event)
+        Number($event),
       )
       .subscribe({
         next: (res: any) => {

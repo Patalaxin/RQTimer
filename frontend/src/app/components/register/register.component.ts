@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -18,10 +18,10 @@ import Validation from 'src/app/utils/validtion';
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent implements OnInit {
-  private router = inject(Router);
-  private userService = inject(UserService);
-  private configurationService = inject(ConfigurationService);
-  private messageService = inject(NzMessageService);
+  private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
+  private readonly configurationService = inject(ConfigurationService);
+  private readonly messageService = inject(NzMessageService);
 
   currentStep: number = 0;
 
@@ -49,7 +49,7 @@ export class RegisterComponent implements OnInit {
     },
     {
       validators: [Validation.match('password', 'confirmPassword')],
-    }
+    },
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
@@ -129,12 +129,12 @@ export class RegisterComponent implements OnInit {
           ) {
             return this.messageService.create(
               'error',
-              'Пользователь с данным никнеймом или почтой уже существует'
+              'Пользователь с данным никнеймом или почтой уже существует',
             );
           }
           return this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера'
+            'Ошибка, обратитесь к создателям таймера',
           );
         },
       });

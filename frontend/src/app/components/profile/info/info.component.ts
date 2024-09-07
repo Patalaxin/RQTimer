@@ -7,4 +7,8 @@ import { Component, Input } from '@angular/core';
 })
 export class InfoComponent {
   @Input() user: any;
+
+  getUserColor(role: string): any {
+    return role == 'Admin' ? 'red' : 'green';
+  }
 }
