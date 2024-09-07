@@ -10,7 +10,7 @@ export class UnixtimeService {
 
   constructor(private readonly httpService: HttpService) {}
 
-  async getUnixTime(): Promise<UnixtimeResponseDto> {
+  async getUnixtime(): Promise<UnixtimeResponseDto> {
     const start = Date.now();
 
     try {
@@ -28,14 +28,14 @@ export class UnixtimeService {
       );
 
       const end = Date.now();
-      const apiUnixTime = response.data.timestamp;
+      const apiUnixtime = response.data.timestamp;
       const processingTime = Math.floor((end - start) / 1000);
 
-      const correctedUnixTime = (apiUnixTime + processingTime) * 1000;
+      const correctedUnixTime = (apiUnixtime + processingTime) * 1000;
 
-      return { unixTime: correctedUnixTime };
+      return { unixtime: correctedUnixTime };
     } catch (error) {
-      return { unixTime: Date.now() };
+      return { unixtime: Date.now() };
     }
   }
 

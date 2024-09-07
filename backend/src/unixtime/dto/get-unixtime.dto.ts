@@ -1,3 +1,3 @@
 export class UnixtimeResponseDto {
-  unixTime: number;
+  unixtime: number;
 }

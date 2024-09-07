@@ -21,6 +21,6 @@ export class UnixtimeController {
   @ApiOperation({ summary: 'Get Unixtime' })
   @Get()
   async getUnixTime(): Promise<UnixtimeResponseDto> {
-    return this.unixtimeService.getUnixTime();
+    return this.unixtimeService.getUnixtime();
   }
 }
