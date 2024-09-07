@@ -22,6 +22,7 @@ import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
+  GetFullMobWithUnixDtoResponse,
   GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
@@ -70,7 +71,7 @@ export class MobController {
   @ApiOperation({ summary: 'Get Mob' })
   getMobAndData(
     @Param() getMobDto: GetMobDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
+  ): Promise<GetFullMobWithUnixDtoResponse> {
     return this.mobService.findMob(getMobDto);
   }
 
@@ -80,7 +81,7 @@ export class MobController {
   findAllMobsByUser(
     @GetEmailFromToken() email: string,
     @Param() getMobsDto: GetMobsDtoRequest,
-  ): Promise<GetFullMobDtoResponse[]> {
+  ): Promise<GetFullMobWithUnixDtoResponse[]> {
     return this.mobService.findAllMobsByUser(email, getMobsDto);
   }
 

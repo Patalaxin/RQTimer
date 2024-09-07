@@ -1,6 +1,7 @@
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
+  GetFullMobWithUnixDtoResponse,
   GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
@@ -23,12 +24,12 @@ import { RolesTypes } from '../schemas/user.schema';
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<GetFullMobDtoResponse>;
 
-  findMob(getMobDto: GetMobDtoRequest): Promise<GetFullMobDtoResponse>;
+  findMob(getMobDto: GetMobDtoRequest): Promise<GetFullMobWithUnixDtoResponse>;
 
   findAllMobsByUser(
     email: string,
     getMobsDto: GetMobsDtoRequest,
-  ): Promise<GetFullMobDtoResponse[]>;
+  ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
   updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
