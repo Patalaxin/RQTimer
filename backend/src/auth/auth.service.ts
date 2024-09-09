@@ -133,7 +133,7 @@ export class AuthService {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 2678400000, // 2,678,400,000 = day in milliseconds
+      maxAge: 2678400000, // 2,678,400,000 = 31 day in milliseconds
       sameSite: 'none',
     });
 

@@ -12,7 +12,7 @@ import { AuthGateway } from './auth.gateway';
     JwtModule.register({
       global: true,
       secret: process.env.SECRET_CONSTANT,
-      signOptions: { expiresIn: '900s' }, // 15 min live for access token
+      signOptions: { expiresIn: '120s' }, // 15 min live for access token
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
