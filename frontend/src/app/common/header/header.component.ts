@@ -100,6 +100,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
+  private exchangeRefresh(func: Function) {
+    let key =
+      this.storageService.getLocalStorage('email') ||
+      this.storageService.getLocalStorage('nickname');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        func();
+      },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
   updateCurrentServer() {
     console.log(this.currentServer);
     this.historyService.isLoading = true;
@@ -121,6 +140,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         });
         this.timerService.isLoading = false;
       },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(this.updateAllBosses);
+        }
+      },
     });
   }
 
@@ -132,6 +156,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.historyService.historyList = this.historyList;
         this.historyService.historyListData = this.historyListData;
         this.historyService.isLoading = false;
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(this.updateHistory);
+        }
       },
     });
   }
@@ -156,6 +185,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
         });
         this.messageService.create('success', 'Респы были успешно скопированы');
         navigator.clipboard.writeText(data.join(',\n'));
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(this.copyRespText);
+        }
       },
     });
   }
@@ -183,6 +217,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
           'success',
           'Респы теперь с учётом падения сервера',
         );
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(this.onCrashServer);
+        }
       },
     });
   }
