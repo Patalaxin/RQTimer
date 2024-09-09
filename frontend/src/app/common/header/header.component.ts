@@ -1,5 +1,6 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -31,6 +32,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   historyListData: any = [];
   historyList: any = [];
+  tokenRefreshTimeout: any;
 
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' | undefined;
@@ -46,12 +48,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.storageService.getLocalStorage('token')) {
-      this.websocketService.connect(
-        this.storageService.getLocalStorage('token'),
-        this.storageService.getLocalStorage('email'),
-      );
-    }
+    this.connectWebSocket();
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
@@ -76,6 +73,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.updateRoute();
     });
     this.updateRoute();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        clearTimeout(this.tokenRefreshTimeout);
+        this.checkAndRefreshToken();
+      }
+    });
+
+    this.checkAndRefreshToken();
   }
 
   ngOnDestroy(): void {
@@ -84,6 +90,37 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     this.websocketService.disconnect();
+    clearTimeout(this.tokenRefreshTimeout);
+  }
+
+  private connectWebSocket(): void {
+    const accessToken = this.storageService.getLocalStorage('token');
+    const email = this.storageService.getLocalStorage('email');
+
+    if (accessToken && email) {
+      console.log('connect', accessToken);
+      this.websocketService.connect(accessToken, email);
+    }
+  }
+
+  private checkAndRefreshToken(): void {
+    const accessToken = this.storageService.getLocalStorage('token');
+
+    if (accessToken) {
+      const decodedToken = jwtDecode(accessToken) as { exp: number };
+      const isExpired = decodedToken.exp * 1000 < Date.now();
+
+      if (isExpired) {
+        this.exchangeRefresh(() => {
+          this.websocketService.disconnect();
+          console.log('disconnected');
+
+          this.connectWebSocket();
+        });
+      } else {
+        this.scheduleTokenRefresh(decodedToken.exp);
+      }
+    }
   }
 
   private initCurrentServer() {
@@ -100,7 +137,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  private exchangeRefresh(func: Function) {
+  private scheduleTokenRefresh(expirationTime: number): void {
+    const refreshTime = expirationTime * 1000 - Date.now() - 60 * 1000;
+
+    this.tokenRefreshTimeout = setTimeout(() => {
+      this.checkAndRefreshToken();
+    }, refreshTime);
+  }
+
+  private exchangeRefresh(callback: Function) {
     let key =
       this.storageService.getLocalStorage('email') ||
       this.storageService.getLocalStorage('nickname');
@@ -108,7 +153,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (res) => {
         console.log('exchangeRefresh', res);
         this.storageService.setLocalStorage(key, res.accessToken);
-        func();
+        if (callback && typeof callback === 'function') {
+          callback(); // Вызываем коллбэк
+        }
       },
       error: (err) => {
         console.log('getUser error', err);
@@ -124,7 +171,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.historyService.isLoading = true;
     this.timerService.isLoading = true;
     this.storageService.setCurrentServer(this.currentServer);
-    this.updateHistory();
     this.updateAllBosses();
   }
 
@@ -139,10 +185,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
+        this.updateHistory();
       },
       error: (err) => {
         if (err.status === 401) {
-          this.exchangeRefresh(this.updateAllBosses);
+          this.exchangeRefresh(() => {
+            this.updateAllBosses();
+          });
         }
       },
     });
@@ -159,7 +208,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status === 401) {
-          this.exchangeRefresh(this.updateHistory);
+          this.exchangeRefresh(() => {
+            this.updateHistory();
+          });
         }
       },
     });
@@ -188,7 +239,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status === 401) {
-          this.exchangeRefresh(this.copyRespText);
+          this.exchangeRefresh(() => {
+            this.copyRespText();
+          });
         }
       },
     });
@@ -220,7 +273,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         if (err.status === 401) {
-          this.exchangeRefresh(this.onCrashServer);
+          this.exchangeRefresh(() => {
+            this.onCrashServer();
+          });
         }
       },
     });
@@ -251,6 +306,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;
+        this.websocketService.disconnect();
         this.storageService.clean();
         this.onLogin();
       },

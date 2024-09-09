@@ -28,6 +28,7 @@
     "@taiga-ui/styles": "^3.87.0",
     "@tinkoff/ng-dompurify": "4.0.0",
     "dompurify": "3.0.6",
+    "jwt-decode": "^4.0.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.45",
     "ng-zorro-antd": "^16.2.2",

@@ -537,7 +537,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
         console.log(res);
-        this.currentTime = res[0].unixtime;
+        this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res[0].unixtime;
         console.log('cT', this.currentTime, 'cPT', this.currentProgressTime);
         this.sortTimerList([...res]);

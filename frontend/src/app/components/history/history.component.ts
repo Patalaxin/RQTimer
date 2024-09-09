@@ -30,6 +30,7 @@ export class HistoryComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.timerService.headerVisibility = true;
     this.getUser();
     this.historyService.historyList$.subscribe({
       next: (res) => {

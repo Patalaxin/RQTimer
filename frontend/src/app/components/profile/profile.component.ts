@@ -27,6 +27,7 @@ export class ProfileComponent implements OnInit {
   isLoading: boolean = true;
 
   ngOnInit(): void {
+    this.timerService.headerVisibility = true;
     this.getUser();
   }
 
