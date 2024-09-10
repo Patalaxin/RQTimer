@@ -79,7 +79,7 @@
                 (nzOnCancel)="cancelUserModal(user)"
                 (nzOnOk)="confirmUserModal(user)"
                 [nzOkLoading]="user.isUserOkLoading"
-                [nzBodyStyle]="{ maxHeight: '450px', overflow: 'scroll' }"
+                [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
               >
                 <p *nzModalContent>
                   <nz-skeleton *ngIf="isUserDataLoading"></nz-skeleton>
