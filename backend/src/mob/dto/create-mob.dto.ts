@@ -1,48 +1,43 @@
 import {
-  IsNotEmpty,
-  IsString,
-  IsOptional,
-  IsNumber,
   IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsNumber,
 } from 'class-validator';
-import {
-  Locations,
-  MobName,
-  MobsTypes,
-  Servers,
-  ShortMobName,
-} from '../../schemas/mobs.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import { Locations, MobName, MobsTypes } from '../../schemas/mobs.enum';
 
 export class CreateMobDtoRequest {
-  @IsEnum(MobName)
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty()
   mobName: MobName;
 
-  @IsEnum(ShortMobName)
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty()
-  shortName: ShortMobName;
+  shortName: string;
 
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  respawnText?: string;
+
+  @ApiProperty({ enum: Locations })
   @IsEnum(Locations)
-  @IsNotEmpty()
   location: Locations;
 
-  @IsString()
-  @IsOptional()
-  respawnText: string;
-
-  @IsString()
-  @IsNotEmpty()
-  image: string;
-
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
   cooldownTime: number;
 
-  @IsEnum(Servers)
-  @IsNotEmpty()
-  server: Servers;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  image?: string;
 
+  @ApiProperty({ enum: MobsTypes })
   @IsEnum(MobsTypes)
-  @IsNotEmpty()
   mobType: MobsTypes;
 }

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { MobsTypes } from './mobs.enum';
+import { MobsTypes, Servers } from './mobs.enum';
 
 export type MobsDataDocument = HydratedDocument<MobsData>;
 
@@ -12,8 +12,12 @@ export type MobsDataDocument = HydratedDocument<MobsData>;
 export class MobsData {
   @ApiProperty()
   @Expose()
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Mob' })
-  mobId: mongoose.Types.ObjectId;
+  @Prop()
+  mobId: string;
+
+  @ApiProperty()
+  @Prop()
+  groupName: string;
 
   @ApiProperty()
   @Expose()
@@ -35,6 +39,11 @@ export class MobsData {
   @Prop({ default: false })
   respawnLost: boolean;
 
+  @ApiProperty({ enum: Servers })
+  @Expose()
+  @Prop({ required: true })
+  server: Servers;
+
   @ApiProperty()
   @Exclude()
   @Prop()
@@ -46,7 +55,7 @@ export class MobsData {
   mobTypeAdditionalTime: MobsTypes;
 
   @ApiProperty()
-  @Expose()
+  @Exclude()
   _id: mongoose.Types.ObjectId;
 
   constructor(partial: Partial<MobsData>) {
@@ -55,3 +64,5 @@ export class MobsData {
 }
 
 export const MobsDataSchema = SchemaFactory.createForClass(MobsData);
+
+MobsDataSchema.index({ mobId: 1, groupName: 1, server: 1 }, { unique: true });

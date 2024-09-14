@@ -14,6 +14,9 @@ import { HelperClass } from '../helper-class';
 export interface DecodeResult {
   email: string;
   nickname: string;
+  role: RolesTypes;
+  groupName: string;
+  isGroupLeader: boolean;
   iat: number;
   exp: number;
 }

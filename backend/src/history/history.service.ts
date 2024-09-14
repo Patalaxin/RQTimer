@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -47,20 +51,24 @@ export class HistoryService {
 
   async getAllHistory(
     server: Servers,
+    groupName: string,
     mobName?: MobName,
     page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedHistoryDto> {
     try {
+      if (!groupName) {
+        throw new NotFoundException('History not found');
+      }
+
       const historyModel = this.historyModels.find(
         (obj) => obj.server === server,
       ).model;
 
-      const query: any = {};
+      const query: any = { groupName: groupName };
       if (mobName) {
         query.mobName = mobName;
       }
-
       const total = await historyModel.countDocuments(query).exec();
       const pages: number = Math.ceil(total / limit);
       const data = await historyModel
@@ -78,16 +86,21 @@ export class HistoryService {
         pages,
       };
     } catch (err) {
-      throw new BadRequestException('Something went wrong');
+      throw new NotFoundException('History not found!');
     }
   }
 
-  async deleteAll(server: Servers): Promise<DeleteAllHistoryDtoResponse> {
+  async deleteAll(
+    server: Servers,
+    groupName: string,
+  ): Promise<DeleteAllHistoryDtoResponse> {
     try {
       const historyModel = this.historyModels.find(
         (obj) => obj.server === server,
       ).model;
-      await historyModel.deleteMany();
+      await historyModel.deleteMany({
+        groupName: groupName,
+      });
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }

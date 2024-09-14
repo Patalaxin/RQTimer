@@ -30,7 +30,11 @@ export class AuthService {
       email: user.email,
       nickname: user.nickname,
       role: user.role,
+      groupName: user.groupName,
+      isGroupLeader: user.isGroupLeader,
     };
+
+    console.log(payload);
     const accessToken: string = await this.jwtService.signAsync(payload, {
       secret: process.env.SECRET_CONSTANT,
     });

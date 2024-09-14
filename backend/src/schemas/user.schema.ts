@@ -10,7 +10,6 @@ export type UserDocument = HydratedDocument<User>;
 export enum RolesTypes {
   Admin = 'Admin',
   User = 'User',
-  Manager = 'Manager',
 }
 @Schema()
 export class User {
@@ -62,8 +61,17 @@ export class User {
   @Prop()
   __v: number;
 
+  @ApiProperty({ enum: RolesTypes })
   @Prop({ default: RolesTypes.User })
   role: RolesTypes;
+
+  @ApiProperty()
+  @Prop({ default: false })
+  isGroupLeader: boolean;
+
+  @ApiProperty()
+  @Prop()
+  groupName: string;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);

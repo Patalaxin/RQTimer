@@ -1,13 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
-import {
-  Locations,
-  MobName,
-  MobsTypes,
-  Servers,
-  ShortMobName,
-} from './mobs.enum';
+import { Locations, MobName, MobsTypes, ShortMobName } from './mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type MobDocument = HydratedDocument<Mob>;
@@ -16,11 +10,6 @@ export type MobDocument = HydratedDocument<Mob>;
   autoIndex: true,
 })
 export class Mob {
-  @ApiProperty()
-  @Exclude()
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'MobsData' })
-  mobsDataId: string;
-
   @ApiProperty({ enum: MobName })
   @Expose()
   @Prop({ required: true })
@@ -51,11 +40,6 @@ export class Mob {
   @Prop()
   image: string;
 
-  @ApiProperty({ enum: Servers })
-  @Expose()
-  @Prop({ required: true })
-  server: Servers;
-
   @ApiProperty({ enum: MobsTypes })
   @Expose()
   @Prop({ required: true })
@@ -76,4 +60,4 @@ export class Mob {
 }
 
 export const MobSchema = SchemaFactory.createForClass(Mob);
-MobSchema.index({ location: 1, mobName: 1, server: 1 }, { unique: true });
+MobSchema.index({ location: 1, mobName: 1 }, { unique: true });

@@ -6,6 +6,7 @@ import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history.interface';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type GranasHistoryDocument = HydratedDocument<GranasHistory>;
 
@@ -61,6 +62,10 @@ export class GranasHistory {
   @Expose()
   @Prop()
   server: Servers;
+
+  @ApiProperty()
+  @Prop()
+  groupName: string;
 
   @Prop({ type: Date, expires: 259200, default: Date.now }) //  3 day live for history
   expireAt: Date;

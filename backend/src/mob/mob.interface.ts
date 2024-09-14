@@ -20,11 +20,22 @@ import {
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
+import { Mob } from '../schemas/mob.schema';
+import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
+import { MobsData } from '../schemas/mobsData.schema';
 
 export interface IMob {
-  createMob(createMobDto: CreateMobDtoRequest): Promise<GetFullMobDtoResponse>;
+  createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
 
-  findMob(getMobDto: GetMobDtoRequest): Promise<GetFullMobWithUnixDtoResponse>;
+  addMobInGroup(
+    addMobInGroupDto: AddMobInGroupDtoRequest,
+    groupName: string,
+  ): Promise<MobsData>;
+
+  findMob(
+    getMobDto: GetMobDtoRequest,
+    groupName: string,
+  ): Promise<GetFullMobWithUnixDtoResponse>;
 
   findAllMobsByUser(
     email: string,
@@ -40,22 +51,26 @@ export interface IMob {
     nickname: string,
     role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
+    groupName: string,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfDeath(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
+    groupName: string,
   ): Promise<GetMobDataDtoResponse>;
 
   updateMobDateOfRespawn(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
+    groupName: string,
   ): Promise<GetMobDataDtoResponse>;
 
   deleteMob(
     deleteMobDtoParams: DeleteMobDtoParamsRequest,
+    groupName: string,
   ): Promise<DeleteMobDtoResponse>;
 
   crashMobServer(
@@ -69,5 +84,6 @@ export interface IMob {
     respawnLostDtoParams: RespawnLostDtoParamsRequest,
     nickname: string,
     role: RolesTypes,
+    groupName: string,
   ): Promise<GetMobDataDtoResponse>;
 }

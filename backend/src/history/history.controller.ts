@@ -24,6 +24,7 @@ import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
+import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 
 @ApiBearerAuth()
 @ApiTags('History API')
@@ -47,12 +48,14 @@ export class HistoryController {
   @Get('/list/:server')
   async findAll(
     @Param('server') server: Servers,
+    @GetGroupNameFromToken() groupName: string,
     @Query('mobName') mobName?: MobName,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ): Promise<PaginatedHistoryDto> {
     return await this.historyService.getAllHistory(
       server,
+      groupName,
       mobName,
       page,
       limit,
@@ -64,10 +67,11 @@ export class HistoryController {
   @ApiOperation({ summary: 'Delete All History by Server' })
   @ApiParam({ name: 'server', enum: Servers })
   @ApiOkResponse({ description: 'Success', type: DeleteAllHistoryDtoResponse })
-  @Delete()
+  @Delete(':server')
   deleteAll(
     @Param('server') server: Servers,
+    @GetGroupNameFromToken() groupName: string,
   ): Promise<DeleteAllHistoryDtoResponse> {
-    return this.historyService.deleteAll(server);
+    return this.historyService.deleteAll(server, groupName);
   }
 }

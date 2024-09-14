@@ -13,7 +13,7 @@ export interface DecodeResult {
   exp: number;
 }
 
-export const GetEmailFromToken = createParamDecorator(
+export const GetGroupNameFromToken = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     try {
       const request = ctx.switchToHttp().getRequest();
@@ -21,9 +21,9 @@ export const GetEmailFromToken = createParamDecorator(
 
       const token = request.headers.authorization.split(' ')[1];
 
-      const { email } = jwtService.decode(token) as DecodeResult;
+      const { groupName } = jwtService.decode(token) as DecodeResult;
 
-      return email;
+      return groupName;
     } catch (err) {
       throw new UnauthorizedException('Something wrong with token');
     }

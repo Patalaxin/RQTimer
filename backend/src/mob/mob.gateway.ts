@@ -13,6 +13,11 @@ export class MobGateway {
   server: Server;
 
   sendMobUpdate(data: any) {
-    this.server.emit('mobUpdate', data);
+    this.server.sockets.sockets.forEach((socket) => {
+      const user = this.server.sockets.sockets.get(socket.id);
+      if (user && user.handshake.query.groupName === data.groupName) {
+        socket.emit('mobUpdate', data);
+      }
+    });
   }
 }

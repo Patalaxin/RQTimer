@@ -21,8 +21,8 @@ export class UnixtimeService {
           )
           .pipe(
             timeout(this.REQUEST_TIMEOUT),
-            catchError((error) => {
-              return this.handleError(error);
+            catchError(() => {
+              return this.handleError();
             }),
           ),
       );
@@ -39,8 +39,7 @@ export class UnixtimeService {
     }
   }
 
-  private handleError(error: any): Promise<any> {
-    console.error(`Error fetching time from external API: ${error.message}`);
+  private handleError(): Promise<any> {
     return Promise.resolve({ data: { timestamp: Date.now() } });
   }
 }

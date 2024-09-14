@@ -10,12 +10,14 @@ import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import * as process from 'process';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
+import { GroupModule } from '../group/group.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     MobModule,
+    GroupModule,
     ConfigurationModule,
     UnixtimeModule,
     MongooseModule.forRootAsync({

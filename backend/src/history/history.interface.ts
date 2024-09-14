@@ -13,6 +13,7 @@ export interface History {
   mobName: MobName;
   nickname: string;
   server: Servers;
+  groupName?: string;
   date: number;
   role: RolesTypes;
   historyTypes: HistoryTypes;

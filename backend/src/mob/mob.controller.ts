@@ -44,11 +44,18 @@ import { JwtService } from '@nestjs/jwt';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { CrashServerDtoParamsRequest } from './dto/crash-server.dto';
 import { MobGateway } from './mob.gateway';
+import { Mob } from '../schemas/mob.schema';
+import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
+import { MobsData } from '../schemas/mobsData.schema';
+import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
+import { RolesGuard } from '../guards/roles.guard';
+import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
+import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(TokensGuard)
+@UseGuards(TokensGuard, RolesGuard, IsGroupLeaderGuard)
 @Controller('mobs')
 export class MobController {
   constructor(
@@ -60,19 +67,28 @@ export class MobController {
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Create Mob' })
   @Post()
-  create(
-    @Body() createMobDto: CreateMobDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
+  create(@Body() createMobDto: CreateMobDtoRequest): Promise<Mob> {
     return this.mobService.createMob(createMobDto);
+  }
+
+  @IsGroupLeader()
+  @ApiOperation({ summary: 'Add Mob In Group' })
+  @Post('/add-mob-in-group/:server/:location/:mobName/')
+  addMobInGroup(
+    @Param() addMobInGroupDto: AddMobInGroupDtoRequest,
+    @GetGroupNameFromToken() groupName: string,
+  ): Promise<MobsData> {
+    return this.mobService.addMobInGroup(addMobInGroupDto, groupName);
   }
 
   @Roles()
   @Get('/:server/:location/:mobName/')
   @ApiOperation({ summary: 'Get Mob' })
   getMobAndData(
+    @GetGroupNameFromToken() groupName: string,
     @Param() getMobDto: GetMobDtoRequest,
   ): Promise<GetFullMobWithUnixDtoResponse> {
-    return this.mobService.findMob(getMobDto);
+    return this.mobService.findMob(getMobDto, groupName);
   }
 
   @Roles()
@@ -99,6 +115,7 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
   @Put('/cooldown')
   async updateMobByCooldown(
+    @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -111,6 +128,7 @@ export class MobController {
         parsedToken.nickname,
         parsedToken.role,
         updateMobByCooldownDto,
+        groupName,
       );
     this.mobGateway.sendMobUpdate({
       ...updateMobByCooldownDto,
@@ -124,6 +142,7 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
   @Put('/date-of-death')
   async updateMobDateOfDeath(
+    @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -136,6 +155,7 @@ export class MobController {
         parsedToken.nickname,
         parsedToken.role,
         updateMobDateOfDeathDto,
+        groupName,
       );
 
     this.mobGateway.sendMobUpdate({
@@ -151,6 +171,7 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
   @Put('/date-of-respawn')
   async updateMobDateOfRespawn(
+    @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -163,6 +184,7 @@ export class MobController {
         parsedToken.nickname,
         parsedToken.role,
         updateMobDateOfRespawnDto,
+        groupName,
       );
 
     this.mobGateway.sendMobUpdate({
@@ -178,9 +200,10 @@ export class MobController {
   @ApiOperation({ summary: 'Delete Mob' })
   @Delete(':server/:location/:mobName/')
   deleteOne(
+    @GetGroupNameFromToken() groupName: string,
     @Param() deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
-    return this.mobService.deleteMob(deleteMobDtoParams);
+    return this.mobService.deleteMob(deleteMobDtoParams, groupName);
   }
 
   @Roles()
@@ -214,6 +237,7 @@ export class MobController {
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('respawn-lost/:server/:location/:mobName/')
   async respawnLost(
+    @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetMobDataDtoResponse> {
@@ -225,12 +249,14 @@ export class MobController {
       respawnLostDtoParams,
       parsedToken.nickname,
       parsedToken.role,
+      groupName,
     );
 
     this.mobGateway.sendMobUpdate({
       ...respawnLostDtoParams,
       ...mob,
       socketType: 'respawnLost',
+      groupName,
     });
 
     return mob;
