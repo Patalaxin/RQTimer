@@ -1,16 +1,17 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { AuthService } from './auth.service';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
 
+import { IAuth } from './auth.interface';
+
 @ApiTags('Auth API')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(@Inject('IAuth') private readonly authInterface: IAuth) {}
 
   @ApiOperation({ summary: 'Login' })
   @Post('login')
@@ -18,7 +19,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @Body() signInDto: SignInDtoRequest,
   ): Promise<SignInDtoResponse> {
-    return this.authService.signIn(res, signInDto);
+    return this.authInterface.signIn(res, signInDto);
   }
 
   @ApiOperation({ summary: 'Exchange Refresh Token' })
@@ -29,7 +30,7 @@ export class AuthController {
     @Req() req: Request,
     @Body() exchangeRefreshDto: ExchangeRefreshDto,
   ): Promise<SignInDtoResponse> {
-    return this.authService.exchangeRefresh(
+    return this.authInterface.exchangeRefresh(
       res,
       exchangeRefreshDto,
       req.cookies['refreshToken'],
@@ -43,6 +44,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @GetEmailFromToken() email: string,
   ): Promise<SignOutsDtoResponse> {
-    return this.authService.signOut(res, email);
+    return this.authInterface.signOut(res, email);
   }
 }

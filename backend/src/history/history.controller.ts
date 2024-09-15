@@ -7,8 +7,8 @@ import {
   UseGuards,
   UseInterceptors,
   Query,
+  Inject,
 } from '@nestjs/common';
-import { HistoryService } from './history.service';
 import { TokensGuard } from '../guards/tokens.guard';
 import { Roles } from '../decorators/roles.decorator';
 import {
@@ -25,13 +25,16 @@ import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
+import { IHistory } from './history.interface';
 
 @ApiBearerAuth()
 @ApiTags('History API')
 @UseGuards(TokensGuard)
 @Controller('history')
 export class HistoryController {
-  constructor(private historyService: HistoryService) {}
+  constructor(
+    @Inject('IHistory') private readonly historyInterface: IHistory,
+  ) {}
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -49,16 +52,16 @@ export class HistoryController {
   async findAll(
     @Param('server') server: Servers,
     @GetGroupNameFromToken() groupName: string,
-    @Query('mobName') mobName?: MobName,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('mobName') mobName?: MobName,
   ): Promise<PaginatedHistoryDto> {
-    return await this.historyService.getAllHistory(
+    return await this.historyInterface.getAllHistory(
       server,
       groupName,
-      mobName,
       page,
       limit,
+      mobName,
     );
   }
 
@@ -72,6 +75,6 @@ export class HistoryController {
     @Param('server') server: Servers,
     @GetGroupNameFromToken() groupName: string,
   ): Promise<DeleteAllHistoryDtoResponse> {
-    return this.historyService.deleteAll(server, groupName);
+    return this.historyInterface.deleteAll(server, groupName);
   }
 }

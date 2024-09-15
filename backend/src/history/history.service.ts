@@ -17,13 +17,14 @@ import {
   LogrusHistory,
   LogrusHistoryDocument,
 } from '../schemas/logrusHistory.schema';
-import { History } from './history.interface';
+import { History } from './history-types.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
+import { IHistory } from './history.interface';
 
 @Injectable()
-export class HistoryService {
+export class HistoryService implements IHistory {
   private historyModels: any;
 
   constructor(
@@ -41,7 +42,7 @@ export class HistoryService {
     ];
   }
 
-  async createHistory(history: History) {
+  async createHistory(history: History): Promise<History> {
     const historyModel = this.historyModels.find(
       (obj) => obj.server === history.server,
     ).model;
@@ -52,9 +53,9 @@ export class HistoryService {
   async getAllHistory(
     server: Servers,
     groupName: string,
-    mobName?: MobName,
     page: number = 1,
     limit: number = 10,
+    mobName?: MobName,
   ): Promise<PaginatedHistoryDto> {
     try {
       if (!groupName) {

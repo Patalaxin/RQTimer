@@ -15,7 +15,7 @@ import { MobModule } from '../mob/mob.module';
     forwardRef(() => MobModule),
   ],
   controllers: [GroupController],
-  providers: [GroupService],
+  providers: [GroupService, { provide: 'IGroup', useClass: GroupService }],
   exports: [GroupService],
 })
 export class GroupModule {}

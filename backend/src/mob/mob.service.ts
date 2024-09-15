@@ -27,7 +27,7 @@ import {
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
 import { HelperClass } from '../helper-class';
-import { History, HistoryTypes } from '../history/history.interface';
+import { History, HistoryTypes } from '../history/history-types.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';

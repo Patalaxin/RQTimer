@@ -15,6 +15,7 @@ import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto'
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import {
+  DeleteAllMobsDataDtoResponse,
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
 } from './dto/delete-mob.dto';
@@ -86,4 +87,6 @@ export interface IMob {
     role: RolesTypes,
     groupName: string,
   ): Promise<GetMobDataDtoResponse>;
+
+  deleteAllMobData(groupName: string): Promise<DeleteAllMobsDataDtoResponse>;
 }

@@ -16,9 +16,10 @@ import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
 import { UsersService } from '../users/users.service';
 import { plainToInstance } from 'class-transformer';
 import { MobService } from '../mob/mob.service';
+import { IGroup } from './group.interface';
 
 @Injectable()
-export class GroupService {
+export class GroupService implements IGroup {
   constructor(
     @InjectModel(Group.name) private groupModel: Model<GroupDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,

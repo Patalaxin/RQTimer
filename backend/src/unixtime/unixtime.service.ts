@@ -3,9 +3,10 @@ import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { UnixtimeResponseDto } from './dto/get-unixtime.dto';
 import * as process from 'node:process';
+import { IUnixtime } from './unixtime.interface';
 
 @Injectable()
-export class UnixtimeService {
+export class UnixtimeService implements IUnixtime {
   private readonly REQUEST_TIMEOUT = 3000;
 
   constructor(private readonly httpService: HttpService) {}

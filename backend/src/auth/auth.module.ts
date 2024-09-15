@@ -18,7 +18,11 @@ import { AuthGateway } from './auth.gateway';
     MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGateway],
+  providers: [
+    AuthService,
+    AuthGateway,
+    { provide: 'IAuth', useClass: AuthService },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

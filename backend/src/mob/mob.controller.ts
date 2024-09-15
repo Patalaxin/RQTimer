@@ -59,7 +59,7 @@ import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
 @Controller('mobs')
 export class MobController {
   constructor(
-    @Inject('IMob') private readonly mobService: IMob,
+    @Inject('IMob') private readonly mobInterface: IMob,
     private jwtService: JwtService,
     private mobGateway: MobGateway,
   ) {}
@@ -68,7 +68,7 @@ export class MobController {
   @ApiOperation({ summary: 'Create Mob' })
   @Post()
   create(@Body() createMobDto: CreateMobDtoRequest): Promise<Mob> {
-    return this.mobService.createMob(createMobDto);
+    return this.mobInterface.createMob(createMobDto);
   }
 
   @IsGroupLeader()
@@ -78,7 +78,7 @@ export class MobController {
     @Param() addMobInGroupDto: AddMobInGroupDtoRequest,
     @GetGroupNameFromToken() groupName: string,
   ): Promise<MobsData> {
-    return this.mobService.addMobInGroup(addMobInGroupDto, groupName);
+    return this.mobInterface.addMobInGroup(addMobInGroupDto, groupName);
   }
 
   @Roles()
@@ -88,7 +88,7 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Param() getMobDto: GetMobDtoRequest,
   ): Promise<GetFullMobWithUnixDtoResponse> {
-    return this.mobService.findMob(getMobDto, groupName);
+    return this.mobInterface.findMob(getMobDto, groupName);
   }
 
   @Roles()
@@ -98,7 +98,7 @@ export class MobController {
     @GetEmailFromToken() email: string,
     @Param() getMobsDto: GetMobsDtoRequest,
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    return this.mobService.findAllMobsByUser(email, getMobsDto);
+    return this.mobInterface.findAllMobsByUser(email, getMobsDto);
   }
 
   @Roles(RolesTypes.Admin)
@@ -108,7 +108,7 @@ export class MobController {
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
   ): Promise<GetMobDtoResponse> {
-    return this.mobService.updateMob(updateMobDtoBody, updateMobDtoParams);
+    return this.mobInterface.updateMob(updateMobDtoBody, updateMobDtoParams);
   }
 
   @Roles()
@@ -124,7 +124,7 @@ export class MobController {
       this.jwtService,
     );
     const mob: GetMobDataDtoResponse =
-      await this.mobService.updateMobByCooldown(
+      await this.mobInterface.updateMobByCooldown(
         parsedToken.nickname,
         parsedToken.role,
         updateMobByCooldownDto,
@@ -151,7 +151,7 @@ export class MobController {
       this.jwtService,
     );
     const mob: GetMobDataDtoResponse =
-      await this.mobService.updateMobDateOfDeath(
+      await this.mobInterface.updateMobDateOfDeath(
         parsedToken.nickname,
         parsedToken.role,
         updateMobDateOfDeathDto,
@@ -180,7 +180,7 @@ export class MobController {
       this.jwtService,
     );
     const mob: GetMobDataDtoResponse =
-      await this.mobService.updateMobDateOfRespawn(
+      await this.mobInterface.updateMobDateOfRespawn(
         parsedToken.nickname,
         parsedToken.role,
         updateMobDateOfRespawnDto,
@@ -203,7 +203,7 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Param() deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
-    return this.mobService.deleteMob(deleteMobDtoParams, groupName);
+    return this.mobInterface.deleteMob(deleteMobDtoParams, groupName);
   }
 
   @Roles()
@@ -218,7 +218,7 @@ export class MobController {
       request,
       this.jwtService,
     );
-    const mob: GetFullMobDtoResponse[] = await this.mobService.crashMobServer(
+    const mob: GetFullMobDtoResponse[] = await this.mobInterface.crashMobServer(
       email,
       parsedToken.nickname,
       parsedToken.role,
@@ -245,7 +245,7 @@ export class MobController {
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse = await this.mobService.respawnLost(
+    const mob: GetMobDataDtoResponse = await this.mobInterface.respawnLost(
       respawnLostDtoParams,
       parsedToken.nickname,
       parsedToken.role,

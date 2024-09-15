@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
-import { HistoryTypes } from '../history/history.interface';
+import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type GranasHistoryDocument = HydratedDocument<GranasHistory>;
