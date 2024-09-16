@@ -36,6 +36,8 @@ import {
   DeleteAllMobsDataDtoResponse,
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
+  DeleteMobFromGroupDtoParamsRequest,
+  DeleteMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
@@ -279,7 +281,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId },
+        { mobId: mob.mobData.mobId, groupName: groupName },
         {
           $inc: { cooldown },
           respawnTime: nextResurrectTime,
@@ -338,7 +340,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId },
+        { mobId: mob.mobData.mobId, groupName: groupName },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -401,7 +403,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId },
+        { mobId: mob.mobData.mobId, groupName: groupName },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -434,8 +436,34 @@ export class MobService implements IMob {
 
   async deleteMob(
     deleteMobDtoParams: DeleteMobDtoParamsRequest,
-    groupName: string,
   ): Promise<DeleteMobDtoResponse> {
+    const { mobName, location } = deleteMobDtoParams;
+
+    const mob: Mob = await this.mobModel
+      .findOneAndDelete(
+        {
+          location: location,
+          mobName: mobName,
+        },
+        { __v: 0 },
+      )
+      .exec();
+
+    if (!mob) {
+      throw new NotFoundException('Mob not found');
+    }
+
+    await this.mobsDataModel.deleteMany({
+      mobId: mob._id,
+    });
+
+    return { message: 'Mob deleted' };
+  }
+
+  async deleteMobFromGroup(
+    deleteMobDtoParams: DeleteMobFromGroupDtoParamsRequest,
+    groupName: string,
+  ): Promise<DeleteMobFromGroupDtoResponse> {
     const { mobName, server, location } = deleteMobDtoParams;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
@@ -446,17 +474,13 @@ export class MobService implements IMob {
       throw new NotFoundException('Mob not found');
     }
 
-    await Promise.all([
-      this.mobModel.deleteOne({
-        location: mob.mob.location,
-        mobName: mob.mob.mobName,
-      }),
-      this.mobsDataModel.deleteOne({
-        mobId: mob.mobData.mobId,
-      }),
-    ]);
+    await this.mobsDataModel.deleteOne({
+      mobId: mob.mobData.mobId,
+      groupName: groupName,
+      server: server,
+    });
 
-    return { message: 'Mob deleted' };
+    return { message: 'Mob deleted from group' };
   }
 
   async crashMobServer(
@@ -535,7 +559,7 @@ export class MobService implements IMob {
 
       const mobData: MobsData = await this.mobsDataModel
         .findOneAndUpdate(
-          { mobId: mob.mobData.mobId },
+          { mobId: mob.mobData.mobId, groupName: groupName },
           {
             cooldown: 0,
             respawnTime: null,

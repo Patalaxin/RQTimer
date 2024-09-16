@@ -10,6 +10,14 @@ export class DeleteMobDtoResponse {
   message: string;
 }
 
+export class DeleteMobFromGroupDtoResponse {
+  @ApiProperty({
+    example: 'Mob deleted from group',
+  })
+  @IsString()
+  message: string;
+}
+
 export class DeleteAllMobsDataDtoResponse {
   @ApiProperty({
     example: 'All Mobs Data deleted',
@@ -19,6 +27,14 @@ export class DeleteAllMobsDataDtoResponse {
 }
 
 export class DeleteMobDtoParamsRequest {
+  @IsEnum(MobName)
+  mobName: MobName;
+
+  @IsEnum(Locations)
+  location: Locations;
+}
+
+export class DeleteMobFromGroupDtoParamsRequest {
   @IsEnum(MobName)
   mobName: MobName;
 

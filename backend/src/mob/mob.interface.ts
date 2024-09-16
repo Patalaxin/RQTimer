@@ -18,6 +18,8 @@ import {
   DeleteAllMobsDataDtoResponse,
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
+  DeleteMobFromGroupDtoParamsRequest,
+  DeleteMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
@@ -73,6 +75,11 @@ export interface IMob {
     deleteMobDtoParams: DeleteMobDtoParamsRequest,
     groupName: string,
   ): Promise<DeleteMobDtoResponse>;
+
+  deleteMobFromGroup(
+    deleteMobDtoParams: DeleteMobFromGroupDtoParamsRequest,
+    groupName: string,
+  ): Promise<DeleteMobFromGroupDtoResponse>;
 
   crashMobServer(
     email: string,

@@ -38,6 +38,8 @@ import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respa
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
+  DeleteMobFromGroupDtoParamsRequest,
+  DeleteMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { HelperClass } from '../helper-class';
 import { JwtService } from '@nestjs/jwt';
@@ -198,12 +200,22 @@ export class MobController {
 
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Delete Mob' })
-  @Delete(':server/:location/:mobName/')
+  @Delete('/:location/:mobName/')
   deleteOne(
     @GetGroupNameFromToken() groupName: string,
     @Param() deleteMobDtoParams: DeleteMobDtoParamsRequest,
   ): Promise<DeleteMobDtoResponse> {
     return this.mobInterface.deleteMob(deleteMobDtoParams, groupName);
+  }
+
+  @IsGroupLeader()
+  @ApiOperation({ summary: 'Delete Mob From Group' })
+  @Delete(':server/:location/:mobName/')
+  deleteOneFromGroup(
+    @GetGroupNameFromToken() groupName: string,
+    @Param() deleteMobDtoParams: DeleteMobFromGroupDtoParamsRequest,
+  ): Promise<DeleteMobFromGroupDtoResponse> {
+    return this.mobInterface.deleteMobFromGroup(deleteMobDtoParams, groupName);
   }
 
   @Roles()
