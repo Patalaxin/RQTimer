@@ -72,7 +72,7 @@ jobs:
         if: env.FRONTEND_CHANGED == 'true'
         run: |
           # Обновление фронтенда
-          cd TimerRQ
+#          cd TimerRQ
           npm run build
           
           # Обновление фронтенд конфига для nginx
