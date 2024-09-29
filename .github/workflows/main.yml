@@ -70,14 +70,21 @@ jobs:
             
       - name: Update frontend
         if: env.FRONTEND_CHANGED == 'true'
-        run: |
-          # Обновление фронтенда
-          npm run build
-          
-          # Обновление фронтенд конфига для nginx
-          sudo rm -rf /var/www/rqtimer/
-          sudo mkdir -p /var/www/rqtimer/
-          sudo cp -r /root/TimerRQ/frontend/dist/rq-timer-fe/* /var/www/rqtimer/
-          
-          # Перезагрузка Nginx
-          sudo service nginx reload
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          password: ${{ secrets.SSH_PASS }}
+          port: 22
+          script: |
+            cd TimerRQ/frontend
+            npm install
+            npm run build
+            
+            # Обновление фронтенд конфига для nginx
+            sudo rm -rf /var/www/rqtimer/
+            sudo mkdir -p /var/www/rqtimer/
+            sudo cp -r dist/rq-timer-fe/* /var/www/rqtimer/
+            
+            # Перезагрузка Nginx
+            sudo service nginx reload
