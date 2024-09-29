@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Connect to server via SSH
         uses: appleboy/ssh-action@master
@@ -69,7 +71,7 @@ jobs:
             echo "No frontend changes."
             echo "FRONTEND_CHANGED=false" >> $GITHUB_ENV
           fi
-            
+
       - name: Update frontend
         if: env.FRONTEND_CHANGED == 'true'
         run: |
