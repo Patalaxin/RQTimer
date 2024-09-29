@@ -286,11 +286,15 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.messageService.create('success', successMessage);
       },
       error: (err: any) => {
+        console.log('status', err);
         if (err.status === 401) {
           this.exchangeRefresh();
         }
         this.timerService.isLoading = false;
-        this.messageService.create('error', errorMessage);
+        this.messageService.create(
+          'error',
+          err ? err.error.message : errorMessage,
+        );
       },
     });
 
@@ -457,7 +461,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     console.log('onDieNow', item);
     this.timerService.getUnixtime().subscribe({
       next: (res) => {
-        this.currentTime = res.unixtime;
+        this.currentTime = res ? res.unixtime : Date.now();
         this.timerService
           .setByDeathTime(item, this.currentTime - 10000)
           .subscribe({
@@ -538,7 +542,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         console.log(res);
         this.currentTime = res.length ? res[0].unixtime : Date.now();
-        this.currentProgressTime = res[0].unixtime;
+        this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
         console.log('cT', this.currentTime, 'cPT', this.currentProgressTime);
         this.sortTimerList([...res]);
 
