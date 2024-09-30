@@ -269,6 +269,7 @@
                   <button
                     nz-button
                     nzType="primary"
+                    [disabled]="isCreateOkDisabled"
                     (click)="confirmCreateEditModal(item)"
                     [nzLoading]="item.mob.isEditOkLoading"
                   >
@@ -421,6 +422,7 @@
           <button
             nz-button
             nzType="primary"
+            [disabled]="isCreateOkDisabled"
             (click)="confirmCreateEditModal()"
             [nzLoading]="isCreateOkLoading"
           >

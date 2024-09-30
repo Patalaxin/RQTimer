@@ -125,12 +125,18 @@ export class RegisterComponent implements OnInit {
         },
         error: (err) => {
           if (
-            err.message ===
+            err.error.message ===
             'A user with such an email or nickname already exists!'
           ) {
             return this.messageService.create(
               'error',
               'Пользователь с данным никнеймом или почтой уже существует',
+            );
+          }
+          if (err.error.message === 'Wrong SessionId!') {
+            return this.messageService.create(
+              'error',
+              'Невалидный Session ID!',
             );
           }
           return this.messageService.create(

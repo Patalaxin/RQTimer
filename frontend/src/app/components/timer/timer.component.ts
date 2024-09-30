@@ -61,6 +61,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   isCreateModalVisible: boolean = false;
   isCreateOkLoading: boolean = false;
+  isCreateOkDisabled: boolean = true;
 
   createEditItem: any;
 
@@ -286,7 +287,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.messageService.create('success', successMessage);
       },
       error: (err: any) => {
-        console.log('status', err);
         if (err.status === 401) {
           this.exchangeRefresh();
         }
@@ -315,6 +315,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         );
     } else {
       item.mob.isEditModalVisible = false;
+      console.log('createEditItem', this.createEditItem);
       this.timerService
         .editMob(
           this.createEditItem,
@@ -341,6 +342,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onCreateEdit(item: any) {
     this.createEditItem = { ...item };
+    this.isCreateOkDisabled = !(
+      this.createEditItem.location &&
+      this.createEditItem.cooldownTime &&
+      this.createEditItem.mobName
+    );
     console.log('onCreateEdit', this.createEditItem);
   }
 
