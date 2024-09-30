@@ -65,6 +65,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   createEditItem: any;
 
+  isOnDieNow: boolean = false;
+
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
@@ -401,6 +403,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   confirmDeathModal(item: TimerItem): void {
     const handleSuccess = (message: string) => {
+      this.timerService.isLoading = true;
       this.getAllBosses();
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
@@ -414,43 +417,59 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const radioActions: any = {
-      death: () =>
-        this.timerService
-          .setByDeathTime(this.currentItem, moment(this.currentTime).valueOf())
-          .subscribe({
-            next: () =>
-              handleSuccess(
-                'Респ был успешно обновлён по точному времени смерти',
-              ),
-            error: handleError,
-          }),
-      respawn: () =>
-        this.timerService
-          .setByRespawnTime(
-            this.currentItem,
-            moment(this.currentTime).valueOf(),
-          )
-          .subscribe({
-            next: () =>
-              handleSuccess(
-                'Респ был успешно обновлён по точному времени респауна',
-              ),
-            error: handleError,
-          }),
-      cd: () =>
-        this.timerService
-          .setByCooldownTime(this.currentItem, Number(this.cooldown))
-          .subscribe({
-            next: () =>
-              handleSuccess(
-                `Респ был успешно обновлён по кд ${this.cooldown} раз`,
-              ),
-            error: handleError,
-          }),
+      death: () => {
+        if (
+          !this.currentItem.mobData.respawnTime ||
+          moment(this.currentTime).valueOf() >
+            this.currentItem.mobData.respawnTime
+        ) {
+          this.timerService
+            .setByDeathTime(
+              this.currentItem,
+              moment(this.currentTime).valueOf(),
+            )
+            .subscribe({
+              next: () => {
+                handleSuccess(
+                  'Респ был успешно обновлён по точному времени смерти',
+                );
+                this.isOnDieNow = false;
+              },
+
+              error: (err) => handleError(err),
+            });
+        } else {
+          this.showConfirmRewriteModal(this.currentItem, 'death');
+        }
+      },
+      respawn: () => {
+        if (
+          !this.currentItem.mobData.respawnTime ||
+          (this.currentItem.mobData.respawnTime < this.currentItem.unixtime &&
+            moment(this.currentTime).valueOf() >=
+              this.currentItem.mobData.respawnTime +
+                this.currentItem.mob.cooldownTime)
+        ) {
+          this.timerService
+            .setByRespawnTime(
+              this.currentItem,
+              moment(this.currentTime).valueOf(),
+            )
+            .subscribe({
+              next: () =>
+                handleSuccess(
+                  'Респ был успешно обновлён по точному времени респауна',
+                ),
+              error: (err) => handleError(err),
+            });
+        } else {
+          this.showConfirmRewriteModal(this.currentItem, 'respawn');
+        }
+      },
+      cd: () => this.showConfirmRewriteModal(this.currentItem, 'cd'),
     };
 
     item.mob.isDeathOkLoading = true;
-    this.timerService.isLoading = true;
 
     console.log('confirm', this.currentItem);
     console.log(moment(this.currentTime).format('HH:mm:ss'));
@@ -461,31 +480,151 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDieNow(item: TimerItem): void {
-    event?.stopPropagation();
-    this.timerService.isLoading = true;
-    console.log('onDieNow', item);
-    this.timerService.getUnixtime().subscribe({
-      next: (res) => {
-        this.currentTime = res ? res.unixtime : Date.now();
-        this.timerService
-          .setByDeathTime(item, this.currentTime - 10000)
-          .subscribe({
-            next: () => {
-              this.getAllBosses();
-              this.messageService.create(
-                'success',
-                'Респ был успешно переписан',
-              );
-            },
-            error: (err) => {
-              if (err.status === 401) {
-                this.exchangeRefresh();
-              }
-            },
-          });
+  showConfirmRewriteModal(item: TimerItem, action: string) {
+    const handleSuccess = (message: string) => {
+      this.timerService.isLoading = true;
+      this.isOnDieNow = false;
+      this.getAllBosses();
+      item.mob.isDeathModalVisible = false;
+      item.mob.isDeathOkLoading = false;
+      this.messageService.create('success', message);
+    };
+
+    const handleError = (err: any) => {
+      if (err.status === 401) {
+        this.exchangeRefresh();
+      }
+    };
+
+    const handleText = () => {
+      if (item.mobData.respawnTime)
+        if (action === 'death') {
+          if (item.mobData.respawnTime <= item.unixtime) {
+            return `${item.mob.mobName} реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время смерти на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+          }
+
+          return `${item.mob.mobName} реснется в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время смерти на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+        }
+
+      if (item.mobData.respawnTime)
+        if (action === 'respawn') {
+          console.log('currentItem', item);
+          console.log(
+            'moment(this.currentTime).valueOf()',
+            moment(this.currentTime).valueOf(),
+          );
+
+          if (item.mobData.respawnTime < item.unixtime) {
+            if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
+              return `${item.mob.mobName} уже реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+            }
+
+            if (
+              moment(this.currentTime).valueOf() > item.mobData.respawnTime &&
+              moment(this.currentTime).valueOf() <
+                item.mobData.respawnTime + item.mob.cooldownTime
+            ) {
+              return `${item.mob.mobName} уже реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')} и следующий респаун предположительно будет в ${moment(item.mobData.respawnTime + item.mob.cooldownTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+            }
+          }
+
+          if (item.mobData.respawnTime > item.unixtime) {
+            if (
+              moment(this.currentTime).valueOf() !== item.mobData.respawnTime
+            ) {
+              return `Cледующий респаун ${item.mob.mobName} будет в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+            }
+          }
+        }
+
+      return action === 'death'
+        ? 'death'
+        : action === 'respawn'
+          ? 'respawn'
+          : 'cd';
+    };
+
+    this.modalService.confirm({
+      nzTitle: 'Внимание',
+      nzContent: handleText(),
+      nzOkText: 'Да',
+      nzOnOk: () => {
+        if (action === 'death') {
+          this.timerService
+            .setByDeathTime(item, moment(this.currentTime).valueOf())
+            .subscribe({
+              next: () =>
+                handleSuccess(
+                  'Респ был успешно обновлён по точному времени смерти',
+                ),
+              error: (err) => handleError(err),
+            });
+        }
+
+        if (action === 'respawn') {
+          this.timerService
+            .setByRespawnTime(item, moment(this.currentTime).valueOf())
+            .subscribe({
+              next: () =>
+                handleSuccess(
+                  'Респ был успешно обновлён по точному времени респауна',
+                ),
+              error: (err) => handleError(err),
+            });
+        }
+
+        if (action === 'cd') {
+          this.timerService
+            .setByCooldownTime(item, Number(this.cooldown))
+            .subscribe({
+              next: () =>
+                handleSuccess(
+                  `Респ был успешно обновлён по кд ${this.cooldown} раз`,
+                ),
+              error: (err) => handleError(err),
+            });
+        }
+      },
+      nzCancelText: 'Нет',
+      nzOnCancel: () => {
+        item.mob.isDeathOkLoading = false;
       },
     });
+  }
+
+  onDieNow(item: TimerItem): void {
+    event?.stopPropagation();
+    this.isOnDieNow = true;
+    if (
+      !item.mobData.respawnTime ||
+      moment(this.currentTime).valueOf() > item.mobData.respawnTime
+    ) {
+      this.timerService.isLoading = true;
+      this.timerService.getUnixtime().subscribe({
+        next: (res) => {
+          this.currentTime = res ? res.unixtime : Date.now();
+          this.timerService
+            .setByDeathTime(item, this.currentTime - 10000)
+            .subscribe({
+              next: () => {
+                this.getAllBosses();
+                this.messageService.create(
+                  'success',
+                  'Респ был успешно переписан',
+                );
+                this.isOnDieNow = false;
+              },
+              error: (err) => {
+                if (err.status === 401) {
+                  this.exchangeRefresh();
+                }
+              },
+            });
+        },
+      });
+    } else {
+      this.showConfirmRewriteModal(item, 'death');
+    }
   }
 
   onPlusCooldown(item: TimerItem): void {

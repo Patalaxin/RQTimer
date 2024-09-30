@@ -25,4 +25,5 @@ export interface TimerItem {
     respawnLost?: boolean;
     mobTypeAdditionalTime?: string;
   };
+  unixtime: number;
 }
