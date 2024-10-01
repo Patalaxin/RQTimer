@@ -1,4 +1,8 @@
-<nz-skeleton *ngIf="isLoading | async" class="container"></nz-skeleton>
+<nz-skeleton
+  [nzActive]="true"
+  *ngIf="isLoading | async"
+  class="container"
+></nz-skeleton>
 
 <div class="timer container" *ngIf="!(isLoading | async)">
   <nz-list nzItemLayout="horizontal">
@@ -105,44 +109,50 @@
               (nzOnCancel)="cancelDeathModal(item)"
               (nzOnOk)="confirmDeathModal(item)"
               [nzOkLoading]="item.mob.isDeathOkLoading"
+              nzCentered
             >
               <p *nzModalContent>
                 <nz-radio-group [(ngModel)]="radioValue">
                   <label nz-radio nzValue="death"
-                    >Выберите точное время смерти:</label
-                  >
-                  <div class="timer-radio-option">
-                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
-                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
-                  </div>
+                    >Выберите точное время смерти:
+                    <div class="timer-radio-option">
+                      <nz-date-picker
+                        [(ngModel)]="currentTime"
+                      ></nz-date-picker>
+                      <nz-time-picker [(ngModel)]="currentTime">
+                      </nz-time-picker>
+                    </div>
+                  </label>
                   <label nz-radio nzValue="respawn"
-                    >Выберите точное время респауна:</label
-                  >
-                  <div class="timer-radio-option">
-                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
-                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
-                  </div>
+                    >Выберите точное время респауна:
+                    <div class="timer-radio-option">
+                      <nz-date-picker
+                        [(ngModel)]="currentTime"
+                      ></nz-date-picker>
+                      <nz-time-picker [(ngModel)]="currentTime">
+                      </nz-time-picker></div
+                  ></label>
+
                   <label nz-radio nzValue="cd"
-                    >Впишите, сколько раз по кд:</label
-                  >
-                  <div class="timer-radio-option">
-                    <nz-space>
-                      <nz-input-group
-                        *nzSpaceItem
-                        style="width: 120px; margin-top: 10px"
-                      >
-                        <input
-                          nz-input
-                          [(ngModel)]="cooldown"
-                          type="number"
-                          min="1"
-                          max="10"
-                          step="1"
-                          class="br-50px"
-                        />
-                      </nz-input-group>
-                    </nz-space>
-                  </div>
+                    >Впишите, сколько раз по кд:
+                    <div class="timer-radio-option">
+                      <nz-space>
+                        <nz-input-group
+                          *nzSpaceItem
+                          style="width: 120px; margin-top: 10px"
+                        >
+                          <input
+                            nz-input
+                            [(ngModel)]="cooldown"
+                            type="number"
+                            min="1"
+                            max="10"
+                            step="1"
+                            class="br-50px"
+                          />
+                        </nz-input-group>
+                      </nz-space></div
+                  ></label>
                 </nz-radio-group>
               </p>
             </nz-modal>
@@ -186,7 +196,10 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
               >
                 <p *nzModalContent>
-                  <nz-skeleton *ngIf="isHistoryLoading | async"></nz-skeleton>
+                  <nz-skeleton
+                    [nzActive]="true"
+                    *ngIf="isHistoryLoading | async"
+                  ></nz-skeleton>
                   <app-log
                     *ngIf="!(isHistoryLoading | async)"
                     [historyList]="historyList"

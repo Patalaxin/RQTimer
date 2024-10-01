@@ -1,4 +1,8 @@
-<nz-skeleton *ngIf="isLoading | async" class="container"></nz-skeleton>
+<nz-skeleton
+  [nzActive]="true"
+  *ngIf="isLoading | async"
+  class="container"
+></nz-skeleton>
 
 <div *ngIf="!(isLoading | async)" class="history container">
   <nz-page-header class="site-page-header" nzBackIcon (nzBack)="onTimer()">

@@ -466,7 +466,19 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.showConfirmRewriteModal(this.currentItem, 'respawn');
         }
       },
-      cd: () => this.showConfirmRewriteModal(this.currentItem, 'cd'),
+      cd: () =>
+        this.timerService
+          .setByCooldownTime(
+            item,
+            Number(this.cooldown) ? Number(this.cooldown) : 1,
+          )
+          .subscribe({
+            next: () =>
+              handleSuccess(
+                `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
+              ),
+            error: (err) => handleError(err),
+          }),
     };
 
     item.mob.isDeathOkLoading = true;
@@ -500,10 +512,10 @@ export class TimerComponent implements OnInit, OnDestroy {
       if (item.mobData.respawnTime)
         if (action === 'death') {
           if (item.mobData.respawnTime <= item.unixtime) {
-            return `${item.mob.mobName} реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время смерти на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+            return `<b>${item.mob.mobName}</b> реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
           }
 
-          return `${item.mob.mobName} реснется в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время смерти на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+          return `<b>${item.mob.mobName}</b> реснется в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
         }
 
       if (item.mobData.respawnTime)
@@ -516,7 +528,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
           if (item.mobData.respawnTime < item.unixtime) {
             if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
-              return `${item.mob.mobName} уже реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+              return `<b>${item.mob.mobName}</b> уже реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
             }
 
             if (
@@ -524,7 +536,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               moment(this.currentTime).valueOf() <
                 item.mobData.respawnTime + item.mob.cooldownTime
             ) {
-              return `${item.mob.mobName} уже реснулся в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')} и следующий респаун предположительно будет в ${moment(item.mobData.respawnTime + item.mob.cooldownTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+              return `<b>${item.mob.mobName}</b> уже реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b> и следующий респаун предположительно будет в <b>${moment(item.mobData.respawnTime + item.mob.cooldownTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
             }
           }
 
@@ -532,7 +544,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             if (
               moment(this.currentTime).valueOf() !== item.mobData.respawnTime
             ) {
-              return `Cледующий респаун ${item.mob.mobName} будет в ${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}. Вы точно хотите переписать время респауна на ${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}?`;
+              return `Cледующий респаун <b>${item.mob.mobName}</b> будет в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
             }
           }
         }
@@ -547,6 +559,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent: handleText(),
+      nzCentered: true,
       nzOkText: 'Да',
       nzOnOk: () => {
         if (action === 'death') {
@@ -575,11 +588,14 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         if (action === 'cd') {
           this.timerService
-            .setByCooldownTime(item, Number(this.cooldown))
+            .setByCooldownTime(
+              item,
+              Number(this.cooldown) ? Number(this.cooldown) : 1,
+            )
             .subscribe({
               next: () =>
                 handleSuccess(
-                  `Респ был успешно обновлён по кд ${this.cooldown} раз`,
+                  `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
                 ),
               error: (err) => handleError(err),
             });

@@ -1,5 +1,5 @@
 <div class="mob-modal container">
-  <nz-skeleton *ngIf="isLoading"></nz-skeleton>
+  <nz-skeleton [nzActive]="true" *ngIf="isLoading"></nz-skeleton>
 
   <div *ngIf="!isLoading">
     <div class="mob-modal-top">

@@ -4,6 +4,14 @@
 //   outline: 1px solid red;
 // }
 
+body[data-tui-theme] {
+  background: #53c5d4 !important;
+}
+
+.ant-table {
+  background: #53c5d4;
+}
+
 .container {
   max-width: 1000px;
   width: 100%;
@@ -137,6 +145,11 @@ h4.ant-list-item-meta-title {
 
 span.ant-radio + * {
   margin-top: 20px;
+  width: 100%;
+}
+
+.ant-radio-wrapper {
+  width: 100%;
 }
 
 nz-progress {

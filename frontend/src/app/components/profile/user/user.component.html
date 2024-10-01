@@ -1,4 +1,8 @@
-<nz-skeleton *ngIf="isLoading" class="container"></nz-skeleton>
+<nz-skeleton
+  [nzActive]="true"
+  *ngIf="isLoading"
+  class="container"
+></nz-skeleton>
 
 <div class="user" *ngIf="!isLoading">
   <nz-tabset>
