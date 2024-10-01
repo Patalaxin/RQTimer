@@ -65,8 +65,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   createEditItem: any;
 
-  isOnDieNow: boolean = false;
-
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
@@ -433,7 +431,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 handleSuccess(
                   'Респ был успешно обновлён по точному времени смерти',
                 );
-                this.isOnDieNow = false;
+                item.mob.isOnDieNow = false;
               },
 
               error: (err) => handleError(err),
@@ -495,7 +493,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   showConfirmRewriteModal(item: TimerItem, action: string) {
     const handleSuccess = (message: string) => {
       this.timerService.isLoading = true;
-      this.isOnDieNow = false;
+      item.mob.isOnDieNow = false;
       this.getAllBosses();
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
@@ -604,13 +602,14 @@ export class TimerComponent implements OnInit, OnDestroy {
       nzCancelText: 'Нет',
       nzOnCancel: () => {
         item.mob.isDeathOkLoading = false;
+        item.mob.isOnDieNow = false;
       },
     });
   }
 
   onDieNow(item: TimerItem): void {
     event?.stopPropagation();
-    this.isOnDieNow = true;
+    item.mob.isOnDieNow = true;
     if (
       !item.mobData.respawnTime ||
       moment(this.currentTime).valueOf() > item.mobData.respawnTime
@@ -628,7 +627,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                   'success',
                   'Респ был успешно переписан',
                 );
-                this.isOnDieNow = false;
+                item.mob.isOnDieNow = false;
               },
               error: (err) => {
                 if (err.status === 401) {

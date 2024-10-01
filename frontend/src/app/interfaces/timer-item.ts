@@ -12,6 +12,7 @@ export interface TimerItem {
     plusCooldown: number;
     isDeathModalVisible: boolean;
     isDeathOkLoading: boolean;
+    isOnDieNow: boolean;
     isHistoryModalVisible: boolean;
     isHistoryOkLoading: boolean;
     isEditModalVisible: boolean;
