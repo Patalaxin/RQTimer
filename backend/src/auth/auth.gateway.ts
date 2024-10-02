@@ -57,14 +57,11 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     if (userEntry) {
-      const [email, { groupName }] = userEntry;
+      const [email] = userEntry;
       this.onlineUsers.delete(email);
+
       setTimeout(() => {
-        if (
-          ![...this.onlineUsers.values()].some(
-            (user) => user.groupName === groupName,
-          )
-        ) {
+        if (!this.onlineUsers.has(email)) {
           this.sendUserStatusUpdate(email, 'offline');
         }
       }, 10000);
