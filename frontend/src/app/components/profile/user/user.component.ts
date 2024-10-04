@@ -9,7 +9,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
-import Validation from 'src/app/utils/validtion';
+import Validation from 'src/app/utils/validation';
 
 @Component({
   selector: 'app-user',
@@ -44,15 +44,13 @@ export class UserComponent implements OnInit {
 
   changePasswordForm: FormGroup = new FormGroup(
     {
-      oldPassword: new FormControl('', [
-        Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
-        Validators.minLength(6),
-      ]),
+      oldPassword: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
         Validators.minLength(6),
+        Validators.maxLength(64),
+        Validation.passwordValidator,
+        // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmNewPassword: new FormControl('', [Validators.required]),
     },

@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
-import Validation from 'src/app/utils/validtion';
+import Validation from 'src/app/utils/validation';
 
 @Component({
   selector: 'app-register',
@@ -40,8 +40,10 @@ export class RegisterComponent implements OnInit {
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
         Validators.minLength(6),
+        Validators.maxLength(64),
+        Validation.passwordValidator,
+        // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
       sessionId: new FormControl('', [Validators.required]),
