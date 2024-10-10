@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
@@ -23,6 +24,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly timerService = inject(TimerService);
   private readonly historyService = inject(HistoryService);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
@@ -33,6 +35,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   historyListData: any = [];
   historyList: any = [];
   tokenRefreshTimeout: any;
+  currentUser: any = [];
 
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' | undefined;
@@ -48,7 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.connectWebSocket();
+    this.getCurrentUser();
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
@@ -96,6 +99,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private connectWebSocket(): void {
     const accessToken = this.storageService.getLocalStorage('token');
     const email = this.storageService.getLocalStorage('email');
+
+    console.log('email', email);
 
     if (accessToken && email) {
       console.log('connect', accessToken);
@@ -185,7 +190,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        this.updateHistory();
+        // this.updateHistory();
       },
       error: (err) => {
         if (err.status === 401) {
@@ -197,19 +202,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  updateHistory(): void {
-    this.historyService.getHistory(this.currentServer).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.historyList = this.historyList;
-        this.historyService.historyListData = this.historyListData;
-        this.historyService.isLoading = false;
+  // updateHistory(): void {
+  //   this.historyService.getHistory(this.currentServer).subscribe({
+  //     next: (res: any) => {
+  //       this.historyListData = res;
+  //       this.historyList = res.data;
+  //       this.historyService.historyList = this.historyList;
+  //       this.historyService.historyListData = this.historyListData;
+  //       this.historyService.isLoading = false;
+  //     },
+  //     error: (err) => {
+  //       if (err.status === 401) {
+  //         this.exchangeRefresh(() => {
+  //           this.updateHistory();
+  //         });
+  //       }
+  //     },
+  //   });
+  // }
+
+  getCurrentUser() {
+    this.userService.getUser().subscribe({
+      next: (res) => {
+        this.userService.currentUser = res;
+        this.storageService.setLocalStorage(
+          res.email,
+          this.storageService.getLocalStorage('token'),
+        );
+        this.connectWebSocket();
       },
       error: (err) => {
         if (err.status === 401) {
           this.exchangeRefresh(() => {
-            this.updateHistory();
+            this.getCurrentUser();
           });
         }
       },

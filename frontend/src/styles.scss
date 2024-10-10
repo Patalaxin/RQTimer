@@ -5,11 +5,52 @@
 // }
 
 body[data-tui-theme] {
-  background: #53c5d4 !important;
+  background: #2c3a55 !important;
 }
 
-.ant-table {
-  background: #53c5d4;
+.ant-table,
+.ant-modal-body,
+.ant-modal-footer {
+  background: #2c3a55;
+}
+
+.ant-table tr:hover {
+  color: #2c3a55;
+}
+
+.ant-page-header-heading-title,
+.ant-tabs,
+.ant-checkbox-wrapper,
+.ant-table,
+.ant-pagination,
+.ant-timeline,
+.ant-modal-confirm-body span,
+.ant-modal-confirm-body div,
+.ant-modal-confirm-body b,
+.ant-modal-close-x svg,
+.ant-radio-wrapper span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #ffffff;
+}
+
+.ant-page-header-heading-left svg {
+  fill: #ffffff;
+}
+
+.ant-modal-body {
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+}
+
+.ant-modal-footer,
+.ant-modal-confirm .ant-modal-body {
+  border-bottom-left-radius: 9px;
+  border-bottom-right-radius: 9px;
 }
 
 .container {

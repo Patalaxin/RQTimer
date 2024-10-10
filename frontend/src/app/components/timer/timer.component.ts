@@ -728,6 +728,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: () => {
+        this.timerService.headerVisibility = false;
         this.storageService.clean();
         this.router.navigate(['/login']);
       },

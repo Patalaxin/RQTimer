@@ -1,6 +1,10 @@
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { AuthService } from 'src/app/services/auth.service';
+import { StorageService } from 'src/app/services/storage.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -10,6 +14,10 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
+  private readonly storageService = inject(StorageService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
@@ -57,9 +65,40 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  private exchangeRefresh(callback: Function) {
+    let key =
+      this.storageService.getLocalStorage('email') ||
+      this.storageService.getLocalStorage('nickname');
+    this.authService.exchangeRefresh(key).subscribe({
+      next: (res) => {
+        console.log('exchangeRefresh', res);
+        this.storageService.setLocalStorage(key, res.accessToken);
+        if (callback && typeof callback === 'function') {
+          callback(); // Вызываем коллбэк
+        }
+      },
+      error: (err) => {
+        console.log('getUser error', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
+      },
+    });
+  }
+
   private checkScreenWidth(): void {
     this.isScreenWidth800 = window.innerWidth <= 800;
     this.isScreenWidth550 = window.innerWidth <= 550;
+  }
+
+  onLogout(): void {
+    this.authService.signOut().subscribe({
+      next: () => {
+        this.timerService.headerVisibility = false;
+        this.storageService.clean();
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
   getUserColor(role: string): any {
@@ -85,6 +124,13 @@ export class AdminComponent implements OnInit {
             'success',
             `Пользователь ${nickname} удалён`,
           );
+        }
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(() => {
+            this.getAllUsers(nickname);
+          });
         }
       },
     });
@@ -123,6 +169,13 @@ export class AdminComponent implements OnInit {
         );
         this.isUserDataLoading = false;
       },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(() => {
+            this.getSpecificUser(nickname);
+          });
+        }
+      },
     });
   }
 
@@ -154,6 +207,13 @@ export class AdminComponent implements OnInit {
             'success',
             `Роль пользователя ${item.nickname} успешно обновлён`,
           );
+        },
+        error: (err) => {
+          if (err.status === 401) {
+            this.exchangeRefresh(() => {
+              this.confirmUserModal(item);
+            });
+          }
         },
       });
     }
@@ -195,6 +255,13 @@ export class AdminComponent implements OnInit {
       next: () => {
         this.getAllUsers(nickname);
       },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(() => {
+            this.onDelete(nickname);
+          });
+        }
+      },
     });
   }
 
@@ -211,6 +278,13 @@ export class AdminComponent implements OnInit {
       next: (res) => {
         this.sessionId = res._id;
         this.isGenerateLoading = false;
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.exchangeRefresh(() => {
+            this.onGenerateSessionId();
+          });
+        }
       },
     });
   }
