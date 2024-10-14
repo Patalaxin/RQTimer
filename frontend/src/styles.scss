@@ -14,6 +14,16 @@ body[data-tui-theme] {
   background: #2c3a55;
 }
 
+.t-wrapper {
+  .t-item {
+    background: #2c3a55 !important;
+
+    .t-svg {
+      fill: #ffffff !important;
+    }
+  }
+}
+
 .ant-table tr:hover {
   color: #2c3a55;
 }
@@ -29,6 +39,8 @@ body[data-tui-theme] {
 .ant-modal-confirm-body b,
 .ant-modal-close-x svg,
 .ant-radio-wrapper span,
+.ant-modal-body span,
+.t-wrapper .t-item,
 h1,
 h2,
 h3,
