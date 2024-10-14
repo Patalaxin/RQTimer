@@ -1,17 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  GranasHistory,
-  GranasHistorySchema,
-} from '../schemas/granasHistory.schema';
-import {
-  EnigmaHistory,
-  EnigmaHistorySchema,
-} from '../schemas/enigmaHistory.schema';
-import {
-  LogrusHistory,
-  LogrusHistorySchema,
-} from '../schemas/logrusHistory.schema';
+  HeliosHistory,
+  HeliosHistorySchema,
+} from '../schemas/heliosHistory.schema';
 import { HistoryService } from './history.service';
 import { HistoryController } from './history.controller';
 
@@ -20,13 +12,7 @@ import { HistoryController } from './history.controller';
   exports: [HistoryService],
   imports: [
     MongooseModule.forFeature([
-      { name: GranasHistory.name, schema: GranasHistorySchema },
-    ]),
-    MongooseModule.forFeature([
-      { name: EnigmaHistory.name, schema: EnigmaHistorySchema },
-    ]),
-    MongooseModule.forFeature([
-      { name: LogrusHistory.name, schema: LogrusHistorySchema },
+      { name: HeliosHistory.name, schema: HeliosHistorySchema },
     ]),
   ],
   controllers: [HistoryController],

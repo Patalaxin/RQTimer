@@ -7,12 +7,12 @@ import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history.interface';
 
-export type GranasHistoryDocument = HydratedDocument<GranasHistory>;
+export type HeliosHistoryDocument = HydratedDocument<HeliosHistory>;
 
 @Schema({
   autoIndex: true,
 })
-export class GranasHistory {
+export class HeliosHistory {
   @Expose()
   @Prop({
     type: String,
@@ -69,10 +69,10 @@ export class GranasHistory {
   @Prop()
   __v: number;
 
-  constructor(partial: Partial<GranasHistory>) {
+  constructor(partial: Partial<HeliosHistory>) {
     Object.assign(this, partial);
   }
 }
 
-export const GranasHistorySchema = SchemaFactory.createForClass(GranasHistory);
+export const HeliosHistorySchema = SchemaFactory.createForClass(HeliosHistory);
 TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 259200 }); //  3 day live for history

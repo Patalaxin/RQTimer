@@ -2,7 +2,6 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { TelegramBotService } from '../telegramBot/bot.service';
 import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import { Mob, MobDocument } from '../schemas/mob.schema';
@@ -20,7 +19,6 @@ import {
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { HelperClass } from '../helper-class';
 import { History, HistoryTypes } from '../history/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
@@ -42,7 +40,6 @@ export class MobService implements IMob {
     private mobsDataModel: Model<MobsDataDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
-    private botService: TelegramBotService,
     private readonly unixtimeService: UnixtimeService,
   ) {}
 
@@ -206,8 +203,6 @@ export class MobService implements IMob {
       );
     }
 
-    const timeoutName: string = await HelperClass.generateUniqueName();
-
     const nextResurrectTime: number =
       mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
 
@@ -241,16 +236,7 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
     return { mobData: updatedMobData };
   }
@@ -265,8 +251,6 @@ export class MobService implements IMob {
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto);
-
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
@@ -299,16 +283,7 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
     return { mobData: updatedMobData };
   }
@@ -324,8 +299,6 @@ export class MobService implements IMob {
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
     const mob: GetMobDtoResponse = await this.findMob(getMobDto);
-
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number = dateOfRespawn;
     const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
@@ -360,16 +333,7 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
     return { mobData: updatedMobData };
   }
