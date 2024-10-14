@@ -74,7 +74,8 @@ export class ProfileComponent implements OnInit {
 
   onLogout(): void {
     this.authService.signOut().subscribe({
-      next: (res) => {
+      next: () => {
+        this.timerService.headerVisibility = false;
         this.storageService.clean();
         this.router.navigate(['/login']);
       },

@@ -21,7 +21,7 @@ export class StorageService {
     window.localStorage.setItem(SERVER, server);
   }
 
-  setLocalStorage(key: string, token: any): void {
+  setLocalStorage(key: string, token?: any): void {
     this.clean();
 
     key.includes('@')

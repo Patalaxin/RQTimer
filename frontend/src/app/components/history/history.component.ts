@@ -87,6 +87,7 @@ export class HistoryComponent implements OnInit {
   onLogout(): void {
     this.authService.signOut().subscribe({
       next: () => {
+        this.timerService.headerVisibility = false;
         this.storageService.clean();
         this.router.navigate(['/login']);
       },
