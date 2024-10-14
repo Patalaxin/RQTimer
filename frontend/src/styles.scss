@@ -25,7 +25,12 @@ body[data-tui-theme] {
 }
 
 .ant-table tr:hover {
-  color: #2c3a55;
+  color: hsl(220, 32%, 25%);
+}
+
+.ant-modal-body input::placeholder {
+  color: #000;
+  opacity: 0.5;
 }
 
 .ant-page-header-heading-title,
@@ -39,7 +44,7 @@ body[data-tui-theme] {
 .ant-modal-confirm-body b,
 .ant-modal-close-x svg,
 .ant-radio-wrapper span,
-.ant-modal-body span,
+.ant-modal-body span.role,
 .t-wrapper .t-item,
 h1,
 h2,
