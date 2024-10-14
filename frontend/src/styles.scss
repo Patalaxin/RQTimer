@@ -28,9 +28,13 @@ body[data-tui-theme] {
   color: hsl(220, 32%, 25%);
 }
 
-.ant-modal-body input::placeholder {
-  color: #000;
-  opacity: 0.5;
+.ant-modal-body {
+  textarea::placeholder,
+  input::placeholder,
+  nz-select-placeholder {
+    color: #000;
+    opacity: 0.5;
+  }
 }
 
 .ant-page-header-heading-title,
