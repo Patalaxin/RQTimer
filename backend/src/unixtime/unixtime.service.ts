@@ -31,7 +31,10 @@ export class UnixtimeService {
       const apiUnixtime = response.data.timestamp;
       const processingTime = Math.floor((end - start) / 1000);
 
-      const correctedUnixTime = (apiUnixtime + processingTime) * 1000;
+      const isApiUnixtimeInSeconds = apiUnixtime < 1e12; // Check if it's in seconds or already in milliseconds
+      const correctedUnixTime = isApiUnixtimeInSeconds
+        ? (apiUnixtime + processingTime) * 1000 // If seconds, convert to milliseconds
+        : apiUnixtime + processingTime * 1000; // If already in milliseconds, add processing time in ms
 
       return { unixtime: correctedUnixTime };
     } catch (error) {
