@@ -9,7 +9,7 @@ const SERVER: string = 'server';
   providedIn: 'root',
 })
 export class StorageService {
-  currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
+  currentServer: 'Гелиос' = 'Гелиос';
 
   clean(): void {
     window.localStorage.removeItem(EMAIL);

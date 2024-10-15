@@ -29,7 +29,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
-  currentServer: string = 'Гранас';
+  currentServer: string = 'Гелиос';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
   historyListData: any = [];
@@ -40,11 +40,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' | undefined;
 
-  serverList = [
-    { label: 'Гранас', value: 'Гранас' },
-    { label: 'Энигма', value: 'Энигма' },
-    { label: 'Логрус', value: 'Логрус' },
-  ];
+  serverList = [{ label: 'Гелиос', value: 'Гелиос' }];
 
   constructor() {
     this.initCurrentServer();
@@ -130,7 +126,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private initCurrentServer() {
     this.currentServer =
-      this.storageService.getLocalStorage('server') || 'Гранас';
+      this.storageService.getLocalStorage('server') || 'Гелиос';
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
