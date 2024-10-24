@@ -99,7 +99,7 @@
                   "
                 >
                   • Пароль должен содержать хотя бы одну заглавную латинскую
-                  латинскую букву!
+                  букву!
                 </div>
                 <div
                   *ngIf="
@@ -188,7 +188,9 @@
                         [formControlName]="i"
                         [nzValue]="bossesCheckboxList[i].mobName"
                       >
-                        {{ bossesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          bossesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>
@@ -225,7 +227,9 @@
                         [formControlName]="i"
                         [nzValue]="elitesCheckboxList[i].mobName"
                       >
-                        {{ elitesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          elitesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>

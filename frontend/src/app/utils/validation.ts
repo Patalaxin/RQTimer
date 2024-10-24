@@ -11,11 +11,12 @@ export default class Validation {
       }
 
       if (control?.value !== checkControl?.value) {
-        controls.get(checkControlName)?.setErrors({ matching: true });
-        return { matching: true };
+        checkControl?.setErrors({ matching: true });
       } else {
-        return null;
+        checkControl?.setErrors(null);
       }
+
+      return null;
     };
   }
 
