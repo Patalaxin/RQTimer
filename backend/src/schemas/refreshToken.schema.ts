@@ -20,7 +20,7 @@ export class Token {
   __v: number;
 
   @Expose()
-  @Prop({ unique: true})
+  @Prop({ unique: true })
   email: string;
 
   @Expose()
@@ -31,7 +31,10 @@ export class Token {
   @Prop({ default: '' })
   refreshToken: string;
 
-  @Prop({ type: Date, expires: 2678400, default: Date.now }) //  31 day live for refreshToken
+  @Prop({
+    type: Date,
+    default: () => new Date(Date.now() + 31 * 24 * 60 * 60 * 1000), // Sets to 31 days from now
+  })
   expireAt: Date;
 
   constructor(partial: Partial<Token>) {
