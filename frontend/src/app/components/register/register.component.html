@@ -27,7 +27,7 @@
                     formControlName="nickname"
                     placeholder="Никнейм"
                     name="mix"
-                    minlength="6"
+                    minlength="4"
                     required
                   />
                 </nz-input-group>
@@ -37,7 +37,7 @@
                 <div
                   *ngIf="!control.errors?.required && control.errors?.minlength"
                 >
-                  • Минимальная длина никнейма 4 символов!
+                  • Минимальная длина никнейма 4 символа!
                 </div>
               </ng-template>
             </nz-form-item>
@@ -98,7 +98,8 @@
                     control.errors?.missingUpperCase
                   "
                 >
-                  • Пароль должен содержать хотя бы одну заглавную букву!
+                  • Пароль должен содержать хотя бы одну заглавную латинскую
+                  букву!
                 </div>
                 <div
                   *ngIf="
@@ -106,7 +107,8 @@
                     control.errors?.missingLowerCase
                   "
                 >
-                  • Пароль должен содержать хотя бы одну строчную букву!
+                  • Пароль должен содержать хотя бы одну строчную латинскую
+                  букву!
                 </div>
               </ng-template>
             </nz-form-item>
@@ -186,7 +188,9 @@
                         [formControlName]="i"
                         [nzValue]="bossesCheckboxList[i].mobName"
                       >
-                        {{ bossesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          bossesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>
@@ -223,7 +227,9 @@
                         [formControlName]="i"
                         [nzValue]="elitesCheckboxList[i].mobName"
                       >
-                        {{ elitesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          elitesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>
