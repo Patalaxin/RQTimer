@@ -65,27 +65,6 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  private exchangeRefresh(callback: Function) {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        if (callback && typeof callback === 'function') {
-          callback(); // Вызываем коллбэк
-        }
-      },
-      error: (err) => {
-        console.log('getUser error', err);
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
-  }
-
   private checkScreenWidth(): void {
     this.isScreenWidth800 = window.innerWidth <= 800;
     this.isScreenWidth550 = window.innerWidth <= 550;
@@ -127,11 +106,7 @@ export class AdminComponent implements OnInit {
         }
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.getAllUsers(nickname);
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -170,11 +145,7 @@ export class AdminComponent implements OnInit {
         this.isUserDataLoading = false;
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.getSpecificUser(nickname);
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -209,11 +180,7 @@ export class AdminComponent implements OnInit {
           );
         },
         error: (err) => {
-          if (err.status === 401) {
-            this.exchangeRefresh(() => {
-              this.confirmUserModal(item);
-            });
-          }
+          this.messageService.create('error', err.error.message);
         },
       });
     }
@@ -256,11 +223,7 @@ export class AdminComponent implements OnInit {
         this.getAllUsers(nickname);
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.onDelete(nickname);
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -280,11 +243,7 @@ export class AdminComponent implements OnInit {
         this.isGenerateLoading = false;
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.onGenerateSessionId();
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }

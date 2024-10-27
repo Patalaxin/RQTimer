@@ -155,12 +155,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         console.log('exchangeRefresh', res);
         this.storageService.setLocalStorage(key, res.accessToken);
         if (callback && typeof callback === 'function') {
-          callback(); // Вызываем коллбэк
+          callback();
         }
       },
       error: (err) => {
         console.log('getUser error', err);
-        if (err.status === 401) {
+        if (err.status === 401 || err.status === 400) {
           this.onLogout();
         }
       },
@@ -189,11 +189,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         // this.updateHistory();
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.updateAllBosses();
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -228,11 +224,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.connectWebSocket();
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.getCurrentUser();
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -259,11 +251,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         navigator.clipboard.writeText(data.join(',\n'));
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.copyRespText();
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -293,11 +281,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         );
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.onCrashServer();
-          });
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
