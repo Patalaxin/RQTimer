@@ -160,7 +160,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.log('getUser error', err);
-        if (err.status === 401 || err.status === 400) {
+        if (err.status === 401) {
           this.onLogout();
         }
       },
