@@ -92,7 +92,7 @@ export class AuthService {
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
     if (exchangeRefreshDto.email && exchangeRefreshDto.nickname) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'Email and Nickname fields should not be together',
       );
     }
@@ -114,7 +114,7 @@ export class AuthService {
 
       refreshToken = tokenRecord.refreshToken;
     } catch (err) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'There is no valid refresh token for this user',
       );
     }
