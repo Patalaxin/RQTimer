@@ -74,7 +74,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       }),
       catchError((err) => {
         console.log('Ошибка при обновлении токена или повторном запросе', err);
-        if (err.status === 400 || err.status === 401) {
+        if (err.status === 401) {
           this.onLogout();
         }
         return throwError(() => err);
