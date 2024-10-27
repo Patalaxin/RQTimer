@@ -265,6 +265,7 @@
           (click)="done()"
           *ngIf="currentStep === 1"
           nzShape="round"
+          [nzLoading]="registerLoading"
         >
           <span>Зарегистрироваться</span>
         </button>
