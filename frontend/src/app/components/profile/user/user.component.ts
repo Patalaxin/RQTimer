@@ -61,6 +61,7 @@ export class UserComponent implements OnInit {
   changePasswordSubmitted: boolean = false;
 
   passwordVisible: boolean = false;
+  passwordChangeLoading: boolean = false;
 
   ngOnInit(): void {
     this.getMobs();
@@ -151,6 +152,7 @@ export class UserComponent implements OnInit {
   }
 
   onChangePassword() {
+    this.passwordChangeLoading = true;
     this.changePasswordSubmitted = true;
 
     if (this.changePasswordForm.invalid) {
@@ -164,10 +166,21 @@ export class UserComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
+          this.passwordChangeLoading = false;
           console.log(res);
           this.messageService.create('success', 'Пароль успешно изменён');
 
           this.changePasswordForm.reset();
+        },
+        error: (err) => {
+          this.passwordChangeLoading = false;
+          if (err.error.message) {
+            return this.messageService.create('error', err.error.message);
+          }
+          return this.messageService.create(
+            'error',
+            'Ошибка, обратитесь к создателям таймера',
+          );
         },
       });
   }

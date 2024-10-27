@@ -56,6 +56,7 @@ export class RegisterComponent implements OnInit {
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
+  registerLoading: boolean = false;
 
   ngOnInit(): void {
     this.getMobs();
@@ -105,6 +106,7 @@ export class RegisterComponent implements OnInit {
   }
 
   onRegister(): void {
+    this.registerLoading = true;
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -121,11 +123,13 @@ export class RegisterComponent implements OnInit {
       ])
       .subscribe({
         next: (res) => {
+          this.registerLoading = false;
           console.log(res);
           this.messageService.create('success', 'Пользователь успешно создан');
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          this.registerLoading = false;
           if (
             err.error.message ===
             'A user with such an email or nickname already exists!'

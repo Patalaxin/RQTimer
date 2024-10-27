@@ -39,12 +39,14 @@ export class ChangePasswordComponent {
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
+  passwordChangeLoading: boolean = false;
 
   get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
   }
 
   onChangePassword() {
+    this.passwordChangeLoading = true;
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -60,12 +62,14 @@ export class ChangePasswordComponent {
       .subscribe({
         next: (res) => {
           console.log(res);
+          this.passwordChangeLoading = false;
           if (res.message === 'Password successfully changed') {
             this.messageService.create('success', 'Пароль успешно изменён');
             this.router.navigate(['/login']);
           }
         },
         error: (err) => {
+          this.passwordChangeLoading = false;
           if (err.error.message) {
             return this.messageService.create('error', err.error.message);
           }
