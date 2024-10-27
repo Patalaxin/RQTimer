@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { createHeaders } from '../utils/http';
 
 @Injectable({
   providedIn: 'root',
@@ -25,17 +24,14 @@ export class ConfigurationService {
   }
 
   getServers(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.CONFIGURATION_API}servers`, { headers });
+    return this.http.get(`${this.CONFIGURATION_API}servers`);
   }
 
   getMobs(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.CONFIGURATION_API}mobs`, { headers });
+    return this.http.get(`${this.CONFIGURATION_API}mobs`);
   }
 
   getLocations(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.CONFIGURATION_API}locations`, { headers });
+    return this.http.get(`${this.CONFIGURATION_API}locations`);
   }
 }

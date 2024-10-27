@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -18,6 +19,7 @@ export class HistoryComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly storageService = inject(StorageService);
   private readonly historyService = inject(HistoryService);
+  private readonly messageService = inject(NzMessageService);
 
   historyList: any = [];
   historyListData: any = [];
@@ -46,24 +48,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  private exchangeRefresh() {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getUser();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
-  }
-
   getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
@@ -77,9 +61,7 @@ export class HistoryComponent implements OnInit {
         this.getHistory(this.storageService.getLocalStorage('server'));
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }

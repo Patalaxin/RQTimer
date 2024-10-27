@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -16,6 +17,7 @@ export class ProfileComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly storageService = inject(StorageService);
+  private readonly messageService = inject(NzMessageService);
 
   user = {
     nickname: '',
@@ -29,24 +31,6 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     this.timerService.headerVisibility = true;
     this.getUser();
-  }
-
-  private exchangeRefresh() {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getUser();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
   }
 
   getUser() {
@@ -65,9 +49,7 @@ export class ProfileComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }

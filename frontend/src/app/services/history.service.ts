@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { createHeaders } from '../utils/http';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +42,6 @@ export class HistoryService {
   }
 
   getHistory(server: string, mobName?: string, page?: number, limit?: number) {
-    const headers = createHeaders(this.storageService);
     let params = new HttpParams();
 
     if (mobName) params = params.set('mobName', mobName);
@@ -54,7 +52,6 @@ export class HistoryService {
 
     return this.http.get(`${this.HISTORY_API}list/${server}`, {
       params,
-      headers,
     });
   }
 }
