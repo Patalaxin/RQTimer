@@ -119,25 +119,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private exchangeRefresh() {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
-      next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
-        this.getAllBosses();
-      },
-      error: (err) => {
-        console.log('getUser error', err);
-        if (err.status === 401) {
-          this.onLogout();
-        }
-      },
-    });
-  }
-
   private updateItem(timerList: TimerItem[], res: any): void {
     timerList.forEach((item) => {
       if (
@@ -233,6 +214,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  onFocus(event: any) {
+    console.log(event.target.closest('.timer-radio-option').previousSibling);
+    event.target.closest('.timer-radio-option').previousSibling.click();
+  }
+
   showHistoryModal(item: TimerItem): void {
     event?.stopPropagation();
     console.log('showHistoryModal', item.mob.mobName);
@@ -262,11 +248,6 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.historyList = res.data;
           this.historyService.isLoading = false;
         },
-        error: (err) => {
-          if (err.status === 401) {
-            this.exchangeRefresh();
-          }
-        },
       });
   }
 
@@ -287,9 +268,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.messageService.create('success', successMessage);
       },
       error: (err: any) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
         this.timerService.isLoading = false;
         this.messageService.create(
           'error',
@@ -381,9 +359,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           );
         },
         error: (err) => {
-          if (err.status === 401) {
-            this.exchangeRefresh();
-          }
+          this.messageService.create('error', err.error.message);
         },
       });
   }
@@ -409,8 +385,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const handleError = (err: any) => {
-      if (err.status === 401) {
-        this.exchangeRefresh();
+      if (err.status !== 401) {
+        item.mob.isDeathOkLoading = false;
+        this.messageService.create('error', err.error.message);
       }
     };
 
@@ -501,8 +478,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const handleError = (err: any) => {
-      if (err.status === 401) {
-        this.exchangeRefresh();
+      if (err.status !== 401) {
+        item.mob.isDeathOkLoading = false;
+        this.messageService.create('error', err.error.message);
       }
     };
 
@@ -630,9 +608,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 item.mob.isOnDieNow = false;
               },
               error: (err) => {
-                if (err.status === 401) {
-                  this.exchangeRefresh();
-                }
+                this.messageService.create('error', err.error.message);
               },
             });
         },
@@ -666,9 +642,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         );
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
         this.messageService.create('error', 'Респ утерян');
         this.timerService.isLoading = false;
       },
@@ -688,9 +661,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses();
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -718,9 +689,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.timerService.isLoading = false;
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -747,9 +716,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses();
       },
       error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
+        this.messageService.create('error', err.error.message);
       },
     });
   }
