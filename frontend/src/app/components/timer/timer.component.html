@@ -115,44 +115,55 @@
                 <nz-radio-group [(ngModel)]="radioValue">
                   <label nz-radio nzValue="death"
                     >Выберите точное время смерти:
-                    <div class="timer-radio-option">
-                      <nz-date-picker
-                        [(ngModel)]="currentTime"
-                      ></nz-date-picker>
-                      <nz-time-picker [(ngModel)]="currentTime">
-                      </nz-time-picker>
-                    </div>
                   </label>
+                  <div class="timer-radio-option">
+                    <nz-date-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    ></nz-date-picker>
+                    <nz-time-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    >
+                    </nz-time-picker>
+                  </div>
                   <label nz-radio nzValue="respawn"
                     >Выберите точное время респауна:
-                    <div class="timer-radio-option">
-                      <nz-date-picker
-                        [(ngModel)]="currentTime"
-                      ></nz-date-picker>
-                      <nz-time-picker [(ngModel)]="currentTime">
-                      </nz-time-picker></div
-                  ></label>
+                  </label>
+                  <div class="timer-radio-option">
+                    <nz-date-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    ></nz-date-picker>
+                    <nz-time-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    >
+                    </nz-time-picker>
+                  </div>
 
                   <label nz-radio nzValue="cd"
                     >Впишите, сколько раз по кд:
-                    <div class="timer-radio-option">
-                      <nz-space>
-                        <nz-input-group
-                          *nzSpaceItem
-                          style="width: 120px; margin-top: 10px"
-                        >
-                          <input
-                            nz-input
-                            [(ngModel)]="cooldown"
-                            type="number"
-                            min="1"
-                            max="10"
-                            step="1"
-                            class="br-50px"
-                          />
-                        </nz-input-group>
-                      </nz-space></div
-                  ></label>
+                  </label>
+                  <div class="timer-radio-option">
+                    <nz-space>
+                      <nz-input-group
+                        *nzSpaceItem
+                        style="width: 120px; margin-top: 10px"
+                      >
+                        <input
+                          nz-input
+                          [(ngModel)]="cooldown"
+                          type="number"
+                          min="1"
+                          max="10"
+                          step="1"
+                          class="br-50px"
+                          (click)="onFocus($event)"
+                        />
+                      </nz-input-group>
+                    </nz-space>
+                  </div>
                 </nz-radio-group>
               </p>
             </nz-modal>

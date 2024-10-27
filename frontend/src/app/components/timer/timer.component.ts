@@ -233,6 +233,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  onFocus(event: any) {
+    console.log(event.target.closest('.timer-radio-option').previousSibling);
+    event.target.closest('.timer-radio-option').previousSibling.click();
+  }
+
   showHistoryModal(item: TimerItem): void {
     event?.stopPropagation();
     console.log('showHistoryModal', item.mob.mobName);
@@ -262,11 +267,6 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.historyList = res.data;
           this.historyService.isLoading = false;
         },
-        error: (err) => {
-          if (err.status === 401) {
-            this.exchangeRefresh();
-          }
-        },
       });
   }
 
@@ -287,9 +287,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.messageService.create('success', successMessage);
       },
       error: (err: any) => {
-        if (err.status === 401) {
-          this.exchangeRefresh();
-        }
         this.timerService.isLoading = false;
         this.messageService.create(
           'error',
@@ -411,6 +408,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     const handleError = (err: any) => {
       if (err.status === 401) {
         this.exchangeRefresh();
+      } else {
+        item.mob.isDeathOkLoading = false;
+        this.messageService.create('error', err.error.message);
       }
     };
 
@@ -503,6 +503,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     const handleError = (err: any) => {
       if (err.status === 401) {
         this.exchangeRefresh();
+      } else {
+        item.mob.isDeathOkLoading = false;
+        this.messageService.create('error', err.error.message);
       }
     };
 
