@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -10,6 +10,16 @@ export class AuthService {
   private readonly http = inject(HttpClient);
 
   private readonly AUTH_API = environment.apiUrl + '/auth';
+
+  private isRunningSubject$ = new BehaviorSubject<boolean>(false);
+
+  get isRunning$(): Observable<boolean> {
+    return this.isRunningSubject$.asObservable();
+  }
+
+  set isRunning(value: boolean) {
+    this.isRunningSubject$.next(value);
+  }
 
   private get httpOptions() {
     return {
