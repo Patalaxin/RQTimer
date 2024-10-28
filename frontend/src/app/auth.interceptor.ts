@@ -21,6 +21,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
 
+  isRunning = this.authService.isRunning$;
+
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler,
@@ -37,8 +39,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     return next.handle(newReq).pipe(
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
-          console.log('exchange isRunning', this.authService.isRunning$);
-          if (!this.authService.isRunning$) {
+          console.log('exchange isRunning', this.isRunning);
+          if (!this.isRunning) {
             return this.handle401Error(newReq, next);
           }
           return throwError(() => err);
