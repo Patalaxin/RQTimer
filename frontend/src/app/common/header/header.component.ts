@@ -147,7 +147,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private exchangeRefresh(callback: Function) {
-    this.authService.isRunning = true;
     let key =
       this.storageService.getLocalStorage('email') ||
       this.storageService.getLocalStorage('nickname');
@@ -158,11 +157,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (callback && typeof callback === 'function') {
           callback();
         }
-        this.authService.isRunning = false;
       },
       error: (err) => {
         console.log('getUser error', err);
-        this.authService.isRunning = false;
         if (err.status === 401) {
           this.onLogout();
         }

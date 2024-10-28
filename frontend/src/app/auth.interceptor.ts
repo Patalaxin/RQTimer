@@ -21,8 +21,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
 
-  isRunning: boolean = false;
-
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler,
@@ -38,17 +36,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
 
     return next.handle(newReq).pipe(
       catchError((err: HttpErrorResponse) => {
-        this.authService.isRunning$.subscribe({
-          next: (res) => {
-            this.isRunning = res;
-          },
-        });
         if (err.status === 401) {
-          console.log('exchange isRunning', this.isRunning);
-          if (!this.isRunning) {
-            return this.handle401Error(newReq, next);
-          }
-          return throwError(() => err);
+          return this.handle401Error(newReq, next);
         } else {
           return throwError(() => err);
         }
@@ -71,7 +60,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
-    this.authService.isRunning = true;
     const key =
       this.storageService.getLocalStorage('email') ||
       this.storageService.getLocalStorage('nickname');
@@ -82,12 +70,10 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         console.log('Токен успешно обновлен');
 
         const newReq = this.addAuthorizationHeader(req);
-        this.authService.isRunning = false;
         return next.handle(newReq);
       }),
       catchError((err) => {
         console.log('Ошибка при обновлении токена или повторном запросе', err);
-        this.authService.isRunning = false;
         if (err.status === 401) {
           this.onLogout();
         }

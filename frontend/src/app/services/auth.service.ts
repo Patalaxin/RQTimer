@@ -11,16 +11,6 @@ export class AuthService {
 
   private readonly AUTH_API = environment.apiUrl + '/auth';
 
-  private isRunningSubject$ = new BehaviorSubject<boolean>(false);
-
-  get isRunning$(): Observable<boolean> {
-    return this.isRunningSubject$.asObservable();
-  }
-
-  set isRunning(value: boolean) {
-    this.isRunningSubject$.next(value);
-  }
-
   private get httpOptions() {
     return {
       headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
