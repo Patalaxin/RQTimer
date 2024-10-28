@@ -13,6 +13,7 @@ import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
+import { TokenService } from './services/token.service';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -20,6 +21,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
+  private readonly tokenService = inject(TokenService);
 
   intercept(
     req: HttpRequest<any>,
@@ -60,15 +62,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler,
   ): Observable<HttpEvent<any>> {
-    const key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-
-    return this.authService.exchangeRefresh(key).pipe(
-      switchMap((res: any) => {
-        this.storageService.setLocalStorage(key, res.accessToken);
-        console.log('Токен успешно обновлен');
-
+    return this.tokenService.refreshToken().pipe(
+      switchMap(() => {
         const newReq = this.addAuthorizationHeader(req);
         return next.handle(newReq);
       }),

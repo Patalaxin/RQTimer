@@ -10,6 +10,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
@@ -22,6 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly storageService = inject(StorageService);
   private readonly timerService = inject(TimerService);
+  private readonly tokenService = inject(TokenService);
   private readonly historyService = inject(HistoryService);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
@@ -147,19 +149,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private exchangeRefresh(callback: Function) {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
+    this.tokenService.refreshToken().subscribe({
       next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
+        console.log('Токен обновлён', res);
         if (callback && typeof callback === 'function') {
           callback();
         }
       },
       error: (err) => {
-        console.log('getUser error', err);
+        console.log('Ошибка при обновлении токена', err);
         if (err.status === 401) {
           this.onLogout();
         }
