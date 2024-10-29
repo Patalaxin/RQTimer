@@ -11,8 +11,6 @@ jobs:
     env:
         SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PASS: ${{ secrets.SSH_PASS }}
-        DATABASE_USER_TEST: ${{ secrets.DATABASE_USER_TEST }}
-        DATABASE_PASSWORD_TEST: ${{ secrets.DATABASE_PASSWORD_TEST }}
         SECRET_CONSTANT: ${{ secrets.SECRET_CONSTANT }}
         UNIXTIME_KEY: ${{ secrets.UNIXTIME_KEY}}
         DATABASE_USER: ${{ secrets.DATABASE_USER }}
@@ -40,8 +38,6 @@ jobs:
             
             cd backend
             if [ -f .env ]; then rm .env; fi
-            echo "DATABASE_USER_TEST=${{ secrets.DATABASE_USER_TEST }}" >> .env
-            echo "DATABASE_PASSWORD_TEST=${{ secrets.DATABASE_PASSWORD_TEST }}" >> .env
             echo "SECRET_CONSTANT=${{ secrets.SECRET_CONSTANT }}" >> .env
             echo "UNIXTIME_KEY=${{ secrets.UNIXTIME_KEY }}" >> .env
             echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
@@ -74,9 +70,11 @@ jobs:
           password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
-            cd TimerRQ/frontend
-            npm install
-            npm run build
+            # Остановка Docker для освобождения памяти
+            cd TimerRQ/backend && docker-compose down && cd ..
+            
+            # Сборка фронтенда
+            cd frontend && npm install && npm run build
             
             # Обновление фронтенд конфига для nginx
             sudo rm -rf /var/www/rqtimer/
@@ -85,3 +83,6 @@ jobs:
             
             # Перезагрузка Nginx
             sudo service nginx reload
+            
+            # Перезапуск Docker-контейнеров
+            cd ../backend && docker-compose up -d
