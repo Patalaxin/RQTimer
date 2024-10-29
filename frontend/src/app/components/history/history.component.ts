@@ -60,9 +60,6 @@ export class HistoryComponent implements OnInit {
 
         this.getHistory(this.storageService.getLocalStorage('server'));
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 

@@ -58,13 +58,13 @@ export class TimerService {
     const { currentLocation, ...itemInfo } = item;
     let payload = itemInfo;
     return this.http.put(
-      `${this.MOB_URL}/${server}/${currentLocation}/${item.mobName}`,
+      `${this.MOB_URL}${server}/${currentLocation}/${item.mobName}`,
       payload,
     );
   }
 
   deleteMob(mobName: string, server: string, location: string) {
-    return this.http.delete(`${this.MOB_URL}/${server}/${location}/${mobName}`);
+    return this.http.delete(`${this.MOB_URL}${server}/${location}/${mobName}`);
   }
 
   getAllBosses(server: string): Observable<any> {

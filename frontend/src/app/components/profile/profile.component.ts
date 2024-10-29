@@ -48,9 +48,6 @@ export class ProfileComponent implements OnInit {
 
         this.isLoading = false;
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 

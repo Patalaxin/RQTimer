@@ -49,6 +49,8 @@ body[data-tui-theme] {
 .ant-modal-close-x svg,
 .ant-radio-wrapper span,
 .ant-modal-body span.role,
+.timer-mob-name,
+.timer-mob-location,
 .t-wrapper .t-item,
 h1,
 h2,
@@ -161,6 +163,16 @@ h6 {
 .ant-modal-body {
   p {
     margin-top: 2em;
+
+    .timer-mob-name,
+    .timer-mob-location {
+      text-align: center;
+      display: block;
+    }
+
+    .timer-mob-name {
+      font-size: 1.5rem;
+    }
 
     .ant-radio-group {
       width: 100%;

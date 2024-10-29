@@ -14,6 +14,7 @@ import { StorageService } from './services/storage.service';
 import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -22,6 +23,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
   private readonly tokenService = inject(TokenService);
+  private readonly messageService = inject(NzMessageService);
 
   intercept(
     req: HttpRequest<any>,
@@ -40,9 +42,18 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           return this.handle401Error(newReq, next);
-        } else {
+        }
+
+        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
+          this.messageService.create(
+            'error',
+            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+          );
           return throwError(() => err);
         }
+
+        this.messageService.create('error', err.error.message);
+        return throwError(() => err);
       }),
     );
   }
@@ -72,6 +83,16 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         if (err.status === 401) {
           this.onLogout();
         }
+
+        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
+          this.messageService.create(
+            'error',
+            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+          );
+          return throwError(() => err);
+        }
+
+        this.messageService.create('error', err.error.message);
         return throwError(() => err);
       }),
     );

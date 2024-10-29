@@ -105,9 +105,6 @@ export class AdminComponent implements OnInit {
           );
         }
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -144,9 +141,6 @@ export class AdminComponent implements OnInit {
         );
         this.isUserDataLoading = false;
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -178,9 +172,6 @@ export class AdminComponent implements OnInit {
             'success',
             `Роль пользователя ${item.nickname} успешно обновлён`,
           );
-        },
-        error: (err) => {
-          this.messageService.create('error', err.error.message);
         },
       });
     }
@@ -222,9 +213,6 @@ export class AdminComponent implements OnInit {
       next: () => {
         this.getAllUsers(nickname);
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -241,9 +229,6 @@ export class AdminComponent implements OnInit {
       next: (res) => {
         this.sessionId = res._id;
         this.isGenerateLoading = false;
-      },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
       },
     });
   }

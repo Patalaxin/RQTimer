@@ -161,6 +161,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (err.status === 401) {
           this.onLogout();
         }
+
+        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
+          this.messageService.create(
+            'error',
+            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+          );
+        }
       },
     });
   }
@@ -185,9 +192,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         });
         this.timerService.isLoading = false;
         // this.updateHistory();
-      },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -221,9 +225,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         );
         this.connectWebSocket();
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -247,9 +248,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         });
         this.messageService.create('success', 'Респы были успешно скопированы');
         navigator.clipboard.writeText(data.join(',\n'));
-      },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
       },
     });
   }
@@ -277,9 +275,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
           'success',
           'Респы теперь с учётом падения сервера',
         );
-      },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
       },
     });
   }

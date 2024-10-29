@@ -112,6 +112,8 @@
               nzCentered
             >
               <p *nzModalContent>
+                <span class="timer-mob-name">{{ item.mob.mobName }}</span>
+                <span class="timer-mob-location">{{ item.mob.location }}</span>
                 <nz-radio-group [(ngModel)]="radioValue">
                   <label nz-radio nzValue="death"
                     >Выберите точное время смерти:

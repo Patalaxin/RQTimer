@@ -358,8 +358,8 @@ export class TimerComponent implements OnInit, OnDestroy {
             `${item.mob.mobName} успешно удалён.`,
           );
         },
-        error: (err) => {
-          this.messageService.create('error', err.error.message);
+        error: () => {
+          this.timerService.isLoading = false;
         },
       });
   }
@@ -387,7 +387,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     const handleError = (err: any) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
-        this.messageService.create('error', err.error.message);
       }
     };
 
@@ -480,7 +479,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     const handleError = (err: any) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
-        this.messageService.create('error', err.error.message);
       }
     };
 
@@ -607,9 +605,6 @@ export class TimerComponent implements OnInit, OnDestroy {
                 );
                 item.mob.isOnDieNow = false;
               },
-              error: (err) => {
-                this.messageService.create('error', err.error.message);
-              },
             });
         },
       });
@@ -660,9 +655,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         // }
         this.getAllBosses();
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -688,9 +680,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         });
         this.timerService.isLoading = false;
       },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
-      },
     });
   }
 
@@ -714,9 +703,6 @@ export class TimerComponent implements OnInit, OnDestroy {
           },
         });
         this.getAllBosses();
-      },
-      error: (err) => {
-        this.messageService.create('error', err.error.message);
       },
     });
   }
