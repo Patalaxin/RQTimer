@@ -9,7 +9,6 @@ import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
 } from './dto/get-mob.dto';
@@ -190,7 +189,7 @@ export class MobService implements IMob {
     nickname: string,
     role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, cooldown } = updateMobByCooldownDto;
 
     const getMobDto = { mobName, server, location };
@@ -238,14 +237,14 @@ export class MobService implements IMob {
 
     await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async updateMobDateOfDeath(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfDeath } = updateMobDateOfDeathDto;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
@@ -285,19 +284,20 @@ export class MobService implements IMob {
 
     await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async updateMobDateOfRespawn(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfRespawn } =
       updateMobDateOfRespawnDto;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
+    // Fetch mob data to access mob and mobsDataId
     const mob: GetMobDtoResponse = await this.findMob(getMobDto);
 
     const nextResurrectTime: number = dateOfRespawn;
@@ -314,6 +314,7 @@ export class MobService implements IMob {
       toWillResurrect: nextResurrectTime,
     };
 
+    // Update MobsData
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
         { _id: mob.mob.mobsDataId },
@@ -335,7 +336,7 @@ export class MobService implements IMob {
 
     await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async deleteMob(
@@ -411,7 +412,7 @@ export class MobService implements IMob {
     respawnLostDtoParams: RespawnLostDtoParamsRequest,
     nickname: string,
     role: RolesTypes,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { server, location, mobName } = respawnLostDtoParams;
 
     const history: History = {
@@ -447,7 +448,7 @@ export class MobService implements IMob {
 
       await this.historyService.createHistory(history);
 
-      return { mobData };
+      return { mob: mob.mob, mobData };
     } catch (err) {
       throw new BadRequestException('Failed to process respawn lost.');
     }

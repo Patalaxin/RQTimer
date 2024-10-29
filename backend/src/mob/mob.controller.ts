@@ -23,7 +23,6 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
 } from './dto/get-mob.dto';
@@ -101,12 +100,12 @@ export class MobController {
   async updateMobByCooldown(
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobService.updateMobByCooldown(
         parsedToken.nickname,
         parsedToken.role,
@@ -126,12 +125,12 @@ export class MobController {
   async updateMobDateOfDeath(
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobService.updateMobDateOfDeath(
         parsedToken.nickname,
         parsedToken.role,
@@ -153,12 +152,12 @@ export class MobController {
   async updateMobDateOfRespawn(
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobService.updateMobDateOfRespawn(
         parsedToken.nickname,
         parsedToken.role,
@@ -216,12 +215,12 @@ export class MobController {
   async respawnLost(
     @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse = await this.mobService.respawnLost(
+    const mob: GetFullMobDtoResponse = await this.mobService.respawnLost(
       respawnLostDtoParams,
       parsedToken.nickname,
       parsedToken.role,

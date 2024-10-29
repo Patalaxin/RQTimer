@@ -85,4 +85,4 @@ jobs:
             sudo service nginx reload
             
             # Перезапуск Docker-контейнеров
-            cd ../backend && docker-compose up -d
+            cd ../backend && docker-compose up -d 

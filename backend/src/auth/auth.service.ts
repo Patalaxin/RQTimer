@@ -36,14 +36,15 @@ export class AuthService {
     });
     const refreshToken: string = randomUUID();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
-    await this.tokenModel.findOneAndUpdate(
-      { email: user.email },
-      { refreshToken: hashedRefreshToken, nickname: user.nickname },
-      {
-        new: true,
-        upsert: true,
-      },
-    );
+    await Promise.all([
+      this.tokenModel.findOneAndDelete({ email: user.email }),
+      this.tokenModel.create({
+        email: user.email,
+        nickname: user.nickname,
+        refreshToken: hashedRefreshToken,
+        expireAt: new Date(Date.now() + 2678400000), // 31 день
+      }),
+    ]);
 
     this.authGateway.sendUserStatusUpdate(user.email, 'online');
     return { accessToken, refreshToken };
