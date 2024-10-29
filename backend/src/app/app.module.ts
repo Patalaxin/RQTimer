@@ -19,9 +19,14 @@ import * as process from 'process';
     MobModule,
     ConfigurationModule,
     UnixtimeModule,
-    MongooseModule.forRoot(
-      `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@185.65.105.220:27017/admin`,
-    ),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => {
+        return {
+          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@185.65.105.220:27017/admin`,
+        };
+      },
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(resolve(), 'client'),
     }),
