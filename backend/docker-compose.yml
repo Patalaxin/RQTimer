@@ -10,8 +10,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+#    volumes:
+#      - mongo_data:/data/db
 
   mongo-express:
     image: mongo-express
@@ -26,5 +26,5 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: ${DATABASE_PASSWORD}
       ME_CONFIG_BASICAUTH: true
 
-volumes:
-  mongo_data:
+#volumes:
+#  mongo_data:
