@@ -17,7 +17,6 @@ jobs:
         UNIXTIME_KEY: ${{ secrets.UNIXTIME_KEY}}
         DATABASE_USER: ${{ secrets.DATABASE_USER }}
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-        DATABASE_NAME: ${{ secrets.DATABASE_NAME}}
 
     steps:
       - name: Checkout code
@@ -47,7 +46,6 @@ jobs:
             echo "UNIXTIME_KEY=${{ secrets.UNIXTIME_KEY }}" >> .env
             echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
             echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-            echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
             npm install
             npm run build
             
