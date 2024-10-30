@@ -77,7 +77,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
 
     this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
-      (res: any) => {
+      (res: TimerItem) => {
         console.log('Mob update received:', res);
         if (res) {
           this.updateItem(this.timerList, res);
@@ -126,7 +126,19 @@ export class TimerComponent implements OnInit, OnDestroy {
         item.mob.location === res.location &&
         item.mob.server === res.server
       ) {
+        console.log('updateItem', item.mobData, res.mobData);
         item.mobData = res.mobData;
+        timerList.forEach((item) => {
+          item.mob.plusCooldown = 0;
+          item.mob.isDeathModalVisible = false;
+          item.mob.isDeathOkLoading = false;
+          item.mob.isHistoryModalVisible = false;
+          item.mob.isHistoryOkLoading = false;
+          item.mob.isEditModalVisible = false;
+          item.mob.isEditOkLoading = false;
+          item.mob.isOnDieNow = false;
+        });
+
         this.sortTimerList(timerList);
       }
     });
@@ -376,9 +388,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   confirmDeathModal(item: TimerItem): void {
-    const handleSuccess = (message: string) => {
+    const handleSuccess = (message: string, item: TimerItem) => {
       this.timerService.isLoading = true;
-      this.getAllBosses();
+      if (item) {
+        this.updateItem(this.timerList, item);
+      }
+      this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
       this.messageService.create('success', message);
@@ -403,9 +418,10 @@ export class TimerComponent implements OnInit, OnDestroy {
               moment(this.currentTime).valueOf(),
             )
             .subscribe({
-              next: () => {
+              next: (res: any) => {
                 handleSuccess(
                   'Респ был успешно обновлён по точному времени смерти',
+                  res,
                 );
                 item.mob.isOnDieNow = false;
               },
@@ -430,9 +446,10 @@ export class TimerComponent implements OnInit, OnDestroy {
               moment(this.currentTime).valueOf(),
             )
             .subscribe({
-              next: () =>
+              next: (res: any) =>
                 handleSuccess(
                   'Респ был успешно обновлён по точному времени респауна',
+                  res,
                 ),
               error: (err) => handleError(err),
             });
@@ -447,9 +464,10 @@ export class TimerComponent implements OnInit, OnDestroy {
             Number(this.cooldown) ? Number(this.cooldown) : 1,
           )
           .subscribe({
-            next: () =>
+            next: (res: any) =>
               handleSuccess(
                 `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
+                res,
               ),
             error: (err) => handleError(err),
           }),
@@ -467,10 +485,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showConfirmRewriteModal(item: TimerItem, action: string) {
-    const handleSuccess = (message: string) => {
+    const handleSuccess = (message: string, item: TimerItem) => {
       this.timerService.isLoading = true;
-      item.mob.isOnDieNow = false;
-      this.getAllBosses();
+      if (item) {
+        this.updateItem(this.timerList, item);
+      }
+      this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
       this.messageService.create('success', message);
@@ -540,9 +560,10 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService
             .setByDeathTime(item, moment(this.currentTime).valueOf())
             .subscribe({
-              next: () =>
+              next: (res: any) =>
                 handleSuccess(
                   'Респ был успешно обновлён по точному времени смерти',
+                  res,
                 ),
               error: (err) => handleError(err),
             });
@@ -552,9 +573,10 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService
             .setByRespawnTime(item, moment(this.currentTime).valueOf())
             .subscribe({
-              next: () =>
+              next: (res: any) =>
                 handleSuccess(
                   'Респ был успешно обновлён по точному времени респауна',
+                  res,
                 ),
               error: (err) => handleError(err),
             });
@@ -567,9 +589,10 @@ export class TimerComponent implements OnInit, OnDestroy {
               Number(this.cooldown) ? Number(this.cooldown) : 1,
             )
             .subscribe({
-              next: () =>
+              next: (res: any) =>
                 handleSuccess(
                   `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
+                  res,
                 ),
               error: (err) => handleError(err),
             });
@@ -597,8 +620,9 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService
             .setByDeathTime(item, this.currentTime - 10000)
             .subscribe({
-              next: () => {
-                this.getAllBosses();
+              next: (res: TimerItem) => {
+                this.updateItem(this.timerList, res);
+                this.timerService.isLoading = false;
                 this.messageService.create(
                   'success',
                   'Респ был успешно переписан',
@@ -625,12 +649,15 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     this.timerService.isLoading = true;
     this.timerService.setByCooldownTime(item, 1).subscribe({
-      next: () => {
+      next: (res: TimerItem) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
         // }
-        this.getAllBosses();
+        if (res) {
+          this.updateItem(this.timerList, res);
+        }
+        this.timerService.isLoading = false;
         this.messageService.create(
           'success',
           'Респ был успешно переписан по кд',
@@ -648,12 +675,15 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.isLoading = true;
     console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
-      next: () => {
+      next: (res: TimerItem) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
         // }
-        this.getAllBosses();
+        if (res) {
+          this.updateItem(this.timerList, res);
+        }
+        this.timerService.isLoading = false;
       },
     });
   }
