@@ -33,6 +33,7 @@
     <button
       nz-button
       nzType="primary"
+      [class]="isOnline === 'online' ? 'green' : 'red'"
       nz-tooltip
       (click)="showCrashServerModal()"
       nzTooltipTitle="Учитывать падение сервера"
@@ -45,7 +46,6 @@
     </button>
   </div>
   <div class="header-right">
-    <span>{{ isOnline === "online" ? "🟢" : "🔴" }}</span>
     <button
       nz-button
       nzType="primary"
