@@ -65,6 +65,15 @@ h6 {
   fill: #ffffff;
 }
 
+.header {
+  .green,
+  .red {
+    svg {
+      fill: #000000 !important;
+    }
+  }
+}
+
 .ant-modal-body {
   border-top-left-radius: 9px;
   border-top-right-radius: 9px;
