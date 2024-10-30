@@ -10,6 +10,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { TokenService } from 'src/app/services/token.service';
+import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
 @Component({
@@ -21,34 +23,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly storageService = inject(StorageService);
   private readonly timerService = inject(TimerService);
+  private readonly tokenService = inject(TokenService);
   private readonly historyService = inject(HistoryService);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
-  currentServer: string = 'Гранас';
+  currentServer: string = 'Гелиос';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
   historyListData: any = [];
   historyList: any = [];
   tokenRefreshTimeout: any;
+  currentUser: any = [];
 
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' | undefined;
 
-  serverList = [
-    { label: 'Гранас', value: 'Гранас' },
-    { label: 'Энигма', value: 'Энигма' },
-    { label: 'Логрус', value: 'Логрус' },
-  ];
+  serverList = [{ label: 'Гелиос', value: 'Гелиос' }];
 
   constructor() {
     this.initCurrentServer();
   }
 
   ngOnInit(): void {
-    this.connectWebSocket();
+    this.getCurrentUser();
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
@@ -97,6 +98,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const accessToken = this.storageService.getLocalStorage('token');
     const email = this.storageService.getLocalStorage('email');
 
+    console.log('email', email);
+
     if (accessToken && email) {
       console.log('connect', accessToken);
       this.websocketService.connect(accessToken, email);
@@ -113,7 +116,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (isExpired) {
         this.exchangeRefresh(() => {
           this.websocketService.disconnect();
-          console.log('disconnected');
+          console.log('disconnected', moment(Date.now()).format('HH:mm:ss'));
 
           this.connectWebSocket();
         });
@@ -125,7 +128,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private initCurrentServer() {
     this.currentServer =
-      this.storageService.getLocalStorage('server') || 'Гранас';
+      this.storageService.getLocalStorage('server') || 'Гелиос';
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
@@ -146,21 +149,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private exchangeRefresh(callback: Function) {
-    let key =
-      this.storageService.getLocalStorage('email') ||
-      this.storageService.getLocalStorage('nickname');
-    this.authService.exchangeRefresh(key).subscribe({
+    this.tokenService.refreshToken().subscribe({
       next: (res) => {
-        console.log('exchangeRefresh', res);
-        this.storageService.setLocalStorage(key, res.accessToken);
+        console.log('Токен обновлён', res);
         if (callback && typeof callback === 'function') {
-          callback(); // Вызываем коллбэк
+          callback();
         }
       },
       error: (err) => {
-        console.log('getUser error', err);
+        console.log('Ошибка при обновлении токена', err);
         if (err.status === 401) {
           this.onLogout();
+        }
+
+        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
+          this.messageService.create(
+            'error',
+            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+          );
         }
       },
     });
@@ -185,33 +191,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        this.updateHistory();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.updateAllBosses();
-          });
-        }
+        // this.updateHistory();
       },
     });
   }
 
-  updateHistory(): void {
-    this.historyService.getHistory(this.currentServer).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.historyList = this.historyList;
-        this.historyService.historyListData = this.historyListData;
-        this.historyService.isLoading = false;
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.updateHistory();
-          });
-        }
+  // updateHistory(): void {
+  //   this.historyService.getHistory(this.currentServer).subscribe({
+  //     next: (res: any) => {
+  //       this.historyListData = res;
+  //       this.historyList = res.data;
+  //       this.historyService.historyList = this.historyList;
+  //       this.historyService.historyListData = this.historyListData;
+  //       this.historyService.isLoading = false;
+  //     },
+  //     error: (err) => {
+  //       if (err.status === 401) {
+  //         this.exchangeRefresh(() => {
+  //           this.updateHistory();
+  //         });
+  //       }
+  //     },
+  //   });
+  // }
+
+  getCurrentUser() {
+    this.userService.getUser().subscribe({
+      next: (res) => {
+        this.userService.currentUser = res;
+        this.storageService.setLocalStorage(
+          res.email,
+          this.storageService.getLocalStorage('token'),
+        );
+        this.connectWebSocket();
       },
     });
   }
@@ -236,13 +248,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         });
         this.messageService.create('success', 'Респы были успешно скопированы');
         navigator.clipboard.writeText(data.join(',\n'));
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.copyRespText();
-          });
-        }
       },
     });
   }
@@ -270,13 +275,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
           'success',
           'Респы теперь с учётом падения сервера',
         );
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          this.exchangeRefresh(() => {
-            this.onCrashServer();
-          });
-        }
       },
     });
   }

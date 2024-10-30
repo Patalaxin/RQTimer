@@ -41,14 +41,15 @@ export class AuthService implements IAuth {
     const refreshToken: string = randomUUID();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
     await this.tokenModel.findOneAndUpdate(
-      { email: user.email },
-      { refreshToken: hashedRefreshToken, nickname: user.nickname },
+      { email: user.email, nickname: user.nickname },
       {
-        new: true,
-        upsert: true,
+        $set: {
+          refreshToken: hashedRefreshToken,
+          expireAt: new Date(Date.now() + 2678400000),
+        },
       },
+      { upsert: true },
     );
-
     this.authGateway.sendUserStatusUpdate(user.email, 'online');
     return { accessToken, refreshToken };
   }
@@ -96,7 +97,7 @@ export class AuthService implements IAuth {
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
     if (exchangeRefreshDto.email && exchangeRefreshDto.nickname) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'Email and Nickname fields should not be together',
       );
     }
@@ -118,7 +119,7 @@ export class AuthService implements IAuth {
 
       refreshToken = tokenRecord.refreshToken;
     } catch (err) {
-      throw new BadRequestException(
+      throw new UnauthorizedException(
         'There is no valid refresh token for this user',
       );
     }

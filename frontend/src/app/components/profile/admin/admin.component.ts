@@ -1,6 +1,10 @@
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { AuthService } from 'src/app/services/auth.service';
+import { StorageService } from 'src/app/services/storage.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -10,6 +14,10 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly timerService = inject(TimerService);
+  private readonly storageService = inject(StorageService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
@@ -60,6 +68,16 @@ export class AdminComponent implements OnInit {
   private checkScreenWidth(): void {
     this.isScreenWidth800 = window.innerWidth <= 800;
     this.isScreenWidth550 = window.innerWidth <= 550;
+  }
+
+  onLogout(): void {
+    this.authService.signOut().subscribe({
+      next: () => {
+        this.timerService.headerVisibility = false;
+        this.storageService.clean();
+        this.router.navigate(['/login']);
+      },
+    });
   }
 
   getUserColor(role: string): any {

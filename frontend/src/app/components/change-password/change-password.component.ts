@@ -8,7 +8,7 @@ import {
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { UserService } from 'src/app/services/user.service';
-import Validation from 'src/app/utils/validtion';
+import Validation from 'src/app/utils/validation';
 
 @Component({
   selector: 'app-change-password',
@@ -26,8 +26,10 @@ export class ChangePasswordComponent {
       sessionId: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
         Validators.minLength(6),
+        Validators.maxLength(64),
+        Validation.passwordValidator,
+        // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
     },
@@ -37,12 +39,14 @@ export class ChangePasswordComponent {
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
+  passwordChangeLoading: boolean = false;
 
   get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
   }
 
   onChangePassword() {
+    this.passwordChangeLoading = true;
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -58,13 +62,18 @@ export class ChangePasswordComponent {
       .subscribe({
         next: (res) => {
           console.log(res);
+          this.passwordChangeLoading = false;
           if (res.message === 'Password successfully changed') {
             this.messageService.create('success', 'Пароль успешно изменён');
             this.router.navigate(['/login']);
           }
         },
-        error: () => {
-          this.messageService.create(
+        error: (err) => {
+          this.passwordChangeLoading = false;
+          if (err.error.message) {
+            return this.messageService.create('error', err.error.message);
+          }
+          return this.messageService.create(
             'error',
             'Ошибка, обратитесь к создателям таймера',
           );

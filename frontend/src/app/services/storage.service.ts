@@ -9,7 +9,7 @@ const SERVER: string = 'server';
   providedIn: 'root',
 })
 export class StorageService {
-  currentServer: 'Гранас' | 'Энигма' | 'Логрус' = 'Гранас';
+  currentServer: 'Гелиос' = 'Гелиос';
 
   clean(): void {
     window.localStorage.removeItem(EMAIL);
@@ -21,7 +21,7 @@ export class StorageService {
     window.localStorage.setItem(SERVER, server);
   }
 
-  setLocalStorage(key: string, token: any): void {
+  setLocalStorage(key: string, token?: any): void {
     this.clean();
 
     key.includes('@')

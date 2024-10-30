@@ -52,9 +52,3 @@ export class GetMobDtoResponse {
   @Type(() => Mob)
   mob: Mob;
 }
-
-export class GetMobDataDtoResponse {
-  @Expose()
-  @Type(() => MobsData)
-  mobData: MobsData;
-}

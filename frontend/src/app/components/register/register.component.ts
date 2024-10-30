@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
-import Validation from 'src/app/utils/validtion';
+import Validation from 'src/app/utils/validation';
 
 @Component({
   selector: 'app-register',
@@ -35,13 +35,15 @@ export class RegisterComponent implements OnInit {
     {
       nickname: new FormControl('', [
         Validators.required,
-        Validators.minLength(6),
+        Validators.minLength(4),
       ]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
         Validators.minLength(6),
+        Validators.maxLength(64),
+        Validation.passwordValidator,
+        // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
       sessionId: new FormControl('', [Validators.required]),
@@ -54,6 +56,7 @@ export class RegisterComponent implements OnInit {
   );
   submitted: boolean = false;
   passwordVisible: boolean = false;
+  registerLoading: boolean = false;
 
   ngOnInit(): void {
     this.getMobs();
@@ -103,6 +106,7 @@ export class RegisterComponent implements OnInit {
   }
 
   onRegister(): void {
+    this.registerLoading = true;
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -119,18 +123,26 @@ export class RegisterComponent implements OnInit {
       ])
       .subscribe({
         next: (res) => {
+          this.registerLoading = false;
           console.log(res);
           this.messageService.create('success', 'Пользователь успешно создан');
           this.router.navigate(['/login']);
         },
         error: (err) => {
+          this.registerLoading = false;
           if (
-            err.message ===
+            err.error.message ===
             'A user with such an email or nickname already exists!'
           ) {
             return this.messageService.create(
               'error',
               'Пользователь с данным никнеймом или почтой уже существует',
+            );
+          }
+          if (err.error.message === 'Wrong SessionId!') {
+            return this.messageService.create(
+              'error',
+              'Невалидный Session ID!',
             );
           }
           return this.messageService.create(

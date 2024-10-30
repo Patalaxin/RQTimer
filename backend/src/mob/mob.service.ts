@@ -8,7 +8,6 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { TelegramBotService } from '../telegramBot/bot.service';
 import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import { Mob, MobDocument } from '../schemas/mob.schema';
@@ -16,7 +15,6 @@ import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
 } from './dto/get-mob.dto';
@@ -26,8 +24,7 @@ import {
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { HelperClass } from '../helper-class';
-import { History, HistoryTypes } from '../history/history-types.interface';
+import { History, HistoryTypes } from '../history/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
@@ -55,7 +52,6 @@ export class MobService implements IMob {
     private mobsDataModel: Model<MobsDataDocument>,
     private usersService: UsersService,
     private historyService: HistoryService,
-    private botService: TelegramBotService,
     private readonly unixtimeService: UnixtimeService,
     @Inject(forwardRef(() => GroupService)) private groupService: GroupService,
   ) {}
@@ -248,7 +244,7 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, cooldown } = updateMobByCooldownDto;
 
     const getMobDto = { mobName, server, location };
@@ -260,8 +256,6 @@ export class MobService implements IMob {
         'Respawn time is missing. Specify either date of death (dateOfDeath) or date of respawn (dateOfRespawn).',
       );
     }
-
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number =
       mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
@@ -297,18 +291,9 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async updateMobDateOfDeath(
@@ -316,14 +301,12 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfDeath } = updateMobDateOfDeathDto;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
     const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
-
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
@@ -357,18 +340,9 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async updateMobDateOfRespawn(
@@ -376,15 +350,14 @@ export class MobService implements IMob {
     role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfRespawn } =
       updateMobDateOfRespawnDto;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
+    // Fetch mob data to access mob and mobsDataId
     const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
-
-    const timeoutName: string = await HelperClass.generateUniqueName();
 
     const nextResurrectTime: number = dateOfRespawn;
     const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
@@ -401,6 +374,7 @@ export class MobService implements IMob {
       toWillResurrect: nextResurrectTime,
     };
 
+    // Update MobsData
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
         { mobId: mob.mobData.mobId, groupName: groupName },
@@ -420,18 +394,9 @@ export class MobService implements IMob {
       throw new Error('Failed to update mob data.');
     }
 
-    await Promise.all([
-      this.historyService.createHistory(history),
-      this.botService.newTimeout(
-        timeoutName,
-        nextResurrectTime,
-        mobName,
-        location,
-        server,
-      ),
-    ]);
+    await this.historyService.createHistory(history);
 
-    return { mobData: updatedMobData };
+    return { mob: mob.mob, mobData: updatedMobData };
   }
 
   async deleteMob(
@@ -534,7 +499,7 @@ export class MobService implements IMob {
     nickname: string,
     role: RolesTypes,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const { server, location, mobName } = respawnLostDtoParams;
 
     const history: History = {
@@ -574,7 +539,7 @@ export class MobService implements IMob {
 
       await this.historyService.createHistory(history);
 
-      return { mobData };
+      return { mob: mob.mob, mobData };
     } catch (err) {
       throw new BadRequestException('Failed to process respawn lost.');
     }

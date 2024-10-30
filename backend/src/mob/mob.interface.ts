@@ -2,7 +2,6 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
 } from './dto/get-mob.dto';
@@ -55,21 +54,21 @@ export interface IMob {
     role: RolesTypes,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse>;
+  ): Promise<GetFullMobDtoResponse>;
 
   updateMobDateOfDeath(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse>;
+  ): Promise<GetFullMobDtoResponse>;
 
   updateMobDateOfRespawn(
     nickname: string,
     role: RolesTypes,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse>;
+  ): Promise<GetFullMobDtoResponse>;
 
   deleteMob(
     deleteMobDtoParams: DeleteMobDtoParamsRequest,
@@ -93,7 +92,7 @@ export interface IMob {
     nickname: string,
     role: RolesTypes,
     groupName: string,
-  ): Promise<GetMobDataDtoResponse>;
+  ): Promise<GetFullMobDtoResponse>;
 
   deleteAllMobData(groupName: string): Promise<DeleteAllMobsDataDtoResponse>;
 }

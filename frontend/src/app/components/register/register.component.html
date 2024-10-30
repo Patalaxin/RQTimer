@@ -20,21 +20,29 @@
         <div class="steps-content" *ngIf="currentStep === 0">
           <div class="register-form-info">
             <nz-form-item>
-              <nz-form-control nzErrorTip="Введите никнейм!">
+              <nz-form-control [nzErrorTip]="nicknameErrorTpl">
                 <nz-input-group nzPrefixIcon="user" class="br-50px">
                   <input
                     nz-input
                     formControlName="nickname"
                     placeholder="Никнейм"
                     name="mix"
-                    minlength="6"
+                    minlength="4"
                     required
                   />
                 </nz-input-group>
               </nz-form-control>
+              <ng-template #nicknameErrorTpl let-control>
+                <div *ngIf="control.errors?.required">• Введите никнейм!</div>
+                <div
+                  *ngIf="!control.errors?.required && control.errors?.minlength"
+                >
+                  • Минимальная длина никнейма 4 символа!
+                </div>
+              </ng-template>
             </nz-form-item>
             <nz-form-item>
-              <nz-form-control nzErrorTip="Введите почту!">
+              <nz-form-control nzErrorTip="• Введите почту!">
                 <nz-input-group nzPrefixIcon="mail" class="br-50px">
                   <input
                     nz-input
@@ -48,7 +56,7 @@
               </nz-form-control>
             </nz-form-item>
             <nz-form-item>
-              <nz-form-control nzErrorTip="Введите пароль!">
+              <nz-form-control [nzErrorTip]="passwordErrorTpl">
                 <nz-input-group
                   nzPrefixIcon="lock"
                   [nzSuffix]="suffixTemplate"
@@ -65,9 +73,47 @@
                   />
                 </nz-input-group>
               </nz-form-control>
+              <ng-template #passwordErrorTpl let-control>
+                <div *ngIf="control.errors?.required">• Введите пароль!</div>
+                <div
+                  *ngIf="!control.errors?.required && control.errors?.minlength"
+                >
+                  • Минимальная длина пароля 6 символов!
+                </div>
+                <div
+                  *ngIf="!control.errors?.required && control.errors?.maxlength"
+                >
+                  • Максимальная длина пароля 64 символа!
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required && control.errors?.missingNumber
+                  "
+                >
+                  • Пароль должен содержать хотя бы одну цифру!
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required &&
+                    control.errors?.missingUpperCase
+                  "
+                >
+                  • Пароль должен содержать хотя бы одну заглавную латинскую
+                  букву!
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required &&
+                    control.errors?.missingLowerCase
+                  "
+                >
+                  • Пароль должен содержать хотя бы одну строчную латинскую
+                  букву!
+                </div>
+              </ng-template>
             </nz-form-item>
             <nz-form-item>
-              <nz-form-control nzErrorTip="Пароль не совпадает!">
+              <nz-form-control nzErrorTip="• Пароль не совпадает!">
                 <nz-input-group
                   nzPrefixIcon="lock"
                   [nzSuffix]="suffixTemplate"
@@ -84,10 +130,6 @@
                   />
                 </nz-input-group>
               </nz-form-control>
-              <p class="password-text">
-                • Пароль должен содержать как минимум одну цифру и одну
-                заглавную букву. Длина пароля от 6 до 64 символов.
-              </p>
             </nz-form-item>
             <ng-template #suffixTemplate>
               <span
@@ -97,7 +139,7 @@
               ></span>
             </ng-template>
             <nz-form-item class="register-form-mb-12px">
-              <nz-form-control nzErrorTip="Введите Session ID!">
+              <nz-form-control nzErrorTip="• Введите Session ID!">
                 <nz-input-group nzPrefixIcon="number" class="br-50px">
                   <input
                     nz-input
@@ -146,7 +188,9 @@
                         [formControlName]="i"
                         [nzValue]="bossesCheckboxList[i].mobName"
                       >
-                        {{ bossesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          bossesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>
@@ -183,7 +227,9 @@
                         [formControlName]="i"
                         [nzValue]="elitesCheckboxList[i].mobName"
                       >
-                        {{ elitesCheckboxList[i].mobName }}
+                        <span class="mob-name">{{
+                          elitesCheckboxList[i].mobName
+                        }}</span>
                       </label>
                     </div>
                   </div>
@@ -219,6 +265,7 @@
           (click)="done()"
           *ngIf="currentStep === 1"
           nzShape="round"
+          [nzLoading]="registerLoading"
         >
           <span>Зарегистрироваться</span>
         </button>

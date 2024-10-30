@@ -120,7 +120,7 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
@@ -147,7 +147,7 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
@@ -176,12 +176,12 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobDateOfRespawn(
         parsedToken.nickname,
         parsedToken.role,
@@ -252,12 +252,12 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Req() request: Request,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
-  ): Promise<GetMobDataDtoResponse> {
+  ): Promise<GetFullMobDtoResponse> {
     const parsedToken = HelperClass.getNicknameAndRoleFromToken(
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse = await this.mobInterface.respawnLost(
+    const mob: GetFullMobDtoResponse = await this.mobInterface.respawnLost(
       respawnLostDtoParams,
       parsedToken.nickname,
       parsedToken.role,

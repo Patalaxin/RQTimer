@@ -4,6 +4,78 @@
 //   outline: 1px solid red;
 // }
 
+body[data-tui-theme] {
+  background: #2c3a55 !important;
+}
+
+.ant-table,
+.ant-modal-body,
+.ant-modal-footer {
+  background: #2c3a55;
+}
+
+.t-wrapper {
+  .t-item {
+    background: #2c3a55 !important;
+
+    .t-svg {
+      fill: #ffffff !important;
+    }
+  }
+}
+
+.ant-table tr:hover {
+  color: hsl(220, 32%, 25%);
+}
+
+.ant-modal-body {
+  textarea::placeholder,
+  input::placeholder,
+  nz-select-placeholder {
+    color: #000;
+    opacity: 0.5;
+  }
+}
+
+.ant-page-header-heading-title,
+.ant-tabs,
+.ant-checkbox-wrapper,
+.ant-table,
+.ant-pagination,
+.ant-timeline,
+.ant-modal-confirm-body span,
+.ant-modal-confirm-body div,
+.ant-modal-confirm-body b,
+.ant-modal-close-x svg,
+.ant-radio-wrapper span,
+.ant-modal-body span.role,
+.timer-mob-name,
+.timer-mob-location,
+.t-wrapper .t-item,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #ffffff;
+}
+
+.ant-page-header-heading-left svg {
+  fill: #ffffff;
+}
+
+.ant-modal-body {
+  border-top-left-radius: 9px;
+  border-top-right-radius: 9px;
+}
+
+.ant-modal-footer,
+.ant-modal-confirm .ant-modal-body {
+  border-bottom-left-radius: 9px;
+  border-bottom-right-radius: 9px;
+}
+
 .container {
   max-width: 1000px;
   width: 100%;
@@ -57,11 +129,6 @@
   border-radius: 50px;
 }
 
-.password-text {
-  color: #6f6f6f;
-  margin: 10px 5px 0;
-}
-
 .form-container {
   padding: 50px;
   box-shadow: 0px 8px 28px -2px rgba(0, 0, 0, 1);
@@ -97,12 +164,23 @@
   p {
     margin-top: 2em;
 
+    .timer-mob-name,
+    .timer-mob-location {
+      text-align: center;
+      display: block;
+    }
+
+    .timer-mob-name {
+      font-size: 1.5rem;
+    }
+
     .ant-radio-group {
       width: 100%;
+    }
 
-      .timer-radio-option {
-        text-align: center;
-      }
+    .timer-radio-option {
+      width: 100%;
+      text-align: center;
     }
   }
 
@@ -137,6 +215,11 @@ h4.ant-list-item-meta-title {
 
 span.ant-radio + * {
   margin-top: 20px;
+  width: 100%;
+}
+
+.ant-radio-wrapper {
+  width: 100%;
 }
 
 nz-progress {
@@ -217,7 +300,7 @@ nz-progress {
 }
 
 .ant-statistic-content-value {
-  font-family: "Manrope", sans-serif;
+  // font-family: "Manrope", sans-serif;
   font-weight: 600;
 }
 

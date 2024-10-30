@@ -6,18 +6,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
-  GranasHistory,
-  GranasHistoryDocument,
-} from '../schemas/granasHistory.schema';
-import {
-  EnigmaHistory,
-  EnigmaHistoryDocument,
-} from '../schemas/enigmaHistory.schema';
-import {
-  LogrusHistory,
-  LogrusHistoryDocument,
-} from '../schemas/logrusHistory.schema';
-import { History } from './history-types.interface';
+  HeliosHistory,
+  HeliosHistoryDocument,
+} from '../schemas/heliosHistory.schema';
+
+import { History } from './history.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
@@ -28,18 +21,10 @@ export class HistoryService implements IHistory {
   private historyModels: any;
 
   constructor(
-    @InjectModel(GranasHistory.name)
-    private granasHistoryModel: Model<GranasHistoryDocument>,
-    @InjectModel(EnigmaHistory.name)
-    private enigmaHistoryModel: Model<EnigmaHistoryDocument>,
-    @InjectModel(LogrusHistory.name)
-    private logrusHistoryModel: Model<LogrusHistoryDocument>,
+    @InjectModel(HeliosHistory.name)
+    private heliosHistoryModel: Model<HeliosHistoryDocument>,
   ) {
-    this.historyModels = [
-      { server: 'Гранас', model: this.granasHistoryModel },
-      { server: 'Энигма', model: this.enigmaHistoryModel },
-      { server: 'Логрус', model: this.logrusHistoryModel },
-    ];
+    this.historyModels = [{ server: 'Гелиос', model: this.heliosHistoryModel }];
   }
 
   async createHistory(history: History): Promise<History> {

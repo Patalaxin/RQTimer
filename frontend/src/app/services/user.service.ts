@@ -3,7 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
-import { createHeaders } from '../utils/http';
 
 @Injectable({
   providedIn: 'root',
@@ -25,18 +24,15 @@ export class UserService {
   }
 
   getUser(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(this.USER_API, { headers });
+    return this.http.get(this.USER_API);
   }
 
   getAllUsers(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.USER_API}list`, { headers });
+    return this.http.get(`${this.USER_API}list`);
   }
 
   getSpecificUser(key: string): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.USER_API}specific-user/${key}`, { headers });
+    return this.http.get(`${this.USER_API}specific-user/${key}`);
   }
 
   createUser(user: any, excludedMobs: string[]): Observable<any> {
@@ -44,13 +40,11 @@ export class UserService {
       ...user,
       excludedMobs,
     };
-    const headers = createHeaders(this.storageService);
-    return this.http.post(this.USER_API, payload, { headers });
+    return this.http.post(this.USER_API, payload);
   }
 
   deleteUser(key: string): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.delete(`${this.USER_API}${key}`, { headers });
+    return this.http.delete(`${this.USER_API}${key}`);
   }
 
   forgotPassword(
@@ -63,10 +57,7 @@ export class UserService {
       sessionId,
       newPassword,
     };
-    const headers = createHeaders(this.storageService);
-    return this.http.put(`${this.USER_API}forgot-password`, payload, {
-      headers,
-    });
+    return this.http.put(`${this.USER_API}forgot-password`, payload);
   }
 
   changePassword(oldPassword: string, newPassword: string): Observable<any> {
@@ -74,36 +65,29 @@ export class UserService {
       oldPassword,
       newPassword,
     };
-    const headers = createHeaders(this.storageService);
-    return this.http.put(`${this.USER_API}change-password`, payload, {
-      headers,
-    });
+    return this.http.put(`${this.USER_API}change-password`, payload);
   }
 
   updateRole(key: string, role: string): Observable<any> {
-    const headers = createHeaders(this.storageService);
     let payload = this.createUserPayload(key, { role });
-    return this.http.put(`${this.USER_API}role`, payload, { headers });
+    return this.http.put(`${this.USER_API}role`, payload);
   }
 
   updateExcluded(excludedMobs: string[]): Observable<any> {
     let payload = {
       excludedMobs,
     };
-    const headers = createHeaders(this.storageService);
-    return this.http.put(`${this.USER_API}excluded`, payload, { headers });
+    return this.http.put(`${this.USER_API}excluded`, payload);
   }
 
   updateUnavailable(key: string, unavailableMobs: string[]): Observable<any> {
     let payload = this.createUserPayload(key, { unavailableMobs });
-    const headers = createHeaders(this.storageService);
-    return this.http.put(`${this.USER_API}unavailable`, payload, { headers });
+    return this.http.put(`${this.USER_API}unavailable`, payload);
   }
 
   generateSessionId(): Observable<any> {
     let payload = {};
-    const headers = createHeaders(this.storageService);
-    return this.http.post(`${this.USER_API}session-id`, payload, { headers });
+    return this.http.post(`${this.USER_API}session-id`, payload);
   }
 
   private createUserPayload(key: string, additionalData: object): object {

@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
     {
       name: 'lesta',
       src: '../../../assets/img/lesta-banner.avif',
-      link: 'https://lesta.games/',
+      link: 'https://baseplatform.online/royalquest',
     },
     {
       name: 'rqcalc',

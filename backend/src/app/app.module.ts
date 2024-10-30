@@ -5,15 +5,16 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
-import * as process from 'process';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
+import * as process from 'process';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
     MobModule,
@@ -22,16 +23,16 @@ import { GroupModule } from '../group/group.module';
     UnixtimeModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async () => ({
-        uri: `mongodb+srv://${process.env.DATABASE_USER_TEST}:${process.env.DATABASE_PASSWORD_TEST}.mongodb.net/?retryWrites=true&w=majority`,
-      }),
-      inject: [ConfigService],
+      useFactory: async () => {
+        return {
+          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@185.65.105.220:27017/admin`,
+        };
+      },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(resolve(), 'client'),
     }),
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [],
   providers: [],

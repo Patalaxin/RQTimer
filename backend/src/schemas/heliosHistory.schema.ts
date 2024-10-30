@@ -8,12 +8,12 @@ import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
-export type EnigmaHistoryDocument = HydratedDocument<EnigmaHistory>;
+export type HeliosHistoryDocument = HydratedDocument<HeliosHistory>;
 
 @Schema({
   autoIndex: true,
 })
-export class EnigmaHistory {
+export class HeliosHistory {
   @Expose()
   @Prop({
     type: String,
@@ -32,16 +32,16 @@ export class EnigmaHistory {
   nickname: string;
 
   @Expose()
+  @Prop({ required: true })
+  date: number;
+
+  @Expose()
   @Prop()
   role: RolesTypes;
 
   @Expose()
   @Prop()
   historyTypes: HistoryTypes;
-
-  @Expose()
-  @Prop({ required: true })
-  date: number;
 
   @Expose()
   @Prop()
@@ -74,10 +74,10 @@ export class EnigmaHistory {
   @Prop()
   __v: number;
 
-  constructor(partial: Partial<EnigmaHistory>) {
+  constructor(partial: Partial<HeliosHistory>) {
     Object.assign(this, partial);
   }
 }
 
-export const EnigmaHistorySchema = SchemaFactory.createForClass(EnigmaHistory);
+export const HeliosHistorySchema = SchemaFactory.createForClass(HeliosHistory);
 TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 259200 }); //  3 day live for history

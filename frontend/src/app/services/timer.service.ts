@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
 import { environment } from 'src/environments/environment';
-import { createHeaders } from '../utils/http';
 
 @Injectable({
   providedIn: 'root',
@@ -44,8 +43,7 @@ export class TimerService {
   }
 
   getUnixtime(): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${environment.apiUrl}/unixtime`, { headers });
+    return this.http.get(`${environment.apiUrl}/unixtime`);
   }
 
   createMob(item: any, server: string): Observable<any> {
@@ -53,47 +51,31 @@ export class TimerService {
       ...item,
       server,
     };
-    const headers = createHeaders(this.storageService);
-    return this.http.post(this.MOB_URL, payload, { headers });
+    return this.http.post(this.MOB_URL, payload);
   }
 
   editMob(item: any, server: string): Observable<any> {
     const { currentLocation, ...itemInfo } = item;
     let payload = itemInfo;
-    const headers = createHeaders(this.storageService);
     return this.http.put(
-      `${this.MOB_URL}/${server}/${currentLocation}/${item.mobName}`,
+      `${this.MOB_URL}${server}/${currentLocation}/${item.mobName}`,
       payload,
-      { headers },
     );
   }
 
   deleteMob(mobName: string, server: string, location: string) {
-    const headers = createHeaders(this.storageService);
-    return this.http.delete(
-      `${this.MOB_URL}/${server}/${location}/${mobName}`,
-      {
-        headers,
-      },
-    );
+    return this.http.delete(`${this.MOB_URL}${server}/${location}/${mobName}`);
   }
 
   getAllBosses(server: string): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.get(`${this.MOB_URL}${server}`, { headers });
+    return this.http.get(`${this.MOB_URL}${server}`);
   }
 
   crashServerBosses(server: string): Observable<any> {
-    const headers = createHeaders(this.storageService);
-    return this.http.post(
-      `${this.MOB_URL}crash-server/${server}`,
-      {},
-      { headers },
-    );
+    return this.http.post(`${this.MOB_URL}crash-server/${server}`, {});
   }
 
   setByDeathTime(item: TimerItem, dateOfDeath: number): Observable<any> {
-    const headers = createHeaders(this.storageService);
     let payload = {
       dateOfDeath,
       mobName: item.mob.mobName,
@@ -101,13 +83,10 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${this.MOB_URL}date-of-death`, payload, {
-      headers,
-    });
+    return this.http.put(`${this.MOB_URL}date-of-death`, payload);
   }
 
   setByRespawnTime(item: TimerItem, dateOfRespawn: number): Observable<any> {
-    const headers = createHeaders(this.storageService);
     let payload = {
       dateOfRespawn,
       mobName: item.mob.mobName,
@@ -115,13 +94,10 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${this.MOB_URL}date-of-respawn`, payload, {
-      headers,
-    });
+    return this.http.put(`${this.MOB_URL}date-of-respawn`, payload);
   }
 
   setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
-    const headers = createHeaders(this.storageService);
     let payload = {
       mobName: item.mob.mobName,
       server: item.mob.server,
@@ -129,21 +105,15 @@ export class TimerService {
       cooldown,
     };
 
-    return this.http.put(`${this.MOB_URL}cooldown`, payload, {
-      headers,
-    });
+    return this.http.put(`${this.MOB_URL}cooldown`, payload);
   }
 
   respawnLost(item: TimerItem): Observable<any> {
-    const headers = createHeaders(this.storageService);
     let payload = {};
 
     return this.http.put(
       `${this.MOB_URL}respawn-lost/${item.mob.server}/${item.mob.location}/${item.mob.mobName}`,
       payload,
-      {
-        headers,
-      },
     );
   }
 }

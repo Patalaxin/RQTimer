@@ -2,7 +2,6 @@ import {
   BadRequestException,
   forwardRef,
   Inject,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -111,7 +110,7 @@ export class UsersService implements IUser {
       user.password,
     );
     if (!isPasswordMatch) {
-      throw new UnauthorizedException('Password did not match!!!');
+      throw new BadRequestException('Password did not match!!!');
     }
 
     const hashedNewPassword: string = await bcrypt.hash(

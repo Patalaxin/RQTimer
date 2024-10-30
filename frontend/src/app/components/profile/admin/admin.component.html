@@ -82,7 +82,10 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
               >
                 <p *nzModalContent>
-                  <nz-skeleton *ngIf="isUserDataLoading"></nz-skeleton>
+                  <nz-skeleton
+                    [nzActive]="true"
+                    *ngIf="isUserDataLoading"
+                  ></nz-skeleton>
 
                   <span>
                     <div
@@ -107,7 +110,7 @@
                           ></span>
                           Обновить роль:
                         </h4>
-                        <span>Роль: </span>
+                        <span class="role">Роль: </span>
                         <nz-select
                           [ngModel]="user.role"
                           style="width: 30%"

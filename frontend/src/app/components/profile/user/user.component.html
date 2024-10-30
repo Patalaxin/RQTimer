@@ -1,4 +1,8 @@
-<nz-skeleton *ngIf="isLoading" class="container"></nz-skeleton>
+<nz-skeleton
+  [nzActive]="true"
+  *ngIf="isLoading"
+  class="container"
+></nz-skeleton>
 
 <div class="user" *ngIf="!isLoading">
   <nz-tabset>
@@ -109,7 +113,7 @@
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-control nzErrorTip="Введите новый пароль!">
+          <nz-form-control [nzErrorTip]="passwordErrorTpl">
             <nz-input-group
               nzPrefixIcon="lock"
               [nzSuffix]="suffixTemplate"
@@ -126,6 +130,34 @@
               />
             </nz-input-group>
           </nz-form-control>
+          <ng-template #passwordErrorTpl let-control>
+            <div *ngIf="control.errors?.required">• Введите новый пароль!</div>
+            <div *ngIf="!control.errors?.required && control.errors?.minlength">
+              • Минимальная длина пароля 6 символов!
+            </div>
+            <div *ngIf="!control.errors?.required && control.errors?.maxlength">
+              • Максимальная длина пароля 64 символа!
+            </div>
+            <div
+              *ngIf="!control.errors?.required && control.errors?.missingNumber"
+            >
+              • Пароль должен содержать хотя бы одну цифру!
+            </div>
+            <div
+              *ngIf="
+                !control.errors?.required && control.errors?.missingUpperCase
+              "
+            >
+              • Пароль должен содержать хотя бы одну заглавную латинскую букву!
+            </div>
+            <div
+              *ngIf="
+                !control.errors?.required && control.errors?.missingLowerCase
+              "
+            >
+              • Пароль должен содержать хотя бы одну строчную латинскую букву!
+            </div>
+          </ng-template>
         </nz-form-item>
         <nz-form-item>
           <nz-form-control nzErrorTip="Новый пароль не совпадает!">
@@ -145,10 +177,6 @@
               />
             </nz-input-group>
           </nz-form-control>
-          <p class="password-text">
-            • Пароль должен содержать как минимум одну цифру и одну заглавную
-            букву. Длина пароля от 6 до 64 символов.
-          </p>
         </nz-form-item>
         <ng-template #suffixTemplate>
           <span
@@ -164,6 +192,7 @@
           type="submit"
           [disabled]="!changePasswordForm.valid"
           nzShape="round"
+          [nzLoading]="passwordChangeLoading"
         >
           Поменять пароль
         </button>

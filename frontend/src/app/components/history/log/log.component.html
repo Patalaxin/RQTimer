@@ -14,7 +14,7 @@
 </ng-template>
 
 <div class="log container">
-  <nz-skeleton *ngIf="isLoading"></nz-skeleton>
+  <nz-skeleton [nzActive]="true" *ngIf="isLoading"></nz-skeleton>
 
   <nz-timeline *ngIf="!isLoading">
     <nz-timeline-item

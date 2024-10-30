@@ -9,7 +9,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
-import Validation from 'src/app/utils/validtion';
+import Validation from 'src/app/utils/validation';
 
 @Component({
   selector: 'app-user',
@@ -44,15 +44,13 @@ export class UserComponent implements OnInit {
 
   changePasswordForm: FormGroup = new FormGroup(
     {
-      oldPassword: new FormControl('', [
-        Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
-        Validators.minLength(6),
-      ]),
+      oldPassword: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
-        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
         Validators.minLength(6),
+        Validators.maxLength(64),
+        Validation.passwordValidator,
+        // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmNewPassword: new FormControl('', [Validators.required]),
     },
@@ -63,6 +61,7 @@ export class UserComponent implements OnInit {
   changePasswordSubmitted: boolean = false;
 
   passwordVisible: boolean = false;
+  passwordChangeLoading: boolean = false;
 
   ngOnInit(): void {
     this.getMobs();
@@ -153,6 +152,7 @@ export class UserComponent implements OnInit {
   }
 
   onChangePassword() {
+    this.passwordChangeLoading = true;
     this.changePasswordSubmitted = true;
 
     if (this.changePasswordForm.invalid) {
@@ -166,10 +166,21 @@ export class UserComponent implements OnInit {
       )
       .subscribe({
         next: (res) => {
+          this.passwordChangeLoading = false;
           console.log(res);
           this.messageService.create('success', 'Пароль успешно изменён');
 
           this.changePasswordForm.reset();
+        },
+        error: (err) => {
+          this.passwordChangeLoading = false;
+          if (err.error.message) {
+            return this.messageService.create('error', err.error.message);
+          }
+          return this.messageService.create(
+            'error',
+            'Ошибка, обратитесь к создателям таймера',
+          );
         },
       });
   }

@@ -1,4 +1,8 @@
-<nz-skeleton *ngIf="isLoading | async" class="container"></nz-skeleton>
+<nz-skeleton
+  [nzActive]="true"
+  *ngIf="isLoading | async"
+  class="container"
+></nz-skeleton>
 
 <div class="timer container" *ngIf="!(isLoading | async)">
   <nz-list nzItemLayout="horizontal">
@@ -105,26 +109,44 @@
               (nzOnCancel)="cancelDeathModal(item)"
               (nzOnOk)="confirmDeathModal(item)"
               [nzOkLoading]="item.mob.isDeathOkLoading"
+              nzCentered
             >
               <p *nzModalContent>
+                <span class="timer-mob-name">{{ item.mob.mobName }}</span>
+                <span class="timer-mob-location">{{ item.mob.location }}</span>
                 <nz-radio-group [(ngModel)]="radioValue">
                   <label nz-radio nzValue="death"
-                    >Выберите точное время смерти:</label
-                  >
+                    >Выберите точное время смерти:
+                  </label>
                   <div class="timer-radio-option">
-                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
-                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
+                    <nz-date-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    ></nz-date-picker>
+                    <nz-time-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    >
+                    </nz-time-picker>
                   </div>
                   <label nz-radio nzValue="respawn"
-                    >Выберите точное время респауна:</label
-                  >
+                    >Выберите точное время респауна:
+                  </label>
                   <div class="timer-radio-option">
-                    <nz-date-picker [(ngModel)]="currentTime"></nz-date-picker>
-                    <nz-time-picker [(ngModel)]="currentTime"> </nz-time-picker>
+                    <nz-date-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    ></nz-date-picker>
+                    <nz-time-picker
+                      [(ngModel)]="currentTime"
+                      (click)="onFocus($event)"
+                    >
+                    </nz-time-picker>
                   </div>
+
                   <label nz-radio nzValue="cd"
-                    >Впишите, сколько раз по кд:</label
-                  >
+                    >Впишите, сколько раз по кд:
+                  </label>
                   <div class="timer-radio-option">
                     <nz-space>
                       <nz-input-group
@@ -139,6 +161,7 @@
                           max="10"
                           step="1"
                           class="br-50px"
+                          (click)="onFocus($event)"
                         />
                       </nz-input-group>
                     </nz-space>
@@ -154,6 +177,7 @@
               nzTooltipTitle="Переписать по (текущему времени - 10 сек)"
               [nzTooltipMouseEnterDelay]="1"
               class="timer-die-button"
+              [nzLoading]="item.mob.isOnDieNow"
               nzShape="round"
             >
               <span nz-icon nzType="scan"></span>
@@ -185,7 +209,10 @@
                 [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
               >
                 <p *nzModalContent>
-                  <nz-skeleton *ngIf="isHistoryLoading | async"></nz-skeleton>
+                  <nz-skeleton
+                    [nzActive]="true"
+                    *ngIf="isHistoryLoading | async"
+                  ></nz-skeleton>
                   <app-log
                     *ngIf="!(isHistoryLoading | async)"
                     [historyList]="historyList"
@@ -269,6 +296,7 @@
                   <button
                     nz-button
                     nzType="primary"
+                    [disabled]="isCreateOkDisabled"
                     (click)="confirmCreateEditModal(item)"
                     [nzLoading]="item.mob.isEditOkLoading"
                   >
@@ -421,6 +449,7 @@
           <button
             nz-button
             nzType="primary"
+            [disabled]="isCreateOkDisabled"
             (click)="confirmCreateEditModal()"
             [nzLoading]="isCreateOkLoading"
           >

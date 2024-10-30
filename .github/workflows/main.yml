@@ -11,20 +11,18 @@ jobs:
     env:
         SSH_HOST: ${{ secrets.SSH_HOST }}
         SSH_PASS: ${{ secrets.SSH_PASS }}
-        DATABASE_USER_TEST: ${{ secrets.DATABASE_USER_TEST }}
-        DATABASE_PASSWORD_TEST: ${{ secrets.DATABASE_PASSWORD_TEST }}
-        TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        GRANAS_TOKEN: ${{ secrets.GRANAS_TOKEN }}
-        ENIGMA_TOKEN: ${{ secrets.ENIGMA_TOKEN }}
-        LOGRUS_TOKEN: ${{ secrets.LOGRUS_TOKEN }}
         SECRET_CONSTANT: ${{ secrets.SECRET_CONSTANT }}
         UNIXTIME_KEY: ${{ secrets.UNIXTIME_KEY}}
         OTP_USER: ${{ secrets.OTP_USER }}
         OTP_PASS: ${{ secrets.OTP_PASS}}
+        DATABASE_USER: ${{ secrets.DATABASE_USER }}
+        DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Connect to server via SSH
         uses: appleboy/ssh-action@master
@@ -42,22 +40,19 @@ jobs:
             
             cd backend
             if [ -f .env ]; then rm .env; fi
-            echo "DATABASE_USER_TEST=${{ secrets.DATABASE_USER_TEST }}" >> .env
-            echo "DATABASE_PASSWORD_TEST=${{ secrets.DATABASE_PASSWORD_TEST }}" >> .env
-            echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
-            echo "GRANAS_TOKEN=${{ secrets.GRANAS_TOKEN }}" >> .env
-            echo "ENIGMA_TOKEN=${{ secrets.ENIGMA_TOKEN }}" >> .env
-            echo "LOGRUS_TOKEN=${{ secrets.LOGRUS_TOKEN }}" >> .env
             echo "SECRET_CONSTANT=${{ secrets.SECRET_CONSTANT }}" >> .env
             echo "UNIXTIME_KEY=${{ secrets.UNIXTIME_KEY }}" >> .env
             echo "OTP_USER=${{ secrets.OTP_USER }}" >> .env
             echo "OTP_PASS=${{ secrets.OTP_PASS }}" >> .env
+            echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
+            echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
             npm install
             npm run build
             
             # Перезапуск бэкенда
             cd dist
             pm2 restart main
+            pm2 save
 
       - name: Check for frontend changes
         id: frontend_changes
@@ -69,20 +64,29 @@ jobs:
             echo "No frontend changes."
             echo "FRONTEND_CHANGED=false" >> $GITHUB_ENV
           fi
-
+            
       - name: Update frontend
         if: env.FRONTEND_CHANGED == 'true'
-        run: |
-          # Обновление фронтенда
-          cd TimerRQ/frontend
-          git pull
-          npm install
-          npm run build
-          
-          # Обновление фронтенд конфига для nginx
-          sudo rm -rf /var/www/rqtimer/
-          sudo mkdir -p /var/www/rqtimer/
-          sudo cp -r /root/TimerRQ/frontend/dist/rq-timer-fe/* /var/www/rqtimer/
-          
-          # Перезагрузка Nginx
-          sudo service nginx reload
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          password: ${{ secrets.SSH_PASS }}
+          port: 22
+          script: |
+            # Остановка Docker для освобождения памяти
+            cd TimerRQ/backend && docker-compose down && cd ..
+            
+            # Сборка фронтенда
+            cd frontend && npm install && npm run build
+            
+            # Обновление фронтенд конфига для nginx
+            sudo rm -rf /var/www/rqtimer/
+            sudo mkdir -p /var/www/rqtimer/
+            sudo cp -r dist/rq-timer-fe/* /var/www/rqtimer/
+            
+            # Перезагрузка Nginx
+            sudo service nginx reload
+            
+            # Перезапуск Docker-контейнеров
+            cd ../backend && docker-compose up -d
