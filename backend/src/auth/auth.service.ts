@@ -37,7 +37,7 @@ export class AuthService {
     const refreshToken: string = randomUUID();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
     await this.tokenModel.findOneAndUpdate(
-      { email: user.email },
+      { email: user.email, nickname: user.nickname },
       {
         $set: {
           refreshToken: hashedRefreshToken,
