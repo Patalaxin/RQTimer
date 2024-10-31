@@ -8,7 +8,9 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
 import { ConfigurationService } from 'src/app/services/configuration.service';
+import { OtpService } from 'src/app/services/otp.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validation';
 
@@ -20,8 +22,12 @@ import Validation from 'src/app/utils/validation';
 export class RegisterComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly otpService = inject(OtpService);
   private readonly configurationService = inject(ConfigurationService);
   private readonly messageService = inject(NzMessageService);
+
+  isModalVisible: boolean = false;
+  isModalLoading: boolean = false;
 
   currentStep: number = 0;
 
@@ -30,6 +36,17 @@ export class RegisterComponent implements OnInit {
 
   bossesCheckboxList: any;
   elitesCheckboxList: any;
+
+  otpOptions: NgxOtpInputComponentOptions = {
+    autoFocus: true,
+    showBlinkingCursor: false,
+  };
+
+  isVerifyDisabled: boolean = true;
+
+  otpTimer: number = 60;
+  otpComplete: string = '';
+  otpInterval: any;
 
   form: FormGroup = new FormGroup(
     {
@@ -46,7 +63,6 @@ export class RegisterComponent implements OnInit {
         // Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{6,64}$/),
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
-      sessionId: new FormControl('', [Validators.required]),
       excludedBosses: new FormArray([]),
       excludedElites: new FormArray([]),
     },
@@ -77,7 +93,8 @@ export class RegisterComponent implements OnInit {
   }
 
   done(): void {
-    this.onRegister();
+    console.log(this.form.value['email']);
+    this.onSendOTP();
     console.log('done');
   }
 
@@ -105,8 +122,66 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  onRegister(): void {
+  onSendOTP(): void {
+    // this.showModal();
+    this.otpService.sendOTP(this.form.value['email']).subscribe({
+      next: () => {
+        this.showModal();
+      },
+    });
+  }
+
+  showModal(): void {
+    event?.stopPropagation();
     this.registerLoading = true;
+    this.isModalVisible = true;
+    clearInterval(this.otpInterval);
+    this.otpTimer = 60;
+    this.otpInterval = setInterval(() => {
+      if (this.otpTimer > 0) {
+        this.otpTimer--;
+      }
+    }, 1000);
+  }
+
+  cancelModal(): void {
+    clearInterval(this.otpInterval);
+    this.registerLoading = false;
+    this.isModalVisible = false;
+  }
+
+  onChangeOTP(event: any): void {
+    let otpCount: number = 0;
+    event.map((item: string) => {
+      if (item) {
+        otpCount++;
+      }
+    });
+    if (otpCount === 6) {
+      this.isVerifyDisabled = false;
+    } else {
+      this.isVerifyDisabled = true;
+    }
+  }
+
+  onCompleteOTP(event: any): void {
+    console.log('onCompleteOTP', event);
+    this.otpComplete = event;
+  }
+
+  onVerifyOTP(): void {
+    this.isModalLoading = true;
+    console.log('onVerifyOTP', this.otpComplete);
+    this.otpService
+      .verifyOTP(this.form.value['email'], this.otpComplete)
+      .subscribe({
+        next: () => {
+          this.onRegister();
+        },
+      });
+  }
+
+  onRegister(): void {
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -124,12 +199,15 @@ export class RegisterComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.registerLoading = false;
+          this.isModalLoading = false;
+          this.isModalVisible = false;
           console.log(res);
           this.messageService.create('success', 'Пользователь успешно создан');
           this.router.navigate(['/login']);
         },
         error: (err) => {
           this.registerLoading = false;
+          this.isModalLoading = false;
           if (
             err.error.message ===
             'A user with such an email or nickname already exists!'
@@ -137,12 +215,6 @@ export class RegisterComponent implements OnInit {
             return this.messageService.create(
               'error',
               'Пользователь с данным никнеймом или почтой уже существует',
-            );
-          }
-          if (err.error.message === 'Wrong SessionId!') {
-            return this.messageService.create(
-              'error',
-              'Невалидный Session ID!',
             );
           }
           return this.messageService.create(

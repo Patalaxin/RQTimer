@@ -23,7 +23,6 @@ export class ChangePasswordComponent {
   form: FormGroup = new FormGroup(
     {
       email: new FormControl('', [Validators.required, Validators.email]),
-      sessionId: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
@@ -54,11 +53,7 @@ export class ChangePasswordComponent {
     }
 
     this.userService
-      .forgotPassword(
-        this.form.value.email,
-        this.form.value.sessionId,
-        this.form.value.newPassword,
-      )
+      .forgotPassword(this.form.value.email, this.form.value.newPassword)
       .subscribe({
         next: (res) => {
           console.log(res);

@@ -37,8 +37,10 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 // Add Taiga UI Modules
 import { TuiReorderModule } from '@taiga-ui/addon-table';
 import { TuiAlertModule, TuiDialogModule, TuiRootModule } from '@taiga-ui/core';
+import { NgxOtpInputComponent } from 'ngx-otp-input';
 
 const sharedModules = [
+  NgxOtpInputComponent,
   ReactiveFormsModule,
   FormsModule,
   NzFormModule,

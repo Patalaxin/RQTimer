@@ -171,8 +171,33 @@ h6 {
 }
 
 .ant-modal-body {
+  .modal-center {
+    text-align: center;
+  }
+
   p {
     margin-top: 2em;
+
+    .otp-modal-name,
+    .otp-modal-timer {
+      display: block;
+      color: #ffffff;
+    }
+
+    .otp-modal-name {
+      font-size: 1.5rem;
+    }
+
+    .otp-modal-input form {
+      margin: 20px 0;
+    }
+
+    button.new-otp {
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: #1890ff;
+    }
 
     .timer-mob-name,
     .timer-mob-location {
