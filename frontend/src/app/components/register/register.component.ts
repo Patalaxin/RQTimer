@@ -95,6 +95,7 @@ export class RegisterComponent implements OnInit {
 
   done(): void {
     console.log(this.form.value['email']);
+    this.registerLoading = true;
     this.onSendOTP();
     console.log('done');
   }
@@ -129,12 +130,14 @@ export class RegisterComponent implements OnInit {
       next: () => {
         this.showModal();
       },
+      error: () => {
+        this.registerLoading = false;
+      },
     });
   }
 
   showModal(): void {
     event?.stopPropagation();
-    this.registerLoading = true;
     this.isModalVisible = true;
     clearInterval(this.otpInterval);
     this.otpTimer = 60;
