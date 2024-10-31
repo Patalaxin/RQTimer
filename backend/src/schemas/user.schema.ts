@@ -70,7 +70,7 @@ export class User {
   isGroupLeader: boolean;
 
   @ApiProperty()
-  @Prop()
+  @Prop({ default: null })
   groupName: string;
 
   constructor(partial: Partial<User>) {
