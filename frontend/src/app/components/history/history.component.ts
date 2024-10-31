@@ -70,6 +70,9 @@ export class HistoryComponent implements OnInit {
         this.historyList = res.data;
         this.historyService.isLoading = false;
       },
+      error: () => {
+        this.historyService.isLoading = false;
+      },
     });
   }
 
