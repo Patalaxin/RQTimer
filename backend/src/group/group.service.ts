@@ -95,6 +95,17 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Invalid or expired invite code');
     }
 
+    // Check if the invite code is expired
+    const currentTime = new Date();
+    const inviteCodeCreationTime = group.inviteCodeCreatedAt;
+    const timeDifferenceInSeconds =
+      (currentTime.getTime() - inviteCodeCreationTime.getTime()) / 1000;
+
+    if (timeDifferenceInSeconds > 3600) {
+      // 3600 seconds = 1 hour
+      throw new NotFoundException('Invite code is expired');
+    }
+
     const user = await this.userModel.findOne({ email });
     if (user.groupName) {
       throw new BadRequestException('User is already in a group');
