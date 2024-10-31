@@ -12,6 +12,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { GroupsService } from 'src/app/services/groups.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -24,10 +25,9 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   styleUrls: ['./timer.component.scss'],
 })
 export class TimerComponent implements OnInit, OnDestroy {
-  private readonly router = inject(Router);
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
-  private readonly authService = inject(AuthService);
+  private readonly groupsService = inject(GroupsService);
   private readonly historyService = inject(HistoryService);
   private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
@@ -64,6 +64,18 @@ export class TimerComponent implements OnInit, OnDestroy {
   isCreateOkDisabled: boolean = true;
 
   createEditItem: any;
+
+  userGroupName: any;
+  groupModalName: string = '';
+  groupModalPlaceholder: string = '';
+  groupOkButton: string = '';
+  groupInputValue: string = '';
+  groupModalMode: 'create' | 'join' = 'create';
+  isGroupModalVisible: boolean = false;
+  isGroupModalLoading: boolean = false;
+  isGroupModalDisabled: boolean = true;
+  isCreateGroupLoading: boolean = false;
+  isJoinGroupLoading: boolean = false;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -716,6 +728,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   getCurrentUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
+        this.userGroupName = res.groupName;
         this.userService.currentUser = res;
         this.userService.currentUser$.subscribe({
           next: (res) => {
@@ -725,5 +738,73 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.getAllBosses();
       },
     });
+  }
+
+  onGroupValueChange(event: any) {
+    this.groupInputValue = event;
+
+    if (!this.groupInputValue) {
+      this.isGroupModalDisabled = true;
+    } else {
+      this.isGroupModalDisabled = false;
+    }
+  }
+
+  showCreateGroupModal() {
+    this.groupInputValue = '';
+    this.isCreateGroupLoading = true;
+    this.isGroupModalVisible = true;
+    this.groupModalName = 'Создать группу';
+    this.groupModalPlaceholder = 'Введите название группы';
+    this.groupOkButton = 'Создать';
+    this.groupModalMode = 'create';
+  }
+
+  showJoinGroupModal() {
+    this.groupInputValue = '';
+    this.isJoinGroupLoading = true;
+    this.isGroupModalVisible = true;
+    this.groupModalName = 'Присоединиться к группе';
+    this.groupModalPlaceholder = 'Введите код приглашение';
+    this.groupOkButton = 'Вступить';
+    this.groupModalMode = 'join';
+  }
+
+  cancelGroupModal() {
+    this.isGroupModalVisible = false;
+    if (this.groupModalMode === 'create') {
+      this.isCreateGroupLoading = false;
+    }
+    if (this.groupModalMode === 'join') {
+      this.isJoinGroupLoading = false;
+    }
+  }
+
+  confirmGroupModal() {
+    this.isGroupModalLoading = true;
+    if (this.groupModalMode === 'create') {
+      this.onCreateGroup(this.groupInputValue);
+    }
+    if (this.groupModalMode === 'join') {
+      this.onJoinGroup(this.groupInputValue);
+    }
+  }
+
+  private onCreateGroup(name: string) {
+    this.groupsService.createGroup(name).subscribe({
+      next: () => {
+        console.log('groupName', name);
+        this.isGroupModalLoading = false;
+        this.isGroupModalVisible = false;
+        this.getCurrentUser();
+      },
+      error: () => {
+        this.isGroupModalLoading = false;
+      },
+    });
+  }
+
+  private onJoinGroup(code: string) {
+    console.log('code', code);
   }
 }

@@ -179,17 +179,26 @@ h6 {
     margin-top: 2em;
 
     .otp-modal-name,
-    .otp-modal-timer {
+    .otp-modal-timer,
+    .group-modal-name {
       display: block;
       color: #ffffff;
     }
 
-    .otp-modal-name {
+    .otp-modal-name,
+    .group-modal-name {
       font-size: 1.5rem;
     }
 
-    .otp-modal-input form {
+    .otp-modal-input form,
+    .group-input {
       margin: 20px 0;
+    }
+
+    .group-input {
+      max-width: 300px;
+      width: 100%;
+      min-width: 250px;
     }
 
     .ngx-otp-input-box {

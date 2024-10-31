@@ -1,5 +1,6 @@
 .timer {
   padding: 10px 0;
+  height: calc(100vh - 54px);
 
   .orange {
     background-color: #fcdc94;
@@ -31,6 +32,24 @@
 
   nz-badge {
     width: 100%;
+  }
+
+  .form-container {
+    padding: 20px 50px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    min-width: 250px;
+
+    h1 {
+      color: #000000;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
   }
 
   .timer-d-flex-space-between {
@@ -124,6 +143,20 @@
     .timer-d-flex-space-between {
       padding: 5px;
       border-radius: 50px;
+    }
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .timer {
+    height: calc(100vh - 44px);
+
+    .form-container {
+      padding: 20px 40px;
+
+      .btn-group {
+        flex-direction: column;
+      }
     }
   }
 }

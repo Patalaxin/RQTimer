@@ -4,7 +4,74 @@
   class="container"
 ></nz-skeleton>
 
-<div class="timer container" *ngIf="!(isLoading | async)">
+<div *ngIf="!userGroupName && !(isLoading | async)">
+  <div class="timer container">
+    <div class="form-container">
+      <h1>Уважаемый(ая), {{ currentUser.nickname }}</h1>
+      <p>
+        В данный момент, Вы не состоите в группе, но Вы можете создать группу
+        или вступить в уже существующую.
+      </p>
+      <div class="btn-group">
+        <button
+          nz-button
+          nzType="primary"
+          nzShape="round"
+          [nzLoading]="isCreateGroupLoading"
+          (click)="showCreateGroupModal()"
+        >
+          Создать группу
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          nzShape="round"
+          [nzLoading]="isJoinGroupLoading"
+          (click)="showJoinGroupModal()"
+        >
+          Присоединиться к группе
+        </button>
+      </div>
+
+      <nz-modal
+        [(nzVisible)]="isGroupModalVisible"
+        [nzFooter]="groupFooter"
+        (nzOnCancel)="cancelGroupModal()"
+        nzCentered
+      >
+        <p *nzModalContent class="modal-center">
+          <span class="group-modal-name">{{ groupModalName }}</span>
+          <nz-input-group nzPrefixIcon="number" class="br-50px group-input">
+            <input
+              nz-input
+              type="text"
+              [(ngModel)]="groupInputValue"
+              (ngModelChange)="onGroupValueChange($event)"
+              [placeholder]="groupModalPlaceholder"
+            />
+          </nz-input-group>
+        </p>
+
+        <ng-template #groupFooter>
+          <button nz-button nzType="default" (click)="cancelGroupModal()">
+            Отмена
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            [disabled]="isGroupModalDisabled"
+            (click)="confirmGroupModal()"
+            [nzLoading]="isGroupModalLoading"
+          >
+            {{ groupOkButton }}
+          </button>
+        </ng-template>
+      </nz-modal>
+    </div>
+  </div>
+</div>
+
+<div class="timer container" *ngIf="userGroupName && !(isLoading | async)">
   <nz-list nzItemLayout="horizontal">
     <nz-badge
       *ngFor="let item of timerList"
@@ -268,7 +335,7 @@
                 nz-tooltip
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.role === 'Admin'"
+                *ngIf="currentUser.isGroupLeader === true"
                 nzShape="circle"
               >
                 <span nz-icon nzType="edit"></span>
@@ -313,7 +380,7 @@
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.role === 'Admin'"
+                *ngIf="currentUser.isGroupLeader === true"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -393,7 +460,7 @@
                 nz-tooltip
                 nzTooltipTitle="Редактировать"
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.role === 'Admin'"
+                *ngIf="currentUser.isGroupLeader === true"
                 nzShape="circle"
               >
                 <span nz-icon nzType="edit"></span>
@@ -406,7 +473,7 @@
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.role === 'Admin'"
+                *ngIf="currentUser.isGroupLeader === true"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -419,7 +486,7 @@
     <nz-list-item
       class="box-shadow timer-d-flex-space-between"
       [ngClass]="'gray'"
-      *ngIf="currentUser.role === 'Admin'"
+      *ngIf="currentUser.isGroupLeader === true"
     >
       <button
         nz-button

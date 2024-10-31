@@ -182,6 +182,9 @@ export class RegisterComponent implements OnInit {
         next: () => {
           this.onRegister();
         },
+        error: () => {
+          this.isModalLoading = false;
+        },
       });
   }
 
