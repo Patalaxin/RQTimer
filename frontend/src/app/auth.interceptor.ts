@@ -15,6 +15,7 @@ import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import * as moment from 'moment';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -100,6 +101,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
 
   private onLogout() {
     console.log('Logging out due to failed token refresh.');
+    console.log('onLogout intercept', moment(Date.now()).format('HH:mm:ss'));
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;

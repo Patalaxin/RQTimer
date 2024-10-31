@@ -70,16 +70,6 @@ export class AdminComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
-  onLogout(): void {
-    this.authService.signOut().subscribe({
-      next: () => {
-        this.timerService.headerVisibility = false;
-        this.storageService.clean();
-        this.router.navigate(['/login']);
-      },
-    });
-  }
-
   getUserColor(role: string): any {
     return role == 'Admin' ? 'red' : 'green';
   }

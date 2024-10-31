@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
-import { catchError, of, Subject, switchMap, throwError } from 'rxjs';
+import { catchError, of, Subject, switchMap, throwError, take } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
@@ -28,11 +28,16 @@ export class TokenService {
         this.storageService.setLocalStorage(key, res.accessToken);
         this.refreshingToken = false;
         this.refreshTokenSubject.next(res.accessToken);
+        console.log('token service', res.accessToken);
+        this.refreshTokenSubject.complete();
+        this.refreshTokenSubject = new Subject<any>();
         return of(res.accessToken);
       }),
       catchError((err) => {
         this.refreshingToken = false;
         this.refreshTokenSubject.error(err);
+        this.refreshTokenSubject = new Subject<any>();
+        console.log('token err', err);
         return throwError(() => err);
       }),
     );

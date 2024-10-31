@@ -301,6 +301,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
+    console.log('onLogout header', moment(Date.now()).format('HH:mm:ss'));
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;
