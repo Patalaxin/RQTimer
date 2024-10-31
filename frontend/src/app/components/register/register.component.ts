@@ -38,6 +38,7 @@ export class RegisterComponent implements OnInit {
   elitesCheckboxList: any;
 
   otpOptions: NgxOtpInputComponentOptions = {
+    otpLength: 5,
     autoFocus: true,
     showBlinkingCursor: false,
   };
@@ -157,7 +158,7 @@ export class RegisterComponent implements OnInit {
         otpCount++;
       }
     });
-    if (otpCount === 6) {
+    if (otpCount === 5) {
       this.isVerifyDisabled = false;
     } else {
       this.isVerifyDisabled = true;
