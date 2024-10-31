@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-} from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -270,6 +266,7 @@ export class UsersService implements IUser {
   async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     try {
       await this.userModel.deleteMany();
+      await this.tokenModel.deleteMany();
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }

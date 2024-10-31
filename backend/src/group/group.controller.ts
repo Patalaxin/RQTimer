@@ -8,13 +8,12 @@ import {
   UseGuards,
   Delete,
   Inject,
+  Param,
 } from '@nestjs/common';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
-import { Roles } from '../decorators/roles.decorator';
-import { RolesTypes } from '../schemas/user.schema';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokensGuard } from '../guards/tokens.guard';
 import { Group } from '../schemas/group.shema';
@@ -81,11 +80,16 @@ export class GroupController {
       groupName,
     );
   }
-
-  @Roles(RolesTypes.User)
   @ApiOperation({ summary: 'Leave Group' })
   @Post('leave')
   async leaveGroup(@GetEmailFromToken() email: string): Promise<void> {
+    return this.groupInterface.leaveGroup(email);
+  }
+
+  @IsGroupLeader()
+  @ApiOperation({ summary: 'Remove User From Group' })
+  @Delete('/:email')
+  async removeUserFromGroup(@Param('email') email: string): Promise<void> {
     return this.groupInterface.leaveGroup(email);
   }
 
