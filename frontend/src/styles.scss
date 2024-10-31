@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
 
 // * {
 //   outline: 1px solid red;
@@ -63,6 +64,15 @@ h6 {
 
 .ant-page-header-heading-left svg {
   fill: #ffffff;
+}
+
+.header {
+  .green,
+  .red {
+    svg {
+      fill: #000000 !important;
+    }
+  }
 }
 
 .ant-modal-body {
@@ -300,8 +310,8 @@ nz-progress {
 }
 
 .ant-statistic-content-value {
-  // font-family: "Manrope", sans-serif;
-  font-weight: 600;
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
 }
 
 @media only screen and (max-width: 450px) {

@@ -63,16 +63,6 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  onLogout(): void {
-    this.authService.signOut().subscribe({
-      next: () => {
-        this.timerService.headerVisibility = false;
-        this.storageService.clean();
-        this.router.navigate(['/login']);
-      },
-    });
-  }
-
   getHistory(server: string): void {
     this.historyService.getHistory(server).subscribe({
       next: (res: any) => {

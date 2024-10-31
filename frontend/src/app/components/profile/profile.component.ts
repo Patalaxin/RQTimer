@@ -51,16 +51,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  onLogout(): void {
-    this.authService.signOut().subscribe({
-      next: () => {
-        this.timerService.headerVisibility = false;
-        this.storageService.clean();
-        this.router.navigate(['/login']);
-      },
-    });
-  }
-
   onTimer(): void {
     this.timerService.isLoading = true;
     this.router.navigate(['/timer']);
