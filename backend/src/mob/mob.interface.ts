@@ -44,6 +44,8 @@ export interface IMob {
     getMobsDto: GetMobsDtoRequest,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
+  findAllAvailableMobs(): Promise<GetMobDtoResponse[]>;
+
   updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,

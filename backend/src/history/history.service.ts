@@ -9,12 +9,11 @@ import {
   HeliosHistory,
   HeliosHistoryDocument,
 } from '../schemas/heliosHistory.schema';
-
-import { History } from './history.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
+import { History } from './history-types.interface';
 
 @Injectable()
 export class HistoryService implements IHistory {

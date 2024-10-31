@@ -24,7 +24,6 @@ import {
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
 import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { History, HistoryTypes } from '../history/history.interface';
 import { HistoryService } from '../history/history.service';
 import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
@@ -43,6 +42,7 @@ import { GroupService } from '../group/group.service';
 import { Group } from '../schemas/group.shema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { plainToInstance } from 'class-transformer';
+import { History, HistoryTypes } from '../history/history-types.interface';
 
 export class MobService implements IMob {
   constructor(
@@ -217,6 +217,10 @@ export class MobService implements IMob {
         unixtime: unixtimeResponse.unixtime,
       };
     });
+  }
+
+  async findAllAvailableMobs(): Promise<GetMobDtoResponse[]> {
+    return this.mobModel.find().select('-__v').lean();
   }
 
   async updateMob(

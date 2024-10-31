@@ -23,7 +23,6 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDataDtoResponse,
   GetMobDtoRequest,
   GetMobDtoResponse,
 } from './dto/get-mob.dto';
@@ -103,6 +102,13 @@ export class MobController {
     return this.mobInterface.findAllMobsByUser(email, getMobsDto);
   }
 
+  @Roles()
+  @ApiOperation({ summary: 'Find All Available Mobs' })
+  @Get()
+  findAllAvailableMobs(): Promise<GetMobDtoResponse[]> {
+    return this.mobInterface.findAllAvailableMobs();
+  }
+
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Update Mob' })
   @Put('/:server/:location/:mobName/')
@@ -125,7 +131,7 @@ export class MobController {
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobByCooldown(
         parsedToken.nickname,
         parsedToken.role,
@@ -152,7 +158,7 @@ export class MobController {
       request,
       this.jwtService,
     );
-    const mob: GetMobDataDtoResponse =
+    const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobDateOfDeath(
         parsedToken.nickname,
         parsedToken.role,

@@ -151,10 +151,17 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Group not found');
     }
 
+    if (user.isGroupLeader) {
+      throw new BadRequestException(
+        'You are the group leader. Transfer leadership or delete the group before leaving.',
+      );
+    }
+
     group.members = group.members.filter((member) => member !== email);
     await group.save();
 
     user.groupName = null;
+    user.isGroupLeader = false;
     await user.save();
   }
 
@@ -167,7 +174,7 @@ export class GroupService implements IGroup {
 
     await this.userModel.updateMany(
       { groupName: groupName },
-      { $set: { group: null, isGroupLeader: false } },
+      { $set: { groupName: null, isGroupLeader: false } },
     );
 
     await this.groupModel.deleteOne({ name: groupName });
