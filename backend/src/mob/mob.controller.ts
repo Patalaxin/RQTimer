@@ -37,8 +37,8 @@ import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respa
 import {
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
-  DeleteMobFromGroupDtoParamsRequest,
-  DeleteMobFromGroupDtoResponse,
+  RemoveMobFromGroupDtoParamsRequest,
+  RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { HelperClass } from '../helper-class';
 import { JwtService } from '@nestjs/jwt';
@@ -75,7 +75,7 @@ export class MobController {
 
   @IsGroupLeader()
   @ApiOperation({ summary: 'Add Mob In Group' })
-  @Post('/add-mob-in-group/:server')
+  @Post('/add-in-group/:server')
   addMobInGroup(
     @Param('server') server: Servers,
     @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
@@ -217,13 +217,13 @@ export class MobController {
   }
 
   @IsGroupLeader()
-  @ApiOperation({ summary: 'Delete Mob From Group' })
-  @Delete(':server/:location/:mobName/')
-  deleteOneFromGroup(
+  @ApiOperation({ summary: 'Remove Mob From Group' })
+  @Delete('/remove-from-group/:server/:location/:mobName/')
+  removeOneFromGroup(
     @GetGroupNameFromToken() groupName: string,
-    @Param() deleteMobDtoParams: DeleteMobFromGroupDtoParamsRequest,
-  ): Promise<DeleteMobFromGroupDtoResponse> {
-    return this.mobInterface.deleteMobFromGroup(deleteMobDtoParams, groupName);
+    @Param() removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
+  ): Promise<RemoveMobFromGroupDtoResponse> {
+    return this.mobInterface.removeMobFromGroup(removeMobDtoParams, groupName);
   }
 
   @Roles()

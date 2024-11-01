@@ -32,8 +32,8 @@ import {
   DeleteAllMobsDataDtoResponse,
   DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
-  DeleteMobFromGroupDtoParamsRequest,
-  DeleteMobFromGroupDtoResponse,
+  RemoveMobFromGroupDtoParamsRequest,
+  RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
@@ -435,11 +435,11 @@ export class MobService implements IMob {
     return { message: 'Mob deleted' };
   }
 
-  async deleteMobFromGroup(
-    deleteMobDtoParams: DeleteMobFromGroupDtoParamsRequest,
+  async removeMobFromGroup(
+    removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
     groupName: string,
-  ): Promise<DeleteMobFromGroupDtoResponse> {
-    const { mobName, server, location } = deleteMobDtoParams;
+  ): Promise<RemoveMobFromGroupDtoResponse> {
+    const { mobName, server, location } = removeMobDtoParams;
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
