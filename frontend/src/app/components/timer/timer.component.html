@@ -86,7 +86,11 @@
               ? 'orange'
               : this.currentProgressTime > item.mobData.respawnTime
                 ? 'red'
-                : 'green'
+                : item.mob.mobName === 'Эдвард' ||
+                    item.mob.mobName === 'Воко' ||
+                    item.mob.mobName === 'Денгур Кровавый топор'
+                  ? 'blue'
+                  : 'green'
             : 'white'
         "
         (click)="onClickTimerItem(item)"
@@ -485,7 +489,7 @@
     </nz-badge>
     <nz-list-item
       class="box-shadow timer-d-flex-space-between"
-      [ngClass]="'gray'"
+      [ngClass]="'white'"
       *ngIf="currentUser.isGroupLeader === true"
     >
       <button
