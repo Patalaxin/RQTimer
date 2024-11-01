@@ -25,14 +25,16 @@ import { RolesTypes } from '../schemas/user.schema';
 import { Mob } from '../schemas/mob.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { MobsData } from '../schemas/mobsData.schema';
+import { Servers } from '../schemas/mobs.enum';
 
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
 
   addMobInGroup(
+    server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
-  ): Promise<MobsData>;
+  ): Promise<MobsData[]>;
 
   findMob(
     getMobDto: GetMobDtoRequest,

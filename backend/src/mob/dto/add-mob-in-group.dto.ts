@@ -1,16 +1,9 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
-import { Locations, Servers, MobName } from '../../schemas/mobs.enum';
+import { IsArray, IsNotEmpty } from 'class-validator';
+import { IsMobLocationFormat } from '../../decorators/IsMobLocationFormat.decorator';
 
 export class AddMobInGroupDtoRequest {
-  @IsEnum(Servers)
+  @IsArray()
   @IsNotEmpty()
-  server: Servers;
-
-  @IsEnum(Locations)
-  @IsNotEmpty()
-  location: Locations;
-
-  @IsEnum(MobName)
-  @IsNotEmpty()
-  mobName: MobName;
+  @IsMobLocationFormat({ each: true })
+  mobs: string[];
 }

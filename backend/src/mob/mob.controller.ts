@@ -52,6 +52,7 @@ import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
+import { Servers } from '../schemas/mobs.enum';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -74,12 +75,13 @@ export class MobController {
 
   @IsGroupLeader()
   @ApiOperation({ summary: 'Add Mob In Group' })
-  @Post('/add-mob-in-group/:server/:location/:mobName/')
+  @Post('/add-mob-in-group/:server')
   addMobInGroup(
-    @Param() addMobInGroupDto: AddMobInGroupDtoRequest,
+    @Param('server') server: Servers,
+    @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
     @GetGroupNameFromToken() groupName: string,
-  ): Promise<MobsData> {
-    return this.mobInterface.addMobInGroup(addMobInGroupDto, groupName);
+  ): Promise<MobsData[]> {
+    return this.mobInterface.addMobInGroup(server, addMobInGroupDto, groupName);
   }
 
   @Roles()

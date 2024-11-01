@@ -72,44 +72,50 @@ export class MobService implements IMob {
   }
 
   async addMobInGroup(
+    server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
-  ): Promise<MobsData> {
+  ): Promise<MobsData[]> {
     const group: Group = await this.groupService.getGroupByName(groupName);
     if (!group) {
       throw new NotFoundException('Group not found');
     }
 
-    const mob = await this.mobModel
-      .findOne(
-        {
-          location: addMobInGroupDto.location,
-          mobName: addMobInGroupDto.mobName,
-        },
-        { __v: 0 },
-      )
-      .exec();
+    const mobDataList: MobsData[] = [];
 
-    if (!mob) {
-      throw new BadRequestException('Mob not found');
-    }
+    for (const mobString of addMobInGroupDto.mobs) {
+      // Разбиваем строку на имя моба и локацию
+      const [mobName, location] = mobString.split(':').map((str) => str.trim());
 
-    const mobData = new this.mobsDataModel({
-      mobId: mob._id,
-      server: addMobInGroupDto.server,
-      groupName: groupName,
-      mobTypeAdditionalTime: mob.mobType,
-    });
+      const mob = await this.mobModel
+        .findOne({ location, mobName }, { __v: 0 })
+        .exec();
 
-    try {
-      await mobData.save();
-      return plainToInstance(MobsData, mobData.toObject());
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException('Mob data already exists');
+      if (!mob) {
+        throw new BadRequestException(
+          `Mob ${mobName} at ${location} not found`,
+        );
       }
-      throw error;
+
+      const mobData = new this.mobsDataModel({
+        mobId: mob._id,
+        server: server,
+        groupName: groupName,
+        mobTypeAdditionalTime: mob.mobType,
+      });
+
+      try {
+        await mobData.save();
+        mobDataList.push(plainToInstance(MobsData, mobData.toObject()));
+      } catch (error) {
+        if (error.code === 11000) {
+          throw new ConflictException(`Mob data for ${mobName} already exists`);
+        }
+        throw error;
+      }
     }
+
+    return mobDataList;
   }
 
   async findMob(
