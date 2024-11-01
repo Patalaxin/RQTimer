@@ -15,8 +15,8 @@ export interface TimerItem {
     isOnDieNow: boolean;
     isHistoryModalVisible: boolean;
     isHistoryOkLoading: boolean;
-    isEditModalVisible: boolean;
-    isEditOkLoading: boolean;
+    isInfoModalVisible: boolean;
+    isInfoOkLoading: boolean;
   };
   mobData: {
     mobId?: {};
