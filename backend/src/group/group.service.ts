@@ -170,7 +170,12 @@ export class GroupService implements IGroup {
       );
     }
 
-    group.members = group.members.filter((member) => member !== email);
+    group.members = group.members.filter((member) => {
+      const [memberNickname] = member.split(':').map((part) => part.trim());
+
+      return memberNickname !== user.nickname;
+    });
+
     await group.save();
 
     user.groupName = null;
