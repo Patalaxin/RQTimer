@@ -90,6 +90,7 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   getGroupUsers(email?: any, mode?: 'transfer' | 'delete'): void {
+    this.userGroupList = [];
     this.groupsService.getGroup().subscribe({
       next: (res) => {
         console.log('getGroupUsers', res);
@@ -107,6 +108,8 @@ export class TimerSettingsComponent implements OnInit {
 
         if (mode === 'delete') {
           this.messageService.create('success', `Пользователь ${email} удалён`);
+
+          this.exchangeRefresh.emit();
         }
 
         if (mode === 'transfer') {
@@ -141,6 +144,9 @@ export class TimerSettingsComponent implements OnInit {
       next: () => {
         this.getGroupUsers(email, 'transfer');
       },
+      error: () => {
+        this.isTableLoading = false;
+      },
     });
   }
 
@@ -163,6 +169,9 @@ export class TimerSettingsComponent implements OnInit {
     this.groupsService.deleteUser(email).subscribe({
       next: () => {
         this.getGroupUsers(email, 'delete');
+      },
+      error: () => {
+        this.isTableLoading = false;
       },
     });
   }
