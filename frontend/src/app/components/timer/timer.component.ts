@@ -42,6 +42,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   permission: string = '';
 
   timerList: TimerItem[] = [];
+  availableMobList: any = [];
+  addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
   isLoading = this.timerService.isLoading$;
@@ -60,12 +62,13 @@ export class TimerComponent implements OnInit, OnDestroy {
   isScreenWidth1000: boolean = false;
   isScreenWidth800: boolean = false;
   isScreenWidth750: boolean = false;
+  isScreenWidth550: boolean = false;
   isScreenWidth372: boolean = false;
   isScreenWidthInZone: boolean = false;
 
   isAddModalVisible: boolean = false;
   isAddOkLoading: boolean = false;
-  isAddOkDisabled: boolean = true;
+  isAddModalLoading: boolean = true;
 
   userGroupName: any;
   groupModalName: string = '';
@@ -78,6 +81,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   isGroupModalDisabled: boolean = true;
   isCreateGroupLoading: boolean = false;
   isJoinGroupLoading: boolean = false;
+
+  timerOptions: any[] = [
+    { label: 'Таймер', value: 'Timer', icon: 'history' },
+    { label: 'Настройки', value: 'Settings', icon: 'setting' },
+  ];
+  selectedSegments: number = 0;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -173,6 +182,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isScreenWidth750 = window.innerWidth <= 750;
     this.isScreenWidthInZone =
       window.innerWidth <= 800 && window.innerWidth > 372;
+    this.isScreenWidth550 = window.innerWidth <= 550;
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
@@ -277,12 +287,56 @@ export class TimerComponent implements OnInit, OnDestroy {
       });
   }
 
+  // onChangeSegments(index: number): void {
+  //   console.log(index);
+  // }
+
   showAddModal(): void {
+    this.isAddModalLoading = true;
     this.isAddModalVisible = true;
+    this.timerService.getAvailableBosses().subscribe({
+      next: (res) => {
+        this.availableMobList = res.filter(
+          (availableItem: any) =>
+            !this.timerList.some(
+              (timerItem) =>
+                timerItem.mob.mobName === availableItem.mobName &&
+                timerItem.mob.location === availableItem.location,
+            ),
+        );
+        this.isAddModalLoading = false;
+      },
+    });
   }
 
   cancelAddModal(): void {
     this.isAddModalVisible = false;
+  }
+
+  onAddMobs(): void {
+    this.isAddOkLoading = true;
+    this.timerService.isLoading = true;
+    this.timerService
+      .addMobGroup(this.currentServer, this.addMobList)
+      .subscribe({
+        next: () => {
+          this.getAllBosses();
+          this.isAddOkLoading = false;
+          this.isAddModalVisible = false;
+          this.messageService.create(
+            'success',
+            'Боссы/элитки были успешно добавлены.',
+          );
+        },
+        error: () => {
+          this.isAddOkLoading = false;
+          this.timerService.isLoading = false;
+        },
+      });
+  }
+
+  onChangeCheckbox(event: any): void {
+    this.addMobList = event;
   }
 
   showInfoModal(item: TimerItem): void {
@@ -732,11 +786,19 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  onExchangeRefresh(event: any): void {
+    console.log('group event', event);
+    this.exchangeRefresh(() => {
+      this.getCurrentUser();
+    });
+  }
+
   private onCreateGroup(name: string) {
     this.groupsService.createGroup(name).subscribe({
       next: () => {
         console.log('groupName', name);
         this.exchangeRefresh(() => {
+          this.isCreateGroupLoading = false;
           this.getCurrentUser();
         });
       },
@@ -747,7 +809,18 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onJoinGroup(code: string) {
-    console.log('code', code);
+    this.groupsService.joinGroup(code).subscribe({
+      next: () => {
+        console.log('inviteCode', code);
+        this.exchangeRefresh(() => {
+          this.isJoinGroupLoading = false;
+          this.getCurrentUser();
+        });
+      },
+      error: () => {
+        this.isGroupModalLoading = false;
+      },
+    });
   }
 
   private exchangeRefresh(callback: Function) {

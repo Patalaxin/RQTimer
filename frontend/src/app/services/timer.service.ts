@@ -71,6 +71,10 @@ export class TimerService {
     return this.http.get(`${this.MOB_URL}/${server}`);
   }
 
+  getAvailableBosses(): Observable<any> {
+    return this.http.get(`${this.MOB_URL}`);
+  }
+
   crashServerBosses(server: string): Observable<any> {
     const payload = {};
     return this.http.post(`${this.MOB_URL}/crash-server/${server}`, payload);

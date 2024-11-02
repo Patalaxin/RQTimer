@@ -43,4 +43,8 @@ export class GroupsService {
     const payload = {};
     return this.http.post(`${this.GROUPS_API}/leave`, payload);
   }
+
+  deleteUser(email: string): Observable<any> {
+    return this.http.delete(`${this.GROUPS_API}/${email}`);
+  }
 }

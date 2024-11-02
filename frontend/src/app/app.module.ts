@@ -25,6 +25,7 @@ import { NZ_I18N, ru_RU } from 'ng-zorro-antd/i18n';
 
 import { TUI_SANITIZER } from '@taiga-ui/core';
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
+import { TimerSettingsComponent } from './components/timer/timer-settings/timer-settings.component';
 
 registerLocaleData(ru);
 
@@ -44,6 +45,7 @@ registerLocaleData(ru);
     AdminComponent,
     MobModalComponent,
     NotFoundComponent,
+    TimerSettingsComponent,
   ],
   imports: [
     BrowserModule,

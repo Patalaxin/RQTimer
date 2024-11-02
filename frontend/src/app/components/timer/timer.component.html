@@ -72,7 +72,21 @@
 </div>
 
 <div class="timer container" *ngIf="userGroupName && !(isLoading | async)">
-  <nz-list nzItemLayout="horizontal">
+  <div class="timer-segments">
+    <nz-segmented
+      [nzOptions]="timerOptions"
+      [(ngModel)]="selectedSegments"
+      [nzSize]="isScreenWidth550 ? 'small' : 'default'"
+    ></nz-segmented>
+  </div>
+  <div *ngIf="selectedSegments === 1">
+    <app-timer-settings
+      [isGroupLeader]="currentUser.isGroupLeader"
+      [currentUser]="currentUser"
+      (exchangeRefresh)="onExchangeRefresh($event)"
+    ></app-timer-settings>
+  </div>
+  <nz-list nzItemLayout="horizontal" *ngIf="selectedSegments === 0">
     <nz-badge
       *ngFor="let item of timerList"
       [nzCount]="item.mobData.cooldown"
@@ -362,7 +376,7 @@
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
+                *ngIf="currentUser.isGroupLeader"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -443,7 +457,7 @@
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
+                *ngIf="currentUser.isGroupLeader"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -456,13 +470,13 @@
     <nz-list-item
       class="box-shadow timer-d-flex-space-between"
       [ngClass]="'white'"
-      *ngIf="currentUser.isGroupLeader === true"
+      *ngIf="currentUser.isGroupLeader"
     >
       <button
         nz-button
         nzType="default"
         nz-tooltip
-        nzTooltipTitle="Создание босса/элитки"
+        nzTooltipTitle="Добавление боссов/элиток"
         [nzTooltipMouseEnterDelay]="1"
         nzShape="circle"
         class="timer-create-mobs-button"
@@ -475,7 +489,41 @@
         [nzFooter]="addFooter"
         (nzOnCancel)="cancelAddModal()"
       >
-        <p *nzModalContent></p>
+        <p *nzModalContent>
+          <span
+            class="timer-add"
+            style="text-align: center; margin-bottom: 20px"
+            >Добавить в групповой таймер</span
+          >
+          <nz-skeleton
+            [nzActive]="true"
+            *ngIf="isAddModalLoading"
+          ></nz-skeleton>
+          <nz-checkbox-wrapper
+            *ngIf="!isAddModalLoading"
+            style="width: 100%"
+            (nzOnChange)="onChangeCheckbox($event)"
+          >
+            <div>
+              <div *ngFor="let mob of availableMobList; let i = index">
+                <label
+                  nz-checkbox
+                  nzValue="{{ mob.mobName }}: {{ mob.location }}"
+                >
+                  <nz-avatar
+                    [nzSize]="32"
+                    [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
+                    style="margin: 5px 10px"
+                  ></nz-avatar>
+                  <span class="mob-name"
+                    ><b>{{ mob.mobName }}</b
+                    >: {{ mob.location }}</span
+                  >
+                </label>
+              </div>
+            </div>
+          </nz-checkbox-wrapper>
+        </p>
 
         <ng-template #addFooter>
           <button nz-button nzType="default" (click)="cancelAddModal()">
@@ -484,11 +532,11 @@
           <button
             nz-button
             nzType="primary"
-            [disabled]="isAddOkDisabled"
-            (click)="showAddModal()"
+            [disabled]="!addMobList.length"
+            (click)="onAddMobs()"
             [nzLoading]="isAddOkLoading"
           >
-            Создать
+            Добавить
           </button>
         </ng-template>
       </nz-modal>

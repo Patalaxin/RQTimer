@@ -34,6 +34,11 @@
     width: 100%;
   }
 
+  .timer-segments {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
   .form-container {
     padding: 20px 50px;
     text-align: center;
@@ -143,6 +148,11 @@
   .timer {
     nz-list-item {
       margin-bottom: 5px;
+    }
+
+    .timer-segments {
+      margin-bottom: 10px;
+      text-align: center;
     }
 
     .timer-d-flex-space-between {
