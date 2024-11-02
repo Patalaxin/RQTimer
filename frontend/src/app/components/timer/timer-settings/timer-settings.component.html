@@ -70,6 +70,11 @@
             </td>
             <td>{{ user.split(": ")[1] }}</td>
             <td class="admin-buttons" *ngIf="isGroupLeader">
+              <nz-tag
+                nzColor="gold"
+                *ngIf="currentUser.nickname === user.nickname"
+                >Leader
+              </nz-tag>
               <button
                 nz-button
                 nzType="primary"
@@ -78,6 +83,7 @@
                 [nzTooltipMouseEnterDelay]="1"
                 nzShape="circle"
                 (click)="onShowTransferModal(user.nickname, user.email)"
+                *ngIf="currentUser.nickname !== user.nickname"
               >
                 <span nz-icon nzType="crown"></span>
               </button>
