@@ -137,13 +137,21 @@ export class GroupService implements IGroup {
     const user = await this.userModel.findOne({ email });
 
     const newLeader = await this.userModel.findOne({ email: newLeaderEmail });
-    if (!newLeader || !group.members.includes(newLeader.email)) {
+    if (!newLeader) {
+      throw new NotFoundException('New leader not found');
+    }
+
+    const isNewLeaderInGroup = group.members.some((member) => {
+      const [, memberEmail] = member.split(':').map((part) => part.trim());
+      return memberEmail === newLeaderEmail;
+    });
+
+    if (!isNewLeaderInGroup) {
       throw new NotFoundException('New leader not found in group');
     }
 
-    group.groupLeader = newLeader.email;
+    group.groupLeader = newLeaderEmail;
     newLeader.isGroupLeader = true;
-
     user.isGroupLeader = false;
 
     await user.save();
