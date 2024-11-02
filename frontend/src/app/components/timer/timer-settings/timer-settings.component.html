@@ -1,0 +1,166 @@
+<div class="timer-settings container">
+  <div class="form-container">
+    <div *ngIf="isGroupLeader">
+      <h2>Инвайт</h2>
+      <div class="generate-form">
+        <nz-input-group nzPrefixIcon="number" class="br-50px">
+          <input
+            class="generate-form-input"
+            nz-input
+            type="text"
+            [(ngModel)]="inviteCode"
+            (click)="onInviteCodeClick(inviteCode)"
+            readonly
+          />
+        </nz-input-group>
+        <button
+          nz-button
+          class="generate-form-button"
+          [nzType]="'primary'"
+          type="submit"
+          (click)="onGenerateInviteCode()"
+          [nzLoading]="isGenerateLoading"
+        >
+          Сгенерировать
+        </button>
+      </div>
+    </div>
+
+    <h2>{{ isGroupLeader ? "Управление группой" : "Список участников" }}</h2>
+    <div class="group-table">
+      <nz-table
+        #rowSelectionTable
+        [nzScroll]="{ x: '787px', y: '350px' }"
+        [nzData]="userList"
+        nzShowPagination
+        (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+        [nzLoading]="isTableLoading"
+        [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
+      >
+        <thead>
+          <tr>
+            <th nzCustomFilter>
+              Никнейм
+              <nz-filter-trigger
+                [(nzVisible)]="isSearchVisible"
+                [nzActive]="searchValue.length > 0"
+                [nzDropdownMenu]="menu"
+              >
+                <button
+                  nz-button
+                  nzType="primary"
+                  nzShape="circle"
+                  nzSize="small"
+                  nz-tooltip
+                  nzTooltipTitle="Поиск"
+                  [nzTooltipMouseEnterDelay]="1"
+                >
+                  <span nz-icon nzType="search"></span>
+                </button>
+              </nz-filter-trigger>
+            </th>
+            <th>Email</th>
+            <th class="admin-buttons" *ngIf="isGroupLeader">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of userList">
+            <td nzCustomFilter>
+              {{ user.split(": ")[0] }}
+            </td>
+            <td>{{ user.split(": ")[1] }}</td>
+            <td class="admin-buttons" *ngIf="isGroupLeader">
+              <nz-tag
+                nzColor="gold"
+                *ngIf="currentUser.nickname === user.nickname"
+                >Leader
+              </nz-tag>
+              <button
+                nz-button
+                nzType="primary"
+                nz-tooltip
+                nzTooltipTitle="Назначить лидером"
+                [nzTooltipMouseEnterDelay]="1"
+                nzShape="circle"
+                (click)="onShowTransferModal(user.nickname, user.email)"
+                *ngIf="currentUser.nickname !== user.nickname"
+              >
+                <span nz-icon nzType="crown"></span>
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                nzDanger
+                nz-tooltip
+                nzTooltipTitle="Удалить"
+                [nzTooltipMouseEnterDelay]="1"
+                (click)="onShowDeleteModal(user.nickname, user.email)"
+                nzShape="circle"
+                *ngIf="currentUser.nickname !== user.nickname"
+              >
+                <span nz-icon nzType="delete"></span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <div class="ant-table-filter-dropdown">
+          <div class="admin-search-nickname">
+            <div class="admin-search-input">
+              <nz-input-group nzPrefixIcon="user" class="br-50px">
+                <input
+                  type="text"
+                  nz-input
+                  placeholder="Поиск юзера..."
+                  [(ngModel)]="searchValue"
+                />
+              </nz-input-group>
+            </div>
+            <button
+              nz-button
+              nzType="primary"
+              (click)="onSearch()"
+              class="admin-search-button"
+            >
+              Поиск
+            </button>
+            <button nz-button (click)="onReset()">Сброс</button>
+          </div>
+        </div>
+      </nz-dropdown-menu>
+    </div>
+
+    <div *ngIf="!isGroupLeader">
+      <h2>Выйти из группы</h2>
+      <div class="group-leave">
+        <button
+          nz-button
+          nzType="primary"
+          nzDanger
+          type="submit"
+          (click)="onShowLeaveGroupModal()"
+          [nzLoading]="isLeaveGroupLoading"
+        >
+          Выйти
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="isGroupLeader">
+      <h2>Удалить группу</h2>
+      <div class="group-delete">
+        <button
+          nz-button
+          nzType="primary"
+          nzDanger
+          type="submit"
+          (click)="onShowDeleteGroupModal()"
+          [nzLoading]="isDeleteGroupLoading"
+        >
+          Удалить
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

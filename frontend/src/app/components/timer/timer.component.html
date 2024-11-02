@@ -72,7 +72,21 @@
 </div>
 
 <div class="timer container" *ngIf="userGroupName && !(isLoading | async)">
-  <nz-list nzItemLayout="horizontal">
+  <div class="timer-segments">
+    <nz-segmented
+      [nzOptions]="timerOptions"
+      [(ngModel)]="selectedSegments"
+      [nzSize]="isScreenWidth550 ? 'small' : 'default'"
+    ></nz-segmented>
+  </div>
+  <div *ngIf="selectedSegments === 1">
+    <app-timer-settings
+      [isGroupLeader]="currentUser.isGroupLeader"
+      [currentUser]="currentUser"
+      (exchangeRefresh)="onExchangeRefresh($event)"
+    ></app-timer-settings>
+  </div>
+  <nz-list nzItemLayout="horizontal" *ngIf="selectedSegments === 0">
     <nz-badge
       *ngFor="let item of timerList"
       [nzCount]="item.mobData.cooldown"
@@ -97,6 +111,7 @@
       >
         <div class="timer-left">
           <nz-list-item-meta
+            class="timer-avatar"
             [nzAvatar]="
               item.mob.image
                 ? 'https://www.rqtimer.ru/static/' + item.mob.image
@@ -105,6 +120,7 @@
             nz-tooltip
             [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
             [nzTooltipMouseEnterDelay]="1"
+            (click)="showInfoModal(item)"
           >
           </nz-list-item-meta>
           <nz-list-item-meta-title>
@@ -332,46 +348,22 @@
               >
                 <span nz-icon nzType="fall"></span>
               </button>
-              <button
-                nz-button
-                nzType="default"
-                (click)="showCreateEditModal(item)"
-                nz-tooltip
-                nzTooltipTitle="Редактировать"
-                [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
-                nzShape="circle"
-              >
-                <span nz-icon nzType="edit"></span>
-              </button>
               <nz-modal
-                [(nzVisible)]="item.mob.isEditModalVisible"
-                [nzFooter]="editFooter"
-                (nzOnCancel)="cancelCreateEditModal(item)"
+                [(nzVisible)]="item.mob.isInfoModalVisible"
+                [nzFooter]="infoFooter"
+                (nzOnCancel)="cancelInfoModal(item)"
               >
                 <p *nzModalContent>
-                  <app-mob-modal
-                    [item]="item"
-                    (onCreateEdit)="onCreateEdit($event)"
-                  ></app-mob-modal>
+                  <app-mob-modal [item]="item"></app-mob-modal>
                 </p>
 
-                <ng-template #editFooter>
+                <ng-template #infoFooter>
                   <button
                     nz-button
                     nzType="default"
-                    (click)="cancelCreateEditModal(item)"
+                    (click)="cancelInfoModal(item)"
                   >
                     Отмена
-                  </button>
-                  <button
-                    nz-button
-                    nzType="primary"
-                    [disabled]="isCreateOkDisabled"
-                    (click)="confirmCreateEditModal(item)"
-                    [nzLoading]="item.mob.isEditOkLoading"
-                  >
-                    Редактировать
                   </button>
                 </ng-template>
               </nz-modal>
@@ -384,7 +376,7 @@
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
+                *ngIf="currentUser.isGroupLeader"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -459,25 +451,13 @@
               </button>
               <button
                 nz-button
-                nzType="default"
-                (click)="showCreateEditModal(item)"
-                nz-tooltip
-                nzTooltipTitle="Редактировать"
-                [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
-                nzShape="circle"
-              >
-                <span nz-icon nzType="edit"></span>
-              </button>
-              <button
-                nz-button
                 nzType="primary"
                 (click)="showDeleteModal(item)"
                 nz-tooltip
                 nzTooltipTitle="Удалить"
                 nzDanger
                 [nzTooltipMouseEnterDelay]="1"
-                *ngIf="currentUser.isGroupLeader === true"
+                *ngIf="currentUser.isGroupLeader"
                 nzShape="circle"
               >
                 <span nz-icon nzType="delete"></span>
@@ -490,41 +470,73 @@
     <nz-list-item
       class="box-shadow timer-d-flex-space-between"
       [ngClass]="'white'"
-      *ngIf="currentUser.isGroupLeader === true"
+      *ngIf="currentUser.isGroupLeader"
     >
       <button
         nz-button
         nzType="default"
         nz-tooltip
-        nzTooltipTitle="Создание босса/элитки"
+        nzTooltipTitle="Добавление боссов/элиток"
         [nzTooltipMouseEnterDelay]="1"
         nzShape="circle"
         class="timer-create-mobs-button"
-        (click)="showCreateEditModal()"
+        (click)="showAddModal()"
       >
         <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
       </button>
       <nz-modal
-        [(nzVisible)]="isCreateModalVisible"
-        [nzFooter]="createFooter"
-        (nzOnCancel)="cancelCreateEditModal()"
+        [(nzVisible)]="isAddModalVisible"
+        [nzFooter]="addFooter"
+        (nzOnCancel)="cancelAddModal()"
       >
         <p *nzModalContent>
-          <app-mob-modal (onCreateEdit)="onCreateEdit($event)"></app-mob-modal>
+          <span
+            class="timer-add"
+            style="text-align: center; margin-bottom: 20px"
+            >Добавить в групповой таймер</span
+          >
+          <nz-skeleton
+            [nzActive]="true"
+            *ngIf="isAddModalLoading"
+          ></nz-skeleton>
+          <nz-checkbox-wrapper
+            *ngIf="!isAddModalLoading"
+            style="width: 100%"
+            (nzOnChange)="onChangeCheckbox($event)"
+          >
+            <div>
+              <div *ngFor="let mob of availableMobList; let i = index">
+                <label
+                  nz-checkbox
+                  nzValue="{{ mob.mobName }}: {{ mob.location }}"
+                >
+                  <nz-avatar
+                    [nzSize]="32"
+                    [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
+                    style="margin: 5px 10px"
+                  ></nz-avatar>
+                  <span class="mob-name"
+                    ><b>{{ mob.mobName }}</b
+                    >: {{ mob.location }}</span
+                  >
+                </label>
+              </div>
+            </div>
+          </nz-checkbox-wrapper>
         </p>
 
-        <ng-template #createFooter>
-          <button nz-button nzType="default" (click)="cancelCreateEditModal()">
+        <ng-template #addFooter>
+          <button nz-button nzType="default" (click)="cancelAddModal()">
             Отмена
           </button>
           <button
             nz-button
             nzType="primary"
-            [disabled]="isCreateOkDisabled"
-            (click)="confirmCreateEditModal()"
-            [nzLoading]="isCreateOkLoading"
+            [disabled]="!addMobList.length"
+            (click)="onAddMobs()"
+            [nzLoading]="isAddOkLoading"
           >
-            Создать
+            Добавить
           </button>
         </ng-template>
       </nz-modal>

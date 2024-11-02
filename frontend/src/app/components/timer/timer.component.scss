@@ -34,6 +34,11 @@
     width: 100%;
   }
 
+  .timer-segments {
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
   .form-container {
     padding: 20px 50px;
     text-align: center;
@@ -63,6 +68,11 @@
       h2 {
         margin-bottom: 0;
       }
+
+      .timer-avatar {
+        cursor: pointer;
+      }
+
       span {
         align-self: center;
       }
@@ -138,6 +148,11 @@
   .timer {
     nz-list-item {
       margin-bottom: 5px;
+    }
+
+    .timer-segments {
+      margin-bottom: 10px;
+      text-align: center;
     }
 
     .timer-d-flex-space-between {

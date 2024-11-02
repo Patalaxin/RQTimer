@@ -9,6 +9,16 @@ body[data-tui-theme] {
   background: #2c3a55 !important;
 }
 
+.ant-segmented-item-label {
+  color: #fff;
+  font-weight: 700;
+}
+
+.ant-segmented-item-selected,
+nz-segmented .ng-animating {
+  background-color: #1890ff;
+}
+
 .ant-table,
 .ant-modal-body,
 .ant-modal-footer {
@@ -102,7 +112,10 @@ h6 {
 .ant-input-number,
 .ant-picker,
 .br-50px,
-.ant-btn {
+.ant-segmented,
+.ant-segmented-item-selected,
+.ant-btn,
+nz-segmented .ng-animating {
   border-radius: 50px;
 }
 
@@ -180,13 +193,15 @@ h6 {
 
     .otp-modal-name,
     .otp-modal-timer,
-    .group-modal-name {
+    .group-modal-name,
+    .timer-add {
       display: block;
       color: #ffffff;
     }
 
     .otp-modal-name,
-    .group-modal-name {
+    .group-modal-name,
+    .timer-add {
       font-size: 1.5rem;
     }
 
@@ -288,6 +303,27 @@ nz-progress {
   ul {
     margin: 20px 0;
     text-align: center;
+  }
+}
+
+.ant-table-filter-dropdown {
+  border-radius: 18px;
+
+  .admin-search-nickname {
+    padding: 8px;
+
+    .admin-search-input {
+      width: 188px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    button {
+      width: 90px;
+      .admin-search-button {
+        margin-right: 8px;
+      }
+    }
   }
 }
 
