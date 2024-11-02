@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <h2>Управление группой</h2>
+    <h2>{{ isGroupLeader ? "Управление группой" : "Список участников" }}</h2>
     <div class="group-table">
       <nz-table
         #rowSelectionTable
