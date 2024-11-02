@@ -108,8 +108,6 @@ export class TimerSettingsComponent implements OnInit {
 
         if (mode === 'delete') {
           this.messageService.create('success', `Пользователь ${email} удалён`);
-
-          this.exchangeRefresh.emit();
         }
 
         if (mode === 'transfer') {
