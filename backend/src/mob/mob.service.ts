@@ -39,7 +39,7 @@ import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { UnixtimeService } from '../unixtime/unixtime.service';
 import { GroupService } from '../group/group.service';
-import { Group } from '../schemas/group.shema';
+import { Group } from '../schemas/group.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { plainToInstance } from 'class-transformer';
 import { History, HistoryTypes } from '../history/history-types.interface';

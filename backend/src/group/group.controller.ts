@@ -16,7 +16,7 @@ import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokensGuard } from '../guards/tokens.guard';
-import { Group } from '../schemas/group.shema';
+import { Group } from '../schemas/group.schema';
 import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';

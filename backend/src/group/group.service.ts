@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Group, GroupDocument } from '../schemas/group.shema';
+import { Group, GroupDocument } from '../schemas/group.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
@@ -41,7 +41,7 @@ export class GroupService implements IGroup {
       const newGroup = await this.groupModel.create({
         ...createGroupDto,
         groupLeader: email,
-        members: [email],
+        members: [`${user.nickname}: ${user.email}`],
       });
 
       await this.userModel
@@ -111,9 +111,11 @@ export class GroupService implements IGroup {
       throw new BadRequestException('User is already in a group');
     }
 
-    group.inviteCode = null;
-    group.members.push(email);
+    const memberEntry = `${user.nickname}: ${user.email}`;
+    group.members.push(memberEntry);
+
     user.groupName = group.name;
+    group.inviteCode = null;
 
     await user.save();
     await group.save();

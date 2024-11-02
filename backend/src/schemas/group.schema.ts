@@ -19,7 +19,11 @@ export class Group {
   groupLeader: string;
 
   @ApiProperty({ type: [String] })
-  @Prop()
+  @Prop({
+    type: [String],
+    default: [],
+    description: 'List of members in the format "nickname: email"',
+  })
   members: string[];
 
   @ApiProperty({ type: String })
@@ -28,7 +32,7 @@ export class Group {
   inviteCode: string;
 
   @ApiProperty({ type: Date })
-  @Prop({ default: null, expires: '15m' })
+  @Prop({ default: null })
   @Exclude()
   inviteCodeCreatedAt: Date;
 }

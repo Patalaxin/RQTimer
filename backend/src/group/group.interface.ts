@@ -1,5 +1,5 @@
 import { CreateGroupDto } from './dto/create-group.dto';
-import { Group } from '../schemas/group.shema';
+import { Group } from '../schemas/group.schema';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
 

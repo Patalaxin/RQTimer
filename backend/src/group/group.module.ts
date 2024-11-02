@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { GroupService } from './group.service';
 import { GroupController } from './group.controller';
 import { User, UserSchema } from '../schemas/user.schema';
-import { Group, GroupSchema } from '../schemas/group.shema';
+import { Group, GroupSchema } from '../schemas/group.schema';
 import { UsersModule } from '../users/users.module';
 import { MobModule } from '../mob/mob.module';
 
