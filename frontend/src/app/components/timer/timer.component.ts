@@ -118,8 +118,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.timerService.isLoading = true;
-
     this.checkScreenWidth();
 
     this.getCurrentUser();
@@ -722,6 +720,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getCurrentUser() {
+    this.timerService.isLoading = true;
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userGroupName = res.groupName;

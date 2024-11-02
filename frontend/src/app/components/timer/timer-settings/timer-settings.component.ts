@@ -27,7 +27,7 @@ export class TimerSettingsComponent implements OnInit {
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
 
   userList: any;
-  userGroupList: any;
+  userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
   isDeleteGroupLoading: boolean = false;
@@ -90,12 +90,13 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   getGroupUsers(email?: any, mode?: 'transfer' | 'delete'): void {
+    this.userGroupList = [];
     this.groupsService.getGroup().subscribe({
       next: (res) => {
         console.log('getGroupUsers', res);
         res.members.map((member: string) => {
-          let nickname = member.split(': ')[0];
-          let email = member.split(': ')[1];
+          let nickname: string = member.split(': ')[0];
+          let email: string = member.split(': ')[1];
           this.userGroupList.push({ nickname, email });
         });
         this.userGroupList.forEach((item: any, i: any) => {
@@ -141,6 +142,9 @@ export class TimerSettingsComponent implements OnInit {
       next: () => {
         this.getGroupUsers(email, 'transfer');
       },
+      error: () => {
+        this.isTableLoading = false;
+      },
     });
   }
 
@@ -163,6 +167,9 @@ export class TimerSettingsComponent implements OnInit {
     this.groupsService.deleteUser(email).subscribe({
       next: () => {
         this.getGroupUsers(email, 'delete');
+      },
+      error: () => {
+        this.isTableLoading = false;
       },
     });
   }
