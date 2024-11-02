@@ -66,9 +66,9 @@
         <tbody>
           <tr *ngFor="let user of userList">
             <td nzCustomFilter>
-              {{ user.split(": ")[0] }}
+              {{ user.nickname }}
             </td>
-            <td>{{ user.split(": ")[1] }}</td>
+            <td>{{ user.email }}</td>
             <td class="admin-buttons" *ngIf="isGroupLeader">
               <nz-tag
                 nzColor="gold"
