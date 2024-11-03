@@ -22,6 +22,7 @@ export class TimerSettingsComponent implements OnInit {
   private readonly messageService = inject(NzMessageService);
 
   @Input() isGroupLeader: boolean = false;
+  @Input() groupName: any;
   @Input() currentUser: any;
 
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
@@ -177,7 +178,7 @@ export class TimerSettingsComponent implements OnInit {
   onShowDeleteGroupModal(): void {
     this.modalService.confirm({
       nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите удалить группу?</b>`,
+      nzContent: `<b style="color: red;">Вы точно хотите удалить группу ${this.groupName}?</b>`,
       nzOkText: 'Да',
       nzOkType: 'primary',
       nzOkDanger: true,
@@ -191,7 +192,10 @@ export class TimerSettingsComponent implements OnInit {
     this.isDeleteGroupLoading = true;
     this.groupsService.deleteGroup().subscribe({
       next: () => {
-        this.messageService.create('success', `Группа была успешно удалена`);
+        this.messageService.create(
+          'success',
+          `Группа ${this.groupName} была успешно удалена`,
+        );
         this.exchangeRefresh.emit();
       },
       error: () => {
@@ -203,7 +207,7 @@ export class TimerSettingsComponent implements OnInit {
   onShowLeaveGroupModal(): void {
     this.modalService.confirm({
       nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите покинуть группу?</b>`,
+      nzContent: `<b style="color: red;">Вы точно хотите покинуть группу ${this.groupName}?</b>`,
       nzOkText: 'Да',
       nzOkType: 'primary',
       nzOkDanger: true,
@@ -217,7 +221,10 @@ export class TimerSettingsComponent implements OnInit {
     this.isLeaveGroupLoading = true;
     this.groupsService.leaveGroup().subscribe({
       next: () => {
-        this.messageService.create('success', `Вы успешно вышли из группы`);
+        this.messageService.create(
+          'success',
+          `Вы успешно вышли из группы ${this.groupName}`,
+        );
         this.exchangeRefresh.emit();
       },
       error: () => {
