@@ -11,6 +11,7 @@ import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
 import { User, UserSchema } from '../schemas/user.schema';
 import { RolesGuard } from '../guards/roles.guard';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RolesGuard } from '../guards/roles.guard';
     forwardRef(() => GroupModule),
     HistoryModule,
     UnixtimeModule,
+    AuthModule,
     MongooseModule.forFeature([
       { name: Mob.name, schema: MobSchema },
       { name: MobsData.name, schema: MobsDataSchema },

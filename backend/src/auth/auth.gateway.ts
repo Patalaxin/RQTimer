@@ -27,6 +27,10 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private onlineUsers = new Map<string, OnlineUser>();
 
+  getOnlineUsers() {
+    return this.onlineUsers;
+  }
+
   async handleConnection(client: Socket) {
     const token = client.handshake.query.token as string;
     try {

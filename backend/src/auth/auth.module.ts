@@ -23,6 +23,6 @@ import { AuthGateway } from './auth.gateway';
     AuthGateway,
     { provide: 'IAuth', useClass: AuthService },
   ],
-  exports: [AuthService],
+  exports: [AuthService, AuthGateway],
 })
 export class AuthModule {}

@@ -1,5 +1,6 @@
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { AuthGateway } from '../auth/auth.gateway';
 
 @WebSocketGateway({
   cors: {
@@ -12,11 +13,17 @@ export class MobGateway {
   @WebSocketServer()
   server: Server;
 
+  constructor(private authGateway: AuthGateway) {}
+
   sendMobUpdate(data: any) {
-    this.server.sockets.sockets.forEach((socket) => {
-      const user = this.server.sockets.sockets.get(socket.id);
-      if (user && user.handshake.query.groupName === data.groupName) {
-        socket.emit('mobUpdate', data);
+    const onlineUsers = this.authGateway.getOnlineUsers();
+
+    onlineUsers.forEach((user) => {
+      if (user.groupName === data.groupName) {
+        const socket = this.server.sockets.sockets.get(user.socketId);
+        if (socket) {
+          socket.emit('mobUpdate', data);
+        }
       }
     });
   }
