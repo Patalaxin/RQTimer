@@ -1,5 +1,6 @@
 <div class="timer-settings container">
   <div class="form-container">
+    <h1>"{{ groupName }}"</h1>
     <div *ngIf="isGroupLeader">
       <h2>Инвайт</h2>
       <div class="generate-form">
@@ -67,6 +68,11 @@
           <tr *ngFor="let user of userList">
             <td nzCustomFilter>
               {{ user.nickname }}
+              <span
+                *ngIf="groupLeaderEmail === user.email"
+                nz-icon
+                nzType="crown"
+              ></span>
             </td>
             <td>{{ user.email }}</td>
             <td class="admin-buttons" *ngIf="isGroupLeader">

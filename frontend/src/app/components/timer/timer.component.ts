@@ -81,6 +81,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   isGroupModalDisabled: boolean = true;
   isCreateGroupLoading: boolean = false;
   isJoinGroupLoading: boolean = false;
+  userGroupList: any[] = [];
+  groupLeaderEmail: string = '';
 
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
@@ -724,6 +726,21 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userGroupName = res.groupName;
+        if (res.groupName) {
+          this.groupsService.getGroup().subscribe({
+            next: (res) => {
+              this.groupLeaderEmail = res.groupLeader;
+              res.members.map((member: string) => {
+                let nickname: string = member.split(': ')[0];
+                let email: string = member.split(': ')[1];
+                this.userGroupList.push({ nickname, email });
+              });
+              this.userGroupList.forEach((item: any, i: any) => {
+                item.id = i++;
+              });
+            },
+          });
+        }
         this.userService.currentUser = res;
         this.userService.currentUser$.subscribe({
           next: (res) => {

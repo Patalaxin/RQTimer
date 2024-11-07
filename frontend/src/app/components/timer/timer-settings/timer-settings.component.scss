@@ -9,14 +9,19 @@
     width: 100%;
     min-width: 250px;
 
+    h1 {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    h1,
     h2 {
       color: #000000;
       font-weight: 700;
       margin-bottom: 20px;
     }
 
-    .generate-form,
-    .group-table {
+    .generate-form {
       margin-bottom: 30px;
     }
 

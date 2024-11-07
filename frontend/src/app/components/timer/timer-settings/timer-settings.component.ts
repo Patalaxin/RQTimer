@@ -24,10 +24,11 @@ export class TimerSettingsComponent implements OnInit {
   @Input() isGroupLeader: boolean = false;
   @Input() groupName: any;
   @Input() currentUser: any;
+  @Input() userList: any;
+  @Input() groupLeaderEmail: string = '';
 
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
 
-  userList: any;
   userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;

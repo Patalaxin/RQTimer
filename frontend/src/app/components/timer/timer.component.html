@@ -81,6 +81,8 @@
   </div>
   <div *ngIf="selectedSegments === 1">
     <app-timer-settings
+      [userList]="userGroupList"
+      [groupLeaderEmail]="groupLeaderEmail"
       [isGroupLeader]="currentUser.isGroupLeader"
       [currentUser]="currentUser"
       [groupName]="userGroupName"
