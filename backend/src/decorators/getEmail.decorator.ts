@@ -8,9 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 export interface DecodeResult {
   email: string;
   nickname: string;
+  groupName: string;
   iat: number;
   exp: number;
 }
+
 export const GetEmailFromToken = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     try {

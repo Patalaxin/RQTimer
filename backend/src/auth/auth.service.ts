@@ -15,9 +15,10 @@ import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 import { Response } from 'express';
 import { AuthGateway } from './auth.gateway';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
+import { IAuth } from './auth.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuth {
   constructor(
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
@@ -30,7 +31,10 @@ export class AuthService {
       email: user.email,
       nickname: user.nickname,
       role: user.role,
+      groupName: user.groupName,
+      isGroupLeader: user.isGroupLeader,
     };
+
     const accessToken: string = await this.jwtService.signAsync(payload, {
       secret: process.env.SECRET_CONSTANT,
     });

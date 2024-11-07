@@ -35,27 +35,6 @@ h4 {
   margin-top: 20px;
 }
 
-.ant-table-filter-dropdown {
-  border-radius: 18px;
-
-  .admin-search-nickname {
-    padding: 8px;
-
-    .admin-search-input {
-      width: 188px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    button {
-      width: 90px;
-      .admin-search-button {
-        margin-right: 8px;
-      }
-    }
-  }
-}
-
 @media only screen and (max-width: 550px) {
   .admin {
     padding: 5px;

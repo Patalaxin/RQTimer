@@ -3,9 +3,10 @@ import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { UnixtimeResponseDto } from './dto/get-unixtime.dto';
 import * as process from 'node:process';
+import { IUnixtime } from './unixtime.interface';
 
 @Injectable()
-export class UnixtimeService {
+export class UnixtimeService implements IUnixtime {
   private readonly REQUEST_TIMEOUT = 3000;
 
   constructor(private readonly httpService: HttpService) {}
@@ -21,8 +22,8 @@ export class UnixtimeService {
           )
           .pipe(
             timeout(this.REQUEST_TIMEOUT),
-            catchError((error) => {
-              return this.handleError(error);
+            catchError(() => {
+              return this.handleError();
             }),
           ),
       );
@@ -42,8 +43,7 @@ export class UnixtimeService {
     }
   }
 
-  private handleError(error: any): Promise<any> {
-    console.error(`Error fetching time from external API: ${error.message}`);
+  private handleError(): Promise<any> {
     return Promise.resolve({ data: { timestamp: Date.now() } });
   }
 }

@@ -5,7 +5,8 @@ import { randomUUID } from 'crypto';
 import { MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
-import { HistoryTypes } from '../history/history.interface';
+import { HistoryTypes } from '../history/history-types.interface';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type HeliosHistoryDocument = HydratedDocument<HeliosHistory>;
 
@@ -61,6 +62,10 @@ export class HeliosHistory {
   @Expose()
   @Prop()
   server: Servers;
+
+  @ApiProperty()
+  @Prop()
+  groupName: string;
 
   @Prop({ type: Date, expires: 259200, default: Date.now }) //  3 day live for history
   expireAt: Date;

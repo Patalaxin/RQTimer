@@ -47,14 +47,9 @@ export class UserService {
     return this.http.delete(`${this.USER_API}${key}`);
   }
 
-  forgotPassword(
-    email: string,
-    sessionId: string,
-    newPassword: string,
-  ): Observable<any> {
+  forgotPassword(email: string, newPassword: string): Observable<any> {
     let payload = {
       email,
-      sessionId,
       newPassword,
     };
     return this.http.put(`${this.USER_API}forgot-password`, payload);

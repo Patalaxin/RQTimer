@@ -1,0 +1,71 @@
+.timer-settings {
+  .form-container {
+    position: relative;
+    top: unset;
+    left: unset;
+    transform: unset;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    min-width: 250px;
+
+    h2 {
+      color: #000000;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .generate-form,
+    .group-table {
+      margin-bottom: 30px;
+    }
+
+    .generate-form {
+      max-width: 400px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .admin-buttons {
+      text-align: center;
+
+      button {
+        margin: 0 5px;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .timer-settings {
+    .admin-buttons {
+      button {
+        margin: 0 2.5px;
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 450px) {
+  .timer-settings {
+    .form-container {
+      padding: 10px;
+
+      .generate-form {
+        flex-direction: column;
+        width: 100%;
+
+        .generate-form-button {
+          width: 100%;
+        }
+      }
+
+      .group-leave,
+      .group-delete {
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

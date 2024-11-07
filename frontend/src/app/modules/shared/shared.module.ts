@@ -33,12 +33,15 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 
 // Add Taiga UI Modules
 import { TuiReorderModule } from '@taiga-ui/addon-table';
 import { TuiAlertModule, TuiDialogModule, TuiRootModule } from '@taiga-ui/core';
+import { NgxOtpInputComponent } from 'ngx-otp-input';
 
 const sharedModules = [
+  NgxOtpInputComponent,
   ReactiveFormsModule,
   FormsModule,
   NzFormModule,
@@ -71,6 +74,7 @@ const sharedModules = [
   NzBackTopModule,
   NzTableModule,
   NzAvatarModule,
+  NzSegmentedModule,
   TuiRootModule,
   TuiDialogModule,
   TuiAlertModule,

@@ -14,10 +14,6 @@ import { IsNickname } from '../../decorators/isNickname.decorator';
 export class CreateUserDtoRequest {
   @IsString()
   @IsNotEmpty()
-  sessionId: string;
-
-  @IsString()
-  @IsNotEmpty()
   @IsNickname()
   nickname: string;
 

@@ -4,8 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Inject,
   Param,
   Post,
@@ -20,7 +18,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RolesTypes, User } from '../schemas/user.schema';
-import { SessionId } from '../schemas/sessionID.schema';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
 import {
@@ -172,21 +169,5 @@ export class UsersController {
   @Delete()
   deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     return this.userInterface.deleteAll();
-  }
-
-  @UseGuards(TokensGuard)
-  @Roles(RolesTypes.Admin)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Generate Session Id' })
-  @Post('/session-id')
-  async generateSessionId(): Promise<SessionId> {
-    try {
-      return new SessionId(await this.userInterface.generateSessionId());
-    } catch (error) {
-      throw new HttpException(
-        'Session Id does not created',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
   }
 }

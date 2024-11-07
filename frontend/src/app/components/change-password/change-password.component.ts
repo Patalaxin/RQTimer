@@ -7,6 +7,8 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
+import { OtpService } from 'src/app/services/otp.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validation';
 
@@ -17,13 +19,28 @@ import Validation from 'src/app/utils/validation';
 })
 export class ChangePasswordComponent {
   private readonly router = inject(Router);
+  private readonly otpService = inject(OtpService);
   private readonly userService = inject(UserService);
   private readonly messageService = inject(NzMessageService);
+
+  isModalVisible: boolean = false;
+  isModalLoading: boolean = false;
+
+  otpOptions: NgxOtpInputComponentOptions = {
+    otpLength: 5,
+    autoFocus: true,
+    showBlinkingCursor: false,
+  };
+
+  isVerifyDisabled: boolean = true;
+
+  otpTimer: number = 60;
+  otpComplete: string = '';
+  otpInterval: any;
 
   form: FormGroup = new FormGroup(
     {
       email: new FormControl('', [Validators.required, Validators.email]),
-      sessionId: new FormControl('', [Validators.required]),
       newPassword: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
@@ -45,8 +62,72 @@ export class ChangePasswordComponent {
     return this.form.controls;
   }
 
-  onChangePassword() {
+  onSendOTP(): void {
+    // this.showModal();
     this.passwordChangeLoading = true;
+    this.otpService.sendOTP(this.form.value['email']).subscribe({
+      next: () => {
+        this.showModal();
+      },
+      error: () => {
+        this.passwordChangeLoading = false;
+      },
+    });
+  }
+
+  showModal(): void {
+    event?.stopPropagation();
+    this.isModalVisible = true;
+    clearInterval(this.otpInterval);
+    this.otpTimer = 60;
+    this.otpInterval = setInterval(() => {
+      if (this.otpTimer > 0) {
+        this.otpTimer--;
+      }
+    }, 1000);
+  }
+
+  cancelModal(): void {
+    clearInterval(this.otpInterval);
+    this.passwordChangeLoading = false;
+    this.isModalVisible = false;
+  }
+
+  onChangeOTP(event: any): void {
+    let otpCount: number = 0;
+    event.map((item: string) => {
+      if (item) {
+        otpCount++;
+      }
+    });
+    if (otpCount === 5) {
+      this.isVerifyDisabled = false;
+    } else {
+      this.isVerifyDisabled = true;
+    }
+  }
+
+  onCompleteOTP(event: any): void {
+    console.log('onCompleteOTP', event);
+    this.otpComplete = event;
+  }
+
+  onVerifyOTP(): void {
+    this.isModalLoading = true;
+    console.log('onVerifyOTP', this.otpComplete);
+    this.otpService
+      .verifyOTP(this.form.value['email'], this.otpComplete)
+      .subscribe({
+        next: () => {
+          this.onChangePassword();
+        },
+        error: () => {
+          this.isModalLoading = false;
+        },
+      });
+  }
+
+  onChangePassword() {
     this.submitted = true;
 
     if (this.form.invalid) {
@@ -54,11 +135,7 @@ export class ChangePasswordComponent {
     }
 
     this.userService
-      .forgotPassword(
-        this.form.value.email,
-        this.form.value.sessionId,
-        this.form.value.newPassword,
-      )
+      .forgotPassword(this.form.value.email, this.form.value.newPassword)
       .subscribe({
         next: (res) => {
           console.log(res);

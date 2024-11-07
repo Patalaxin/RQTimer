@@ -8,7 +8,10 @@ import { HistoryService } from './history.service';
 import { HistoryController } from './history.controller';
 
 @Module({
-  providers: [HistoryService],
+  providers: [
+    HistoryService,
+    { provide: 'IHistory', useClass: HistoryService },
+  ],
   exports: [HistoryService],
   imports: [
     MongooseModule.forFeature([

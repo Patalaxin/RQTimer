@@ -7,8 +7,8 @@ import {
   UseGuards,
   UseInterceptors,
   Query,
+  Inject,
 } from '@nestjs/common';
-import { HistoryService } from './history.service';
 import { TokensGuard } from '../guards/tokens.guard';
 import { Roles } from '../decorators/roles.decorator';
 import {
@@ -24,13 +24,17 @@ import { MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
+import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
+import { IHistory } from './history.interface';
 
 @ApiBearerAuth()
 @ApiTags('History API')
 @UseGuards(TokensGuard)
 @Controller('history')
 export class HistoryController {
-  constructor(private historyService: HistoryService) {}
+  constructor(
+    @Inject('IHistory') private readonly historyInterface: IHistory,
+  ) {}
 
   @Roles()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -47,15 +51,17 @@ export class HistoryController {
   @Get('/list/:server')
   async findAll(
     @Param('server') server: Servers,
-    @Query('mobName') mobName?: MobName,
+    @GetGroupNameFromToken() groupName: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
+    @Query('mobName') mobName?: MobName,
   ): Promise<PaginatedHistoryDto> {
-    return await this.historyService.getAllHistory(
+    return await this.historyInterface.getAllHistory(
       server,
-      mobName,
+      groupName,
       page,
       limit,
+      mobName,
     );
   }
 
@@ -64,10 +70,11 @@ export class HistoryController {
   @ApiOperation({ summary: 'Delete All History by Server' })
   @ApiParam({ name: 'server', enum: Servers })
   @ApiOkResponse({ description: 'Success', type: DeleteAllHistoryDtoResponse })
-  @Delete()
+  @Delete(':server')
   deleteAll(
     @Param('server') server: Servers,
+    @GetGroupNameFromToken() groupName: string,
   ): Promise<DeleteAllHistoryDtoResponse> {
-    return this.historyService.deleteAll(server);
+    return this.historyInterface.deleteAll(server, groupName);
   }
 }

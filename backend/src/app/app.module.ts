@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
+import { GroupModule } from '../group/group.module';
 import * as process from 'process';
 
 @Module({
@@ -17,6 +18,7 @@ import * as process from 'process';
     AuthModule,
     UsersModule,
     MobModule,
+    GroupModule,
     ConfigurationModule,
     UnixtimeModule,
     MongooseModule.forRootAsync({

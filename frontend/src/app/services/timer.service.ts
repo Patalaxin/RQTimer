@@ -12,7 +12,7 @@ export class TimerService {
   private readonly http = inject(HttpClient);
   private readonly storageService = inject(StorageService);
 
-  private readonly MOB_URL = environment.apiUrl + '/mobs/';
+  private readonly MOB_URL = environment.apiUrl + '/mobs';
 
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
@@ -46,33 +46,38 @@ export class TimerService {
     return this.http.get(`${environment.apiUrl}/unixtime`);
   }
 
-  createMob(item: any, server: string): Observable<any> {
-    let payload = {
-      ...item,
-      server,
-    };
-    return this.http.post(this.MOB_URL, payload);
+  addMobGroup(server: string, mobs: string[]): Observable<any> {
+    const payload = { mobs };
+    return this.http.post(`${this.MOB_URL}/add-in-group/${server}`, payload);
   }
 
-  editMob(item: any, server: string): Observable<any> {
-    const { currentLocation, ...itemInfo } = item;
-    let payload = itemInfo;
-    return this.http.put(
-      `${this.MOB_URL}${server}/${currentLocation}/${item.mobName}`,
+  deleteMobGroup(
+    server: string,
+    location: string,
+    mobName: string,
+  ): Observable<any> {
+    const payload = {};
+    return this.http.delete(
+      `${this.MOB_URL}/remove-from-group/${server}/${location}/${mobName}`,
       payload,
     );
   }
 
-  deleteMob(mobName: string, server: string, location: string) {
-    return this.http.delete(`${this.MOB_URL}${server}/${location}/${mobName}`);
+  getMob(mobName: string, server: string, location: string) {
+    return this.http.get(`${this.MOB_URL}/${server}/${location}/${mobName}`);
   }
 
   getAllBosses(server: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}${server}`);
+    return this.http.get(`${this.MOB_URL}/${server}`);
+  }
+
+  getAvailableBosses(): Observable<any> {
+    return this.http.get(`${this.MOB_URL}`);
   }
 
   crashServerBosses(server: string): Observable<any> {
-    return this.http.post(`${this.MOB_URL}crash-server/${server}`, {});
+    const payload = {};
+    return this.http.post(`${this.MOB_URL}/crash-server/${server}`, payload);
   }
 
   setByDeathTime(item: TimerItem, dateOfDeath: number): Observable<any> {
@@ -83,7 +88,7 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${this.MOB_URL}date-of-death`, payload);
+    return this.http.put(`${this.MOB_URL}/date-of-death`, payload);
   }
 
   setByRespawnTime(item: TimerItem, dateOfRespawn: number): Observable<any> {
@@ -94,7 +99,7 @@ export class TimerService {
       location: item.mob.location,
     };
 
-    return this.http.put(`${this.MOB_URL}date-of-respawn`, payload);
+    return this.http.put(`${this.MOB_URL}/date-of-respawn`, payload);
   }
 
   setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
@@ -105,14 +110,14 @@ export class TimerService {
       cooldown,
     };
 
-    return this.http.put(`${this.MOB_URL}cooldown`, payload);
+    return this.http.put(`${this.MOB_URL}/cooldown`, payload);
   }
 
   respawnLost(item: TimerItem): Observable<any> {
     let payload = {};
 
     return this.http.put(
-      `${this.MOB_URL}respawn-lost/${item.mob.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/respawn-lost/${item.mob.server}/${item.mob.location}/${item.mob.mobName}`,
       payload,
     );
   }

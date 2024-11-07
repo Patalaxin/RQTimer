@@ -10,7 +10,7 @@ import { MobName, Servers } from '../../schemas/mobs.enum';
 import { Expose } from 'class-transformer';
 import { Prop } from '@nestjs/mongoose';
 import { RolesTypes } from '../../schemas/user.schema';
-import { HistoryTypes } from '../history.interface';
+import { HistoryTypes } from '../history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetHistoryDtoResponse {

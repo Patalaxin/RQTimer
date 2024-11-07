@@ -12,9 +12,11 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { GroupsService } from 'src/app/services/groups.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 
@@ -27,6 +29,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
+  private readonly groupsService = inject(GroupsService);
+  private readonly tokenService = inject(TokenService);
   private readonly authService = inject(AuthService);
   private readonly historyService = inject(HistoryService);
   private readonly userService = inject(UserService);
@@ -38,6 +42,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   permission: string = '';
 
   timerList: TimerItem[] = [];
+  availableMobList: any = [];
+  addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
   isLoading = this.timerService.isLoading$;
@@ -56,14 +62,31 @@ export class TimerComponent implements OnInit, OnDestroy {
   isScreenWidth1000: boolean = false;
   isScreenWidth800: boolean = false;
   isScreenWidth750: boolean = false;
+  isScreenWidth550: boolean = false;
   isScreenWidth372: boolean = false;
   isScreenWidthInZone: boolean = false;
 
-  isCreateModalVisible: boolean = false;
-  isCreateOkLoading: boolean = false;
-  isCreateOkDisabled: boolean = true;
+  isAddModalVisible: boolean = false;
+  isAddOkLoading: boolean = false;
+  isAddModalLoading: boolean = true;
 
-  createEditItem: any;
+  userGroupName: any;
+  groupModalName: string = '';
+  groupModalPlaceholder: string = '';
+  groupOkButton: string = '';
+  groupInputValue: string = '';
+  groupModalMode: 'create' | 'join' = 'create';
+  isGroupModalVisible: boolean = false;
+  isGroupModalLoading: boolean = false;
+  isGroupModalDisabled: boolean = true;
+  isCreateGroupLoading: boolean = false;
+  isJoinGroupLoading: boolean = false;
+
+  timerOptions: any[] = [
+    { label: 'Таймер', value: 'Timer', icon: 'history' },
+    { label: 'Настройки', value: 'Settings', icon: 'setting' },
+  ];
+  selectedSegments: number = 0;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -95,8 +118,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.timerService.isLoading = true;
-
     this.checkScreenWidth();
 
     this.getCurrentUser();
@@ -122,9 +143,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   private updateItem(timerList: TimerItem[], res: any): void {
     timerList.forEach((item) => {
       if (
-        item.mob.mobName === res.mobName &&
-        item.mob.location === res.location &&
-        item.mob.server === res.server
+        item.mob.mobName === res.mob.mobName &&
+        item.mob.location === res.mob.location &&
+        item.mob.server === res.mob.server
       ) {
         console.log('updateItem', item.mobData, res.mobData);
         item.mobData = res.mobData;
@@ -134,8 +155,8 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isDeathOkLoading = false;
           item.mob.isHistoryModalVisible = false;
           item.mob.isHistoryOkLoading = false;
-          item.mob.isEditModalVisible = false;
-          item.mob.isEditOkLoading = false;
+          item.mob.isInfoModalVisible = false;
+          item.mob.isInfoOkLoading = false;
           item.mob.isOnDieNow = false;
         });
 
@@ -159,6 +180,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isScreenWidth750 = window.innerWidth <= 750;
     this.isScreenWidthInZone =
       window.innerWidth <= 800 && window.innerWidth > 372;
+    this.isScreenWidth550 = window.innerWidth <= 550;
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
@@ -263,81 +285,65 @@ export class TimerComponent implements OnInit, OnDestroy {
       });
   }
 
-  showCreateEditModal(item?: TimerItem): void {
-    event?.stopPropagation();
-    if (item) {
-      item.mob.isEditModalVisible = true;
-    }
-    if (!item) {
-      this.isCreateModalVisible = true;
-    }
-  }
+  // onChangeSegments(index: number): void {
+  //   console.log(index);
+  // }
 
-  confirmCreateEditModal(item?: TimerItem) {
-    const handleResponse = (successMessage: string, errorMessage: string) => ({
-      next: () => {
-        this.getAllBosses();
-        this.messageService.create('success', successMessage);
-      },
-      error: (err: any) => {
-        this.timerService.isLoading = false;
-        this.messageService.create(
-          'error',
-          err ? err.error.message : errorMessage,
+  showAddModal(): void {
+    this.isAddModalLoading = true;
+    this.isAddModalVisible = true;
+    this.timerService.getAvailableBosses().subscribe({
+      next: (res) => {
+        this.availableMobList = res.filter(
+          (availableItem: any) =>
+            !this.timerList.some(
+              (timerItem) =>
+                timerItem.mob.mobName === availableItem.mobName &&
+                timerItem.mob.location === availableItem.location,
+            ),
         );
+        this.isAddModalLoading = false;
       },
     });
+  }
 
+  cancelAddModal(): void {
+    this.isAddModalVisible = false;
+  }
+
+  onAddMobs(): void {
+    this.isAddOkLoading = true;
     this.timerService.isLoading = true;
-
-    if (!item) {
-      this.isCreateModalVisible = false;
-      this.timerService
-        .createMob(
-          this.createEditItem,
-          this.storageService.getLocalStorage('server'),
-        )
-        .subscribe(
-          handleResponse(
-            'Босс/элитка успешно создан(а).',
-            'Не удалось создать босса/элитку.',
-          ),
-        );
-    } else {
-      item.mob.isEditModalVisible = false;
-      console.log('createEditItem', this.createEditItem);
-      this.timerService
-        .editMob(
-          this.createEditItem,
-          this.storageService.getLocalStorage('server'),
-        )
-        .subscribe(
-          handleResponse(
-            'Босс/элитка успешно отредактирован(а).',
-            'Не удалось отредактировать босса/элитку.',
-          ),
-        );
-    }
+    this.timerService
+      .addMobGroup(this.currentServer, this.addMobList)
+      .subscribe({
+        next: () => {
+          this.getAllBosses();
+          this.isAddOkLoading = false;
+          this.isAddModalVisible = false;
+          this.messageService.create(
+            'success',
+            'Боссы/элитки были успешно добавлены.',
+          );
+        },
+        error: () => {
+          this.isAddOkLoading = false;
+          this.timerService.isLoading = false;
+        },
+      });
   }
 
-  cancelCreateEditModal(item?: TimerItem) {
-    if (!item) {
-      this.isCreateModalVisible = false;
-    }
-
-    if (item) {
-      item.mob.isEditModalVisible = false;
-    }
+  onChangeCheckbox(event: any): void {
+    this.addMobList = event;
   }
 
-  onCreateEdit(item: any) {
-    this.createEditItem = { ...item };
-    this.isCreateOkDisabled = !(
-      this.createEditItem.location &&
-      this.createEditItem.cooldownTime &&
-      this.createEditItem.mobName
-    );
-    console.log('onCreateEdit', this.createEditItem);
+  showInfoModal(item: TimerItem): void {
+    event?.stopPropagation();
+    item.mob.isInfoModalVisible = true;
+  }
+
+  cancelInfoModal(item: TimerItem) {
+    item.mob.isInfoModalVisible = false;
   }
 
   showDeleteModal(item: TimerItem): void {
@@ -357,10 +363,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   onDelete(item: TimerItem): void {
     this.timerService.isLoading = true;
     this.timerService
-      .deleteMob(
-        item.mob.mobName,
+      .deleteMobGroup(
         this.storageService.getLocalStorage('server'),
         item.mob.location,
+        item.mob.mobName,
       )
       .subscribe({
         next: () => {
@@ -705,8 +711,8 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isDeathOkLoading = false;
           item.mob.isHistoryModalVisible = false;
           item.mob.isHistoryOkLoading = false;
-          item.mob.isEditModalVisible = false;
-          item.mob.isEditOkLoading = false;
+          item.mob.isInfoModalVisible = false;
+          item.mob.isInfoOkLoading = false;
         });
         this.timerService.isLoading = false;
       },
@@ -714,8 +720,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getCurrentUser() {
+    this.timerService.isLoading = true;
     this.userService.getUser().subscribe({
       next: (res) => {
+        this.userGroupName = res.groupName;
         this.userService.currentUser = res;
         this.userService.currentUser$.subscribe({
           next: (res) => {
@@ -723,6 +731,131 @@ export class TimerComponent implements OnInit, OnDestroy {
           },
         });
         this.getAllBosses();
+      },
+    });
+  }
+
+  onGroupValueChange(event: any) {
+    this.groupInputValue = event;
+
+    if (!this.groupInputValue) {
+      this.isGroupModalDisabled = true;
+    } else {
+      this.isGroupModalDisabled = false;
+    }
+  }
+
+  showCreateGroupModal() {
+    this.groupInputValue = '';
+    this.isCreateGroupLoading = true;
+    this.isGroupModalVisible = true;
+    this.groupModalName = 'Создать группу';
+    this.groupModalPlaceholder = 'Введите название группы';
+    this.groupOkButton = 'Создать';
+    this.groupModalMode = 'create';
+  }
+
+  showJoinGroupModal() {
+    this.groupInputValue = '';
+    this.isJoinGroupLoading = true;
+    this.isGroupModalVisible = true;
+    this.groupModalName = 'Присоединиться к группе';
+    this.groupModalPlaceholder = 'Введите код приглашение';
+    this.groupOkButton = 'Вступить';
+    this.groupModalMode = 'join';
+  }
+
+  cancelGroupModal() {
+    this.isGroupModalVisible = false;
+    if (this.groupModalMode === 'create') {
+      this.isCreateGroupLoading = false;
+    }
+    if (this.groupModalMode === 'join') {
+      this.isJoinGroupLoading = false;
+    }
+  }
+
+  confirmGroupModal() {
+    this.isGroupModalLoading = true;
+    if (this.groupModalMode === 'create') {
+      this.onCreateGroup(this.groupInputValue);
+    }
+    if (this.groupModalMode === 'join') {
+      this.onJoinGroup(this.groupInputValue);
+    }
+  }
+
+  onExchangeRefresh(event: any): void {
+    console.log('group event', event);
+    this.exchangeRefresh(() => {
+      this.getCurrentUser();
+    });
+  }
+
+  private onCreateGroup(name: string) {
+    this.groupsService.createGroup(name).subscribe({
+      next: () => {
+        console.log('groupName', name);
+        this.exchangeRefresh(() => {
+          this.isCreateGroupLoading = false;
+          this.getCurrentUser();
+        });
+      },
+      error: () => {
+        this.isGroupModalLoading = false;
+      },
+    });
+  }
+
+  private onJoinGroup(code: string) {
+    this.groupsService.joinGroup(code).subscribe({
+      next: () => {
+        console.log('inviteCode', code);
+        this.exchangeRefresh(() => {
+          this.isJoinGroupLoading = false;
+          this.getCurrentUser();
+        });
+      },
+      error: () => {
+        this.isGroupModalLoading = false;
+      },
+    });
+  }
+
+  private exchangeRefresh(callback: Function) {
+    this.tokenService.refreshToken().subscribe({
+      next: (res) => {
+        console.log('Токен обновлён timer', res);
+        this.isGroupModalLoading = false;
+        this.isGroupModalVisible = false;
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      },
+      error: (err) => {
+        console.log('Ошибка при обновлении токена', err);
+        if (err.status === 401) {
+          this.onLogout();
+        }
+
+        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
+          this.messageService.create(
+            'error',
+            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+          );
+        }
+      },
+    });
+  }
+
+  private onLogout(): void {
+    console.log('onLogout timer', moment(Date.now()).format('HH:mm:ss'));
+    this.authService.signOut().subscribe({
+      next: () => {
+        this.timerService.headerVisibility = false;
+        this.websocketService.disconnect();
+        this.storageService.clean();
+        this.router.navigate(['/login']);
       },
     });
   }

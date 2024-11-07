@@ -1,23 +1,21 @@
+import { History } from './history-types.interface';
 import { MobName, Servers } from '../schemas/mobs.enum';
-import { RolesTypes } from '../schemas/user.schema';
+import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
+import { PaginatedHistoryDto } from './dto/get-history.dto';
 
-export enum HistoryTypes {
-  updateMobByCooldown = 'updateMobByCooldown',
-  updateMobDateOfDeath = 'updateMobDateOfDeath',
-  updateMobDateOfRespawn = 'updateMobDateOfRespawn',
-  crashMobServer = 'crashMobServer',
-  respawnLost = 'respawnLost',
-}
+export interface IHistory {
+  createHistory(history: History): Promise<History>;
 
-export interface History {
-  mobName: MobName;
-  nickname: string;
-  server: Servers;
-  date: number;
-  role: RolesTypes;
-  historyTypes: HistoryTypes;
-  toWillResurrect?: number;
-  fromCooldown?: number;
-  toCooldown?: number;
-  crashServer?: boolean;
+  getAllHistory(
+    server: Servers,
+    groupName: string,
+    page: number,
+    limit: number,
+    mobName?: MobName,
+  ): Promise<PaginatedHistoryDto>;
+
+  deleteAll(
+    server: Servers,
+    groupName: string,
+  ): Promise<DeleteAllHistoryDtoResponse>;
 }

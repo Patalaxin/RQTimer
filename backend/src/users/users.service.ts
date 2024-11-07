@@ -1,8 +1,7 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
 import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
@@ -19,7 +18,6 @@ import {
   UpdateUserRoleDtoResponse,
 } from './dto/update-user-role.dto';
 import { User, UserDocument } from '../schemas/user.schema';
-import { SessionId, SessionIdDocument } from '../schemas/sessionID.schema';
 import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
@@ -27,39 +25,33 @@ import {
 import { IUser } from './user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { OtpService } from '../OTP/otp.service';
 
 export class UsersService implements IUser {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(SessionId.name)
-    private sessionIdModel: Model<SessionIdDocument>,
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
+    @Inject(forwardRef(() => OtpService)) private otpService: OtpService,
   ) {}
 
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
-    const existingUser = await this.userModel
-      .findOne({
-        $or: [
-          { email: createUserDto.email },
-          { nickname: createUserDto.nickname },
-        ],
-      })
+    const { email } = createUserDto;
+
+    if (!this.otpService.isEmailVerified(email)) {
+      throw new BadRequestException('Email has not been verified through OTP!');
+    }
+
+    const existingUser: User = await this.userModel
+      .findOne({ $or: [{ email }, { nickname: createUserDto.nickname }] })
       .lean()
       .exec();
 
     if (existingUser) {
       throw new BadRequestException(
-        'A user with such an email or nickname already exists!',
+        'A user with this email or nickname already exists!',
       );
     }
 
-    const compareSessionId = await this.sessionIdModel.findOne({
-      _id: { $eq: createUserDto.sessionId },
-    });
-    if (compareSessionId === null) {
-      throw new BadRequestException('Wrong SessionId!');
-    }
-    await this.sessionIdModel.deleteMany({});
     try {
       const hashedPassword: string = await bcrypt.hash(
         createUserDto.password,
@@ -70,6 +62,7 @@ export class UsersService implements IUser {
         password: hashedPassword,
       });
 
+      this.otpService.removeVerifiedEmail(createUserDto.email);
       return newUser.toObject();
     } catch (err) {
       throw new BadRequestException('Something went wrong!');
@@ -77,7 +70,7 @@ export class UsersService implements IUser {
   }
 
   async findUser(nicknameOrEmail: string): Promise<User> {
-    const user = await this.userModel
+    const user: User = await this.userModel
       .findOne({
         $or: [{ email: nicknameOrEmail }, { nickname: nicknameOrEmail }],
       })
@@ -141,25 +134,20 @@ export class UsersService implements IUser {
       );
     }
 
+    if (!this.otpService.isEmailVerified(forgotUserPassDto.email)) {
+      throw new BadRequestException('Email has not been verified through OTP!');
+    }
+
     const query = forgotUserPassDto.email
       ? { email: forgotUserPassDto.email }
       : { nickname: forgotUserPassDto.nickname };
 
-    const compareSessionId: SessionId = await this.sessionIdModel.findOne({
-      _id: { $eq: forgotUserPassDto.sessionId },
-    });
-
-    if (compareSessionId === null) {
-      throw new BadRequestException('Wrong SessionId!');
-    }
-
-    await this.sessionIdModel.deleteMany({});
     const hashedNewPassword: string = await bcrypt.hash(
       forgotUserPassDto.newPassword,
       10,
     );
 
-    const updatedUser = await this.userModel
+    const updatedUser: User = await this.userModel
       .findOneAndUpdate(query, { password: hashedNewPassword }, { new: true })
       .lean()
       .exec();
@@ -167,6 +155,8 @@ export class UsersService implements IUser {
     if (!updatedUser) {
       throw new BadRequestException('User not found!');
     }
+
+    this.otpService.removeVerifiedEmail(forgotUserPassDto.email);
 
     return { message: 'Password successfully changed', status: 200 };
   }
@@ -276,19 +266,10 @@ export class UsersService implements IUser {
   async deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     try {
       await this.userModel.deleteMany();
+      await this.tokenModel.deleteMany();
     } catch (err) {
       throw new BadRequestException('Something went wrong ');
     }
     return { message: 'All users deleted', status: 200 };
-  }
-
-  async generateSessionId(): Promise<SessionId> {
-    try {
-      await this.sessionIdModel.deleteMany({});
-      const sessionId = await this.sessionIdModel.create({ _id: randomUUID() });
-      return sessionId.toObject();
-    } catch (err) {
-      throw new BadRequestException('Something went wrong');
-    }
   }
 }

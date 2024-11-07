@@ -18,7 +18,6 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
-import { SessionId } from '../schemas/sessionID.schema';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 
 export interface IUser {
@@ -51,6 +50,4 @@ export interface IUser {
   deleteOne(identifier: string): Promise<DeleteUserDtoResponse>;
 
   deleteAll(): Promise<DeleteAllUsersDtoResponse>;
-
-  generateSessionId(): Promise<SessionId>;
 }

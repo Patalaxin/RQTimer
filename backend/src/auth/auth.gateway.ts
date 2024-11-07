@@ -7,6 +7,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 
+interface OnlineUser {
+  socketId: string;
+  groupName: string;
+}
+
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:4200',
@@ -20,38 +25,41 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  private onlineUsers = new Map<string, string>(); // email -> socketId
+  private onlineUsers = new Map<string, OnlineUser>();
 
   async handleConnection(client: Socket) {
     const token = client.handshake.query.token as string;
     try {
-      await this.jwtService.verifyAsync(token, {
+      const { email, groupName } = await this.jwtService.verifyAsync(token, {
         secret: process.env.SECRET_CONSTANT,
       });
 
-      client.on('register', (email: string) => {
-        this.onlineUsers.set(email, client.id);
+      this.onlineUsers.set(email, { socketId: client.id, groupName });
+
+      client.on('register', () => {
         this.sendUserStatusUpdate(email, 'online');
-        this.sendOnlineUsersList(client); // Send the current list of online users
+        this.sendOnlineUsersList(client, groupName);
       });
 
       client.on('ping', () => {
         client.emit('pong');
       });
 
-      this.sendOnlineUsersList(client); // Send the current list of online users
+      this.sendOnlineUsersList(client, groupName);
     } catch (error) {
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-    const email = [...this.onlineUsers.entries()].find(
-      (entry) => entry[1] === client.id,
-    )?.[0];
-    if (email) {
-      this.onlineUsers.delete(email); // Remove the user from online users list
+    const userEntry = [...this.onlineUsers.entries()].find(
+      (entry) => entry[1].socketId === client.id,
+    );
+
+    if (userEntry) {
+      const [email] = userEntry;
+      this.onlineUsers.delete(email);
+
       setTimeout(() => {
         if (!this.onlineUsers.has(email)) {
           this.sendUserStatusUpdate(email, 'offline');
@@ -64,8 +72,11 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('userStatusUpdate', { email, status });
   }
 
-  sendOnlineUsersList(client: Socket) {
-    const onlineUsers = Array.from(this.onlineUsers.keys());
+  sendOnlineUsersList(client: Socket, groupName: string) {
+    const onlineUsers = Array.from(this.onlineUsers.entries())
+      .filter(([, user]) => user.groupName === groupName)
+      .map(([email, user]) => ({ email, ...user }));
+
     client.emit('onlineUsersList', onlineUsers);
   }
 }

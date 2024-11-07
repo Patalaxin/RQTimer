@@ -13,6 +13,8 @@ jobs:
         SSH_PASS: ${{ secrets.SSH_PASS }}
         SECRET_CONSTANT: ${{ secrets.SECRET_CONSTANT }}
         UNIXTIME_KEY: ${{ secrets.UNIXTIME_KEY}}
+        OTP_USER: ${{ secrets.OTP_USER }}
+        OTP_PASS: ${{ secrets.OTP_PASS}}
         DATABASE_USER: ${{ secrets.DATABASE_USER }}
         DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
@@ -40,6 +42,8 @@ jobs:
             if [ -f .env ]; then rm .env; fi
             echo "SECRET_CONSTANT=${{ secrets.SECRET_CONSTANT }}" >> .env
             echo "UNIXTIME_KEY=${{ secrets.UNIXTIME_KEY }}" >> .env
+            echo "OTP_USER=${{ secrets.OTP_USER }}" >> .env
+            echo "OTP_PASS=${{ secrets.OTP_PASS }}" >> .env
             echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
             echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
             npm install
@@ -85,4 +89,4 @@ jobs:
             sudo service nginx reload
             
             # Перезапуск Docker-контейнеров
-            cd ../backend && docker-compose up -d 
+            cd ../backend && docker-compose up -d

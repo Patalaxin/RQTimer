@@ -23,10 +23,6 @@ export class ForgotUserPassDtoRequest {
 
   @IsString()
   @IsNotEmpty()
-  sessionId: string;
-
-  @IsString()
-  @IsNotEmpty()
   @IsPassword()
   newPassword: string;
 }
