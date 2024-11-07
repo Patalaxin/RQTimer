@@ -14,6 +14,10 @@ import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
 import { History } from './history-types.interface';
+import {
+  IgnisHistory,
+  IgnisHistoryDocument,
+} from '../schemas/ignisHistory.schema';
 
 @Injectable()
 export class HistoryService implements IHistory {
@@ -22,8 +26,13 @@ export class HistoryService implements IHistory {
   constructor(
     @InjectModel(HeliosHistory.name)
     private heliosHistoryModel: Model<HeliosHistoryDocument>,
+    @InjectModel(IgnisHistory.name)
+    private ignisHistoryModel: Model<IgnisHistoryDocument>,
   ) {
-    this.historyModels = [{ server: 'Гелиос', model: this.heliosHistoryModel }];
+    this.historyModels = [
+      { server: 'Гелиос', model: this.heliosHistoryModel },
+      { server: 'Игнис', model: this.ignisHistoryModel },
+    ];
   }
 
   async createHistory(history: History): Promise<History> {

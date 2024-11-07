@@ -6,6 +6,10 @@ import {
 } from '../schemas/heliosHistory.schema';
 import { HistoryService } from './history.service';
 import { HistoryController } from './history.controller';
+import {
+  IgnisHistory,
+  IgnisHistorySchema,
+} from '../schemas/ignisHistory.schema';
 
 @Module({
   providers: [
@@ -16,6 +20,7 @@ import { HistoryController } from './history.controller';
   imports: [
     MongooseModule.forFeature([
       { name: HeliosHistory.name, schema: HeliosHistorySchema },
+      { name: IgnisHistory.name, schema: IgnisHistorySchema },
     ]),
   ],
   controllers: [HistoryController],
