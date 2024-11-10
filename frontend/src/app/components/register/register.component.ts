@@ -54,6 +54,8 @@ export class RegisterComponent implements OnInit {
       nickname: new FormControl('', [
         Validators.required,
         Validators.minLength(4),
+        Validators.maxLength(16),
+        Validation.nicknameValidator,
       ]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [

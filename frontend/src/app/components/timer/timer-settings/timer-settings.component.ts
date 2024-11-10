@@ -26,6 +26,7 @@ export class TimerSettingsComponent implements OnInit {
   @Input() currentUser: any;
   @Input() userList: any;
   @Input() groupLeaderEmail: string = '';
+  @Input() onlineUserList: any[] = [];
 
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
 

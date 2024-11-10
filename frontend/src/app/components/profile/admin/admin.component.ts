@@ -14,10 +14,6 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly timerService = inject(TimerService);
-  private readonly storageService = inject(StorageService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
@@ -37,8 +33,6 @@ export class AdminComponent implements OnInit {
 
   isRoleChanged: boolean = false;
   roleList = ['Admin', 'User'];
-
-  sessionId: string = '';
 
   currentUser: any;
 
@@ -71,7 +65,7 @@ export class AdminComponent implements OnInit {
   }
 
   getUserColor(role: string): any {
-    return role == 'Admin' ? 'red' : 'green';
+    return role == 'Admin' ? 'volcano' : 'lime';
   }
 
   getAllUsers(nickname?: any): void {
@@ -211,20 +205,5 @@ export class AdminComponent implements OnInit {
     this.isRoleChanged = role !== event;
 
     console.log('onRoleChange', this.isRoleChanged);
-  }
-
-  onGenerateSessionId() {
-    this.isGenerateLoading = true;
-    this.userService.generateSessionId().subscribe({
-      next: (res) => {
-        this.sessionId = res._id;
-        this.isGenerateLoading = false;
-      },
-    });
-  }
-
-  onSessionIdClick(sessionId: string) {
-    this.messageService.create('success', `Session ID успешно скопирован!`);
-    navigator.clipboard.writeText(sessionId);
   }
 }

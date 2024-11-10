@@ -83,6 +83,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   isJoinGroupLoading: boolean = false;
   userGroupList: any[] = [];
   groupLeaderEmail: string = '';
+  onlineUserList: any[] = [];
 
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
@@ -124,12 +125,9 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.getCurrentUser();
 
-    this.timerService.timerList$.subscribe({
-      next: (res) => {
-        this.timerList = res;
-        console.log('timer', this.timerList);
-      },
-    });
+    this.getOnlineUserList();
+
+    this.getTimerList();
   }
 
   ngOnDestroy(): void {
@@ -140,6 +138,25 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+  }
+
+  private getOnlineUserList(): void {
+    this.websocketService.onlineUserList$.subscribe((res: any) => {
+      if (res) {
+        res.map((item: any) => {
+          this.onlineUserList.push(item.email);
+        });
+      }
+    });
+  }
+
+  private getTimerList(): void {
+    this.timerService.timerList$.subscribe({
+      next: (res) => {
+        this.timerList = res;
+        console.log('timer', this.timerList);
+      },
+    });
   }
 
   private updateItem(timerList: TimerItem[], res: any): void {

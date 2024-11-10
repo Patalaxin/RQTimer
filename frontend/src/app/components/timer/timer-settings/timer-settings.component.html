@@ -60,12 +60,13 @@
                 </button>
               </nz-filter-trigger>
             </th>
+            <th>Статус</th>
             <th>Email</th>
             <th class="admin-buttons" *ngIf="isGroupLeader">Действия</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of userList">
+          <tr *ngFor="let user of userList; let i = index">
             <td nzCustomFilter>
               {{ user.nickname }}
               <span
@@ -73,6 +74,16 @@
                 nz-icon
                 nzType="crown"
               ></span>
+            </td>
+            <td>
+              <nz-tag nzColor="lime" *ngIf="onlineUserList.includes(user.email)"
+                >Online
+              </nz-tag>
+              <nz-tag
+                nzColor="volcano"
+                *ngIf="!onlineUserList.includes(user.email)"
+                >Offline
+              </nz-tag>
             </td>
             <td>{{ user.email }}</td>
             <td class="admin-buttons" *ngIf="isGroupLeader">

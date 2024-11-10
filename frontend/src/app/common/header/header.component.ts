@@ -7,6 +7,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -22,6 +23,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly storageService = inject(StorageService);
+  // private readonly configurationService = inject(ConfigurationService);
   private readonly timerService = inject(TimerService);
   private readonly tokenService = inject(TokenService);
   private readonly historyService = inject(HistoryService);
@@ -40,9 +42,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: any = [];
 
   isOnlineSubscription: Subscription | undefined;
-  isOnline: 'online' | 'offline' | undefined;
+  isOnline: 'online' | 'offline' = 'offline';
 
-  serverList = [{ label: 'Гелиос', value: 'Гелиос' }];
+  serverList = [
+    { label: 'Гелиос', value: 'Гелиос' },
+    { label: 'Игнис', value: 'Игнис' },
+  ];
+  // serverList: any[] = [];
 
   constructor() {
     this.initCurrentServer();
@@ -54,18 +60,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
         if (res) {
-          console.log('isOnline', res);
           if (this.storageService.getLocalStorage('email') === res.email) {
             this.isOnline = res.status;
           }
-        }
-      },
-    );
-
-    this.isOnlineSubscription = this.websocketService.onlineUserList$.subscribe(
-      (res: any) => {
-        if (res) {
-          console.log('onlineUserList', res);
         }
       },
     );
@@ -127,8 +124,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private initCurrentServer() {
+    // this.configurationService.getServers().subscribe({
+    //   next: (res) => {
+    //     console.log('servers', res);
+    //     res.map((item: string) => {
+    //       let server = { label: item, value: item };
+    //       this.serverList.push(server);
+    //     });
+    //     console.log(this.serverList);
     this.currentServer =
       this.storageService.getLocalStorage('server') || 'Гелиос';
+    // },
+    // });
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
