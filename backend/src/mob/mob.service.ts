@@ -271,6 +271,7 @@ export class MobService implements IMob {
       mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
 
     const history: History = {
+      location,
       mobName,
       nickname,
       server,
@@ -321,6 +322,7 @@ export class MobService implements IMob {
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
     const history: History = {
+      location,
       mobName,
       nickname,
       server,
@@ -374,6 +376,7 @@ export class MobService implements IMob {
     const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
 
     const history: History = {
+      location,
       mobName,
       nickname,
       server,
@@ -517,6 +520,7 @@ export class MobService implements IMob {
     const { server, location, mobName } = respawnLostDtoParams;
 
     const history: History = {
+      location,
       mobName,
       nickname,
       server,

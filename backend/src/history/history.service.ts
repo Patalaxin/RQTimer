@@ -9,7 +9,7 @@ import {
   HeliosHistory,
   HeliosHistoryDocument,
 } from '../schemas/heliosHistory.schema';
-import { MobName, Servers } from '../schemas/mobs.enum';
+import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
@@ -49,6 +49,7 @@ export class HistoryService implements IHistory {
     page: number = 1,
     limit: number = 10,
     mobName?: MobName,
+    location?: Locations,
   ): Promise<PaginatedHistoryDto> {
     try {
       if (!groupName) {
@@ -62,6 +63,9 @@ export class HistoryService implements IHistory {
       const query: any = { groupName: groupName };
       if (mobName) {
         query.mobName = mobName;
+      }
+      if (location) {
+        query.location = location;
       }
       const total = await historyModel.countDocuments(query).exec();
       const pages: number = Math.ceil(total / limit);
