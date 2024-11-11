@@ -95,10 +95,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const accessToken = this.storageService.getLocalStorage('token');
     const email = this.storageService.getLocalStorage('email');
 
-    console.log('email', email);
-
     if (accessToken && email) {
-      console.log('connect', accessToken);
       this.websocketService.connect(accessToken, email);
     }
   }
@@ -113,8 +110,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       if (isExpired) {
         this.exchangeRefresh(() => {
           this.websocketService.disconnect();
-          console.log('disconnected', moment(Date.now()).format('HH:mm:ss'));
-
           this.connectWebSocket();
         });
       } else {
@@ -158,13 +153,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private exchangeRefresh(callback: Function) {
     this.tokenService.refreshToken().subscribe({
       next: (res) => {
-        console.log('Токен обновлён', res);
         if (callback && typeof callback === 'function') {
           callback();
         }
       },
       error: (err) => {
-        console.log('Ошибка при обновлении токена', err);
         if (err.status === 401) {
           this.onLogout();
         }
@@ -180,7 +173,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateCurrentServer() {
-    console.log(this.currentServer);
     this.historyService.isLoading = true;
     this.timerService.isLoading = true;
     this.storageService.setCurrentServer(this.currentServer);
@@ -237,7 +229,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   copyRespText() {
     let data: string[] = [];
-    console.log('object', this.timerList);
     this.initCurrentServer();
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
@@ -274,7 +265,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   onCrashServer() {
     this.initCurrentServer();
     this.timerService.isLoading = true;
-    console.log(this.currentServer);
     this.timerService.crashServerBosses(this.currentServer).subscribe({
       next: () => {
         this.updateAllBosses();
@@ -308,7 +298,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    console.log('onLogout header', moment(Date.now()).format('HH:mm:ss'));
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;

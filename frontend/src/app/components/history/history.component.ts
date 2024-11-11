@@ -37,7 +37,6 @@ export class HistoryComponent implements OnInit {
     this.historyService.historyList$.subscribe({
       next: (res) => {
         this.historyList = res;
-        console.log('history', this.historyList);
       },
     });
 
@@ -51,7 +50,6 @@ export class HistoryComponent implements OnInit {
   getUser() {
     this.userService.getUser().subscribe({
       next: (res) => {
-        console.log('getUser', res);
         this.user = {
           nickname: res.nickname,
           email: res.email,

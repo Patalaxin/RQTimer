@@ -104,7 +104,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
       (res: TimerItem) => {
-        console.log('Mob update received:', res);
         if (res) {
           this.updateItem(this.timerList, res);
         }
@@ -154,7 +153,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.timerList$.subscribe({
       next: (res) => {
         this.timerList = res;
-        console.log('timer', this.timerList);
       },
     });
   }
@@ -164,9 +162,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       if (
         item.mob.mobName === res.mob.mobName &&
         item.mob.location === res.mob.location &&
-        item.mob.server === res.mob.server
+        item.mobData.server === res.mobData.server
       ) {
-        console.log('updateItem', item.mobData, res.mobData);
         item.mobData = res.mobData;
         timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
@@ -268,13 +265,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onFocus(event: any) {
-    console.log(event.target.closest('.timer-radio-option').previousSibling);
     event.target.closest('.timer-radio-option').previousSibling.click();
   }
 
   showHistoryModal(item: TimerItem): void {
     event?.stopPropagation();
-    console.log('showHistoryModal', item.mob.mobName);
     this.getHistory(item);
   }
 
@@ -296,17 +291,12 @@ export class TimerComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (res: any) => {
-          console.log(item.mob.mobName, res.data);
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.isLoading = false;
         },
       });
   }
-
-  // onChangeSegments(index: number): void {
-  //   console.log(index);
-  // }
 
   showAddModal(): void {
     this.isAddModalLoading = true;
@@ -500,9 +490,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     item.mob.isDeathOkLoading = true;
 
-    console.log('confirm', this.currentItem);
-    console.log(moment(this.currentTime).format('HH:mm:ss'));
-
     const action = radioActions[this.radioValue];
     if (action) {
       action();
@@ -539,12 +526,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       if (item.mobData.respawnTime)
         if (action === 'respawn') {
-          console.log('currentItem', item);
-          console.log(
-            'moment(this.currentTime).valueOf()',
-            moment(this.currentTime).valueOf(),
-          );
-
           if (item.mobData.respawnTime < item.unixtime) {
             if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
               return `<b>${item.mob.mobName}</b> уже реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
@@ -656,6 +637,10 @@ export class TimerComponent implements OnInit, OnDestroy {
               },
             });
         },
+        error: () => {
+          this.timerService.isLoading = false;
+          item.mob.isOnDieNow = false;
+        },
       });
     } else {
       this.showConfirmRewriteModal(item, 'death');
@@ -688,7 +673,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           'Респ был успешно переписан по кд',
         );
       },
-      error: (err) => {
+      error: () => {
         this.messageService.create('error', 'Респ утерян');
         this.timerService.isLoading = false;
       },
@@ -698,7 +683,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   onLostCooldown(item: TimerItem): void {
     event?.stopPropagation();
     this.timerService.isLoading = true;
-    console.log('onDieNow', item);
     this.timerService.respawnLost(item).subscribe({
       next: (res: TimerItem) => {
         // if (item.timeoutId) {
@@ -715,13 +699,10 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   getAllBosses(): void {
     this.currentServer = this.storageService.getLocalStorage('server');
-    console.log(this.currentServer);
     this.timerService.getAllBosses(this.currentServer).subscribe({
       next: (res) => {
-        console.log(res);
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
-        console.log('cT', this.currentTime, 'cPT', this.currentProgressTime);
         this.sortTimerList([...res]);
 
         this.timerList.forEach((item) => {
@@ -733,6 +714,9 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isInfoModalVisible = false;
           item.mob.isInfoOkLoading = false;
         });
+        this.timerService.isLoading = false;
+      },
+      error: () => {
         this.timerService.isLoading = false;
       },
     });
@@ -820,7 +804,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onExchangeRefresh(event: any): void {
-    console.log('group event', event);
     this.exchangeRefresh(() => {
       this.getCurrentUser();
     });
@@ -829,7 +812,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   private onCreateGroup(name: string) {
     this.groupsService.createGroup(name).subscribe({
       next: () => {
-        console.log('groupName', name);
         this.exchangeRefresh(() => {
           this.isCreateGroupLoading = false;
           this.getCurrentUser();
@@ -844,7 +826,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   private onJoinGroup(code: string) {
     this.groupsService.joinGroup(code).subscribe({
       next: () => {
-        console.log('inviteCode', code);
         this.exchangeRefresh(() => {
           this.isJoinGroupLoading = false;
           this.getCurrentUser();
@@ -859,7 +840,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   private exchangeRefresh(callback: Function) {
     this.tokenService.refreshToken().subscribe({
       next: (res) => {
-        console.log('Токен обновлён timer', res);
         this.isGroupModalLoading = false;
         this.isGroupModalVisible = false;
         if (callback && typeof callback === 'function') {
@@ -867,7 +847,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        console.log('Ошибка при обновлении токена', err);
         if (err.status === 401) {
           this.onLogout();
         }
@@ -883,7 +862,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onLogout(): void {
-    console.log('onLogout timer', moment(Date.now()).format('HH:mm:ss'));
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;

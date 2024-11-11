@@ -108,13 +108,11 @@ export class ChangePasswordComponent {
   }
 
   onCompleteOTP(event: any): void {
-    console.log('onCompleteOTP', event);
     this.otpComplete = event;
   }
 
   onVerifyOTP(): void {
     this.isModalLoading = true;
-    console.log('onVerifyOTP', this.otpComplete);
     this.otpService
       .verifyOTP(this.form.value['email'], this.otpComplete)
       .subscribe({
@@ -138,7 +136,6 @@ export class ChangePasswordComponent {
       .forgotPassword(this.form.value.email, this.form.value.newPassword)
       .subscribe({
         next: (res) => {
-          console.log(res);
           this.passwordChangeLoading = false;
           if (res.message === 'Password successfully changed') {
             this.messageService.create('success', 'Пароль успешно изменён');

@@ -492,6 +492,7 @@
         [(nzVisible)]="isAddModalVisible"
         [nzFooter]="addFooter"
         (nzOnCancel)="cancelAddModal()"
+        [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
       >
         <p *nzModalContent>
           <span

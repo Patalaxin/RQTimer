@@ -80,7 +80,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         return next.handle(newReq);
       }),
       catchError((err) => {
-        console.log('Ошибка при обновлении токена или повторном запросе', err);
         if (err.status === 401) {
           this.onLogout();
         }
@@ -100,8 +99,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   private onLogout() {
-    console.log('Logging out due to failed token refresh.');
-    console.log('onLogout intercept', moment(Date.now()).format('HH:mm:ss'));
     this.authService.signOut().subscribe({
       next: () => {
         this.timerService.headerVisibility = false;

@@ -54,7 +54,6 @@ export class AdminComponent implements OnInit {
     this.userService.currentUser$.subscribe({
       next: (res) => {
         this.currentUser = res;
-        console.log(this.currentUser);
       },
     });
   }
@@ -71,7 +70,6 @@ export class AdminComponent implements OnInit {
   getAllUsers(nickname?: any): void {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
-        console.log('getAllUsers', res);
         this.userSearchList = res;
         this.userSearchList.forEach((item: any, i: any) => {
           item.id = i++;
@@ -111,12 +109,10 @@ export class AdminComponent implements OnInit {
   }
 
   getSpecificUser(nickname: string): void {
-    console.log('click');
     this.isUserDataLoading = true;
     this.userService.getSpecificUser(nickname).subscribe({
       next: (res) => {
         this.userData = res;
-        console.log('getSpecificUser', res);
         this.availableBossList = this.bossList.filter(
           (item: any) => !res.unavailableMobs.includes(item),
         );
@@ -191,7 +187,6 @@ export class AdminComponent implements OnInit {
   }
 
   onDelete(nickname: string): void {
-    console.log('delete');
     this.isTableLoading = true;
     this.userService.deleteUser(nickname).subscribe({
       next: () => {
@@ -201,9 +196,6 @@ export class AdminComponent implements OnInit {
   }
 
   onRoleChange(event: any, role: string): void {
-    console.log('event', event, 'role', role);
     this.isRoleChanged = role !== event;
-
-    console.log('onRoleChange', this.isRoleChanged);
   }
 }

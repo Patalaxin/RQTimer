@@ -28,7 +28,6 @@ export class TokenService {
         this.storageService.setLocalStorage(key, res.accessToken);
         this.refreshingToken = false;
         this.refreshTokenSubject.next(res.accessToken);
-        console.log('token service', res.accessToken);
         this.refreshTokenSubject.complete();
         this.refreshTokenSubject = new Subject<any>();
         return of(res.accessToken);
@@ -37,7 +36,6 @@ export class TokenService {
         this.refreshingToken = false;
         this.refreshTokenSubject.error(err);
         this.refreshTokenSubject = new Subject<any>();
-        console.log('token err', err);
         return throwError(() => err);
       }),
     );

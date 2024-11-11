@@ -7,7 +7,6 @@ export interface TimerItem {
     respawnText: string;
     location: string;
     image: string;
-    server: string;
     mobType: string;
     plusCooldown: number;
     isDeathModalVisible: boolean;
@@ -19,6 +18,7 @@ export interface TimerItem {
     isInfoOkLoading: boolean;
   };
   mobData: {
+    server?: string;
     mobId?: {};
     respawnTime?: number;
     deathTime?: number;
