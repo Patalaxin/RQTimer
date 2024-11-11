@@ -286,7 +286,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, location: location },
+        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
         {
           $inc: { cooldown },
           respawnTime: nextResurrectTime,
@@ -335,7 +335,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, location: location },
+        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -390,7 +390,7 @@ export class MobService implements IMob {
     // Update MobsData
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, location: location },
+        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -545,7 +545,7 @@ export class MobService implements IMob {
           {
             mobId: mob.mobData.mobId,
             groupName: groupName,
-            location: location,
+            server: server,
           },
           {
             cooldown: 0,
