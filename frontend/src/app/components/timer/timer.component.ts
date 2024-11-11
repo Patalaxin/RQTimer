@@ -39,6 +39,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NzModalService);
 
   private mobUpdateSubscription: Subscription | undefined;
+  private worker: Worker | undefined;
   permission: string = '';
 
   timerList: TimerItem[] = [];
@@ -115,15 +116,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     );
 
-    this.timerService.getUnixtime().subscribe({
-      next: (res) => {
-        this.currentProgressTime = res.unixtime;
-        this.intervalId = setInterval(() => {
-          this.currentProgressTime += 1000;
-          this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-        }, 1000);
-      },
-    });
+    this.updateWorkers();
 
     this.checkScreenWidth();
 
@@ -139,9 +132,13 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.mobUpdateSubscription.unsubscribe();
     }
 
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+    if (this.worker) {
+      this.worker.terminate();
     }
+
+    // if (this.intervalId) {
+    //   clearInterval(this.intervalId);
+    // }
   }
 
   private getOnlineUserList(): void {
@@ -158,6 +155,38 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.timerList$.subscribe({
       next: (res) => {
         this.timerList = res;
+      },
+    });
+  }
+
+  private updateWorkers(): void {
+    this.timerService.getUnixtime().subscribe({
+      next: (res) => {
+        this.currentProgressTime = res.unixtime;
+
+        if (typeof Worker !== 'undefined') {
+          this.worker = new Worker(
+            new URL('../../workers/timer.worker', import.meta.url),
+          );
+
+          this.worker.postMessage({
+            currentProgressTime: this.currentProgressTime,
+            timerList: this.timerList,
+          });
+
+          this.worker.onmessage = (event) => {
+            const { updatedProgressTime } = event.data;
+            this.currentProgressTime = updatedProgressTime;
+            this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+          };
+        } else {
+          console.log('Web Workers не поддерживаются');
+        }
+
+        // this.intervalId = setInterval(() => {
+        //   this.currentProgressTime += 1000;
+        //   this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+        // }, 1000);
       },
     });
   }
