@@ -98,9 +98,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.timerService.headerVisibility = true;
-    Notification?.requestPermission().then((perm) => {
-      this.permission = perm;
-    });
+    if ('Notification' in window) {
+      Notification?.requestPermission().then((perm) => {
+        this.permission = perm;
+      });
+    }
 
     this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
       (res: TimerItem) => {
@@ -214,7 +216,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       playSound();
     };
 
-    if ('Notification' in window && Notification.permission === 'granted') {
+    if ('Notification' in window && Notification?.permission === 'granted') {
       if (item.mobData.respawnTime) {
         const timeDifference =
           Math.round(
