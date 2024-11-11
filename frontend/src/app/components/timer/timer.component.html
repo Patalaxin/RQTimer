@@ -506,6 +506,7 @@
           ></nz-skeleton>
           <span *ngIf="!isAddModalLoading">
             <label
+              *ngIf="availableMobList.length"
               nz-checkbox
               style="
                 height: 32px;
