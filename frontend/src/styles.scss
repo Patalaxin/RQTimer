@@ -35,8 +35,12 @@ nz-segmented .ng-animating {
   }
 }
 
-.ant-table tr:hover {
-  color: hsl(220, 32%, 25%);
+// .ant-table tr:hover {
+//   color: hsl(220, 32%, 25%);
+// }
+
+.ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: #32569e;
 }
 
 .ant-modal-body {

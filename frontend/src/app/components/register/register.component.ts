@@ -54,6 +54,8 @@ export class RegisterComponent implements OnInit {
       nickname: new FormControl('', [
         Validators.required,
         Validators.minLength(4),
+        Validators.maxLength(16),
+        Validation.nicknameValidator,
       ]),
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [
@@ -94,10 +96,8 @@ export class RegisterComponent implements OnInit {
   }
 
   done(): void {
-    console.log(this.form.value['email']);
     this.registerLoading = true;
     this.onSendOTP();
-    console.log('done');
   }
 
   get formControls(): { [key: string]: AbstractControl } {
@@ -115,7 +115,6 @@ export class RegisterComponent implements OnInit {
   getMobs() {
     this.configurationService.getMobs().subscribe({
       next: (res) => {
-        console.log(res);
         this.bossesCheckboxList = res.bossesArray;
         this.elitesCheckboxList = res.elitesArray;
         this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
@@ -169,13 +168,11 @@ export class RegisterComponent implements OnInit {
   }
 
   onCompleteOTP(event: any): void {
-    console.log('onCompleteOTP', event);
     this.otpComplete = event;
   }
 
   onVerifyOTP(): void {
     this.isModalLoading = true;
-    console.log('onVerifyOTP', this.otpComplete);
     this.otpService
       .verifyOTP(this.form.value['email'], this.otpComplete)
       .subscribe({
@@ -204,11 +201,10 @@ export class RegisterComponent implements OnInit {
         ...this.selectedElitesCheckbox,
       ])
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.registerLoading = false;
           this.isModalLoading = false;
           this.isModalVisible = false;
-          console.log(res);
           this.messageService.create('success', 'Пользователь успешно создан');
           this.router.navigate(['/login']);
         },

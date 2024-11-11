@@ -14,10 +14,6 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly timerService = inject(TimerService);
-  private readonly storageService = inject(StorageService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
 
@@ -37,8 +33,6 @@ export class AdminComponent implements OnInit {
 
   isRoleChanged: boolean = false;
   roleList = ['Admin', 'User'];
-
-  sessionId: string = '';
 
   currentUser: any;
 
@@ -60,7 +54,6 @@ export class AdminComponent implements OnInit {
     this.userService.currentUser$.subscribe({
       next: (res) => {
         this.currentUser = res;
-        console.log(this.currentUser);
       },
     });
   }
@@ -71,13 +64,12 @@ export class AdminComponent implements OnInit {
   }
 
   getUserColor(role: string): any {
-    return role == 'Admin' ? 'red' : 'green';
+    return role == 'Admin' ? 'volcano' : 'lime';
   }
 
   getAllUsers(nickname?: any): void {
     this.userService.getAllUsers().subscribe({
       next: (res) => {
-        console.log('getAllUsers', res);
         this.userSearchList = res;
         this.userSearchList.forEach((item: any, i: any) => {
           item.id = i++;
@@ -117,12 +109,10 @@ export class AdminComponent implements OnInit {
   }
 
   getSpecificUser(nickname: string): void {
-    console.log('click');
     this.isUserDataLoading = true;
     this.userService.getSpecificUser(nickname).subscribe({
       next: (res) => {
         this.userData = res;
-        console.log('getSpecificUser', res);
         this.availableBossList = this.bossList.filter(
           (item: any) => !res.unavailableMobs.includes(item),
         );
@@ -197,7 +187,6 @@ export class AdminComponent implements OnInit {
   }
 
   onDelete(nickname: string): void {
-    console.log('delete');
     this.isTableLoading = true;
     this.userService.deleteUser(nickname).subscribe({
       next: () => {
@@ -207,24 +196,6 @@ export class AdminComponent implements OnInit {
   }
 
   onRoleChange(event: any, role: string): void {
-    console.log('event', event, 'role', role);
     this.isRoleChanged = role !== event;
-
-    console.log('onRoleChange', this.isRoleChanged);
-  }
-
-  onGenerateSessionId() {
-    this.isGenerateLoading = true;
-    this.userService.generateSessionId().subscribe({
-      next: (res) => {
-        this.sessionId = res._id;
-        this.isGenerateLoading = false;
-      },
-    });
-  }
-
-  onSessionIdClick(sessionId: string) {
-    this.messageService.create('success', `Session ID успешно скопирован!`);
-    navigator.clipboard.writeText(sessionId);
   }
 }

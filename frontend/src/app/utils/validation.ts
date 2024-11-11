@@ -43,4 +43,34 @@ export default class Validation {
 
     return Object.keys(errors).length > 0 ? errors : null;
   }
+
+  static nicknameValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value || '';
+    const errors: any = {};
+
+    if (!/^[A-ZА-Я]/.test(value)) {
+      errors.mustStartWithUppercase =
+        'Никнейм должен начинаться с заглавной буквы.';
+    }
+
+    const uppercaseLettersCount = (value.match(/[A-ZА-Я]/g) || []).length;
+    if (uppercaseLettersCount > 2) {
+      errors.tooManyUppercase =
+        'Никнейм может содержать не более 2 заглавных букв.';
+    }
+
+    const hyphenCount = (value.match(/-/g) || []).length;
+    if (hyphenCount > 1) {
+      errors.tooManyHyphens = 'Никнейм может содержать не более одного дефиса.';
+    }
+
+    const hasLatin = /[A-Za-z]/.test(value);
+    const hasCyrillic = /[А-Яа-я]/.test(value);
+    if (hasLatin && hasCyrillic) {
+      errors.mixedCyrillicAndLatin =
+        'Никнейм не может содержать смешение кириллицы и латиницы.';
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
 }

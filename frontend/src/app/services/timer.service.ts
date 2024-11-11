@@ -84,7 +84,7 @@ export class TimerService {
     let payload = {
       dateOfDeath,
       mobName: item.mob.mobName,
-      server: item.mob.server,
+      server: item.mobData.server,
       location: item.mob.location,
     };
 
@@ -95,7 +95,7 @@ export class TimerService {
     let payload = {
       dateOfRespawn,
       mobName: item.mob.mobName,
-      server: item.mob.server,
+      server: item.mobData.server,
       location: item.mob.location,
     };
 
@@ -105,7 +105,7 @@ export class TimerService {
   setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
     let payload = {
       mobName: item.mob.mobName,
-      server: item.mob.server,
+      server: item.mobData.server,
       location: item.mob.location,
       cooldown,
     };
@@ -117,7 +117,7 @@ export class TimerService {
     let payload = {};
 
     return this.http.put(
-      `${this.MOB_URL}/respawn-lost/${item.mob.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/respawn-lost/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
       payload,
     );
   }

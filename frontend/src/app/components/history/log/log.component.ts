@@ -35,7 +35,7 @@ export class LogComponent implements OnInit {
   }
 
   getUserColor(role: string): any {
-    return role == 'Admin' ? 'red' : 'green';
+    return role == 'Admin' ? 'volcano' : 'lime';
   }
 
   changePage($event: any, mobName: string): void {

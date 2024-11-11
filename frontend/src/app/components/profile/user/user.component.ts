@@ -80,7 +80,6 @@ export class UserComponent implements OnInit {
       if (this.excludedMobs) {
         this.excludedMobs.forEach((boss: any) => {
           if (boss === item.textContent?.trim()) {
-            console.log('boss', boss, 'checkbox', item.textContent?.trim());
             (item as HTMLInputElement).click();
           }
         });
@@ -109,7 +108,6 @@ export class UserComponent implements OnInit {
   getMobs() {
     this.configurationService.getMobs().subscribe({
       next: (res) => {
-        console.log(res);
         res.bossesArray.forEach((boss: any) => {
           this.bossList.push(boss.mobName);
         });
@@ -141,8 +139,7 @@ export class UserComponent implements OnInit {
         ...this.selectedElitesCheckbox,
       ])
       .subscribe({
-        next: (res) => {
-          console.log(res);
+        next: () => {
           this.messageService.create(
             'success',
             'Настройки отображения успешно обновлены',
@@ -165,9 +162,8 @@ export class UserComponent implements OnInit {
         this.changePasswordForm.value.newPassword,
       )
       .subscribe({
-        next: (res) => {
+        next: () => {
           this.passwordChangeLoading = false;
-          console.log(res);
           this.messageService.create('success', 'Пароль успешно изменён');
 
           this.changePasswordForm.reset();

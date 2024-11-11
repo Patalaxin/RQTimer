@@ -86,6 +86,7 @@
       [isGroupLeader]="currentUser.isGroupLeader"
       [currentUser]="currentUser"
       [groupName]="userGroupName"
+      [onlineUserList]="onlineUserList"
       (exchangeRefresh)="onExchangeRefresh($event)"
     ></app-timer-settings>
   </div>
@@ -491,6 +492,7 @@
         [(nzVisible)]="isAddModalVisible"
         [nzFooter]="addFooter"
         (nzOnCancel)="cancelAddModal()"
+        [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
       >
         <p *nzModalContent>
           <span
