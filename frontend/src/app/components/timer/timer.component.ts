@@ -694,6 +694,9 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
         this.timerService.isLoading = false;
       },
+      error: () => {
+        this.timerService.isLoading = false;
+      },
     });
   }
 
