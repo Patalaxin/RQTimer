@@ -85,6 +85,7 @@ export interface IMob {
   ): Promise<RemoveMobFromGroupDtoResponse>;
 
   crashMobServer(
+    groupName: string,
     email: string,
     nickname: string,
     role: string,

@@ -233,6 +233,7 @@ export class MobController {
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/crash-server/:server')
   async crashServer(
+    @GetGroupNameFromToken() groupName: string,
     @GetEmailFromToken() email: string,
     @Req() request: Request,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
@@ -242,6 +243,7 @@ export class MobController {
       this.jwtService,
     );
     const mob: GetFullMobDtoResponse[] = await this.mobInterface.crashMobServer(
+      groupName,
       email,
       parsedToken.nickname,
       parsedToken.role,
@@ -251,6 +253,7 @@ export class MobController {
     this.mobGateway.sendMobUpdate({
       ...mob,
       socketType: 'crashServer',
+      groupName,
     });
 
     return mob;

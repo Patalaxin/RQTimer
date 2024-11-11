@@ -459,6 +459,7 @@ export class MobService implements IMob {
   }
 
   async crashMobServer(
+    groupName: string,
     email: string,
     nickname: string,
     role: RolesTypes,
@@ -472,6 +473,7 @@ export class MobService implements IMob {
       role,
       historyTypes: HistoryTypes.crashMobServer,
       crashServer: true,
+      groupName: groupName,
     };
 
     try {
@@ -481,6 +483,7 @@ export class MobService implements IMob {
             respawnTime: { $gte: Date.now() },
             mobTypeAdditionalTime: MobsTypes.Босс,
             server: server,
+            groupName: groupName,
           },
           { $inc: { respawnTime: -300000 } },
         ),
@@ -489,6 +492,7 @@ export class MobService implements IMob {
             respawnTime: { $gte: Date.now() },
             mobTypeAdditionalTime: MobsTypes.Элитка,
             server: server,
+            groupName: groupName,
           },
           { $inc: { respawnTime: -18000 } },
         ),
