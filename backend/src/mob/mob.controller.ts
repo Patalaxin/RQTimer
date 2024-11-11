@@ -144,6 +144,7 @@ export class MobController {
       ...updateMobByCooldownDto,
       ...mob,
       socketType: 'updateMobByCooldown',
+      groupName,
     });
     return mob;
   }
@@ -172,6 +173,7 @@ export class MobController {
       ...updateMobDateOfDeathDto,
       ...mob,
       socketType: 'updateMobDateOfDeath',
+      groupName,
     });
 
     return mob;
@@ -201,6 +203,7 @@ export class MobController {
       ...updateMobDateOfRespawnDto,
       ...mob,
       socketType: 'updateMobDateOfRespawn',
+      groupName,
     });
 
     return mob;
