@@ -85,6 +85,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   groupLeaderEmail: string = '';
   onlineUserList: any[] = [];
 
+  allAddChecked: boolean = false;
+  indeterminate: boolean = false;
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
@@ -301,6 +304,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showAddModal(): void {
+    this.allAddChecked = false;
+    this.indeterminate = false;
     this.isAddModalLoading = true;
     this.isAddModalVisible = true;
     this.timerService.getAvailableBosses().subscribe({
@@ -320,6 +325,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   cancelAddModal(): void {
     this.isAddModalVisible = false;
+    this.addMobList = [];
   }
 
   onAddMobs(): void {
@@ -344,7 +350,73 @@ export class TimerComponent implements OnInit, OnDestroy {
       });
   }
 
+  addAllChecked(): void {
+    this.indeterminate = false;
+    const mobsCheckbox = Array.from(document.querySelectorAll('.add-mob'));
+    if (this.allAddChecked) {
+      mobsCheckbox.map((item: any) => {
+        if (
+          !item
+            .querySelector('.ant-checkbox')
+            .classList.contains('ant-checkbox-checked')
+        ) {
+          item.click();
+        }
+      });
+    } else {
+      mobsCheckbox.map((item: any) => {
+        if (
+          item
+            .querySelector('.ant-checkbox')
+            .classList.contains('ant-checkbox-checked')
+        ) {
+          item.click();
+        }
+      });
+    }
+  }
+
   onChangeCheckbox(event: any): void {
+    console.log(event);
+    if (
+      this.availableMobList.filter(
+        (availableItem: any) =>
+          !event.some(
+            (timerItem: any) =>
+              timerItem ===
+              `${availableItem.mobName}: ${availableItem.location}`,
+          ),
+      ).length
+    ) {
+      this.allAddChecked = false;
+      this.indeterminate = false;
+
+      if (
+        this.availableMobList.filter(
+          (availableItem: any) =>
+            !event.some(
+              (timerItem: any) =>
+                timerItem ===
+                `${availableItem.mobName}: ${availableItem.location}`,
+            ),
+        ).length !== this.availableMobList.length
+      ) {
+        this.indeterminate = true;
+      }
+    } else if (
+      !this.availableMobList.filter(
+        (availableItem: any) =>
+          !event.some(
+            (timerItem: any) =>
+              timerItem ===
+              `${availableItem.mobName}: ${availableItem.location}`,
+          ),
+      ).length
+    ) {
+      this.allAddChecked = true;
+      this.indeterminate = false;
+    }
+
     this.addMobList = event;
   }
 

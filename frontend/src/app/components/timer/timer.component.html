@@ -504,30 +504,50 @@
             [nzActive]="true"
             *ngIf="isAddModalLoading"
           ></nz-skeleton>
-          <nz-checkbox-wrapper
-            *ngIf="!isAddModalLoading"
-            style="width: 100%"
-            (nzOnChange)="onChangeCheckbox($event)"
-          >
-            <div>
-              <div *ngFor="let mob of availableMobList; let i = index">
-                <label
-                  nz-checkbox
-                  nzValue="{{ mob.mobName }}: {{ mob.location }}"
-                >
-                  <nz-avatar
-                    [nzSize]="32"
-                    [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
-                    style="margin: 5px 10px"
-                  ></nz-avatar>
-                  <span class="mob-name"
-                    ><b>{{ mob.mobName }}</b
-                    >: {{ mob.location }}</span
+          <span *ngIf="!isAddModalLoading">
+            <label
+              nz-checkbox
+              style="
+                height: 32px;
+                border-bottom: 1px solid #fff;
+                padding-bottom: 16px;
+                width: 100%;
+              "
+              [(ngModel)]="allAddChecked"
+              (ngModelChange)="addAllChecked()"
+              [nzIndeterminate]="indeterminate"
+              class="check-all"
+            >
+              <span class="mob-name"><b>Выбрать все</b></span>
+            </label>
+            <nz-checkbox-wrapper
+              style="width: 100%"
+              (nzOnChange)="onChangeCheckbox($event)"
+            >
+              <div>
+                <div *ngFor="let mob of availableMobList; let i = index">
+                  <label
+                    nz-checkbox
+                    nzValue="{{ mob.mobName }}: {{ mob.location }}"
+                    class="add-mob"
                   >
-                </label>
+                    <nz-avatar
+                      [nzSize]="32"
+                      [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
+                      style="margin: 5px 10px"
+                    ></nz-avatar>
+                    <span class="mob-name"
+                      ><b>{{ mob.mobName }}</b
+                      >: {{ mob.location }}</span
+                    >
+                  </label>
+                </div>
               </div>
-            </div>
-          </nz-checkbox-wrapper>
+              <nz-list-empty
+                *ngIf="availableMobList.length === 0"
+              ></nz-list-empty>
+            </nz-checkbox-wrapper>
+          </span>
         </p>
 
         <ng-template #addFooter>
