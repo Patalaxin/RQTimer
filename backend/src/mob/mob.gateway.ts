@@ -17,8 +17,12 @@ export class MobGateway {
 
   sendMobUpdate(data: any) {
     const onlineUsers = this.authGateway.getOnlineUsers();
+    console.log(onlineUsers);
 
     onlineUsers.forEach((user) => {
+      console.log(user.groupName);
+      console.log(data.groupName);
+
       if (user.groupName === data.groupName) {
         const socket = this.server.sockets.sockets.get(user.socketId);
         if (socket) {
