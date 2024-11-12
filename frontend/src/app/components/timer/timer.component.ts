@@ -252,9 +252,11 @@ export class TimerComponent implements OnInit, OnDestroy {
         const timeDifference =
           moment
             .utc(
-              moment(item.mobData.respawnTime).diff(
-                moment(this.currentProgressTime),
-              ),
+              Math.round(
+                moment(item.mobData.respawnTime).diff(
+                  moment(this.currentProgressTime),
+                ) / 1000,
+              ) * 1000,
             )
             .valueOf() - 1000; // 1000 - 1 сек погрешности
 
@@ -262,6 +264,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         //   console.log(moment.utc(timeDifference).format('HH:mm:ss'));
 
         if (timeDifference === minute * 60000) {
+          // console.log('1 minute');
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
             `${item.mob.mobName} реснется через ${minute} минут.`,
@@ -366,6 +369,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onAddMobs(): void {
     this.isAddOkLoading = true;
     this.timerService.isLoading = true;
+    this.currentServer = this.storageService.getLocalStorage('server');
     this.timerService
       .addMobGroup(this.currentServer, this.addMobList)
       .subscribe({
