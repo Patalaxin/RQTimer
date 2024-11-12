@@ -171,7 +171,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
           this.worker.postMessage({
             currentProgressTime: this.currentProgressTime,
-            timerList: this.timerList,
           });
 
           this.worker.onmessage = (event) => {
@@ -251,9 +250,16 @@ export class TimerComponent implements OnInit, OnDestroy {
     if ('Notification' in window && Notification?.permission === 'granted') {
       if (item.mobData.respawnTime) {
         const timeDifference =
-          Math.round(
-            (item.mobData.respawnTime - this.currentProgressTime) / 1000,
-          ) * 1000;
+          moment
+            .utc(
+              moment(item.mobData.respawnTime).diff(
+                moment(this.currentProgressTime),
+              ),
+            )
+            .valueOf() - 1000; // 1000 - 1 сек погрешности
+
+        // if (item.mob.mobName === 'Архон')
+        //   console.log(moment.utc(timeDifference).format('HH:mm:ss'));
 
         if (timeDifference === minute * 60000) {
           sendNotification(
