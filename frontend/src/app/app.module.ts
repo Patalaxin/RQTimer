@@ -27,6 +27,8 @@ import { TUI_SANITIZER } from '@taiga-ui/core';
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
 import { TimerSettingsComponent } from './components/timer/timer-settings/timer-settings.component';
 
+import { CapitalizeDirective } from './directives/capitalize.directive';
+
 registerLocaleData(ru);
 
 @NgModule({
@@ -46,6 +48,7 @@ registerLocaleData(ru);
     MobModalComponent,
     NotFoundComponent,
     TimerSettingsComponent,
+    CapitalizeDirective,
   ],
   imports: [
     BrowserModule,

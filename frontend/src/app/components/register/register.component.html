@@ -29,6 +29,7 @@
                     name="mix"
                     minlength="4"
                     required
+                    appCapitalize
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -47,18 +48,18 @@
                 <div
                   *ngIf="
                     !control.errors?.required &&
-                    control.errors?.mustStartWithUppercase
-                  "
-                >
-                  • Никнейм должен начинаться с заглавной буквы!
-                </div>
-                <div
-                  *ngIf="
-                    !control.errors?.required &&
                     control.errors?.tooManyUppercase
                   "
                 >
                   • Никнейм может содержать не более 2 заглавных букв!
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required &&
+                    control.errors?.invalidHyphenPosition
+                  "
+                >
+                  • Никнейм не должен начинаться или заканчиваться на дефис!
                 </div>
                 <div
                   *ngIf="
