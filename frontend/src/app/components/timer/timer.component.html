@@ -505,28 +505,36 @@
             *ngIf="isAddModalLoading"
           ></nz-skeleton>
           <span *ngIf="!isAddModalLoading">
-            <label
-              *ngIf="availableMobList.length"
-              nz-checkbox
-              style="
-                height: 32px;
-                border-bottom: 1px solid #fff;
-                padding-bottom: 16px;
-                width: 100%;
-              "
-              [(ngModel)]="allAddChecked"
-              (ngModelChange)="addAllChecked()"
-              [nzIndeterminate]="indeterminate"
-              class="check-all"
-            >
-              <span class="mob-name"><b>Выбрать все</b></span>
-            </label>
+            <div *ngIf="availableMobList.length">
+              <nz-input-group nzPrefixIcon="search" class="br-50px">
+                <input
+                  nz-input
+                  [(ngModel)]="addSearchValue"
+                  (ngModelChange)="addSearch($event)"
+                />
+              </nz-input-group>
+              <label
+                nz-checkbox
+                style="
+                  height: 32px;
+                  border-bottom: 1px solid #fff;
+                  margin: 16px 0;
+                  width: 100%;
+                "
+                [(ngModel)]="allAddChecked"
+                (ngModelChange)="addAllChecked()"
+                [nzIndeterminate]="indeterminate"
+                class="check-all"
+              >
+                <span class="mob-name"><b>Выбрать все</b></span>
+              </label>
+            </div>
             <nz-checkbox-wrapper
               style="width: 100%"
               (nzOnChange)="onChangeCheckbox($event)"
             >
               <div>
-                <div *ngFor="let mob of availableMobList; let i = index">
+                <div *ngFor="let mob of filteredMobList; let i = index">
                   <label
                     nz-checkbox
                     nzValue="{{ mob.mobName }}: {{ mob.location }}"
@@ -545,7 +553,7 @@
                 </div>
               </div>
               <nz-list-empty
-                *ngIf="availableMobList.length === 0"
+                *ngIf="filteredMobList.length === 0"
               ></nz-list-empty>
             </nz-checkbox-wrapper>
           </span>

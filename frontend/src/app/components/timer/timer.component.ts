@@ -44,6 +44,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
+  filteredMobList: any = [];
   addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
@@ -88,6 +89,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   allAddChecked: boolean = false;
   indeterminate: boolean = false;
+
+  addSearchValue: string = '';
 
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
@@ -356,6 +359,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 timerItem.mob.location === availableItem.location,
             ),
         );
+        this.filteredMobList = [...this.availableMobList];
         this.isAddModalLoading = false;
       },
     });
@@ -364,6 +368,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   cancelAddModal(): void {
     this.isAddModalVisible = false;
     this.addMobList = [];
+    this.addSearchValue = '';
   }
 
   onAddMobs(): void {
@@ -387,6 +392,14 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService.isLoading = false;
         },
       });
+  }
+
+  addSearch(value: any): void {
+    this.filteredMobList = value
+      ? this.availableMobList.filter((mob: any) =>
+          mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+        )
+      : [...this.availableMobList];
   }
 
   addAllChecked(): void {
