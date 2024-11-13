@@ -7,7 +7,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
-import { ConfigurationService } from 'src/app/services/configuration.service';
+// import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -49,6 +49,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     { label: 'Игнис', value: 'Игнис' },
   ];
   // serverList: any[] = [];
+
+  duplicatedMobList: any = [
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
 
   constructor() {
     this.initCurrentServer();
@@ -238,7 +246,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
           if (item.mobData.respawnTime) {
             data.push(
-              `${item.mob.shortName} - ${moment(
+              `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
                 item.mobData.respawnTime,
               ).format('HH:mm:ss')}`,
             );

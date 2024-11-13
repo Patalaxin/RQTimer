@@ -45,6 +45,13 @@ export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   availableMobList: any = [];
   filteredMobList: any = [];
+  duplicatedMobList: any = [
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
   addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
@@ -302,7 +309,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onClickTimerItem(item: TimerItem): void {
     if (item.mobData.respawnTime) {
-      let data: string = `${item.mob.shortName} - ${moment(
+      let data: string = `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
         item.mobData.respawnTime,
       ).format('HH:mm:ss')}`;
       this.messageService.create('success', `${data}`);
