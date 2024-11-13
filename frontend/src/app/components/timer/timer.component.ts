@@ -270,14 +270,14 @@ export class TimerComponent implements OnInit, OnDestroy {
           // console.log('1 minute');
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.mobName} реснется через ${minute} минут.`,
+            `${item.mob.mobName} реснется через ${minute} минуту.`,
           );
         }
 
         if (timeDifference === 0) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.respawnText}`,
+            `${item.mob.respawnText ? item.mob.respawnText : `Притаился крыс, и сам себя не прихлопнет..`}`,
           );
         }
       }
