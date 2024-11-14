@@ -57,6 +57,7 @@
       'header-d-none': isScreenWidth600,
       'header-d-flex': !isScreenWidth600,
     }"
+    *ngIf="currentRoute == '/timer'"
   >
     <input
       nz-input
@@ -84,6 +85,7 @@
       (click)="onSearchOpen()"
       nzShape="circle"
       class="search-button"
+      *ngIf="currentRoute == '/timer'"
     >
       <span nz-icon nzType="search"></span>
     </button>
