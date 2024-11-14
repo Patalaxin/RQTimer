@@ -1,5 +1,10 @@
 <div class="header" *ngIf="isLoggedIn()">
-  <div class="header-left">
+  <div
+    class="header-left"
+    [ngClass]="{
+      'header-d-inline': isScreenWidth600,
+    }"
+  >
     <nz-select
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
@@ -48,6 +53,10 @@
     nzPrefixIcon="search"
     [nzSuffix]="suffixSearch"
     class="br-50px header-search"
+    [ngClass]="{
+      'header-d-none': isScreenWidth600,
+      'header-d-flex': !isScreenWidth600,
+    }"
   >
     <input
       nz-input
@@ -63,7 +72,12 @@
       *ngIf="isScreenWidth600"
     ></span>
   </ng-template>
-  <div class="header-right">
+  <div
+    class="header-right"
+    [ngClass]="{
+      'header-d-inline': isScreenWidth600,
+    }"
+  >
     <button
       nz-button
       nzType="primary"
