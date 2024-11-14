@@ -15,11 +15,16 @@ export class TimerService {
   private readonly MOB_URL = environment.apiUrl + '/mobs';
 
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
+  filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
   private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
 
   get timerList$(): Observable<TimerItem[]> {
     return this.timerListSubject$.asObservable();
+  }
+
+  get filteredTimerList$(): Observable<TimerItem[]> {
+    return this.filteredTimerListSubject$.asObservable();
   }
 
   get isLoading$(): Observable<boolean> {
@@ -32,6 +37,10 @@ export class TimerService {
 
   set timerList(list: TimerItem[]) {
     this.timerListSubject$.next(list);
+  }
+
+  set filteredTimerList(list: TimerItem[]) {
+    this.filteredTimerListSubject$.next(list);
   }
 
   set isLoading(value: boolean) {
