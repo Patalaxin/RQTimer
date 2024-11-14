@@ -198,29 +198,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        // this.updateHistory();
+        this.updateHistory();
+      },
+      error: () => {
+        this.timerService.isLoading = false;
       },
     });
   }
 
-  // updateHistory(): void {
-  //   this.historyService.getHistory(this.currentServer).subscribe({
-  //     next: (res: any) => {
-  //       this.historyListData = res;
-  //       this.historyList = res.data;
-  //       this.historyService.historyList = this.historyList;
-  //       this.historyService.historyListData = this.historyListData;
-  //       this.historyService.isLoading = false;
-  //     },
-  //     error: (err) => {
-  //       if (err.status === 401) {
-  //         this.exchangeRefresh(() => {
-  //           this.updateHistory();
-  //         });
-  //       }
-  //     },
-  //   });
-  // }
+  updateHistory(): void {
+    this.historyService.getHistory(this.currentServer).subscribe({
+      next: (res: any) => {
+        this.historyListData = res;
+        this.historyList = res.data;
+        this.historyService.historyList = this.historyList;
+        this.historyService.historyListData = this.historyListData;
+        this.historyService.isLoading = false;
+      },
+      error: () => {
+        this.historyService.isLoading = false;
+      },
+    });
+  }
 
   getCurrentUser() {
     this.userService.getUser().subscribe({
