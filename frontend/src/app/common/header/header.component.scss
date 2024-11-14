@@ -15,6 +15,18 @@
   border-color: #ef9595;
 }
 
+.header-d-none {
+  display: none !important;
+}
+
+.header-d-flex {
+  display: flex !important;
+}
+
+.header-d-inline {
+  display: inline !important;
+}
+
 .header {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

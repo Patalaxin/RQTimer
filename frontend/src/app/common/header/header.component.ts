@@ -122,23 +122,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private checkScreenWidth(): void {
-    const search = document.querySelector('.header-search');
+    this.isScreenWidth600 = window.innerWidth <= 600;
     const left = document.querySelector('.header-left');
     const right = document.querySelector('.header-right');
-    this.isScreenWidth600 = window.innerWidth <= 600;
 
     if (!this.isScreenWidth600) {
-      if (search) {
-        (search as HTMLElement).style.display = 'flex';
-      }
-    } else {
-      if (search && left && right) {
-        (search as HTMLElement).style.display = 'none';
-        (left as HTMLElement).style.display = 'inline';
-        (right as HTMLElement).style.display = 'inline';
-        this.timerSearchValue = '';
-        this.timerSearch(this.timerSearchValue);
-      }
+      left?.classList.remove('header-d-none');
+      right?.classList.remove('header-d-none');
     }
   }
 
@@ -227,18 +217,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const search = document.querySelector('.header-search');
     const left = document.querySelector('.header-left');
     const right = document.querySelector('.header-right');
-    (search as HTMLElement).style.display = 'flex';
-    (left as HTMLElement).style.display = 'none';
-    (right as HTMLElement).style.display = 'none';
+
+    search?.classList.remove('header-d-none');
+    left?.classList.remove('header-d-inline');
+    right?.classList.remove('header-d-inline');
+
+    search?.classList.add('header-d-flex');
+    left?.classList.add('header-d-none');
+    right?.classList.add('header-d-none');
   }
 
   onSearchClose(): void {
     const search = document.querySelector('.header-search');
     const left = document.querySelector('.header-left');
     const right = document.querySelector('.header-right');
-    (search as HTMLElement).style.display = 'none';
-    (left as HTMLElement).style.display = 'inline';
-    (right as HTMLElement).style.display = 'inline';
+
+    search?.classList.remove('header-d-flex');
+    left?.classList.remove('header-d-none');
+    right?.classList.remove('header-d-none');
+
+    search?.classList.add('header-d-none');
+    left?.classList.add('header-d-inline');
+    right?.classList.add('header-d-inline');
+
     this.timerSearchValue = '';
     this.timerSearch(this.timerSearchValue);
   }
