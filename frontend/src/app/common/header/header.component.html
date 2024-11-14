@@ -1,7 +1,6 @@
 <div class="header" *ngIf="isLoggedIn()">
   <div class="header-left">
     <nz-select
-      style="width: 95px"
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
       (ngModelChange)="updateCurrentServer()"
@@ -45,7 +44,35 @@
       <span nz-icon nzType="api"></span>
     </button>
   </div>
+  <nz-input-group
+    nzPrefixIcon="search"
+    [nzSuffix]="suffixSearch"
+    class="br-50px header-search"
+  >
+    <input
+      nz-input
+      [(ngModel)]="timerSearchValue"
+      (ngModelChange)="timerSearch($event)"
+    />
+  </nz-input-group>
+  <ng-template #suffixSearch>
+    <span
+      nz-icon
+      (click)="onSearchClose()"
+      nzType="close-circle"
+      *ngIf="isScreenWidth600"
+    ></span>
+  </ng-template>
   <div class="header-right">
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onSearchOpen()"
+      nzShape="circle"
+      class="search-button"
+    >
+      <span nz-icon nzType="search"></span>
+    </button>
     <button
       nz-button
       nzType="primary"

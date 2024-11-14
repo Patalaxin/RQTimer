@@ -16,17 +16,16 @@
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   padding: 10px 20px;
-  // background-color: #222222;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 
   .header-left {
-    align-self: center;
+    grid-column: 1/2;
 
     nz-select,
-    button {
+    button:not(:last-child) {
       margin-right: 10px;
     }
 
@@ -35,9 +34,63 @@
     }
   }
 
+  .header-search {
+    grid-column: 2/4;
+    max-width: 500px;
+    width: 100%;
+    height: 32.5px;
+    margin: 0 auto;
+    display: flex;
+  }
+
   .header-right {
+    grid-column: 4/5;
+    text-align: right;
+
+    .search-button {
+      display: none;
+    }
+
     button {
       margin-left: 10px;
+    }
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .header {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .header {
+    .header-search {
+      max-width: 300px;
+    }
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .header {
+    .header-search {
+      max-width: 200px;
+    }
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .header {
+    .header-search {
+      display: none;
+      max-width: 100%;
+    }
+
+    .header-right {
+      .search-button {
+        display: inline;
+      }
     }
   }
 }
@@ -51,7 +104,8 @@
     padding: 5px;
 
     .header-left {
-      button {
+      nz-select,
+      button:not(:last-child) {
         margin-right: 5px;
       }
     }

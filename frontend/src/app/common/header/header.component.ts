@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
@@ -41,6 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   tokenRefreshTimeout: any;
   currentUser: any = [];
 
+  timerSearchValue: string = '';
+
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
@@ -58,12 +66,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
     'Хозяин',
   ];
 
+  isScreenWidth600: boolean = false;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.checkScreenWidth();
+  }
+
   constructor() {
     this.initCurrentServer();
   }
 
   ngOnInit(): void {
+    this.checkScreenWidth();
     this.getCurrentUser();
+
+    this.timerService.timerList$.subscribe({
+      next: (res) => {
+        this.timerList = res;
+      },
+    });
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
@@ -97,6 +119,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.websocketService.disconnect();
     clearTimeout(this.tokenRefreshTimeout);
+  }
+
+  private checkScreenWidth(): void {
+    const search = document.querySelector('.header-search');
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+    this.isScreenWidth600 = window.innerWidth <= 600;
+
+    if (!this.isScreenWidth600) {
+      if (search) {
+        (search as HTMLElement).style.display = 'flex';
+      }
+    } else {
+      if (search && left && right) {
+        (search as HTMLElement).style.display = 'none';
+        (left as HTMLElement).style.display = 'inline';
+        (right as HTMLElement).style.display = 'inline';
+        this.timerSearchValue = '';
+        this.timerSearch(this.timerSearchValue);
+      }
+    }
   }
 
   private connectWebSocket(): void {
@@ -178,6 +221,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
       },
     });
+  }
+
+  onSearchOpen(): void {
+    const search = document.querySelector('.header-search');
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+    (search as HTMLElement).style.display = 'flex';
+    (left as HTMLElement).style.display = 'none';
+    (right as HTMLElement).style.display = 'none';
+  }
+
+  onSearchClose(): void {
+    const search = document.querySelector('.header-search');
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+    (search as HTMLElement).style.display = 'none';
+    (left as HTMLElement).style.display = 'inline';
+    (right as HTMLElement).style.display = 'inline';
+    this.timerSearchValue = '';
+    this.timerSearch(this.timerSearchValue);
   }
 
   updateCurrentServer() {
@@ -281,6 +344,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  timerSearch(value: any): void {
+    this.timerService.filteredTimerList = value
+      ? this.timerList.filter((item: any) =>
+          item.mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+        )
+      : [...this.timerList];
   }
 
   isLoggedIn(): boolean {

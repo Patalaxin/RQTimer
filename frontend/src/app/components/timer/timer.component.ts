@@ -162,7 +162,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private getTimerList(): void {
-    this.timerService.timerList$.subscribe({
+    this.timerService.filteredTimerList$.subscribe({
       next: (res) => {
         this.timerList = res;
       },
@@ -840,6 +840,8 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
         this.sortTimerList([...res]);
+
+        this.timerService.timerList = this.timerList;
 
         this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
