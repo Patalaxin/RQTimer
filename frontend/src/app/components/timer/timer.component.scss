@@ -34,6 +34,37 @@
     width: 100%;
   }
 
+  .tour {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 14px;
+    font-variant: tabular-nums;
+    line-height: 1.5715;
+    list-style: none;
+    font-feature-settings: "tnum";
+    position: fixed;
+    right: 100px;
+    bottom: 100px;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+
+    .tour-content {
+      width: 40px;
+      height: 40px;
+      overflow: hidden;
+      color: #fff;
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.45);
+      border-radius: 20px;
+      transition: all 0.3s;
+      line-height: 48px;
+    }
+  }
+
   .timer-segments {
     margin-bottom: 10px;
     text-align: center;
@@ -128,8 +159,20 @@
   }
 }
 
+@media only screen and (max-width: 768px) {
+  .timer {
+    .tour {
+      right: 60px;
+    }
+  }
+}
+
 @media only screen and (max-width: 650px) {
   .timer {
+    .tour {
+      display: none;
+    }
+
     .timer-d-flex-space-between {
       .timer-right {
         .timer-action-menu-mob {

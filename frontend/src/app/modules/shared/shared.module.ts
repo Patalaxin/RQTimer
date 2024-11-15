@@ -39,6 +39,7 @@ import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { TuiReorderModule } from '@taiga-ui/addon-table';
 import { TuiAlertModule, TuiDialogModule, TuiRootModule } from '@taiga-ui/core';
 import { NgxOtpInputComponent } from 'ngx-otp-input';
+import { TourTuiDropdownModule } from 'ngx-ui-tour-tui-dropdown';
 
 const sharedModules = [
   NgxOtpInputComponent,
@@ -79,6 +80,7 @@ const sharedModules = [
   TuiDialogModule,
   TuiAlertModule,
   TuiReorderModule,
+  TourTuiDropdownModule,
 ];
 
 @NgModule({

@@ -33,6 +33,7 @@
     "moment-timezone": "^0.5.45",
     "ng-zorro-antd": "^16.2.2",
     "ngx-otp-input": "^1.1.1",
+    "ngx-ui-tour-tui-dropdown": "^5.0.6",
     "prettier": "^3.3.3",
     "rxjs": "~7.8.0",
     "socket.io-client": "^4.7.5",

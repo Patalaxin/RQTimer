@@ -1,4 +1,4 @@
-<div class="header" *ngIf="isLoggedIn()">
+<div class="header" *ngIf="isLoggedIn()" tourAnchor="header">
   <div
     class="header-left"
     [ngClass]="{
@@ -9,6 +9,7 @@
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
       (ngModelChange)="updateCurrentServer()"
+      tourAnchor="server"
     ></nz-select>
     <button
       nz-button
@@ -19,6 +20,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="reload"
     >
       <span nz-icon nzType="reload"></span>
     </button>
@@ -31,6 +33,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="copy"
     >
       <span nz-icon nzType="copy"></span>
     </button>
@@ -45,6 +48,7 @@
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
       *ngIf="currentRoute == '/timer'"
+      tourAnchor="connection"
     >
       <span nz-icon nzType="api"></span>
     </button>
@@ -58,6 +62,7 @@
       'header-d-flex': !isScreenWidth600,
     }"
     *ngIf="currentRoute == '/timer'"
+    tourAnchor="search"
   >
     <input
       nz-input
@@ -99,6 +104,7 @@
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/history')"
       nzShape="circle"
+      tourAnchor="history"
     >
       <span nz-icon nzType="history"></span>
     </button>
@@ -125,6 +131,7 @@
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/profile')"
       nzShape="circle"
+      tourAnchor="settings"
     >
       <span nz-icon nzType="user"></span>
     </button>
@@ -138,6 +145,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="logout"
     >
       <span nz-icon nzType="logout"></span>
     </button>
