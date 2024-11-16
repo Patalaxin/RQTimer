@@ -74,6 +74,9 @@ jobs:
           password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
+            #Удаление сборки фронтенда
+            sudo rm -rf /var/www/rqtimer/
+            
             # Остановка Docker для освобождения памяти
             cd TimerRQ/backend && docker-compose down && cd ..
             
@@ -81,7 +84,6 @@ jobs:
             cd frontend && npm install && npm run build
             
             # Обновление фронтенд конфига для nginx
-            sudo rm -rf /var/www/rqtimer/
             sudo mkdir -p /var/www/rqtimer/
             sudo cp -r dist/rq-timer-fe/* /var/www/rqtimer/
             
