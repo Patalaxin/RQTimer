@@ -136,7 +136,9 @@ export class GroupService implements IGroup {
 
     const user = await this.userModel.findOne({ email });
 
-    const newLeader = await this.userModel.findOne({ email: newLeaderEmail });
+    const newLeader = await this.userModel.findOne({
+      email: new RegExp(`^${newLeaderEmail}$`, 'i'),
+    });
     if (!newLeader) {
       throw new NotFoundException('New leader not found');
     }
@@ -162,7 +164,9 @@ export class GroupService implements IGroup {
   }
 
   async leaveGroup(email: string): Promise<void> {
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({
+      email: new RegExp(`^${email}$`, 'i'),
+    });
     if (!user.groupName) {
       throw new BadRequestException('User is not in a group');
     }

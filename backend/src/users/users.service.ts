@@ -42,7 +42,12 @@ export class UsersService implements IUser {
     }
 
     const existingUser: User = await this.userModel
-      .findOne({ $or: [{ email }, { nickname: createUserDto.nickname }] })
+      .findOne({
+        $or: [
+          { email: new RegExp(`^${email}$`, 'i') },
+          { nickname: new RegExp(`^${createUserDto.nickname}$`, 'i') },
+        ],
+      })
       .lean()
       .exec();
 
@@ -72,7 +77,10 @@ export class UsersService implements IUser {
   async findUser(nicknameOrEmail: string): Promise<User> {
     const user: User = await this.userModel
       .findOne({
-        $or: [{ email: nicknameOrEmail }, { nickname: nicknameOrEmail }],
+        $or: [
+          { email: new RegExp(`^${nicknameOrEmail}$`, 'i') },
+          { nickname: new RegExp(`^${nicknameOrEmail}$`, 'i') },
+        ],
       })
       .lean()
       .exec();
@@ -139,8 +147,8 @@ export class UsersService implements IUser {
     }
 
     const query = forgotUserPassDto.email
-      ? { email: forgotUserPassDto.email }
-      : { nickname: forgotUserPassDto.nickname };
+      ? { email: new RegExp(`^${forgotUserPassDto.email}$`, 'i') }
+      : { nickname: new RegExp(`^${forgotUserPassDto.nickname}$`, 'i') };
 
     const hashedNewPassword: string = await bcrypt.hash(
       forgotUserPassDto.newPassword,
@@ -176,8 +184,8 @@ export class UsersService implements IUser {
 
     try {
       const query = updateUnavailableDto.email
-        ? { email: updateUnavailableDto.email }
-        : { nickname: updateUnavailableDto.nickname };
+        ? { email: new RegExp(`^${updateUnavailableDto.email}$`, 'i') }
+        : { nickname: new RegExp(`^${updateUnavailableDto.nickname}$`, 'i') };
 
       return await this.userModel
         .findOneAndUpdate(
@@ -225,8 +233,8 @@ export class UsersService implements IUser {
       );
     }
     const query = updateUserRoleDto.email
-      ? { email: updateUserRoleDto.email }
-      : { nickname: updateUserRoleDto.nickname };
+      ? { email: new RegExp(`^${updateUserRoleDto.email}$`, 'i') }
+      : { nickname: new RegExp(`^${updateUserRoleDto.nickname}$`, 'i') };
 
     try {
       await this.userModel
@@ -251,7 +259,10 @@ export class UsersService implements IUser {
     }
 
     const deleteQuery = {
-      $or: [{ email: identifier }, { nickname: identifier }],
+      $or: [
+        { email: new RegExp(`^${identifier}$`, 'i') },
+        { nickname: new RegExp(`^${identifier}$`, 'i') },
+      ],
     };
 
     try {

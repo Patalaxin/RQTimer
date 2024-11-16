@@ -65,8 +65,8 @@ export class AuthService implements IAuth {
     }
 
     const query = signInDto.email
-      ? { email: signInDto.email }
-      : { nickname: signInDto.nickname };
+      ? { email: new RegExp(`^${signInDto.email}$`, 'i') }
+      : { nickname: new RegExp(`^${signInDto.nickname}$`, 'i') };
 
     const user: User = await this.userModel.findOne(query);
     if (!user) {
@@ -112,8 +112,8 @@ export class AuthService implements IAuth {
 
     try {
       const query = exchangeRefreshDto.email
-        ? { email: exchangeRefreshDto.email }
-        : { nickname: exchangeRefreshDto.nickname };
+        ? { email: new RegExp(`^${exchangeRefreshDto.email}$`, 'i') }
+        : { nickname: new RegExp(`^${exchangeRefreshDto.nickname}$`, 'i') };
       user = await this.userModel.findOne(query).lean().exec();
       const tokenRecord = await this.tokenModel.findOne(query);
 
