@@ -196,7 +196,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     {
       anchorId: 'reload',
       title: 'Обновить',
-      content: `<b>Обновляет</b> таймер при не обходимости`,
+      content: `<b>Обновляет</b> таймер при необходимости`,
     },
     {
       anchorId: 'copy',
@@ -238,6 +238,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       backdropConfig: {
         offset: 5,
       },
+      centerAnchorOnScroll: false,
       prevBtnTitle: 'Назад',
       nextBtnTitle: 'Вперёд',
       endBtnTitle: 'Конец',
