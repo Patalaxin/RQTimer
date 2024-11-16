@@ -1,10 +1,15 @@
-<div class="header" *ngIf="isLoggedIn()">
-  <div class="header-left">
+<div class="header" *ngIf="isLoggedIn()" tourAnchor="header">
+  <div
+    class="header-left"
+    [ngClass]="{
+      'header-d-inline': isScreenWidth600,
+    }"
+  >
     <nz-select
-      style="width: 95px"
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
       (ngModelChange)="updateCurrentServer()"
+      tourAnchor="server"
     ></nz-select>
     <button
       nz-button
@@ -15,6 +20,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="reload"
     >
       <span nz-icon nzType="reload"></span>
     </button>
@@ -27,6 +33,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="copy"
     >
       <span nz-icon nzType="copy"></span>
     </button>
@@ -41,11 +48,52 @@
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
       *ngIf="currentRoute == '/timer'"
+      tourAnchor="connection"
     >
       <span nz-icon nzType="api"></span>
     </button>
   </div>
-  <div class="header-right">
+  <nz-input-group
+    nzPrefixIcon="search"
+    [nzSuffix]="suffixSearch"
+    class="br-50px header-search"
+    [ngClass]="{
+      'header-d-none': isScreenWidth600,
+      'header-d-flex': !isScreenWidth600,
+    }"
+    *ngIf="currentRoute == '/timer'"
+    tourAnchor="search"
+  >
+    <input
+      nz-input
+      [(ngModel)]="timerSearchValue"
+      (ngModelChange)="timerSearch($event)"
+    />
+  </nz-input-group>
+  <ng-template #suffixSearch>
+    <span
+      nz-icon
+      (click)="onSearchClose()"
+      nzType="close-circle"
+      *ngIf="isScreenWidth600"
+    ></span>
+  </ng-template>
+  <div
+    class="header-right"
+    [ngClass]="{
+      'header-d-inline': isScreenWidth600,
+    }"
+  >
+    <button
+      nz-button
+      nzType="primary"
+      (click)="onSearchOpen()"
+      nzShape="circle"
+      class="search-button"
+      *ngIf="currentRoute == '/timer'"
+    >
+      <span nz-icon nzType="search"></span>
+    </button>
     <button
       nz-button
       nzType="primary"
@@ -56,6 +104,7 @@
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/history')"
       nzShape="circle"
+      tourAnchor="history"
     >
       <span nz-icon nzType="history"></span>
     </button>
@@ -82,6 +131,7 @@
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/profile')"
       nzShape="circle"
+      tourAnchor="settings"
     >
       <span nz-icon nzType="user"></span>
     </button>
@@ -95,6 +145,7 @@
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
+      tourAnchor="logout"
     >
       <span nz-icon nzType="logout"></span>
     </button>

@@ -31,6 +31,9 @@ export class LoginComponent implements OnInit {
 
   isLoginLoading: boolean = false;
 
+  isGuideLoading: boolean = false;
+  isGuideVisible: boolean = false;
+
   images: any[] = [
     {
       name: 'lesta',
@@ -83,6 +86,16 @@ export class LoginComponent implements OnInit {
           this.messageService.create('error', 'Неверный логин или пароль');
         },
       });
+  }
+
+  showGuideModal(): void {
+    this.isGuideLoading = true;
+    this.isGuideVisible = true;
+  }
+
+  cancelGuideModal(): void {
+    this.isGuideLoading = false;
+    this.isGuideVisible = false;
   }
 
   // getServers(): void {

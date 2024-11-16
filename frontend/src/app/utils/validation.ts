@@ -48,15 +48,15 @@ export default class Validation {
     const value = control.value || '';
     const errors: any = {};
 
-    if (!/^[A-ZА-Я]/.test(value)) {
-      errors.mustStartWithUppercase =
-        'Никнейм должен начинаться с заглавной буквы.';
-    }
-
     const uppercaseLettersCount = (value.match(/[A-ZА-Я]/g) || []).length;
     if (uppercaseLettersCount > 2) {
       errors.tooManyUppercase =
         'Никнейм может содержать не более 2 заглавных букв.';
+    }
+
+    if (value.startsWith('-') || value.endsWith('-')) {
+      errors.invalidHyphenPosition =
+        'Никнейм не должен начинаться или заканчиваться на дефис.';
     }
 
     const hyphenCount = (value.match(/-/g) || []).length;

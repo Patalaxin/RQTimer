@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
@@ -37,6 +38,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly websocketService = inject(WebsocketService);
   private readonly messageService = inject(NzMessageService);
   private readonly modalService = inject(NzModalService);
+  private readonly tourService = inject(TourService);
 
   private mobUpdateSubscription: Subscription | undefined;
   private worker: Worker | undefined;
@@ -44,6 +46,14 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
+  filteredMobList: any = [];
+  duplicatedMobList: any = [
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
   addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
@@ -89,11 +99,133 @@ export class TimerComponent implements OnInit, OnDestroy {
   allAddChecked: boolean = false;
   indeterminate: boolean = false;
 
+  addSearchValue: string = '';
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
   ];
   selectedSegments: number = 0;
+
+  private readonly steps: IStepOption[] = [
+    {
+      anchorId: 'timer',
+      title: 'Привет',
+      content:
+        'На связи <b>Жевти</b>! Cейчас я покажу основной функционал таймера!',
+    },
+    {
+      anchorId: 'server',
+      title: 'Выбор сервера',
+      content:
+        'Вот тут можно выбрать <b>сервер</b>, у каждого сервера естественно свой <b>таймер</b>, не перепутай',
+    },
+    {
+      anchorId: 'timer-item',
+      title: 'Таймер',
+      isOptional: true,
+      content:
+        'Каждый моб будет изображён такой плашкой с множеством кнопок. Да, кнопок много, но с ними мы сейчас разберёмся',
+    },
+    {
+      anchorId: 'rewrite',
+      title: 'Переписать',
+      isOptional: true,
+      content: `С помощью этой <b>кнопки</b> можно переписать моба 3мя способами:<br>
+      1) По <b>точному времени смерти</b><br>
+      2) По <b>точному времени респауна</b><br>
+      3) По <b>количеству раз по кд</b>`,
+    },
+    {
+      anchorId: 'die-now',
+      title: 'Упал сейчас',
+      isOptional: true,
+      content: `Эта <b>кнопка</b> позволяет переписать моба сразу <b>непосредственно после смерти</b>. Я также учёл среднее время нужное для того, чтоб открыть браузер и нажать кнопку, примерно на это уходит <b>~10 сек.</b>`,
+    },
+    {
+      anchorId: 'mob-history',
+      title: 'История переписи моба',
+      isOptional: true,
+      content: `Тут можно увидеть <b>историю переписи определенного моба</b>: кто переписал, каким способом, исходные и итоговые значения времени после переписи`,
+    },
+    {
+      anchorId: 'plus-cooldown',
+      title: 'Симуляция кд респауна',
+      isOptional: true,
+      content: `Например, я знаю, что <b>не успею</b> зайти до реса моба, с помощью этой <b>кнопки</b> я могу получить <b>время следующего кдшного респа</b>, чтоб рассчитать свое время<br><br><b>Важно:</b> эта кнопка только <b>симулирует респ</b>, видите это значение только вы`,
+    },
+    {
+      anchorId: 'cooldown',
+      title: 'Переписать по кд',
+      isOptional: true,
+      content: `А вот эта <b>кнопка</b> уже <b>переписывает и отображает кдшный респ</b> для всех участников группы`,
+    },
+    {
+      anchorId: 'lost-cooldown',
+      title: 'Респаун утерян',
+      isOptional: true,
+      content: `Ну тут понятно, когда <b>теряете респаун</b>, и не знаете точное время, лучше нажать эту кнопку, чтоб <b>сбросить все значений времени</b> для данного моба`,
+    },
+    {
+      anchorId: 'delete',
+      title: 'Удалить',
+      isOptional: true,
+      content: `<b>Удаляет</b> моба из группы`,
+    },
+    {
+      anchorId: 'add',
+      title: 'Добавить',
+      isOptional: true,
+      content: `А эта <b>кнопка</b>, наоборот, <b>добавляет</b> моба в группу`,
+    },
+    {
+      anchorId: 'timer-settings',
+      title: 'Таймер и его настройки',
+      content: `Нуууу, хз что сказать, в самом названии все сказано :D`,
+    },
+    {
+      anchorId: 'header',
+      title: 'Хедер',
+      content: `Так-с, с основными кнопками таймера закончили, дальше рассмотрим <b>функций хедера</b>`,
+    },
+    {
+      anchorId: 'search',
+      title: 'Поиск',
+      content: `Осуществляет <b>поиск</b> определенного моба`,
+    },
+    {
+      anchorId: 'reload',
+      title: 'Обновить',
+      content: `<b>Обновляет</b> таймер при не обходимости`,
+    },
+    {
+      anchorId: 'copy',
+      title: 'Скопировать',
+      content: `<b>Копирует все респы</b> в таймере, кроме утерянных`,
+    },
+    {
+      anchorId: 'connection',
+      title: 'Падение сервера',
+      content: `При <b>падении сервера игры</b> жмётся эта кнопка, чтоб <b>учитывать время отката</b> при отключении серверов. Также эта кнопка позволяет увидеть <b>статус</b>:<br>
+        1) <b>Online</b> - зелёный<br>
+        2) <b>Offline</b> - красный`,
+    },
+    {
+      anchorId: 'history',
+      title: 'История переписи',
+      content: `Вот эта <b>кнопка</b> уже показывает <b>общую историю переписи</b> всех мобов`,
+    },
+    {
+      anchorId: 'settings',
+      title: 'Персональные настройки',
+      content: `Можно будет <b>настроить отображение мобов</b> или <b>поменять пароль</b>`,
+    },
+    {
+      anchorId: 'logout',
+      title: 'Выход',
+      content: `Выйди и зайди нормально, пон?`,
+    },
+  ];
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -101,6 +233,16 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.tourService.initialize(this.steps, {
+      enableBackdrop: true,
+      backdropConfig: {
+        offset: 5,
+      },
+      prevBtnTitle: 'Назад',
+      nextBtnTitle: 'Вперёд',
+      endBtnTitle: 'Конец',
+    });
+
     this.timerService.headerVisibility = true;
     if ('Notification' in window) {
       Notification?.requestPermission().then((perm) => {
@@ -136,6 +278,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.worker.terminate();
     }
 
+    this.tourService.end();
+
     // if (this.intervalId) {
     //   clearInterval(this.intervalId);
     // }
@@ -152,7 +296,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private getTimerList(): void {
-    this.timerService.timerList$.subscribe({
+    this.timerService.filteredTimerList$.subscribe({
       next: (res) => {
         this.timerList = res;
       },
@@ -171,7 +315,6 @@ export class TimerComponent implements OnInit, OnDestroy {
 
           this.worker.postMessage({
             currentProgressTime: this.currentProgressTime,
-            timerList: this.timerList,
           });
 
           this.worker.onmessage = (event) => {
@@ -251,21 +394,31 @@ export class TimerComponent implements OnInit, OnDestroy {
     if ('Notification' in window && Notification?.permission === 'granted') {
       if (item.mobData.respawnTime) {
         const timeDifference =
-          Math.round(
-            (item.mobData.respawnTime - this.currentProgressTime) / 1000,
-          ) * 1000;
+          moment
+            .utc(
+              Math.round(
+                moment(item.mobData.respawnTime).diff(
+                  moment(this.currentProgressTime),
+                ) / 1000,
+              ) * 1000,
+            )
+            .valueOf() - 1000; // 1000 - 1 сек погрешности
+
+        // if (item.mob.mobName === 'Архон')
+        //   console.log(moment.utc(timeDifference).format('HH:mm:ss'));
 
         if (timeDifference === minute * 60000) {
+          // console.log('1 minute');
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.mobName} реснется через ${minute} минут.`,
+            `${item.mob.mobName} реснется через ${minute} минуту.`,
           );
         }
 
         if (timeDifference === 0) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.respawnText}`,
+            `${item.mob.respawnText ? item.mob.respawnText : `Притаился крыс, и сам себя не прихлопнет..`}`,
           );
         }
       }
@@ -288,9 +441,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     return 0;
   }
 
+  startTour() {
+    this.tourService.start();
+  }
+
   onClickTimerItem(item: TimerItem): void {
     if (item.mobData.respawnTime) {
-      let data: string = `${item.mob.shortName} - ${moment(
+      let data: string = `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
         item.mobData.respawnTime,
       ).format('HH:mm:ss')}`;
       this.messageService.create('success', `${data}`);
@@ -347,6 +504,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 timerItem.mob.location === availableItem.location,
             ),
         );
+        this.filteredMobList = [...this.availableMobList];
         this.isAddModalLoading = false;
       },
     });
@@ -355,11 +513,13 @@ export class TimerComponent implements OnInit, OnDestroy {
   cancelAddModal(): void {
     this.isAddModalVisible = false;
     this.addMobList = [];
+    this.addSearchValue = '';
   }
 
   onAddMobs(): void {
     this.isAddOkLoading = true;
     this.timerService.isLoading = true;
+    this.currentServer = this.storageService.getLocalStorage('server');
     this.timerService
       .addMobGroup(this.currentServer, this.addMobList)
       .subscribe({
@@ -377,6 +537,14 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService.isLoading = false;
         },
       });
+  }
+
+  addSearch(value: any): void {
+    this.filteredMobList = value
+      ? this.availableMobList.filter((mob: any) =>
+          mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+        )
+      : [...this.availableMobList];
   }
 
   addAllChecked(): void {
@@ -810,6 +978,8 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
         this.sortTimerList([...res]);
+
+        this.timerService.timerList = this.timerList;
 
         this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;

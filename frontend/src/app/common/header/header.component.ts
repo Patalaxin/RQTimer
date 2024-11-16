@@ -1,4 +1,10 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
@@ -7,7 +13,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
-import { ConfigurationService } from 'src/app/services/configuration.service';
+// import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -41,6 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   tokenRefreshTimeout: any;
   currentUser: any = [];
 
+  timerSearchValue: string = '';
+
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
@@ -50,12 +58,34 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
   // serverList: any[] = [];
 
+  duplicatedMobList: any = [
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
+
+  isScreenWidth600: boolean = false;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.checkScreenWidth();
+  }
+
   constructor() {
     this.initCurrentServer();
   }
 
   ngOnInit(): void {
+    this.checkScreenWidth();
     this.getCurrentUser();
+
+    this.timerService.timerList$.subscribe({
+      next: (res) => {
+        this.timerList = res;
+      },
+    });
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
       (res: any) => {
@@ -89,6 +119,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.websocketService.disconnect();
     clearTimeout(this.tokenRefreshTimeout);
+  }
+
+  private checkScreenWidth(): void {
+    this.isScreenWidth600 = window.innerWidth <= 600;
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+
+    if (!this.isScreenWidth600) {
+      left?.classList.remove('header-d-none');
+      right?.classList.remove('header-d-none');
+    }
   }
 
   private connectWebSocket(): void {
@@ -172,6 +213,37 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
+  onSearchOpen(): void {
+    const search = document.querySelector('.header-search');
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+
+    search?.classList.remove('header-d-none');
+    left?.classList.remove('header-d-inline');
+    right?.classList.remove('header-d-inline');
+
+    search?.classList.add('header-d-flex');
+    left?.classList.add('header-d-none');
+    right?.classList.add('header-d-none');
+  }
+
+  onSearchClose(): void {
+    const search = document.querySelector('.header-search');
+    const left = document.querySelector('.header-left');
+    const right = document.querySelector('.header-right');
+
+    search?.classList.remove('header-d-flex');
+    left?.classList.remove('header-d-none');
+    right?.classList.remove('header-d-none');
+
+    search?.classList.add('header-d-none');
+    left?.classList.add('header-d-inline');
+    right?.classList.add('header-d-inline');
+
+    this.timerSearchValue = '';
+    this.timerSearch(this.timerSearchValue);
+  }
+
   updateCurrentServer() {
     this.historyService.isLoading = true;
     this.timerService.isLoading = true;
@@ -190,29 +262,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        // this.updateHistory();
+        this.updateHistory();
+      },
+      error: () => {
+        this.timerService.isLoading = false;
       },
     });
   }
 
-  // updateHistory(): void {
-  //   this.historyService.getHistory(this.currentServer).subscribe({
-  //     next: (res: any) => {
-  //       this.historyListData = res;
-  //       this.historyList = res.data;
-  //       this.historyService.historyList = this.historyList;
-  //       this.historyService.historyListData = this.historyListData;
-  //       this.historyService.isLoading = false;
-  //     },
-  //     error: (err) => {
-  //       if (err.status === 401) {
-  //         this.exchangeRefresh(() => {
-  //           this.updateHistory();
-  //         });
-  //       }
-  //     },
-  //   });
-  // }
+  updateHistory(): void {
+    this.historyService.getHistory(this.currentServer).subscribe({
+      next: (res: any) => {
+        this.historyListData = res;
+        this.historyList = res.data;
+        this.historyService.historyList = this.historyList;
+        this.historyService.historyListData = this.historyListData;
+        this.historyService.isLoading = false;
+      },
+      error: () => {
+        this.historyService.isLoading = false;
+      },
+    });
+  }
 
   getCurrentUser() {
     this.userService.getUser().subscribe({
@@ -238,7 +309,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
           if (item.mobData.respawnTime) {
             data.push(
-              `${item.mob.shortName} - ${moment(
+              `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
                 item.mobData.respawnTime,
               ).format('HH:mm:ss')}`,
             );
@@ -274,6 +345,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         );
       },
     });
+  }
+
+  timerSearch(value: any): void {
+    this.timerService.filteredTimerList = value
+      ? this.timerList.filter((item: any) =>
+          item.mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+        )
+      : [...this.timerList];
   }
 
   isLoggedIn(): boolean {
