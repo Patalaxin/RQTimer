@@ -34,7 +34,7 @@ jobs:
           script: |
             set -e  # Остановить выполнение при ошибках
             
-            # Mark the repository as safe to avoid dubious ownership error
+            # Mark the repository as safe to avoid dubious ownership error.
             git config --global --add safe.directory /root/TimerRQ
             
             # Обновление и сборка бэкенда
