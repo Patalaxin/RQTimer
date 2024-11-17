@@ -31,6 +31,7 @@ export class AdminComponent implements OnInit {
     String(a.groupName).localeCompare(String(b.groupName));
 
   listOfCurrentPageData: any[] = [];
+  pageIndex: number = 1;
   isSearchVisible: boolean = false;
   searchValue: string = '';
 
@@ -109,6 +110,10 @@ export class AdminComponent implements OnInit {
     this.isTableLoading = true;
     this.listOfCurrentPageData = listOfCurrentPageData;
     this.isTableLoading = false;
+  }
+
+  onPageIndexChange(pageIndex: any): void {
+    this.pageIndex = pageIndex;
   }
 
   getSpecificUser(nickname: string): void {
