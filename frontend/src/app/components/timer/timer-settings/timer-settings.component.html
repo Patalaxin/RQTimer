@@ -78,7 +78,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let user of groupTable.data; let i = index">
-            <td nzAlign="center">{{ i + 10 * (pageIndex - 1) + 1 }}</td>
+            <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
             <td nzCustomFilter>
               {{ user.nickname }}
               <span

@@ -32,6 +32,7 @@ export class AdminComponent implements OnInit {
 
   listOfCurrentPageData: any[] = [];
   pageIndex: number = 1;
+  pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
 

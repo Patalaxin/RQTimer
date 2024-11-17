@@ -38,6 +38,7 @@ export class TimerSettingsComponent implements OnInit {
   isTableLoading: boolean = false;
   listOfCurrentPageData: any[] = [];
   pageIndex: number = 1;
+  pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
   sortStatus: any = (a: any, b: any) =>
