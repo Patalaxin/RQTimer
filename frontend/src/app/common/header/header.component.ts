@@ -243,6 +243,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateCurrentServer() {
+    this.timerSearchValue = '';
     this.historyService.isLoading = true;
     this.timerService.isLoading = true;
     this.storageService.setCurrentServer(this.currentServer);
@@ -332,6 +333,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onCrashServer() {
+    this.timerSearchValue = '';
     this.initCurrentServer();
     this.timerService.isLoading = true;
     this.timerService.crashServerBosses(this.currentServer).subscribe({
