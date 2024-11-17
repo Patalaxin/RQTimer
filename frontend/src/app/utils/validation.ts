@@ -71,6 +71,10 @@ export default class Validation {
         'Никнейм не может содержать смешение кириллицы и латиницы.';
     }
 
+    if (/[0-9]/.test(value)) {
+      errors.containsNumbers = 'Никнейм не должен содержать цифры.';
+    }
+
     return Object.keys(errors).length > 0 ? errors : null;
   }
 }

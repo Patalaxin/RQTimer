@@ -70,6 +70,13 @@
                 </div>
                 <div
                   *ngIf="
+                    !control.errors?.required && control.errors?.containsNumbers
+                  "
+                >
+                  • Никнейм не может содержать цифры!
+                </div>
+                <div
+                  *ngIf="
                     !control.errors?.required &&
                     control.errors?.mixedCyrillicAndLatin
                   "
