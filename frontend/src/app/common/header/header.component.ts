@@ -162,12 +162,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private initCurrentServer() {
     // this.configurationService.getServers().subscribe({
     //   next: (res) => {
-    //     console.log('servers', res);
     //     res.map((item: string) => {
     //       let server = { label: item, value: item };
     //       this.serverList.push(server);
     //     });
-    //     console.log(this.serverList);
     this.currentServer =
       this.storageService.getLocalStorage('server') || 'Гелиос';
     // },
@@ -257,6 +255,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.sortTimerList([...res]);
 
         this.timerService.timerList = this.timerList;
+        this.timerService.filteredTimerList = this.timerList;
 
         this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;
@@ -329,7 +328,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       nzOkText: 'Да',
       nzOnOk: () => this.onCrashServer(),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 
@@ -372,7 +370,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       nzOkDanger: true,
       nzOnOk: () => this.onLogout(),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 

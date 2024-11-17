@@ -39,6 +39,9 @@ export class TimerSettingsComponent implements OnInit {
   listOfCurrentPageData: any[] = [];
   isSearchVisible: boolean = false;
   searchValue: string = '';
+  sortStatus: any = (a: any, b: any) =>
+    Number(this.onlineUserList.includes(b.email)) -
+    Number(this.onlineUserList.includes(a.email));
 
   isScreenWidth550: boolean = false;
 
@@ -133,7 +136,6 @@ export class TimerSettingsComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: () => this.onTransfer(email),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 
@@ -158,7 +160,6 @@ export class TimerSettingsComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: () => this.onDelete(email),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 
@@ -183,7 +184,6 @@ export class TimerSettingsComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: () => this.onDeleteGroup(),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 
@@ -212,7 +212,6 @@ export class TimerSettingsComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: () => this.onLeaveGroup(),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 
