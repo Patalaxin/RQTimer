@@ -17,6 +17,10 @@ export class FindAllUsersDtoResponse {
 
   @ApiProperty()
   @IsString()
+  groupName: string;
+
+  @ApiProperty()
+  @IsString()
   @IsNotEmpty()
   _id: string;
 
