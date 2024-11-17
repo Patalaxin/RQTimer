@@ -43,6 +43,10 @@ nz-segmented .ng-animating {
   background-color: #32569e;
 }
 
+.ant-table-thead th.ant-table-column-has-sorters:hover {
+  background-color: #ffffffca;
+}
+
 .ant-modal-body {
   textarea::placeholder,
   input::placeholder,

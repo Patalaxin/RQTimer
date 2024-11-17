@@ -26,6 +26,9 @@ export class AdminComponent implements OnInit {
   isUserDataLoading: boolean = false;
   isTableLoading: boolean = false;
   isGenerateLoading: boolean = false;
+  sortRole: any = (a: any, b: any) => a.role.localeCompare(b.role);
+  sortGroupName: any = (a: any, b: any) =>
+    a.groupName.localeCompare(b.groupName);
 
   listOfCurrentPageData: any[] = [];
   isSearchVisible: boolean = false;
@@ -133,7 +136,6 @@ export class AdminComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: () => this.onDelete(nickname),
       nzCancelText: 'Нет',
-      nzOnCancel: () => console.log('Cancel'),
     });
   }
 

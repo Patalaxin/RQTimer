@@ -30,16 +30,18 @@
     <h2>{{ isGroupLeader ? "Управление группой" : "Список участников" }}</h2>
     <div class="group-table">
       <nz-table
-        #rowSelectionTable
+        #groupTable
         [nzScroll]="{ x: '787px', y: '350px' }"
         [nzData]="userList"
         nzShowPagination
         (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
         [nzLoading]="isTableLoading"
         [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
+        [nzSize]="!isScreenWidth550 ? 'default' : 'small'"
       >
         <thead>
           <tr>
+            <th nzWidth="75px" nzAlign="center">#</th>
             <th nzCustomFilter>
               Никнейм
               <nz-filter-trigger
@@ -60,13 +62,22 @@
                 </button>
               </nz-filter-trigger>
             </th>
-            <th>Статус</th>
+            <th
+              [nzSortOrder]="null"
+              [nzSortFn]="sortStatus"
+              [nzSortDirections]="['ascend', 'descend', null]"
+              nzWidth="100px"
+              nzAlign="center"
+            >
+              Статус
+            </th>
             <th>Email</th>
             <th class="admin-buttons" *ngIf="isGroupLeader">Действия</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of userList; let i = index">
+          <tr *ngFor="let user of groupTable.data; let i = index">
+            <td nzAlign="center">{{ i + 1 }}</td>
             <td nzCustomFilter>
               {{ user.nickname }}
               <span
@@ -75,7 +86,7 @@
                 nzType="crown"
               ></span>
             </td>
-            <td>
+            <td style="text-align: center">
               <nz-tag nzColor="lime" *ngIf="onlineUserList.includes(user.email)"
                 >Online
               </nz-tag>
