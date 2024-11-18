@@ -96,6 +96,13 @@ export const bossesArray = [
     image: 'ed.avif',
     respawnText: 'Снова будет много лезвий и бритвенной пены.',
   },
+  {
+    mobName: 'Дуан Безжалостный',
+    shortName: 'Дуан',
+    mobType: 'Босс',
+    image: 'duan.avif',
+    respawnText: 'Текст респауна',
+  },
 ];
 
 export const elitesArray = [
