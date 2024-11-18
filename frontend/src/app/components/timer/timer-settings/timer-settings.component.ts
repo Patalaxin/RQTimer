@@ -37,6 +37,8 @@ export class TimerSettingsComponent implements OnInit {
   isLeaveGroupLoading: boolean = false;
   isTableLoading: boolean = false;
   listOfCurrentPageData: any[] = [];
+  pageIndex: number = 1;
+  pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
   sortStatus: any = (a: any, b: any) =>
@@ -81,6 +83,10 @@ export class TimerSettingsComponent implements OnInit {
     this.isTableLoading = true;
     this.listOfCurrentPageData = listOfCurrentPageData;
     this.isTableLoading = false;
+  }
+
+  onPageIndexChange(pageIndex: any): void {
+    this.pageIndex = pageIndex;
   }
 
   onReset(): void {

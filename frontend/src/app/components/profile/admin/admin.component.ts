@@ -28,9 +28,11 @@ export class AdminComponent implements OnInit {
   isGenerateLoading: boolean = false;
   sortRole: any = (a: any, b: any) => a.role.localeCompare(b.role);
   sortGroupName: any = (a: any, b: any) =>
-    a.groupName.localeCompare(b.groupName);
+    String(a.groupName).localeCompare(String(b.groupName));
 
   listOfCurrentPageData: any[] = [];
+  pageIndex: number = 1;
+  pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
 
@@ -109,6 +111,10 @@ export class AdminComponent implements OnInit {
     this.isTableLoading = true;
     this.listOfCurrentPageData = listOfCurrentPageData;
     this.isTableLoading = false;
+  }
+
+  onPageIndexChange(pageIndex: any): void {
+    this.pageIndex = pageIndex;
   }
 
   getSpecificUser(nickname: string): void {
