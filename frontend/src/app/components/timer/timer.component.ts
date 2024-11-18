@@ -48,6 +48,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   availableMobList: any = [];
   filteredMobList: any = [];
   duplicatedMobList: any = [
+    'Дуан Безжалостный',
     'Альфа Самец',
     'Богатый Упырь',
     'Кабан Вожак',
