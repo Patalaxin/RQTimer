@@ -224,14 +224,14 @@
                     </label>
                     <div class="timer-radio-option">
                       <nz-date-picker
-                        [(ngModel)]="currentTime"
+                        [(ngModel)]="datePickerTime"
+                        (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
-                        [nzInputReadOnly]="true"
                       ></nz-date-picker>
                       <nz-time-picker
-                        [(ngModel)]="currentTime"
+                        [(ngModel)]="timePickerTime"
+                        (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
-                        [nzInputReadOnly]="true"
                       >
                       </nz-time-picker>
                     </div>
@@ -240,14 +240,14 @@
                     </label>
                     <div class="timer-radio-option">
                       <nz-date-picker
-                        [(ngModel)]="currentTime"
+                        [(ngModel)]="datePickerTime"
+                        (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
-                        [nzInputReadOnly]="true"
                       ></nz-date-picker>
                       <nz-time-picker
-                        [(ngModel)]="currentTime"
+                        [(ngModel)]="timePickerTime"
+                        (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
-                        [nzInputReadOnly]="true"
                       >
                       </nz-time-picker>
                     </div>
