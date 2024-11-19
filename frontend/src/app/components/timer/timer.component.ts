@@ -1147,13 +1147,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (err.status === 401) {
           this.onLogout();
         }
-
-        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
-          this.messageService.create(
-            'error',
-            'Ошибка обращения к сервису. Поробуйте обновить страницу',
-          );
-        }
       },
     });
   }

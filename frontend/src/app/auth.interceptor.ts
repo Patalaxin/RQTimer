@@ -84,15 +84,6 @@ export class HttpRequestInterceptor implements HttpInterceptor {
           this.onLogout();
         }
 
-        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
-          this.messageService.create(
-            'error',
-            'Ошибка обращения к сервису. Поробуйте обновить страницу',
-          );
-          return throwError(() => err);
-        }
-
-        this.messageService.create('error', err.error.message);
         return throwError(() => err);
       }),
     );
