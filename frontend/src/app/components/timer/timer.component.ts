@@ -64,7 +64,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   currentUser: any = [];
 
   radioValue: string = 'death';
-  currentTime: number = 0;
+  datePickerTime: any;
+  timePickerTime: any;
+  currentTime: any = 0;
   currentProgressTime: number = 0;
   currentItem: any;
   cooldown: number = 1;
@@ -663,6 +665,29 @@ export class TimerComponent implements OnInit, OnDestroy {
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
     this.currentTime = this.currentProgressTime;
+    const time = new Date(this.currentTime);
+    this.datePickerTime = new Date(
+      time.getFullYear(),
+      time.getMonth(),
+      time.getDate(),
+    );
+    this.timePickerTime = new Date();
+    this.timePickerTime.setHours(
+      time.getHours(),
+      time.getMinutes(),
+      time.getSeconds(),
+      0,
+    );
+  }
+
+  onTimeChange() {
+    this.currentTime = new Date(this.datePickerTime);
+    this.currentTime.setHours(
+      this.timePickerTime.getHours(),
+      this.timePickerTime.getMinutes(),
+      this.timePickerTime.getSeconds(),
+      0,
+    );
   }
 
   cancelDeathModal(item: TimerItem): void {

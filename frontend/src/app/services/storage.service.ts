@@ -22,8 +22,6 @@ export class StorageService {
   }
 
   setLocalStorage(key: string, token?: any): void {
-    this.clean();
-
     key.includes('@')
       ? window.localStorage.setItem(EMAIL, key)
       : window.localStorage.setItem(NICKNAME, key);
