@@ -664,7 +664,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
-    this.currentTime = this.currentProgressTime;
+    this.currentTime = Date.now();
     const time = new Date(this.currentTime);
     this.datePickerTime = new Date(
       time.getFullYear(),
