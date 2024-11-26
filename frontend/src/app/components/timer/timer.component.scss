@@ -63,6 +63,11 @@
       transition: all 0.3s;
       line-height: 48px;
     }
+
+    .tour-content:hover {
+      background-color: rgba(0, 0, 0, 0.85);
+      transition: all 0.3s;
+    }
   }
 
   .timer-segments {

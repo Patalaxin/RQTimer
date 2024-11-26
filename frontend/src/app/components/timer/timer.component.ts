@@ -664,7 +664,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
     this.currentItem = item;
-    this.currentTime = this.currentProgressTime;
+    this.currentTime = Date.now();
     const time = new Date(this.currentTime);
     this.datePickerTime = new Date(
       time.getFullYear(),
@@ -1146,13 +1146,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       error: (err) => {
         if (err.status === 401) {
           this.onLogout();
-        }
-
-        if ((err.status >= 500 && err.status < 600) || err.status === 0) {
-          this.messageService.create(
-            'error',
-            'Ошибка обращения к сервису. Поробуйте обновить страницу',
-          );
         }
       },
     });
