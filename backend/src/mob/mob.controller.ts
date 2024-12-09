@@ -53,6 +53,7 @@ import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
 import { Servers } from '../schemas/mobs.enum';
+import { GetIsGroupLeaderFromToken } from '../decorators/getIsGroupLeader.decorator';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -73,15 +74,20 @@ export class MobController {
     return this.mobInterface.createMob(createMobDto);
   }
 
-  @IsGroupLeader()
   @ApiOperation({ summary: 'Add Mob In Group' })
   @Post('/add-in-group/:server')
   addMobInGroup(
+    @GetIsGroupLeaderFromToken() isGroupLeader: boolean,
     @Param('server') server: Servers,
     @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
     @GetGroupNameFromToken() groupName: string,
   ): Promise<MobsData[]> {
-    return this.mobInterface.addMobInGroup(server, addMobInGroupDto, groupName);
+    return this.mobInterface.addMobInGroup(
+      isGroupLeader,
+      server,
+      addMobInGroupDto,
+      groupName,
+    );
   }
 
   @Roles()

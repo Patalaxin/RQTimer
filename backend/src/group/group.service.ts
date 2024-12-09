@@ -17,6 +17,7 @@ import { UsersService } from '../users/users.service';
 import { plainToInstance } from 'class-transformer';
 import { MobService } from '../mob/mob.service';
 import { IGroup } from './group.interface';
+import { UpdateGroupDto } from './dto/update-group.dto';
 
 @Injectable()
 export class GroupService implements IGroup {
@@ -209,5 +210,25 @@ export class GroupService implements IGroup {
 
     await this.groupModel.deleteOne({ name: groupName });
     await this.mobService.deleteAllMobData(groupName);
+  }
+
+  async updateGroup(
+    groupName: string,
+    updateGroupDto: UpdateGroupDto,
+  ): Promise<Group> {
+    const group = await this.groupModel
+      .findOneAndUpdate(
+        { name: groupName },
+        { $set: updateGroupDto },
+        { new: true, runValidators: true },
+      )
+      .lean()
+      .exec();
+
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+
+    return plainToInstance(Group, group);
   }
 }

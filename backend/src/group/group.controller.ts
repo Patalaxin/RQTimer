@@ -9,6 +9,7 @@ import {
   Delete,
   Inject,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { GetEmailFromToken } from '../decorators/getEmail.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -22,6 +23,7 @@ import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { IGroup } from './group.interface';
+import { UpdateGroupDto } from './dto/update-group.dto';
 
 @ApiTags('Groups API')
 @ApiBearerAuth()
@@ -98,5 +100,15 @@ export class GroupController {
   @Delete()
   async deleteGroup(@GetGroupNameFromToken() groupName: string): Promise<void> {
     return this.groupInterface.deleteGroup(groupName);
+  }
+
+  @IsGroupLeader()
+  @ApiOperation({ summary: 'Update Group' })
+  @Patch()
+  async updateGroup(
+    @GetGroupNameFromToken() groupName: string,
+    @Body() updateGroupDto: UpdateGroupDto,
+  ): Promise<Group> {
+    return this.groupInterface.updateGroup(groupName, updateGroupDto);
   }
 }

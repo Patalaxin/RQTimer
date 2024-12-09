@@ -26,6 +26,10 @@ export class Group {
   })
   members: string[];
 
+  @ApiProperty({ type: Boolean, description: 'Can members add mobs' })
+  @Prop({ default: false })
+  canMembersAddMobs: boolean;
+
   @ApiProperty({ type: String })
   @Prop({ default: null })
   @Exclude()

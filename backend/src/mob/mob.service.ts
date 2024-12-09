@@ -72,6 +72,7 @@ export class MobService implements IMob {
   }
 
   async addMobInGroup(
+    isGroupLeader: boolean,
     server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
@@ -79,6 +80,12 @@ export class MobService implements IMob {
     const group: Group = await this.groupService.getGroupByName(groupName);
     if (!group) {
       throw new NotFoundException('Group not found');
+    }
+
+    if (isGroupLeader === false && group.canMembersAddMobs === false) {
+      throw new NotFoundException(
+        'In this group, default members cannot add mobs',
+      );
     }
 
     const mobDataList: MobsData[] = [];
