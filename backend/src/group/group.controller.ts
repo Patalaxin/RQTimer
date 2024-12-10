@@ -20,15 +20,14 @@ import { TokensGuard } from '../guards/tokens.guard';
 import { Group } from '../schemas/group.schema';
 import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
-import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
-import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { IGroup } from './group.interface';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 
 @ApiTags('Groups API')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(TokensGuard, RolesGuard, IsGroupLeaderGuard)
+@UseGuards(TokensGuard, RolesGuard)
 @Controller('groups')
 export class GroupController {
   constructor(@Inject('IGroup') private readonly groupInterface: IGroup) {}
@@ -50,7 +49,7 @@ export class GroupController {
     return this.groupInterface.getGroupByName(groupName);
   }
 
-  @IsGroupLeader()
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Generate Invite Code' })
   @Post('/invite')
   async generateInviteCode(
@@ -68,6 +67,7 @@ export class GroupController {
     return this.groupInterface.joinGroup(joinGroupDto, email);
   }
 
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Transfer Leader' })
   @Post('transfer-leader')
   async transferGroupLeadership(
@@ -81,27 +81,28 @@ export class GroupController {
       groupName,
     );
   }
+
   @ApiOperation({ summary: 'Leave Group' })
   @Post('leave')
   async leaveGroup(@GetEmailFromToken() email: string): Promise<void> {
     return this.groupInterface.leaveGroup(email);
   }
 
-  @IsGroupLeader()
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Remove User From Group' })
   @Delete('/:email')
   async removeUserFromGroup(@Param('email') email: string): Promise<void> {
     return this.groupInterface.leaveGroup(email);
   }
 
-  @IsGroupLeader()
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Delete Group' })
   @Delete()
   async deleteGroup(@GetGroupNameFromToken() groupName: string): Promise<void> {
     return this.groupInterface.deleteGroup(groupName);
   }
 
-  @IsGroupLeader()
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Update Group' })
   @Patch()
   async updateGroup(
