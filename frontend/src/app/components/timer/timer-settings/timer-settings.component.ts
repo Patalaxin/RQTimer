@@ -27,8 +27,10 @@ export class TimerSettingsComponent implements OnInit {
   @Input() userList: any;
   @Input() groupLeaderEmail: string = '';
   @Input() onlineUserList: any[] = [];
+  @Input() canMembersAddMobs: boolean = false;
 
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
+  @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
 
   userGroupList: any = [];
   inviteCode: string = '';
@@ -47,18 +49,39 @@ export class TimerSettingsComponent implements OnInit {
 
   isScreenWidth550: boolean = false;
 
+  switchValue = false;
+  isSwitchLoading = false;
+
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
   }
 
   ngOnInit(): void {
+    this.switchValue = this.canMembersAddMobs;
     this.checkScreenWidth();
     this.getGroupUsers();
   }
 
   private checkScreenWidth(): void {
     this.isScreenWidth550 = window.innerWidth <= 550;
+  }
+
+  clickSwitch(): void {
+    if (!this.isSwitchLoading) {
+      this.isSwitchLoading = true;
+
+      this.groupsService.updateGroup(!this.switchValue).subscribe({
+        next: () => {
+          this.switchValue = !this.switchValue;
+          this.updateGroup.emit(this.switchValue);
+          this.isSwitchLoading = false;
+        },
+        error: () => {
+          this.isSwitchLoading = false;
+        },
+      });
+    }
   }
 
   onInviteCodeClick(inviteCode: string) {

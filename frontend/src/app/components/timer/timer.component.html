@@ -88,6 +88,8 @@
       [currentUser]="currentUser"
       [groupName]="userGroupName"
       [onlineUserList]="onlineUserList"
+      [canMembersAddMobs]="canMembersAddMobs"
+      (updateGroup)="onCanMembersAddMobsChange($event)"
       (exchangeRefresh)="onExchangeRefresh($event)"
     ></app-timer-settings>
   </div>
@@ -402,7 +404,7 @@
                   nzTooltipTitle="Удалить"
                   nzDanger
                   [nzTooltipMouseEnterDelay]="1"
-                  *ngIf="currentUser.isGroupLeader"
+                  *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
                   nzShape="circle"
                   [tourAnchor]="i == 0 ? 'delete' : ''"
                 >
@@ -484,7 +486,7 @@
                   nzTooltipTitle="Удалить"
                   nzDanger
                   [nzTooltipMouseEnterDelay]="1"
-                  *ngIf="currentUser.isGroupLeader"
+                  *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
                   nzShape="circle"
                 >
                   <span nz-icon nzType="delete"></span>
@@ -498,7 +500,7 @@
         class="box-shadow timer-d-flex-space-between"
         [ngClass]="'white'"
         tourAnchor="add"
-        *ngIf="currentUser.isGroupLeader"
+        *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
       >
         <button
           nz-button

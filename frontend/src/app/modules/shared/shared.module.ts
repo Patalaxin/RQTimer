@@ -34,6 +34,7 @@ import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 
 // Add Taiga UI Modules
 import { TuiReorderModule } from '@taiga-ui/addon-table';
@@ -76,6 +77,7 @@ const sharedModules = [
   NzTableModule,
   NzAvatarModule,
   NzSegmentedModule,
+  NzSwitchModule,
   TuiRootModule,
   TuiDialogModule,
   TuiAlertModule,

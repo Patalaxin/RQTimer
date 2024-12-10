@@ -47,4 +47,9 @@ export class GroupsService {
   deleteUser(email: string): Observable<any> {
     return this.http.delete(`${this.GROUPS_API}/${email}`);
   }
+
+  updateGroup(canMembersAddMobs: boolean): Observable<any> {
+    const payload = { canMembersAddMobs };
+    return this.http.patch(`${this.GROUPS_API}`, payload);
+  }
 }

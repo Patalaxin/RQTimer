@@ -28,6 +28,15 @@
     </div>
 
     <h2>{{ isGroupLeader ? "Управление группой" : "Список участников" }}</h2>
+    <div *ngIf="isGroupLeader" style="display: flex; gap: 20px">
+      <h3>Разрешить участникам добавлять мобов</h3>
+      <nz-switch
+        [(ngModel)]="switchValue"
+        [nzControl]="true"
+        (click)="clickSwitch()"
+        [nzLoading]="isSwitchLoading"
+      ></nz-switch>
+    </div>
     <div class="group-table">
       <nz-table
         #groupTable
