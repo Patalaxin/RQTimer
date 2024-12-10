@@ -36,7 +36,7 @@ import {
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes, User } from '../schemas/user.schema';
 import { UnixtimeService } from '../unixtime/unixtime.service';
 import { GroupService } from '../group/group.service';
 import { Group } from '../schemas/group.schema';
@@ -72,7 +72,7 @@ export class MobService implements IMob {
   }
 
   async addMobInGroup(
-    isGroupLeader: boolean,
+    email: string,
     server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
@@ -82,7 +82,8 @@ export class MobService implements IMob {
       throw new NotFoundException('Group not found');
     }
 
-    if (isGroupLeader === false && group.canMembersAddMobs === false) {
+    const user: User = await this.usersService.findUser(email);
+    if (!user.isGroupLeader && !group.canMembersAddMobs) {
       throw new NotFoundException(
         'In this group, default members cannot add mobs',
       );

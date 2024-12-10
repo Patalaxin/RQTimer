@@ -31,7 +31,7 @@ export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
 
   addMobInGroup(
-    isGroupLeader: boolean,
+    email: string,
     server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,

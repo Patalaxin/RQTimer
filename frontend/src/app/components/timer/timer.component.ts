@@ -98,6 +98,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   userGroupList: any[] = [];
   groupLeaderEmail: string = '';
   onlineUserList: any[] = [];
+  canMembersAddMobs: boolean = false;
 
   allAddChecked: boolean = false;
   indeterminate: boolean = false;
@@ -616,6 +617,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.addMobList = event;
   }
 
+  onCanMembersAddMobsChange(value: any) {
+    this.canMembersAddMobs = value;
+  }
+
   showInfoModal(item: TimerItem): void {
     event?.stopPropagation();
     item.mob.isInfoModalVisible = true;
@@ -1027,6 +1032,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (res.groupName) {
           this.groupsService.getGroup().subscribe({
             next: (res) => {
+              this.canMembersAddMobs = res.canMembersAddMobs;
               this.groupLeaderEmail = res.groupLeader;
               res.members.map((member: string) => {
                 let nickname: string = member.split(': ')[0];
@@ -1107,6 +1113,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onCreateGroup(name: string) {
+    this.selectedSegments = 0;
     this.groupsService.createGroup(name).subscribe({
       next: () => {
         this.exchangeRefresh(() => {
@@ -1121,6 +1128,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onJoinGroup(code: string) {
+    this.selectedSegments = 0;
     this.groupsService.joinGroup(code).subscribe({
       next: () => {
         this.exchangeRefresh(() => {
