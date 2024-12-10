@@ -75,6 +75,10 @@ export class TimerSettingsComponent implements OnInit {
         next: () => {
           this.switchValue = !this.switchValue;
           this.updateGroup.emit(this.switchValue);
+          this.messageService.create(
+            'success',
+            `${this.switchValue ? 'Обычные участники теперь могут добавлять/удалять мобов' : 'Обычные участники теперь не могут добавлять/удалять мобов'}`,
+          );
           this.isSwitchLoading = false;
         },
         error: () => {
