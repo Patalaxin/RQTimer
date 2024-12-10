@@ -4,41 +4,28 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { Reflector } from '@nestjs/core';
-import { IS_GROUP_LEADER_KEY } from '../decorators/isGroupLeader.decorator';
-import { HelperClass } from '../helper-class';
-import { DecodeResult } from './roles.guard';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from '../schemas/user.schema';
 
 @Injectable()
 export class IsGroupLeaderGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private reflector: Reflector,
+    @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isGroupLeader = this.reflector.get<boolean>(
-      IS_GROUP_LEADER_KEY,
-      context.getHandler(),
-    );
-
-    if (!isGroupLeader) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest();
-    const token: string = HelperClass.extractTokenFromHeader(request);
 
-    let decodedToken: DecodeResult;
-    try {
-      decodedToken = this.jwtService.decode(token) as DecodeResult;
-    } catch (e) {
-      throw new ForbiddenException('Invalid token');
+    const userEmail = request.user?.email;
+
+    if (!userEmail) {
+      throw new ForbiddenException('Access Denied: No user email found');
     }
 
-    if (!decodedToken || decodedToken.isGroupLeader !== true) {
-      throw new ForbiddenException('Access denied');
+    const user = await this.userModel.findOne({ email: userEmail });
+    if (!user || !user.isGroupLeader) {
+      throw new ForbiddenException('Access Denied: User is not a group leader');
     }
 
     return true;
