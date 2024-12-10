@@ -51,14 +51,12 @@ import { MobsData } from '../schemas/mobsData.schema';
 import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
-import { IsGroupLeader } from '../decorators/isGroupLeader.decorator';
 import { Servers } from '../schemas/mobs.enum';
-import { GetIsGroupLeaderFromToken } from '../decorators/getIsGroupLeader.decorator';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(TokensGuard, RolesGuard, IsGroupLeaderGuard)
+@UseGuards(TokensGuard, RolesGuard)
 @Controller('mobs')
 export class MobController {
   constructor(
@@ -77,13 +75,13 @@ export class MobController {
   @ApiOperation({ summary: 'Add Mob In Group' })
   @Post('/add-in-group/:server')
   addMobInGroup(
-    @GetIsGroupLeaderFromToken() isGroupLeader: boolean,
+    @GetEmailFromToken() email: string,
     @Param('server') server: Servers,
     @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
     @GetGroupNameFromToken() groupName: string,
   ): Promise<MobsData[]> {
     return this.mobInterface.addMobInGroup(
-      isGroupLeader,
+      email,
       server,
       addMobInGroupDto,
       groupName,
@@ -225,7 +223,7 @@ export class MobController {
     return this.mobInterface.deleteMob(deleteMobDtoParams, groupName);
   }
 
-  @IsGroupLeader()
+  @UseGuards(IsGroupLeaderGuard)
   @ApiOperation({ summary: 'Remove Mob From Group' })
   @Delete('/remove-from-group/:server/:location/:mobName/')
   removeOneFromGroup(
