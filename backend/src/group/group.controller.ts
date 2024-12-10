@@ -68,7 +68,6 @@ export class GroupController {
     return this.groupInterface.joinGroup(joinGroupDto, email);
   }
 
-  @IsGroupLeader()
   @ApiOperation({ summary: 'Transfer Leader' })
   @Post('transfer-leader')
   async transferGroupLeadership(

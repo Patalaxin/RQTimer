@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -129,13 +130,16 @@ export class GroupService implements IGroup {
     email: string,
     groupName: string,
   ): Promise<Group> {
+    const user = await this.userModel.findOne({ email });
+    if (!user.isGroupLeader) {
+      throw new ForbiddenException('Access Denied');
+    }
+
     const { newLeaderEmail } = transferLeaderDto;
     const group = await this.groupModel.findOne({ name: groupName });
     if (!group) {
       throw new NotFoundException('Group not found');
     }
-
-    const user = await this.userModel.findOne({ email });
 
     const newLeader = await this.userModel.findOne({
       email: new RegExp(`^${newLeaderEmail}$`, 'i'),
