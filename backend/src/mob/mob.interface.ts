@@ -26,6 +26,10 @@ import { Mob } from '../schemas/mob.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { MobsData } from '../schemas/mobsData.schema';
 import { Servers } from '../schemas/mobs.enum';
+import {
+  UpdateMobCommentDtoBodyRequest,
+  UpdateMobCommentDtoParamsRequest,
+} from './dto/update-mob-comment.dto';
 
 export interface IMob {
   createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
@@ -101,4 +105,10 @@ export interface IMob {
   ): Promise<GetFullMobDtoResponse>;
 
   deleteAllMobData(groupName: string): Promise<DeleteAllMobsDataDtoResponse>;
+
+  updateMobComment(
+    groupName: string,
+    updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
+    updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
+  ): Promise<MobsData>;
 }

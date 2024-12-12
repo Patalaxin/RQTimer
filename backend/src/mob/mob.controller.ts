@@ -52,6 +52,10 @@ import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { Servers } from '../schemas/mobs.enum';
+import {
+  UpdateMobCommentDtoBodyRequest,
+  UpdateMobCommentDtoParamsRequest,
+} from './dto/update-mob-comment.dto';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -290,5 +294,20 @@ export class MobController {
     });
 
     return mob;
+  }
+
+  @Roles()
+  @ApiOperation({ summary: 'Update Mob Comment Data' })
+  @Put('comment/:server/:location/:mobName/')
+  updateMobComment(
+    @GetGroupNameFromToken() groupName: string,
+    @Body() updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
+    @Param() updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
+  ): Promise<MobsData> {
+    return this.mobInterface.updateMobComment(
+      groupName,
+      updateMobCommentBody,
+      updateMobCommentParams,
+    );
   }
 }

@@ -26,6 +26,11 @@ export class MobsData {
 
   @ApiProperty()
   @Expose()
+  @Prop({ default: null, maxlength: 50 })
+  comment: string;
+
+  @ApiProperty()
+  @Expose()
   @Prop({ default: null })
   deathTime: number;
 

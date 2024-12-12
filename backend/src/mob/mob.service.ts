@@ -43,6 +43,10 @@ import { Group } from '../schemas/group.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { plainToInstance } from 'class-transformer';
 import { History, HistoryTypes } from '../history/history-types.interface';
+import {
+  UpdateMobCommentDtoBodyRequest,
+  UpdateMobCommentDtoParamsRequest,
+} from './dto/update-mob-comment.dto';
 
 export class MobService implements IMob {
   constructor(
@@ -264,6 +268,11 @@ export class MobService implements IMob {
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, cooldown } = updateMobByCooldownDto;
+    let { comment } = updateMobByCooldownDto;
+
+    if (!comment) {
+      comment = '';
+    }
 
     const getMobDto = { mobName, server, location };
 
@@ -298,6 +307,7 @@ export class MobService implements IMob {
         {
           $inc: { cooldown },
           respawnTime: nextResurrectTime,
+          comment: comment,
           respawnLost: false,
         },
         { new: true },
@@ -322,6 +332,11 @@ export class MobService implements IMob {
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfDeath } = updateMobDateOfDeathDto;
+    let { comment } = updateMobDateOfDeathDto;
+
+    if (!comment) {
+      comment = '';
+    }
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
@@ -348,6 +363,7 @@ export class MobService implements IMob {
           respawnTime: nextResurrectTime,
           cooldown: 0,
           deathTime: dateOfDeath,
+          comment: comment,
           respawnLost: false,
         },
         { new: true },
@@ -373,6 +389,11 @@ export class MobService implements IMob {
   ): Promise<GetFullMobDtoResponse> {
     const { mobName, server, location, dateOfRespawn } =
       updateMobDateOfRespawnDto;
+    let { comment } = updateMobDateOfRespawnDto;
+
+    if (!comment) {
+      comment = '';
+    }
 
     const getMobDto: GetMobDtoRequest = { mobName, server, location };
 
@@ -403,6 +424,7 @@ export class MobService implements IMob {
           respawnTime: nextResurrectTime,
           cooldown: 0,
           deathTime: adjustedDeathTime,
+          comment: comment,
           respawnLost: false,
         },
         { new: true },
@@ -583,5 +605,40 @@ export class MobService implements IMob {
     });
 
     return { message: 'All Mobs Data deleted' };
+  }
+
+  async updateMobComment(
+    groupName: string,
+    updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
+    updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
+  ): Promise<MobsData> {
+    const mob: Mob = await this.mobModel
+      .findOne(
+        {
+          location: updateMobCommentParams.location,
+          mobName: updateMobCommentParams.mobName,
+        },
+        { __v: 0 },
+      )
+      .lean()
+      .exec();
+
+    if (!mob) {
+      throw new NotFoundException('Mob not found');
+    }
+
+    return this.mobsDataModel
+      .findOneAndUpdate(
+        {
+          mobId: mob._id,
+          server: updateMobCommentParams.server,
+          groupName: groupName,
+        },
+        { $set: updateMobCommentBody },
+        { new: true },
+      )
+      .select('-_id -__v')
+      .lean()
+      .exec();
   }
 }
