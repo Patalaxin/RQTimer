@@ -1,4 +1,11 @@
-import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
 
 export class UpdateMobDateOfRespawnDtoRequest {
@@ -17,4 +24,9 @@ export class UpdateMobDateOfRespawnDtoRequest {
   @IsNumber()
   @IsNotEmpty()
   dateOfRespawn: number | null;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(50)
+  comment: string;
 }
