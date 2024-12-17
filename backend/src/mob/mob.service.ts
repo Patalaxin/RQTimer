@@ -611,7 +611,7 @@ export class MobService implements IMob {
     groupName: string,
     updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
-  ): Promise<MobsData> {
+  ): Promise<GetFullMobDtoResponse> {
     const mob: Mob = await this.mobModel
       .findOne(
         {
@@ -627,7 +627,7 @@ export class MobService implements IMob {
       throw new NotFoundException('Mob not found');
     }
 
-    return this.mobsDataModel
+    const mobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
         {
           mobId: mob._id,
@@ -640,5 +640,7 @@ export class MobService implements IMob {
       .select('-_id -__v')
       .lean()
       .exec();
+
+    return { mob: mob, mobData };
   }
 }
