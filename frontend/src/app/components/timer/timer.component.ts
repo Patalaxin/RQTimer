@@ -940,10 +940,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     event?.stopPropagation();
     item.mob.isOnDieNow = true;
     this.currentTime = Date.now() - 10000;
-    if (
-      !item.mobData.respawnTime ||
-      moment(this.currentTime).valueOf() > item.mobData.respawnTime
-    ) {
+    if (!item.mobData.respawnTime || Date.now() > item.mobData.respawnTime) {
       this.timerService.isLoading = true;
       this.timerService.getUnixtime().subscribe({
         next: (res) => {
