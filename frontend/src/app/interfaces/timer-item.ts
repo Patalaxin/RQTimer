@@ -25,6 +25,7 @@ export interface TimerItem {
     cooldown: number;
     respawnLost?: boolean;
     mobTypeAdditionalTime?: string;
+    comment?: string;
   };
   unixtime: number;
 }

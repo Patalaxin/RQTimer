@@ -181,6 +181,13 @@
                   'timer-mx-10px': isScreenWidthInZone,
                   'timer-d-none': isScreenWidth372,
                 }"
+                [nz-tooltip]="item.mobData.comment"
+                [nzTooltipTitle]="item.mobData.comment"
+                [style]="
+                  item.mobData.comment
+                    ? 'cursor: pointer; text-decoration: underline dashed'
+                    : ''
+                "
               >
                 {{
                   item.mobData.respawnTime
@@ -220,7 +227,10 @@
                   <span class="timer-mob-location">{{
                     item.mob.location
                   }}</span>
-                  <nz-radio-group [(ngModel)]="radioValue">
+                  <nz-radio-group
+                    [(ngModel)]="radioValue"
+                    [nzDisabled]="isOnlyComment"
+                  >
                     <label nz-radio nzValue="death"
                       >Выберите точное время смерти:
                     </label>
@@ -229,11 +239,13 @@
                         [(ngModel)]="datePickerTime"
                         (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
+                        [nzDisabled]="isOnlyComment"
                       ></nz-date-picker>
                       <nz-time-picker
                         [(ngModel)]="timePickerTime"
                         (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
+                        [nzDisabled]="isOnlyComment"
                       >
                       </nz-time-picker>
                     </div>
@@ -245,11 +257,13 @@
                         [(ngModel)]="datePickerTime"
                         (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
+                        [nzDisabled]="isOnlyComment"
                       ></nz-date-picker>
                       <nz-time-picker
                         [(ngModel)]="timePickerTime"
                         (ngModelChange)="onTimeChange()"
                         (click)="onFocus($event)"
+                        [nzDisabled]="isOnlyComment"
                       >
                       </nz-time-picker>
                     </div>
@@ -272,11 +286,37 @@
                             step="1"
                             class="br-50px"
                             (click)="onFocus($event)"
+                            [disabled]="isOnlyComment"
                           />
                         </nz-input-group>
                       </nz-space>
                     </div>
                   </nz-radio-group>
+
+                  <span style="margin: 20px 0 11px; display: block; color: #fff"
+                    >Комментарий:</span
+                  >
+                  <nz-input-group
+                    nzPrefixIcon="edit"
+                    class="br-50px"
+                    style="
+                      max-width: 400px;
+                      display: flex;
+                      justify-self: center;
+                    "
+                  >
+                    <input
+                      nz-input
+                      placeholder="Комментарий"
+                      [(ngModel)]="comment"
+                    />
+                  </nz-input-group>
+                  <label
+                    nz-checkbox
+                    [(ngModel)]="isOnlyComment"
+                    style="margin-top: 11px"
+                    >Добавить/редактировать только комментарий</label
+                  >
                 </p>
               </nz-modal>
               <button

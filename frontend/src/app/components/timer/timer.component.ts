@@ -105,6 +105,9 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   addSearchValue: string = '';
 
+  isOnlyComment: boolean = false;
+  comment: string = '';
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
@@ -668,6 +671,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   showDeathModal(item: TimerItem): void {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
+    this.comment = '';
+    this.isOnlyComment = false;
     this.currentItem = item;
     this.currentTime = Date.now();
     const time = new Date(this.currentTime);
@@ -728,6 +733,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByDeathTime(
               this.currentItem,
               moment(this.currentTime).valueOf(),
+              this.comment,
             )
             .subscribe({
               next: (res: any) => {
@@ -756,6 +762,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByRespawnTime(
               this.currentItem,
               moment(this.currentTime).valueOf(),
+              this.comment,
             )
             .subscribe({
               next: (res: any) =>
@@ -774,6 +781,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           .setByCooldownTime(
             item,
             Number(this.cooldown) ? Number(this.cooldown) : 1,
+            this.comment,
           )
           .subscribe({
             next: (res: any) =>
@@ -787,9 +795,19 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     item.mob.isDeathOkLoading = true;
 
-    const action = radioActions[this.radioValue];
-    if (action) {
-      action();
+    if (!this.isOnlyComment) {
+      const action = radioActions[this.radioValue];
+      if (action) {
+        action();
+      }
+    }
+
+    if (this.isOnlyComment) {
+      this.timerService.addComment(this.currentItem, this.comment).subscribe({
+        next: (res: any) =>
+          handleSuccess(`Комментарий был успешно добавлен/отредактирован`, res),
+        error: (err) => handleError(err),
+      });
     }
   }
 
@@ -861,7 +879,11 @@ export class TimerComponent implements OnInit, OnDestroy {
       nzOnOk: () => {
         if (action === 'death') {
           this.timerService
-            .setByDeathTime(item, moment(this.currentTime).valueOf())
+            .setByDeathTime(
+              item,
+              moment(this.currentTime).valueOf(),
+              this.comment,
+            )
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
@@ -874,7 +896,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         if (action === 'respawn') {
           this.timerService
-            .setByRespawnTime(item, moment(this.currentTime).valueOf())
+            .setByRespawnTime(
+              item,
+              moment(this.currentTime).valueOf(),
+              this.comment,
+            )
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
@@ -890,6 +916,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByCooldownTime(
               item,
               Number(this.cooldown) ? Number(this.cooldown) : 1,
+              this.comment,
             )
             .subscribe({
               next: (res: any) =>
@@ -912,6 +939,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onDieNow(item: TimerItem): void {
     event?.stopPropagation();
     item.mob.isOnDieNow = true;
+    this.currentTime = Date.now() - 10000;
     if (
       !item.mobData.respawnTime ||
       moment(this.currentTime).valueOf() > item.mobData.respawnTime
@@ -921,7 +949,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.currentTime = res ? res.unixtime : Date.now();
           this.timerService
-            .setByDeathTime(item, this.currentTime - 10000)
+            .setByDeathTime(item, this.currentTime - 10000, '')
             .subscribe({
               next: (res: TimerItem) => {
                 this.updateItem(this.timerList, res);
@@ -955,7 +983,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onSetByCooldownTime(item: TimerItem): void {
     event?.stopPropagation();
     this.timerService.isLoading = true;
-    this.timerService.setByCooldownTime(item, 1).subscribe({
+    this.timerService.setByCooldownTime(item, 1, '').subscribe({
       next: (res: TimerItem) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
