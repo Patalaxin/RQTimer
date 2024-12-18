@@ -303,7 +303,7 @@ export class MobController {
     @GetGroupNameFromToken() groupName: string,
     @Body() updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     @Param() updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
-  ): Promise<MobsData> {
+  ): Promise<GetFullMobDtoResponse> {
     return this.mobInterface.updateMobComment(
       groupName,
       updateMobCommentBody,

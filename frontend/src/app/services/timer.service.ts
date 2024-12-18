@@ -89,34 +89,49 @@ export class TimerService {
     return this.http.post(`${this.MOB_URL}/crash-server/${server}`, payload);
   }
 
-  setByDeathTime(item: TimerItem, dateOfDeath: number): Observable<any> {
+  setByDeathTime(
+    item: TimerItem,
+    dateOfDeath: number,
+    comment: string,
+  ): Observable<any> {
     let payload = {
       dateOfDeath,
       mobName: item.mob.mobName,
       server: item.mobData.server,
       location: item.mob.location,
+      comment,
     };
 
     return this.http.put(`${this.MOB_URL}/date-of-death`, payload);
   }
 
-  setByRespawnTime(item: TimerItem, dateOfRespawn: number): Observable<any> {
+  setByRespawnTime(
+    item: TimerItem,
+    dateOfRespawn: number,
+    comment: string,
+  ): Observable<any> {
     let payload = {
       dateOfRespawn,
       mobName: item.mob.mobName,
       server: item.mobData.server,
       location: item.mob.location,
+      comment,
     };
 
     return this.http.put(`${this.MOB_URL}/date-of-respawn`, payload);
   }
 
-  setByCooldownTime(item: TimerItem, cooldown: number): Observable<any> {
+  setByCooldownTime(
+    item: TimerItem,
+    cooldown: number,
+    comment: string,
+  ): Observable<any> {
     let payload = {
       mobName: item.mob.mobName,
       server: item.mobData.server,
       location: item.mob.location,
       cooldown,
+      comment,
     };
 
     return this.http.put(`${this.MOB_URL}/cooldown`, payload);
@@ -127,6 +142,15 @@ export class TimerService {
 
     return this.http.put(
       `${this.MOB_URL}/respawn-lost/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
+      payload,
+    );
+  }
+
+  addComment(item: TimerItem, comment: string): Observable<any> {
+    let payload = { comment };
+
+    return this.http.put(
+      `${this.MOB_URL}/comment/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
       payload,
     );
   }

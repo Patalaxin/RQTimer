@@ -105,6 +105,9 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   addSearchValue: string = '';
 
+  isOnlyComment: boolean = false;
+  comment: string = '';
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
@@ -668,6 +671,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   showDeathModal(item: TimerItem): void {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
+    this.comment = '';
+    this.isOnlyComment = false;
     this.currentItem = item;
     this.currentTime = Date.now();
     const time = new Date(this.currentTime);
@@ -697,6 +702,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   cancelDeathModal(item: TimerItem): void {
     item.mob.isDeathModalVisible = false;
+    this.isOnlyComment = false;
+    this.comment = '';
   }
 
   confirmDeathModal(item: TimerItem): void {
@@ -708,6 +715,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
+      this.isOnlyComment = false;
+      this.comment = '';
       this.messageService.create('success', message);
     };
 
@@ -728,6 +737,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByDeathTime(
               this.currentItem,
               moment(this.currentTime).valueOf(),
+              this.comment,
             )
             .subscribe({
               next: (res: any) => {
@@ -756,6 +766,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByRespawnTime(
               this.currentItem,
               moment(this.currentTime).valueOf(),
+              this.comment,
             )
             .subscribe({
               next: (res: any) =>
@@ -774,6 +785,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           .setByCooldownTime(
             item,
             Number(this.cooldown) ? Number(this.cooldown) : 1,
+            this.comment,
           )
           .subscribe({
             next: (res: any) =>
@@ -787,9 +799,19 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     item.mob.isDeathOkLoading = true;
 
-    const action = radioActions[this.radioValue];
-    if (action) {
-      action();
+    if (!this.isOnlyComment) {
+      const action = radioActions[this.radioValue];
+      if (action) {
+        action();
+      }
+    }
+
+    if (this.isOnlyComment) {
+      this.timerService.addComment(this.currentItem, this.comment).subscribe({
+        next: (res: any) =>
+          handleSuccess(`Комментарий был успешно добавлен/отредактирован`, res),
+        error: (err) => handleError(err),
+      });
     }
   }
 
@@ -802,6 +824,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
+      this.isOnlyComment = false;
+      this.comment = '';
       this.messageService.create('success', message);
     };
 
@@ -861,7 +885,11 @@ export class TimerComponent implements OnInit, OnDestroy {
       nzOnOk: () => {
         if (action === 'death') {
           this.timerService
-            .setByDeathTime(item, moment(this.currentTime).valueOf())
+            .setByDeathTime(
+              item,
+              moment(this.currentTime).valueOf(),
+              this.comment,
+            )
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
@@ -874,7 +902,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
         if (action === 'respawn') {
           this.timerService
-            .setByRespawnTime(item, moment(this.currentTime).valueOf())
+            .setByRespawnTime(
+              item,
+              moment(this.currentTime).valueOf(),
+              this.comment,
+            )
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
@@ -890,6 +922,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             .setByCooldownTime(
               item,
               Number(this.cooldown) ? Number(this.cooldown) : 1,
+              this.comment,
             )
             .subscribe({
               next: (res: any) =>
@@ -912,16 +945,14 @@ export class TimerComponent implements OnInit, OnDestroy {
   onDieNow(item: TimerItem): void {
     event?.stopPropagation();
     item.mob.isOnDieNow = true;
-    if (
-      !item.mobData.respawnTime ||
-      moment(this.currentTime).valueOf() > item.mobData.respawnTime
-    ) {
+    this.currentTime = Date.now() - 10000;
+    if (!item.mobData.respawnTime || Date.now() > item.mobData.respawnTime) {
       this.timerService.isLoading = true;
       this.timerService.getUnixtime().subscribe({
         next: (res) => {
           this.currentTime = res ? res.unixtime : Date.now();
           this.timerService
-            .setByDeathTime(item, this.currentTime - 10000)
+            .setByDeathTime(item, this.currentTime - 10000, '')
             .subscribe({
               next: (res: TimerItem) => {
                 this.updateItem(this.timerList, res);
@@ -940,7 +971,16 @@ export class TimerComponent implements OnInit, OnDestroy {
         },
       });
     } else {
-      this.showConfirmRewriteModal(item, 'death');
+      this.timerService.getUnixtime().subscribe({
+        next: (res) => {
+          this.currentTime = res ? res.unixtime - 10000 : Date.now() - 10000;
+          this.showConfirmRewriteModal(item, 'death');
+        },
+        error: () => {
+          this.timerService.isLoading = false;
+          item.mob.isOnDieNow = false;
+        },
+      });
     }
   }
 
@@ -955,7 +995,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   onSetByCooldownTime(item: TimerItem): void {
     event?.stopPropagation();
     this.timerService.isLoading = true;
-    this.timerService.setByCooldownTime(item, 1).subscribe({
+    this.timerService.setByCooldownTime(item, 1, '').subscribe({
       next: (res: TimerItem) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);

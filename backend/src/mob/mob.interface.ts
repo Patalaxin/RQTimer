@@ -110,5 +110,5 @@ export interface IMob {
     groupName: string,
     updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
-  ): Promise<MobsData>;
+  ): Promise<GetFullMobDtoResponse>;
 }
