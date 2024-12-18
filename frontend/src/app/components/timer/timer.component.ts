@@ -702,6 +702,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   cancelDeathModal(item: TimerItem): void {
     item.mob.isDeathModalVisible = false;
+    this.isOnlyComment = false;
+    this.comment = '';
   }
 
   confirmDeathModal(item: TimerItem): void {
@@ -713,6 +715,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
+      this.isOnlyComment = false;
+      this.comment = '';
       this.messageService.create('success', message);
     };
 
@@ -820,6 +824,8 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.timerService.isLoading = false;
       item.mob.isDeathModalVisible = false;
       item.mob.isDeathOkLoading = false;
+      this.isOnlyComment = false;
+      this.comment = '';
       this.messageService.create('success', message);
     };
 
@@ -965,7 +971,16 @@ export class TimerComponent implements OnInit, OnDestroy {
         },
       });
     } else {
-      this.showConfirmRewriteModal(item, 'death');
+      this.timerService.getUnixtime().subscribe({
+        next: (res) => {
+          this.currentTime = res ? res.unixtime - 10000 : Date.now() - 10000;
+          this.showConfirmRewriteModal(item, 'death');
+        },
+        error: () => {
+          this.timerService.isLoading = false;
+          item.mob.isOnDieNow = false;
+        },
+      });
     }
   }
 
