@@ -1,5 +1,5 @@
 import { IsString, IsEnum, MaxLength } from 'class-validator';
-import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import { MobsLocations, MobName, Servers } from '../../schemas/mobs.enum';
 
 export class UpdateMobCommentDtoBodyRequest {
   @IsString()
@@ -14,6 +14,6 @@ export class UpdateMobCommentDtoParamsRequest {
   @IsEnum(Servers)
   server: Servers;
 
-  @IsEnum(Locations)
-  location: Locations;
+  @IsEnum(MobsLocations)
+  location: MobsLocations;
 }

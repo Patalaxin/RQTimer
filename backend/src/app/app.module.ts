@@ -11,6 +11,7 @@ import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
 import * as process from 'process';
+import { ChestModule } from '../chest/chest.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import * as process from 'process';
     GroupModule,
     ConfigurationModule,
     UnixtimeModule,
+    ChestModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => {

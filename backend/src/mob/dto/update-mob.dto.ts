@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
 import {
-  Locations,
+  MobsLocations,
   MobName,
   MobsTypes,
   Servers,
@@ -16,9 +16,9 @@ export class UpdateMobDtoBodyRequest {
   @IsOptional()
   shortName: ShortMobName;
 
-  @IsEnum(Locations)
+  @IsEnum(MobsLocations)
   @IsOptional()
-  location: Locations;
+  location: MobsLocations;
 
   @IsString()
   @IsOptional()
@@ -44,6 +44,6 @@ export class UpdateMobDtoParamsRequest {
   @IsEnum(Servers)
   server: Servers;
 
-  @IsEnum(Locations)
-  location: Locations;
+  @IsEnum(MobsLocations)
+  location: MobsLocations;
 }

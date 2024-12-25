@@ -1,5 +1,5 @@
 import { IsEnum } from 'class-validator';
-import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import { MobsLocations, MobName, Servers } from '../../schemas/mobs.enum';
 
 export class RespawnLostDtoParamsRequest {
   @IsEnum(MobName)
@@ -8,6 +8,6 @@ export class RespawnLostDtoParamsRequest {
   @IsEnum(Servers)
   server: Servers;
 
-  @IsEnum(Locations)
-  location: Locations;
+  @IsEnum(MobsLocations)
+  location: MobsLocations;
 }

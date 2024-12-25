@@ -5,7 +5,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { Locations, MobName } from '../schemas/mobs.enum';
+import { MobsLocations, MobName } from '../schemas/mobs.enum';
 
 @ValidatorConstraint({ async: false })
 export class IsMobLocationFormatConstraint
@@ -20,7 +20,7 @@ export class IsMobLocationFormatConstraint
     // Проверяем, что mobName и location соответствуют Enum
     return (
       Object.values(MobName).includes(mobName as MobName) &&
-      Object.values(Locations).includes(location as Locations)
+      Object.values(MobsLocations).includes(location as MobsLocations)
     );
   }
 

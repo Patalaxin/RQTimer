@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
-import { Locations, MobName, MobsTypes, ShortMobName } from './mobs.enum';
+import { MobsLocations, MobName, MobsTypes, ShortMobName } from './mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type MobDocument = HydratedDocument<Mob>;
@@ -25,10 +25,10 @@ export class Mob {
   @Prop({ default: null })
   respawnText: string;
 
-  @ApiProperty({ enum: Locations })
+  @ApiProperty({ enum: MobsLocations })
   @Expose()
   @Prop({ required: true })
-  location: Locations;
+  location: MobsLocations;
 
   @ApiProperty()
   @Expose()

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { Locations, Servers, MobName } from '../../schemas/mobs.enum';
+import { MobsLocations, Servers, MobName } from '../../schemas/mobs.enum';
 import { Expose, Type } from 'class-transformer';
 import { Mob } from '../../schemas/mob.schema';
 import { MobsData } from '../../schemas/mobsData.schema';
@@ -10,9 +10,9 @@ export class GetMobDtoRequest {
   @IsNotEmpty()
   server: Servers;
 
-  @IsEnum(Locations)
+  @IsEnum(MobsLocations)
   @IsNotEmpty()
-  location: Locations;
+  location: MobsLocations;
 
   @IsEnum(MobName)
   @IsNotEmpty()

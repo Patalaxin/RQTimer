@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { Locations, MobName, Servers } from './mobs.enum';
+import { MobsLocations, MobName, Servers } from './mobs.enum';
 import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history-types.interface';
@@ -65,7 +65,7 @@ export class AstusHistory {
 
   @Expose()
   @Prop()
-  location: Locations;
+  location: MobsLocations;
 
   @ApiProperty()
   @Prop()

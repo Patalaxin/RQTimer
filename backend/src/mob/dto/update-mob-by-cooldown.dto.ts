@@ -5,7 +5,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import { MobsLocations, MobName, Servers } from '../../schemas/mobs.enum';
 import { IsPositive } from '../../decorators/isPositiveOrZero.decorator';
 
 export class UpdateMobByCooldownDtoRequest {
@@ -17,9 +17,9 @@ export class UpdateMobByCooldownDtoRequest {
   @IsNotEmpty()
   server: Servers;
 
-  @IsEnum(Locations)
+  @IsEnum(MobsLocations)
   @IsOptional()
-  location: Locations;
+  location: MobsLocations;
 
   @IsPositive()
   @IsNotEmpty()

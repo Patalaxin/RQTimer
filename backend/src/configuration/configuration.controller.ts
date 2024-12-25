@@ -17,8 +17,8 @@ export class ConfigurationController {
     return this.configurationService.getMobs();
   }
 
-  @Get('locations')
-  getLocations() {
-    return this.configurationService.getLocations();
+  @Get('mobs-locations')
+  getMobsLocations() {
+    return this.configurationService.getMobsLocations();
   }
 }

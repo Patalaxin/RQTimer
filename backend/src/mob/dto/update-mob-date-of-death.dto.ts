@@ -6,7 +6,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import { MobsLocations, MobName, Servers } from '../../schemas/mobs.enum';
 
 export class UpdateMobDateOfDeathDtoRequest {
   @IsEnum(MobName)
@@ -17,9 +17,9 @@ export class UpdateMobDateOfDeathDtoRequest {
   @IsNotEmpty()
   server: Servers;
 
-  @IsEnum(Locations)
+  @IsEnum(MobsLocations)
   @IsNotEmpty()
-  location: Locations;
+  location: MobsLocations;
 
   @IsNumber()
   @IsNotEmpty()

@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Locations, MobName, Servers } from '../schemas/mobs.enum';
+import { MobsLocations, MobName, Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
@@ -55,7 +55,7 @@ export class HistoryController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('mobName') mobName?: MobName,
-    @Query('location') location?: Locations,
+    @Query('location') location?: MobsLocations,
   ): Promise<PaginatedHistoryDto> {
     return await this.historyInterface.getAllHistory(
       server,
