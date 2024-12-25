@@ -10,6 +10,22 @@ import {
   IgnisHistory,
   IgnisHistorySchema,
 } from '../schemas/ignisHistory.schema';
+import {
+  AstusHistory,
+  AstusHistorySchema,
+} from '../schemas/astusHistory.schema';
+import {
+  PyrosHistory,
+  PyrosHistorySchema,
+} from '../schemas/pyrosHistory.schema';
+import {
+  AztecHistory,
+  AztecHistorySchema,
+} from '../schemas/aztecHistory.schema';
+import {
+  OrtosHistory,
+  OrtosHistorySchema,
+} from '../schemas/ortosHistory.schema';
 
 @Module({
   providers: [
@@ -21,6 +37,10 @@ import {
     MongooseModule.forFeature([
       { name: HeliosHistory.name, schema: HeliosHistorySchema },
       { name: IgnisHistory.name, schema: IgnisHistorySchema },
+      { name: AstusHistory.name, schema: AstusHistorySchema },
+      { name: PyrosHistory.name, schema: PyrosHistorySchema },
+      { name: AztecHistory.name, schema: AztecHistorySchema },
+      { name: OrtosHistory.name, schema: OrtosHistorySchema },
     ]),
   ],
   controllers: [HistoryController],

@@ -1,6 +1,10 @@
 export enum Servers {
   Гелиос = 'Гелиос',
   Игнис = 'Игнис',
+  Astus = 'Astus',
+  Pyros = 'Pyros',
+  Aztec = 'Aztec',
+  Ortos = 'Ortos',
 }
 
 export enum MobsTypes {

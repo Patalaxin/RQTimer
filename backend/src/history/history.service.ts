@@ -18,6 +18,22 @@ import {
   IgnisHistory,
   IgnisHistoryDocument,
 } from '../schemas/ignisHistory.schema';
+import {
+  AstusHistory,
+  AstusHistoryDocument,
+} from '../schemas/astusHistory.schema';
+import {
+  PyrosHistory,
+  PyrosHistoryDocument,
+} from '../schemas/pyrosHistory.schema';
+import {
+  AztecHistory,
+  AztecHistoryDocument,
+} from '../schemas/aztecHistory.schema';
+import {
+  OrtosHistory,
+  OrtosHistoryDocument,
+} from '../schemas/ortosHistory.schema';
 
 @Injectable()
 export class HistoryService implements IHistory {
@@ -28,10 +44,22 @@ export class HistoryService implements IHistory {
     private heliosHistoryModel: Model<HeliosHistoryDocument>,
     @InjectModel(IgnisHistory.name)
     private ignisHistoryModel: Model<IgnisHistoryDocument>,
+    @InjectModel(AstusHistory.name)
+    private astusHistoryModel: Model<AstusHistoryDocument>,
+    @InjectModel(PyrosHistory.name)
+    private pyrosHistoryModel: Model<PyrosHistoryDocument>,
+    @InjectModel(AztecHistory.name)
+    private aztecHistoryModel: Model<AztecHistoryDocument>,
+    @InjectModel(OrtosHistory.name)
+    private ortosHistoryModel: Model<OrtosHistoryDocument>,
   ) {
     this.historyModels = [
       { server: 'Гелиос', model: this.heliosHistoryModel },
       { server: 'Игнис', model: this.ignisHistoryModel },
+      { server: 'Astus', model: this.astusHistoryModel },
+      { server: 'Pyros', model: this.pyrosHistoryModel },
+      { server: 'Aztec', model: this.aztecHistoryModel },
+      { server: 'Ortos', model: this.ortosHistoryModel },
     ];
   }
 
