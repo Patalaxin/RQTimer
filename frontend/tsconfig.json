@@ -25,7 +25,8 @@
     ],
     "paths": {
       "@environments": ["src/environments/environment"],
-      "@shared/tokens": ["src/app/shared/tokens"]
+      "@shared/tokens": ["src/app/shared/tokens"],
+      "@shared/services/*": ["src/app/shared/services/*"]
     }
   },
   "angularCompilerOptions": {
