@@ -20,6 +20,8 @@ import { TimerService } from 'src/app/services/timer.service';
 import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { NotificationService } from '@shared/services/notification/notification.service';
+import { environment } from '@environments';
 
 @Component({
   selector: 'app-timer',
@@ -40,9 +42,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NzModalService);
   private readonly tourService = inject(TourService);
 
+  private readonly notificationService = inject(NotificationService);
+
   private mobUpdateSubscription: Subscription | undefined;
   private worker: Worker | undefined;
-  permission: string = '';
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
@@ -252,11 +255,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
 
     this.timerService.headerVisibility = true;
-    if ('Notification' in window) {
-      Notification?.requestPermission().then((perm) => {
-        this.permission = perm;
-      });
-    }
+
+    this.notificationService.requestPermissions().catch((err) => console.log(err));
 
     this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
       (res: TimerItem) => {
@@ -392,14 +392,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     const sendNotification = (title: string, body: string) => {
-      new Notification(title, {
-        body,
-        icon: `https://www.rqtimer.ru/static/${item.mob.image}`,
-      });
+      this.notificationService.sendNotification(title, { body, icon: `${environment.url}static/${item.mob.image}` });
       playSound();
     };
 
-    if ('Notification' in window && Notification?.permission === 'granted') {
+    if (this.notificationService.permission === 'granted') {
       if (item.mobData.respawnTime) {
         const timeDifference =
           moment
