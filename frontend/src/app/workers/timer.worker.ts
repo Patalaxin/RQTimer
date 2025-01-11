@@ -7,18 +7,16 @@ self.onmessage = function (event) {
     lastUpdateTime = Date.now();
   }
 
-  function updateTimer() {
-    const now = Date.now();
-    const elapsed = now - lastUpdateTime;
-    currentProgressTime += elapsed;
-    lastUpdateTime = now;
-
-    postMessage({
-      updatedProgressTime: currentProgressTime,
-    });
-
-    setTimeout(updateTimer, 1000);
-  }
-
-  updateTimer();
+  setInterval(updateTimer, 1000);
 };
+
+function updateTimer() {
+  const now = Date.now();
+  const elapsed = now - lastUpdateTime;
+  currentProgressTime += elapsed;
+  lastUpdateTime = now;
+
+  postMessage({
+    updatedProgressTime: currentProgressTime,
+  });
+}
