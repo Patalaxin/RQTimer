@@ -10,7 +10,7 @@ import { NgIf } from '@angular/common';
   styleUrls: ['./button.component.scss'],
 })
 export class ButtonComponent {
-  @Input() appearance: TuiButtonOptions['appearance'] | 'green' = 'primary';
+  @Input() appearance: TuiButtonOptions['appearance'] | 'green' | 'red' = 'primary';
   @Input() shape: TuiButtonOptions['shape'] = null;
   @Input() size: TuiButtonOptions['size'] = 's';
   @Input() disabled = false;

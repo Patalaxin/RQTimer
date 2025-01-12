@@ -9,5 +9,15 @@ button {
 
 // TODO: Change color to tui pallet
 button[data-appearance='green'] {
-  background-color: #4CAF50;
+  background-color: var(--tui-support-03);
+}
+
+// TODO: Change color to close tui pallet colors
+button[data-appearance='red'] {
+  background-color: var(--tui-accent-active);
+  color: var(--tui-base-02);
+
+  &:hover {
+    background-color: var(--tui-accent-hover);
+  }
 }
