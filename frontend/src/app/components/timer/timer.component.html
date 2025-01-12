@@ -199,22 +199,27 @@
           </div>
           <div class="timer-center">
             <nz-list-item-meta-title>
-              <button
-                nz-button
-                nzType="primary"
-                (click)="showDeathModal(item)"
-                nz-tooltip
-                nzTooltipTitle="Переписать вручную"
-                [nzTooltipMouseEnterDelay]="1"
-                class="timer-die-button"
-                nzShape="round"
-                [tourAnchor]="i == 0 ? 'rewrite' : ''"
-              >
-                <span nz-icon nzType="edit"></span>
-                <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
-                  >Переписать</span
-                >
-              </button>
+<!--              TODO: Add class="timer-die-button" or remove comment-->
+              <app-button iconName="tuiIconEdit3"
+                          (action)="showDeathModal(item)">
+                Переписать
+              </app-button>
+<!--              <button-->
+<!--                nz-button-->
+<!--                nzType="primary"-->
+<!--                (click)="showDeathModal(item)"-->
+<!--                nz-tooltip-->
+<!--                nzTooltipTitle="Переписать вручную"-->
+<!--                [nzTooltipMouseEnterDelay]="1"-->
+<!--                class="timer-die-button"-->
+<!--                nzShape="round"-->
+<!--                [tourAnchor]="i == 0 ? 'rewrite' : ''"-->
+<!--              >-->
+<!--                <span nz-icon nzType="edit"></span>-->
+<!--                <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"-->
+<!--                  >Переписать</span-->
+<!--                >-->
+<!--              </button>-->
               <nz-modal
                 [(nzVisible)]="item.mob.isDeathModalVisible"
                 (nzOnCancel)="cancelDeathModal(item)"
@@ -319,23 +324,30 @@
                   >
                 </p>
               </nz-modal>
-              <button
-                nz-button
-                nzType="primary"
-                (click)="onDieNow(item)"
-                nz-tooltip
-                nzTooltipTitle="Переписать по (текущему времени - 10 сек)"
-                [nzTooltipMouseEnterDelay]="1"
-                class="timer-die-button"
-                [nzLoading]="item.mob.isOnDieNow"
-                nzShape="round"
-                [tourAnchor]="i == 0 ? 'die-now' : ''"
-              >
-                <span nz-icon nzType="scan"></span>
-                <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
-                  >Упал сейчас</span
-                >
-              </button>
+
+              <!--              TODO: Add class="timer-die-button" or remove comment-->
+              <app-button iconName="tuiIconRefreshCw"
+                          [loading]="item.mob.isOnDieNow"
+                          (action)="onDieNow(item)">
+                Упал сейчас
+              </app-button>
+<!--              <button-->
+<!--                nz-button-->
+<!--                nzType="primary"-->
+<!--                (click)="onDieNow(item)"-->
+<!--                nz-tooltip-->
+<!--                nzTooltipTitle="Переписать по (текущему времени - 10 сек)"-->
+<!--                [nzTooltipMouseEnterDelay]="1"-->
+<!--                class="timer-die-button"-->
+<!--                [nzLoading]="item.mob.isOnDieNow"-->
+<!--                nzShape="round"-->
+<!--                [tourAnchor]="i == 0 ? 'die-now' : ''"-->
+<!--              >-->
+<!--                <span nz-icon nzType="scan"></span>-->
+<!--                <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"-->
+<!--                  >Упал сейчас</span-->
+<!--                >-->
+<!--              </button>-->
             </nz-list-item-meta-title>
           </div>
           <div class="timer-right">

@@ -11,47 +11,64 @@
       (ngModelChange)="updateCurrentServer()"
       tourAnchor="server"
     ></nz-select>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="updateCurrentServer()"
-      nz-tooltip
-      nzTooltipTitle="Обновить"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      nzShape="circle"
-      tourAnchor="reload"
-    >
-      <span nz-icon nzType="reload"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="copyRespText()"
-      nz-tooltip
-      nzTooltipTitle="Скопировать респы"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      nzShape="circle"
-      tourAnchor="copy"
-    >
-      <span nz-icon nzType="copy"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      [class]="isOnline === 'online' ? 'green' : 'red'"
-      nz-tooltip
-      (click)="showCrashServerModal()"
-      nzTooltipTitle="Учитывать падение сервера"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      nzShape="circle"
-      *ngIf="currentRoute == '/timer'"
-      tourAnchor="connection"
-    >
-      <span nz-icon nzType="api"></span>
-    </button>
+
+    <app-button [isIconButton]="true"
+                shape="rounded"
+                iconName="tuiIconRotateCw"
+                (action)="updateCurrentServer()" />
+<!--    <button-->
+<!--      nz-button-->
+<!--      nzType="primary"-->
+<!--      (click)="updateCurrentServer()"-->
+<!--      nz-tooltip-->
+<!--      nzTooltipTitle="Обновить"-->
+<!--      nzTooltipPlacement="bottom"-->
+<!--      [nzTooltipMouseEnterDelay]="1"-->
+<!--      nzShape="circle"-->
+<!--      tourAnchor="reload"-->
+<!--    >-->
+<!--      <span nz-icon nzType="reload"></span>-->
+<!--    </button>-->
+
+    <app-button [isIconButton]="true"
+                shape="rounded"
+                iconName="tuiIconCopy"
+                (action)="copyRespText()" />
+<!--    <button-->
+<!--      nz-button-->
+<!--      nzType="primary"-->
+<!--      (click)="copyRespText()"-->
+<!--      nz-tooltip-->
+<!--      nzTooltipTitle="Скопировать респы"-->
+<!--      nzTooltipPlacement="bottom"-->
+<!--      [nzTooltipMouseEnterDelay]="1"-->
+<!--      nzShape="circle"-->
+<!--      tourAnchor="copy"-->
+<!--    >-->
+<!--      <span nz-icon nzType="copy"></span>-->
+<!--    </button>-->
+
+    <app-button *ngIf="currentRoute == '/timer'"
+                [isIconButton]="true"
+                appearance="green"
+                shape="rounded"
+                iconName="tuiIconBarChart"
+                (action)="showCrashServerModal()" />
+<!--    <button-->
+<!--      nz-button-->
+<!--      nzType="primary"-->
+<!--      [class]="isOnline === 'online' ? 'green' : 'red'"-->
+<!--      nz-tooltip-->
+<!--      (click)="showCrashServerModal()"-->
+<!--      nzTooltipTitle="Учитывать падение сервера"-->
+<!--      nzTooltipPlacement="bottom"-->
+<!--      [nzTooltipMouseEnterDelay]="1"-->
+<!--      nzShape="circle"-->
+<!--      *ngIf="currentRoute == '/timer'"-->
+<!--      tourAnchor="connection"-->
+<!--    >-->
+<!--      <span nz-icon nzType="api"></span>-->
+<!--    </button>-->
   </div>
   <nz-input-group
     nzPrefixIcon="search"

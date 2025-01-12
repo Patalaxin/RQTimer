@@ -34,6 +34,8 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 
   .header-left {
+    display: flex;
+    gap: 10px;
     grid-column: 1/2;
 
     nz-select,

@@ -45,17 +45,11 @@
       <div class="login-form-mb-16px">
         <a [routerLink]="['/change-password']">Забыли пароль?</a>
       </div>
-      <button
-        nz-button
-        class="login-form-button login-form-mb-16px"
-        [nzType]="'primary'"
-        type="submit"
-        [disabled]="form.invalid"
-        [nzLoading]="isLoginLoading"
-        nzShape="round"
-      >
+      <app-button class="login-form-button login-form-mb-16px"
+                  [disabled]="form.invalid"
+                  [loading]="isLoginLoading">
         Войти
-      </button>
+      </app-button>
       <div class="login-form-center">
         <span>Нет учетной записи? </span>
         <a [routerLink]="['/register']">Зарегистрируйтесь</a>
@@ -128,9 +122,7 @@
         </p>
 
         <ng-template #guideFooter>
-          <button nz-button nzType="default" (click)="cancelGuideModal()">
-            Отмена
-          </button>
+          <app-button appearance="whiteblock" (action)="cancelGuideModal()">Отмена</app-button>
         </ng-template>
       </nz-modal>
     </div>
