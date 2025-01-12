@@ -23,7 +23,7 @@ import { NgOptimizedImage, registerLocaleData } from '@angular/common';
 import ru from '@angular/common/locales/ru';
 import { NZ_I18N, ru_RU } from 'ng-zorro-antd/i18n';
 
-import { TUI_SANITIZER } from '@taiga-ui/core';
+import { TUI_SANITIZER, TuiHintModule } from '@taiga-ui/core';
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
 import { TimerSettingsComponent } from './components/timer/timer-settings/timer-settings.component';
 
@@ -58,6 +58,7 @@ registerLocaleData(ru);
     SharedModule,
     NgOptimizedImage,
     ButtonComponent,
+    TuiHintModule,
   ],
   providers: [
     { provide: NZ_I18N, useValue: ru_RU },
