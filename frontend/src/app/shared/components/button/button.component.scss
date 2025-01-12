@@ -1,0 +1,12 @@
+:host {
+  display: block;
+}
+
+button {
+  width: inherit;
+  height: inherit;
+}
+
+button[data-appearance='green'] {
+  background-color: #4CAF50;
+}

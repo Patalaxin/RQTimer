@@ -1,0 +1,24 @@
+<button *ngIf="!isIconButton"
+        tuiButton
+        [icon]="iconName"
+        [appearance]="appearance"
+        [shape]="shape"
+        [size]="size"
+        [disabled]="disabled"
+        [showLoader]="loading"
+        (click)="onClick()">
+  <ng-content />
+</button>
+
+<button *ngIf="isIconButton"
+        tuiIconButton
+        [icon]="iconName"
+        [appearance]="appearance"
+        [shape]="shape"
+        [size]="size"
+        [disabled]="disabled"
+        [showLoader]="loading"
+        (click)="onClick()">
+</button>
+
+

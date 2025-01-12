@@ -28,6 +28,7 @@ import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
 import { TimerSettingsComponent } from './components/timer/timer-settings/timer-settings.component';
 
 import { CapitalizeDirective } from './directives/capitalize.directive';
+import { ButtonComponent } from '@shared/components/button/button.component';
 
 registerLocaleData(ru);
 
@@ -56,6 +57,7 @@ registerLocaleData(ru);
     CoreModule,
     SharedModule,
     NgOptimizedImage,
+    ButtonComponent,
   ],
   providers: [
     { provide: NZ_I18N, useValue: ru_RU },
