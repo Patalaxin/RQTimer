@@ -1,10 +1,5 @@
 <div class="header" *ngIf="isLoggedIn()" tourAnchor="header">
-  <div
-    class="header-left"
-    [ngClass]="{
-      'header-d-inline': isScreenWidth600,
-    }"
-  >
+  <div class="header-left">
     <nz-select
       [(ngModel)]="currentServer"
       [nzOptions]="serverList"
@@ -13,62 +8,31 @@
     ></nz-select>
 
     <app-button [isIconButton]="true"
+                tuiHint="Обновить"
+                tuiHintAppearance="onDark"
+                tuiHintDirection="bottom"
                 shape="rounded"
                 iconName="tuiIconRotateCw"
                 (action)="updateCurrentServer()" />
-<!--    <button-->
-<!--      nz-button-->
-<!--      nzType="primary"-->
-<!--      (click)="updateCurrentServer()"-->
-<!--      nz-tooltip-->
-<!--      nzTooltipTitle="Обновить"-->
-<!--      nzTooltipPlacement="bottom"-->
-<!--      [nzTooltipMouseEnterDelay]="1"-->
-<!--      nzShape="circle"-->
-<!--      tourAnchor="reload"-->
-<!--    >-->
-<!--      <span nz-icon nzType="reload"></span>-->
-<!--    </button>-->
 
     <app-button [isIconButton]="true"
+                tuiHint="Скопировать респы"
+                tuiHintAppearance="onDark"
+                tuiHintDirection="bottom"
                 shape="rounded"
                 iconName="tuiIconCopy"
                 (action)="copyRespText()" />
-<!--    <button-->
-<!--      nz-button-->
-<!--      nzType="primary"-->
-<!--      (click)="copyRespText()"-->
-<!--      nz-tooltip-->
-<!--      nzTooltipTitle="Скопировать респы"-->
-<!--      nzTooltipPlacement="bottom"-->
-<!--      [nzTooltipMouseEnterDelay]="1"-->
-<!--      nzShape="circle"-->
-<!--      tourAnchor="copy"-->
-<!--    >-->
-<!--      <span nz-icon nzType="copy"></span>-->
-<!--    </button>-->
 
+    <!--                TODO: Add error appearance-->
     <app-button *ngIf="currentRoute == '/timer'"
                 [isIconButton]="true"
+                tuiHint="Учитывать падение сервера"
+                tuiHintAppearance="onDark"
+                tuiHintDirection="bottom"
                 appearance="green"
                 shape="rounded"
                 iconName="tuiIconBarChart"
                 (action)="showCrashServerModal()" />
-<!--    <button-->
-<!--      nz-button-->
-<!--      nzType="primary"-->
-<!--      [class]="isOnline === 'online' ? 'green' : 'red'"-->
-<!--      nz-tooltip-->
-<!--      (click)="showCrashServerModal()"-->
-<!--      nzTooltipTitle="Учитывать падение сервера"-->
-<!--      nzTooltipPlacement="bottom"-->
-<!--      [nzTooltipMouseEnterDelay]="1"-->
-<!--      nzShape="circle"-->
-<!--      *ngIf="currentRoute == '/timer'"-->
-<!--      tourAnchor="connection"-->
-<!--    >-->
-<!--      <span nz-icon nzType="api"></span>-->
-<!--    </button>-->
   </div>
   <nz-input-group
     nzPrefixIcon="search"
@@ -95,76 +59,48 @@
       *ngIf="isScreenWidth600"
     ></span>
   </ng-template>
-  <div
-    class="header-right"
-    [ngClass]="{
-      'header-d-inline': isScreenWidth600,
-    }"
-  >
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onSearchOpen()"
-      nzShape="circle"
-      class="search-button"
-      *ngIf="currentRoute == '/timer'"
-    >
-      <span nz-icon nzType="search"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onHistory()"
-      nz-tooltip
-      nzTooltipTitle="История"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/history')"
-      nzShape="circle"
-      tourAnchor="history"
-    >
-      <span nz-icon nzType="history"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onTimer()"
-      nz-tooltip
-      nzTooltipTitle="Таймер"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/timer')"
-      nzShape="circle"
-    >
-      <span nz-icon nzType="clock-circle"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onProfile()"
-      nz-tooltip
-      nzTooltipTitle="Личный кабинет"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/profile')"
-      nzShape="circle"
-      tourAnchor="settings"
-    >
-      <span nz-icon nzType="user"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      nzDanger
-      (click)="showLogoutModal()"
-      nz-tooltip
-      nzTooltipTitle="Выход"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      nzShape="circle"
-      tourAnchor="logout"
-    >
-      <span nz-icon nzType="logout"></span>
-    </button>
+  <div class="header-right">
+    <app-button *ngIf="currentRoute == '/timer'"
+                class="search-button"
+                [isIconButton]="true"
+                shape="rounded"
+                iconName="tuiIconSearch"
+                (action)="onSearchOpen()" />
+
+    <app-button *ngIf="!(currentRoute == '/history')"
+                [isIconButton]="true"
+                iconName="tuiIconBookOpen"
+                shape="rounded"
+                tuiHint="История"
+                tuiHintDirection="bottom"
+                tuiHintAppearance="onDark"
+                (action)="onHistory()" />
+
+    <app-button *ngIf="!(currentRoute == '/timer')"
+                [isIconButton]="true"
+                iconName="tuiIconClock"
+                shape="rounded"
+                tuiHint="Таймер"
+                tuiHintDirection="bottom"
+                tuiHintAppearance="onDark"
+                (action)="onTimer()" />
+
+    <app-button *ngIf="!(currentRoute == '/profile')"
+                [isIconButton]="true"
+                iconName="tuiIconUser"
+                shape="rounded"
+                tuiHint="Личный кабинет"
+                tuiHintDirection="bottom"
+                tuiHintAppearance="onDark"
+                (action)="onProfile()" />
+
+    <app-button [isIconButton]="true"
+                iconName="tuiIconLogOut"
+                tuiHint="Выход"
+                tuiHintAppearance="onDark"
+                tuiHintDirection="bottom"
+                appearance="accent"
+                shape="rounded"
+                (action)="showLogoutModal()" />
   </div>
 </div>

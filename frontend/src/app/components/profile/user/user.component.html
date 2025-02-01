@@ -82,7 +82,7 @@
         </div>
         <nz-form-item>
           <nz-form-control class="update-excluded-form-center">
-            <button nz-button nzType="primary" nzShape="round">Обновить</button>
+            <app-button>Обновить</app-button>
           </nz-form-control>
         </nz-form-item>
       </form>
@@ -185,17 +185,12 @@
             (click)="passwordVisible = !passwordVisible"
           ></span>
         </ng-template>
-        <button
-          nz-button
-          class="change-password-form-button"
-          [nzType]="'primary'"
-          type="submit"
-          [disabled]="!changePasswordForm.valid"
-          nzShape="round"
-          [nzLoading]="passwordChangeLoading"
-        >
+
+        <app-button class="change-password-form-button"
+                    [disabled]="changePasswordForm.invalid"
+                    [loading]="passwordChangeLoading">
           Поменять пароль
-        </button>
+        </app-button>
       </form>
     </nz-tab>
     <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">

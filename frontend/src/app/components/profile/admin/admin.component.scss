@@ -16,7 +16,8 @@
   .admin-buttons {
     text-align: center;
 
-    button {
+    app-button {
+      display: inline-block;
       margin: 0 5px;
     }
   }

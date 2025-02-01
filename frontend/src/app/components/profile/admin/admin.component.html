@@ -68,30 +68,21 @@
         <td>{{ user.email }}</td>
         <td>{{ user.groupName }}</td>
         <td class="admin-buttons">
-          <button
-            nz-button
-            nzType="primary"
-            nz-tooltip
-            nzTooltipTitle="Редактировать"
-            [nzTooltipMouseEnterDelay]="1"
-            (click)="onShowUserModal(user)"
-            nzShape="circle"
-          >
-            <span nz-icon nzType="edit"></span>
-          </button>
-          <button
-            nz-button
-            nzType="primary"
-            nzDanger
-            nz-tooltip
-            nzTooltipTitle="Удалить"
-            [nzTooltipMouseEnterDelay]="1"
-            (click)="onShowDeleteModal(user.nickname)"
-            nzShape="circle"
-            *ngIf="currentUser.nickname !== user.nickname"
-          >
-            <span nz-icon nzType="delete"></span>
-          </button>
+          <app-button [isIconButton]="true"
+                      iconName="tuiIconEdit3"
+                      shape="rounded"
+                      tuiHint="Редактировать"
+                      tuiHintAppearance="onDark"
+                      (action)="onShowUserModal(user)" />
+
+          <app-button *ngIf="currentUser.nickname !== user.nickname"
+                      [isIconButton]="true"
+                      iconName="tuiIconTrash"
+                      appearance="accent"
+                      shape="rounded"
+                      tuiHint="Удалить"
+                      tuiHintAppearance="onDark"
+                      (action)="onShowDeleteModal(user.nickname)" />
 
           <nz-modal
             [(nzVisible)]="user.isUserModalVisible"

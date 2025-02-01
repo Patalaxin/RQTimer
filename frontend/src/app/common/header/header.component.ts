@@ -214,8 +214,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const right = document.querySelector('.header-right');
 
     search?.classList.remove('header-d-none');
-    left?.classList.remove('header-d-inline');
-    right?.classList.remove('header-d-inline');
 
     search?.classList.add('header-d-flex');
     left?.classList.add('header-d-none');
@@ -232,8 +230,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     right?.classList.remove('header-d-none');
 
     search?.classList.add('header-d-none');
-    left?.classList.add('header-d-inline');
-    right?.classList.add('header-d-inline');
 
     this.timerSearchValue = '';
     this.timerSearch(this.timerSearchValue);
