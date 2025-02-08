@@ -41,7 +41,11 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.onlineUsers.set(email, { socketId: client.id, groupName });
 
       client.on('register', () => {
-        this.sendUserStatusUpdate(email, 'online');
+        this.sendUserStatusUpdate(client, email, 'online');
+        this.sendOnlineUsersList(client, groupName);
+      });
+
+      client.on('getOnlineUsersList', () => {
         this.sendOnlineUsersList(client, groupName);
       });
 
@@ -66,14 +70,18 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       setTimeout(() => {
         if (!this.onlineUsers.has(email)) {
-          this.sendUserStatusUpdate(email, 'offline');
+          this.sendUserStatusUpdate(client, email, 'offline');
         }
       }, 10000);
     }
   }
 
-  sendUserStatusUpdate(email: string, status: 'online' | 'offline') {
-    this.server.emit('userStatusUpdate', { email, status });
+  sendUserStatusUpdate(
+    client: Socket,
+    email: string,
+    status: 'online' | 'offline',
+  ) {
+    client.emit('userStatusUpdate', { email, status });
   }
 
   sendOnlineUsersList(client: Socket, groupName: string) {
