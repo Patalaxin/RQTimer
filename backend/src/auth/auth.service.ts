@@ -50,7 +50,11 @@ export class AuthService implements IAuth {
       },
       { upsert: true },
     );
-    this.authGateway.sendUserStatusUpdate(user.email, 'online');
+    const client = this.authGateway.getClientByEmail(user.email);
+    if (client) {
+      this.authGateway.sendUserStatusUpdate(client, user.email, 'online');
+    }
+
     return { accessToken, refreshToken };
   }
 
@@ -147,7 +151,11 @@ export class AuthService implements IAuth {
 
   async signOut(res: Response, email: string): Promise<SignOutsDtoResponse> {
     await this.tokenModel.findOneAndDelete({ email: email });
-    this.authGateway.sendUserStatusUpdate(email, 'offline');
+
+    const client = this.authGateway.getClientByEmail(email);
+    if (client) {
+      this.authGateway.sendUserStatusUpdate(client, email, 'offline');
+    }
 
     res.cookie('refreshToken', '', {
       httpOnly: true,

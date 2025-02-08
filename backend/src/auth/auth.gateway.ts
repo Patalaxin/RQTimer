@@ -91,4 +91,12 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     client.emit('onlineUsersList', onlineUsers);
   }
+
+  getClientByEmail(email: string): Socket | undefined {
+    const user = this.onlineUsers.get(email);
+    if (user) {
+      return this.server.sockets.sockets.get(user.socketId);
+    }
+    return undefined;
+  }
 }
