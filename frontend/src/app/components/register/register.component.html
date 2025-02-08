@@ -55,6 +55,16 @@
                 </div>
                 <div
                   *ngIf="
+                    !control.errors?.required && control.errors?.containsSpaces
+                  "
+                >
+                  • Никнейм не может содержать пробелы!
+                </div>
+                <div *ngIf="!control.errors?.required && control.errors?.containsSpecialCharacters">
+                  • Никнейм не должен содержать специальные символы!
+                </div>
+                <div
+                  *ngIf="
                     !control.errors?.required &&
                     control.errors?.invalidHyphenPosition
                   "

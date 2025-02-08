@@ -112,8 +112,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.checkAndRefreshToken();
       }
     });
-
-    this.checkAndRefreshToken();
   }
 
   ngOnDestroy(): void {
@@ -283,14 +281,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getCurrentUser() {
+    let accessToken;
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.currentUser = res;
         this.storageService.setLocalStorage(
           res.email,
-          this.storageService.getLocalStorage('token'),
+          (accessToken = this.storageService.getLocalStorage('token')),
         );
         this.connectWebSocket();
+
+        const decodedToken = jwtDecode(accessToken) as { exp: number };
+        this.scheduleTokenRefresh(decodedToken.exp);
       },
     });
   }
