@@ -40,11 +40,13 @@ export class WebsocketService {
     this.socket.on('userStatusUpdate', (res) =>
       this.isOnlineSubject$.next(res)
     );
-    this.socket.on('onlineUsersList', (res) =>
-      this.onlineUserListSubject$.next(res)
-    );
+    this.socket.on('onlineUsersList', (res) => this.onlineUserListSubject$.next(res));
 
     this.startPingInterval();
+  }
+
+  emitGetOnlineUserList(): void {
+    this.socket?.emit('getOnlineUsersList');
   }
 
   private startPingInterval(): void {

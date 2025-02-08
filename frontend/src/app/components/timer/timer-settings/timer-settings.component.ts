@@ -10,6 +10,7 @@ import {
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { GroupsService } from 'src/app/services/groups.service';
+import { WebsocketService } from '../../../services/websocket.service';
 
 @Component({
   selector: 'app-timer-settings',
@@ -20,6 +21,7 @@ export class TimerSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
+  private readonly websocketService = inject(WebsocketService);
 
   @Input() isGroupLeader: boolean = false;
   @Input() groupName: any;
@@ -55,6 +57,10 @@ export class TimerSettingsComponent implements OnInit {
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
+  }
+
+  constructor() {
+    this.websocketService.emitGetOnlineUserList();
   }
 
   ngOnInit(): void {
