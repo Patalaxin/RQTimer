@@ -296,9 +296,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private getOnlineUserList(): void {
     this.websocketService.onlineUserList$.subscribe((res: any) => {
       if (res) {
-        res.map((item: any) => {
-          this.onlineUserList.push(item.email);
-        });
+        this.onlineUserList = res.map((item: any) => item.email);
       }
     });
   }
