@@ -25,7 +25,7 @@ import * as process from 'process';
       imports: [ConfigModule],
       useFactory: async () => {
         return {
-          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@185.65.105.220:27017/admin`,
+          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@91.225.219.94:27017/admin`,
         };
       },
     }),
