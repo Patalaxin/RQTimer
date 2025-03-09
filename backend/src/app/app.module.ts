@@ -11,6 +11,8 @@ import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
 import * as process from 'process';
+import { TelegramBotModule } from '../bot/telegram-bot.module';
+import { TelegrafModule } from 'nestjs-telegraf';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import * as process from 'process';
       rootPath: join(resolve(), 'client'),
     }),
     ScheduleModule.forRoot(),
+    TelegrafModule.forRoot({ token: process.env.TELEGRAM_BOT_TOKEN }),
+    TelegramBotModule,
   ],
   controllers: [],
   providers: [],
