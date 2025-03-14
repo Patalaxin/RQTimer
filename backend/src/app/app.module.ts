@@ -16,6 +16,7 @@ import { TelegrafModule } from 'nestjs-telegraf';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,

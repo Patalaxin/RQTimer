@@ -1,163 +1,221 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { Action, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup, Telegraf } from 'telegraf';
 import { InjectModel } from '@nestjs/mongoose';
 import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
+import * as bcrypt from 'bcrypt';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { Servers } from '../schemas/mobs.enum';
+import { MobService } from '../mob/mob.service';
+import { HelperClass } from '../helper-class';
+import { MESSAGES } from './messages';
+import { GetFullMobWithUnixDtoResponse } from '../mob/dto/get-mob.dto';
 
 @Update()
 export class TelegramBotService {
-  private bcrypt: any;
+  tempUserServers: Map<number, string> = new Map<number, string>();
+
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
     @InjectModel(BotSession.name)
     private sessionModel: Model<BotSessionDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {
-    console.log('TelegramBotService created');
+    private readonly mobService: MobService,
+  ) {}
 
-    this.bot.on('message', (ctx) => {
-      console.log('Получено сообщение:', ctx.message);
-    });
-  }
-
-  async onStart(ctx: Context) {
-    console.log('123');
-    const userId = ctx.from.id;
-    const existingSession = await this.sessionModel.findOne({ userId });
-
-    if (existingSession) {
-      await ctx.reply(`Вы уже подключены к группе ${existingSession.group}.`);
-      return;
-    }
-
-    await ctx.reply('Привет! Введите группы которую хотите отслеживать:');
-  }
-
-  async onMessage(ctx: Context) {
+  @Start()
+  async handleStart(@Ctx() ctx: Context): Promise<void> {
     const userId = ctx.from.id;
     const session = await this.sessionModel.findOne({ userId });
 
+    if (!session || !session.isVerified) {
+      await this.sendServerSelection(ctx);
+    } else {
+      await this.sendMainMenu(ctx, session);
+    }
+  }
+
+  private async sendServerSelection(ctx: Context): Promise<void> {
+    await ctx.reply(
+      MESSAGES.CHOOSE_SERVER,
+      Markup.inlineKeyboard(
+        Object.values(Servers).map((server) => [
+          Markup.button.callback(server, `server_${server}`),
+        ]),
+      ),
+    );
+  }
+
+  private async sendMainMenu(ctx: Context, session: BotSession): Promise<void> {
+    await ctx.reply(
+      MESSAGES.SUCCESS_CONNECT(session.server),
+      Markup.keyboard([
+        [session.paused ? MESSAGES.RESUME : MESSAGES.PAUSE],
+        [MESSAGES.SWITCH_SERVER],
+      ]).resize(),
+    );
+  }
+
+  private async togglePause(userId: number, ctx: Context): Promise<void> {
+    const session = await this.sessionModel.findOne({ userId });
+
     if (!session) {
-      let group: string;
-      if ('text' in ctx.message) {
-        group = ctx.message.text;
-        await ctx.reply(
-          'Теперь введите свою почту и пароль (пример: user@example.com 12345):',
-        );
-      }
-      await this.sessionModel.create({ userId, group });
+      await ctx.reply(MESSAGES.NOT_CONNECTED);
       return;
     }
 
-    let email: string, password: string;
+    session.paused = !session.paused;
+    await session.save();
 
-    if ('text' in ctx.message) {
-      [email, password] = ctx.message.text.split(' ');
-      if (!email || !password) {
-        await ctx.reply(
-          'Некорректный формат. Введите почту и пароль через пробел.',
-        );
-        return;
-      }
+    await ctx.reply(
+      session.paused ? MESSAGES.PAUSED : MESSAGES.RESUMED,
+      Markup.keyboard([
+        [session.paused ? MESSAGES.RESUME : MESSAGES.PAUSE],
+        [MESSAGES.SWITCH_SERVER],
+      ]).resize(),
+    );
+  }
+
+  @Action(/server_(.+)/)
+  async onServerSelect(@Ctx() ctx: Context): Promise<void> {
+    const userId = ctx.from.id;
+    // @ts-ignore
+    const server = ctx.callbackQuery.data.replace('server_', '');
+
+    if (!Object.values(Servers).includes(server as Servers)) {
+      await ctx.reply(MESSAGES.WRONG_SERVER);
+      return;
     }
 
-    const isValid = await this.validateUser(email, password);
-    if (!isValid) {
-      await ctx.reply('Ошибка авторизации. Попробуйте снова.');
+    const session = await this.sessionModel.findOne({ userId });
+    if (!session) {
+      this.tempUserServers.set(userId, server);
+      await ctx.reply(MESSAGES.ENTER_EMAIL_PASSWORD);
+    } else {
+      await this.sessionModel.updateOne(
+        { userId },
+        { $set: { server } },
+        { upsert: true },
+      );
+      await ctx.reply(MESSAGES.SUCCESS_CONNECT(server));
+    }
+  }
+
+  @On('text')
+  async handleText(@Ctx() ctx: Context): Promise<void> {
+    // @ts-ignore
+    const text = ctx.message.text;
+    const userId = ctx.from.id;
+
+    if (text === MESSAGES.PAUSE || text === MESSAGES.RESUME) {
+      await this.togglePause(userId, ctx);
+      return;
+    }
+    if (text === MESSAGES.SWITCH_SERVER) {
+      await this.onLeave(ctx);
+      return;
+    }
+    await this.handleUserCredentials(ctx);
+  }
+
+  private async handleUserCredentials(ctx: Context): Promise<void> {
+    const userId = ctx.from.id;
+    const server = this.tempUserServers.get(userId);
+    if (!server) {
+      await ctx.reply(MESSAGES.SELECT_SERVER);
+      return;
+    }
+
+    // @ts-ignore
+    const [email, password] = ctx.message.text.split(' ');
+    if (!email || !password) {
+      await ctx.reply(MESSAGES.INVALID_FORMAT);
+      return;
+    }
+
+    if (!(await this.validateUser(email, password))) {
+      await ctx.reply(MESSAGES.AUTH_ERROR);
       return;
     }
 
     await this.sessionModel.updateOne(
       { userId },
-      { $set: { group: session.group } },
+      { $set: { server, isVerified: true, email } },
+      { upsert: true },
     );
-
-    await ctx.reply(
-      `Вы успешно подключены к группе ${session.group}!`,
-      Markup.inlineKeyboard([
-        [Markup.button.callback('⏸ Пауза', 'pause')],
-        [Markup.button.callback('🚪 Выйти', 'leave')],
-      ]),
-    );
-
-    await this.startSendingUpdates(userId);
+    this.tempUserServers.delete(userId);
+    await ctx.deleteMessage();
+    await this.sendMainMenu(ctx, {
+      userId,
+      server,
+      paused: false,
+    } as BotSession);
   }
 
-  async startSendingUpdates(userId: number) {
-    setInterval(
-      async () => {
-        const session = await this.sessionModel.findOne({ userId });
-        if (session && !session.paused) {
-          await this.bot.telegram.sendMessage(
-            userId,
-            `Новая информация для группы ${session.group}`,
+  private async validateUser(
+    email: string,
+    password: string,
+  ): Promise<boolean> {
+    const user = await this.userModel.findOne({
+      email: new RegExp(`^${email}$`, 'i'),
+    });
+    return user ? bcrypt.compare(password, user.password) : false;
+  }
+
+  @Cron(CronExpression.EVERY_10_MINUTES)
+  async startSendingUpdates(): Promise<void> {
+    const sessions = await this.sessionModel.find({
+      paused: false,
+      isVerified: true,
+      server: { $ne: null },
+    });
+    for (const chunk of this.chunkArray(sessions, 28)) {
+      await this.sendBatchMessages(chunk);
+    }
+  }
+
+  private chunkArray<T>(array: T[], size: number): T[][] {
+    return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
+      array.slice(i * size, i * size + size),
+    );
+  }
+
+  private async sendBatchMessages(sessions: BotSession[]): Promise<void> {
+    await Promise.allSettled(
+      sessions.map(async (session) => {
+        try {
+          const mobsInfo: GetFullMobWithUnixDtoResponse[] =
+            await this.mobService.findAllMobsByUser(session.email, {
+              server: session.server,
+            });
+          const response =
+            await HelperClass.transformFindAllMobsResponse(mobsInfo);
+          if (response) {
+            await this.bot.telegram.sendMessage(
+              session.userId,
+              MESSAGES.NEW_INFO(session, response),
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Ошибка при отправке сообщения пользователю ${session.userId}:`,
+            error,
           );
         }
-      },
-      15 * 60 * 1000, // каждые 15 минут
+      }),
     );
-  }
-
-  @Action('pause')
-  async onPause(@Ctx() ctx: Context) {
-    const userId = ctx.from.id;
-    const session = await this.sessionModel.findOne({ userId });
-
-    if (session) {
-      session.paused = !session.paused;
-      await session.save();
-
-      await ctx.editMessageText(
-        session.paused
-          ? '⏸ Уведомления приостановлены.'
-          : '▶ Уведомления возобновлены.',
-        Markup.inlineKeyboard([
-          [
-            Markup.button.callback(
-              session.paused ? '▶ Возобновить' : '⏸ Пауза',
-              'pause',
-            ),
-          ],
-          [Markup.button.callback('🚪 Выйти', 'leave')],
-        ]),
-      );
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   @Action('leave')
-  async onLeave(@Ctx() ctx: Context) {
+  async onLeave(@Ctx() ctx: Context): Promise<void> {
     const userId = ctx.from.id;
-    await this.sessionModel.deleteOne({ userId });
-
-    await ctx.editMessageText('🚪 Вы покинули группу.');
-  }
-
-  async validateUser(email: string, password: string): Promise<boolean> {
-    const query = { email: new RegExp(`^${email}$`, 'i') };
-
-    const user: User = await this.userModel.findOne(query);
-    const isPasswordMatch: boolean = await this.bcrypt.compare(
-      password,
-      user.password,
+    await this.sessionModel.updateOne(
+      { userId },
+      { $set: { server: null } },
+      { upsert: true },
     );
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('Login or password invalid');
-    }
-
-    return true;
-  }
-
-  @Start()
-  async handleStart(@Ctx() ctx: Context) {
-    console.log('START command received from:', ctx.from);
-    await this.onStart(ctx);
-  }
-
-  @On('text')
-  async handleText(@Ctx() ctx: Context) {
-    console.log('User texted the bot:', ctx.from.id);
-    await this.onMessage(ctx);
+    await this.sendServerSelection(ctx);
   }
 }
