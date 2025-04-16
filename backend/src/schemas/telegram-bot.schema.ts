@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Servers } from './mobs.enum';
+import { ApiProperty } from '@nestjs/swagger';
 
 export type BotSessionDocument = HydratedDocument<BotSession>;
 
@@ -11,6 +12,10 @@ export class BotSession {
 
   @Prop()
   email: string;
+
+  @ApiProperty()
+  @Prop({ default: null })
+  groupName: string;
 
   @Prop({ type: String, default: null })
   server: Servers | null;

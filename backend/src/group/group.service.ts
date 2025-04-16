@@ -18,6 +18,7 @@ import { plainToInstance } from 'class-transformer';
 import { MobService } from '../mob/mob.service';
 import { IGroup } from './group.interface';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 
 @Injectable()
 export class GroupService implements IGroup {
@@ -26,6 +27,8 @@ export class GroupService implements IGroup {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => MobService)) private mobService: MobService,
+    @InjectModel(BotSession.name)
+    private sessionModel: Model<BotSessionDocument>,
   ) {}
 
   async createGroup(
@@ -53,6 +56,11 @@ export class GroupService implements IGroup {
         )
         .lean()
         .exec();
+
+      await this.sessionModel.updateOne(
+        { email },
+        { $set: { groupName: createGroupDto.name } },
+      );
 
       return plainToInstance(Group, newGroup.toObject());
     } catch (error) {
@@ -120,6 +128,11 @@ export class GroupService implements IGroup {
 
     await user.save();
     await group.save();
+
+    await this.sessionModel.updateOne(
+      { email: new RegExp(`^${email}$`, 'i') },
+      { $set: { groupName: group.name } },
+    );
 
     return group.toObject();
   }
@@ -191,6 +204,11 @@ export class GroupService implements IGroup {
 
     await group.save();
 
+    await this.sessionModel.updateOne(
+      { email: new RegExp(`^${email}$`, 'i') },
+      { $set: { groupName: null } },
+    );
+
     user.groupName = null;
     user.isGroupLeader = false;
     await user.save();
@@ -206,6 +224,11 @@ export class GroupService implements IGroup {
     await this.userModel.updateMany(
       { groupName: groupName },
       { $set: { groupName: null, isGroupLeader: false } },
+    );
+
+    await this.sessionModel.updateMany(
+      { groupName },
+      { $set: { groupName: null } },
     );
 
     await this.groupModel.deleteOne({ name: groupName });
