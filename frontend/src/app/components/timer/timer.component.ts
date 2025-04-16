@@ -327,6 +327,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             const { updatedProgressTime } = event.data;
             this.currentProgressTime = updatedProgressTime;
             this.timerList.forEach((item) => this.checkAndNotify(item, 1));
+            this.timerList.forEach((item) => this.checkAndNotify(item, 5));
           };
         } else {
           console.log('Web Workers не поддерживаются');
@@ -413,7 +414,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (timeDifference === minute * 60000) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.mobName} реснется через ${minute} минуту.`,
+            `${item.mob.mobName} реснется меньше чем через ${minute} минут(у).`,
           );
         }
 
