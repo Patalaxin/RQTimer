@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BotSession, BotSessionSchema } from '../schemas/telegram-bot.schema';
 import { User, UserSchema } from '../schemas/user.schema';
-import { Mob, MobSchema } from '../schemas/mob.schema'; // Импорт схемы для Mob
+import { Mob, MobSchema } from '../schemas/mob.schema';
 import { TelegramBotService } from './telegram-bot.service';
 import { MobModule } from '../mob/mob.module';
 
@@ -13,7 +13,7 @@ import { MobModule } from '../mob/mob.module';
       { name: User.name, schema: UserSchema },
       { name: Mob.name, schema: MobSchema },
     ]),
-    MobModule,
+    forwardRef(() => MobModule),
   ],
   providers: [TelegramBotService],
   exports: [TelegramBotService],

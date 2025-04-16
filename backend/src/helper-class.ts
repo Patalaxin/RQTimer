@@ -2,6 +2,7 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RolesTypes } from './schemas/user.schema';
 import { GetFullMobWithUnixDtoResponse } from './mob/dto/get-mob.dto';
+import { MobName } from './schemas/mobs.enum';
 
 export class HelperClass {
   static counter: number = 0;
@@ -35,12 +36,13 @@ export class HelperClass {
 
   static async transformFindAllMobsResponse(
     mobsInfo: GetFullMobWithUnixDtoResponse[],
+    updatedMobName: MobName,
   ): Promise<string> {
-    let message = '';
+    let message = 'Осталось времени до респауна:\n\n';
 
     for (const mobData of mobsInfo) {
       const respawnTime = mobData.mobData.respawnTime;
-      const currentTime = Date.now();
+      const currentTime = mobData.unixtime;
       const remainingTime = respawnTime ? respawnTime - currentTime : 0;
 
       if (remainingTime <= 0) {
@@ -53,15 +55,38 @@ export class HelperClass {
       );
       const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
-      const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
-      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
-      const formattedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
+      const formattedTime = [
+        hours.toString().padStart(2, '0'),
+        minutes.toString().padStart(2, '0'),
+        seconds.toString().padStart(2, '0'),
+      ].join(':');
 
-      const formattedTime = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+      const isUpdated = mobData.mob.mobName === updatedMobName;
+      const updatedTag = isUpdated ? ' 🔄' : '';
 
-      message += `${mobData.mob.shortName} - ${formattedTime}\n`;
+      message += `${mobData.mob.mobName} - ${formattedTime}${updatedTag}\n`;
     }
 
-    return message;
+    return message.trim();
+  }
+
+  static filterMobsForUser(
+    fullMessage: string,
+    unavailableMobs: string[],
+    excludedMobs: string[],
+  ): string {
+    return fullMessage
+      .split('\n')
+      .filter((line) => {
+        const [mobName] = line.split(' - ');
+
+        return (
+          !unavailableMobs.includes(mobName) && !excludedMobs.includes(mobName)
+        );
+      })
+      .map((line) => {
+        return line;
+      })
+      .join('\n');
   }
 }

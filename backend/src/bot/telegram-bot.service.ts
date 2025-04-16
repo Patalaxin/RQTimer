@@ -5,8 +5,7 @@ import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { Servers } from '../schemas/mobs.enum';
+import { MobName, Servers } from '../schemas/mobs.enum';
 import { MobService } from '../mob/mob.service';
 import { HelperClass } from '../helper-class';
 import { MESSAGES } from './messages';
@@ -134,14 +133,23 @@ export class TelegramBotService {
       return;
     }
 
-    if (!(await this.validateUser(email, password))) {
+    const user: User = await this.userModel.findOne({
+      email: new RegExp(`^${email}$`, 'i'),
+    });
+
+    const isValidUser: Promise<boolean> = bcrypt.compare(
+      password,
+      user.password,
+    );
+
+    if (!isValidUser) {
       await ctx.reply(MESSAGES.AUTH_ERROR);
       return;
     }
 
     await this.sessionModel.updateOne(
       { userId },
-      { $set: { server, isVerified: true, email } },
+      { $set: { server, isVerified: true, email, groupName: user.groupName } },
       { upsert: true },
     );
     this.tempUserServers.delete(userId);
@@ -153,48 +161,79 @@ export class TelegramBotService {
     } as BotSession);
   }
 
-  private async validateUser(
-    email: string,
-    password: string,
-  ): Promise<boolean> {
-    const user = await this.userModel.findOne({
-      email: new RegExp(`^${email}$`, 'i'),
-    });
-    return user ? bcrypt.compare(password, user.password) : false;
-  }
-
-  @Cron(CronExpression.EVERY_10_MINUTES)
-  async startSendingUpdates(): Promise<void> {
-    const sessions = await this.sessionModel.find({
-      paused: false,
-      isVerified: true,
-      server: { $ne: null },
-    });
-    for (const chunk of this.chunkArray(sessions, 28)) {
-      await this.sendBatchMessages(chunk);
-    }
-  }
-
   private chunkArray<T>(array: T[], size: number): T[][] {
     return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
       array.slice(i * size, i * size + size),
     );
   }
 
-  private async sendBatchMessages(sessions: BotSession[]): Promise<void> {
+  async notifyGroupUsers(
+    groupName: string,
+    server: Servers,
+    updatedMobName: MobName,
+  ): Promise<void> {
+    try {
+      const sessions: BotSession[] = await this.sessionModel.find({
+        paused: false,
+        isVerified: true,
+        server: server,
+        groupName: groupName,
+      });
+
+      if (!sessions.length) {
+        return;
+      }
+
+      const allMobs: GetFullMobWithUnixDtoResponse[] =
+        await this.mobService.findAllMobsByGroup(groupName, { server });
+
+      const mobsResponse = await HelperClass.transformFindAllMobsResponse(
+        allMobs,
+        updatedMobName,
+      );
+
+      for (const chunk of this.chunkArray(sessions, 28)) {
+        await this.sendBatchMessages(chunk, mobsResponse, updatedMobName);
+      }
+    } catch (error) {
+      console.error('Ошибка при отправке обновлений пользователям:', error);
+    }
+  }
+
+  private async sendBatchMessages(
+    sessions: BotSession[],
+    allMobsMessage: string,
+    updatedMobName: MobName,
+  ): Promise<void> {
     await Promise.allSettled(
-      sessions.map(async (session) => {
+      sessions.map(async (session: BotSession) => {
         try {
-          const mobsInfo: GetFullMobWithUnixDtoResponse[] =
-            await this.mobService.findAllMobsByUser(session.email, {
-              server: session.server,
-            });
-          const response =
-            await HelperClass.transformFindAllMobsResponse(mobsInfo);
-          if (response) {
+          const user = await this.userModel.findOne({
+            email: new RegExp(`^${session.email}$`, 'i'),
+          });
+
+          if (!user) {
+            console.warn(`Пользователь с email ${session.email} не найден`);
+            return;
+          }
+
+          const filteredMessage = HelperClass.filterMobsForUser(
+            allMobsMessage,
+            user.unavailableMobs,
+            user.excludedMobs,
+          );
+
+          if (
+            user.unavailableMobs.includes(updatedMobName) ||
+            user.excludedMobs.includes(updatedMobName)
+          ) {
+            return;
+          }
+
+          if (filteredMessage) {
             await this.bot.telegram.sendMessage(
               session.userId,
-              MESSAGES.NEW_INFO(session, response),
+              filteredMessage,
             );
           }
         } catch (error) {
@@ -205,6 +244,7 @@ export class TelegramBotService {
         }
       }),
     );
+
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
