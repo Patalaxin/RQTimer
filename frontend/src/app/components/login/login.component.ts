@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AuthService } from 'src/app/services/auth.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
@@ -19,6 +20,7 @@ import { StorageService } from 'src/app/services/storage.service';
 export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
   private readonly messageService = inject(NzMessageService);
 
@@ -33,6 +35,8 @@ export class LoginComponent implements OnInit {
 
   isGuideLoading: boolean = false;
   isGuideVisible: boolean = false;
+
+  isVisible: boolean = false;
 
   images: any[] = [
     {
@@ -54,6 +58,11 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // this.getServers();
+    this.timerService.telegramBotVisibility$.subscribe({
+      next: (res) => {
+        this.isVisible = res;
+      },
+    });
   }
 
   get formControls(): { [key: string]: AbstractControl } {

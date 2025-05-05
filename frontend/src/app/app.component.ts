@@ -24,6 +24,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   isVisible: boolean = false;
 
   ngOnInit() {
+    this.timerService.telegramBotVisibility = true;
+
     this.timerService.headerVisibility$.subscribe({
       next: (res) => {
         this.isVisible = res;

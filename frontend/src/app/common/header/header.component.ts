@@ -324,7 +324,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent:
-        '<b>Вы точно хотите переписать все респы с учётом падения сервера?</b>',
+        '<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</br>',
       nzOkText: 'Да',
       nzOnOk: () => this.onCrashServer(),
       nzCancelText: 'Нет',

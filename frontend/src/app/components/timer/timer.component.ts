@@ -108,6 +108,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   isOnlyComment: boolean = false;
   comment: string = '';
 
+  isVisible: boolean = false;
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
@@ -232,6 +234,11 @@ export class TimerComponent implements OnInit, OnDestroy {
       title: 'Выход',
       content: `Выйди и зайди нормально, пон?`,
     },
+    {
+      anchorId: 'telegram-bot',
+      title: 'Telegram-бот',
+      content: `По многочисленным просьбам, добавили также Telegram-бота, который будет <b>присылать переписанные респы</b>`,
+    },
   ];
 
   @HostListener('window:resize', ['$event'])
@@ -240,6 +247,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.timerService.telegramBotVisibility$.subscribe({
+      next: (res) => {
+        this.isVisible = res;
+      },
+    });
+
     this.tourService.initialize(this.steps, {
       enableBackdrop: true,
       backdropConfig: {
