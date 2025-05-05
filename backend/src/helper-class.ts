@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { RolesTypes } from './schemas/user.schema';
 import { GetFullMobWithUnixDtoResponse } from './mob/dto/get-mob.dto';
 import { MobName } from './schemas/mobs.enum';
+import { DateTime } from 'luxon';
 
 export class HelperClass {
   static counter: number = 0;
@@ -34,42 +35,6 @@ export class HelperClass {
     return type === 'Bearer' ? token : undefined;
   }
 
-  static async transformFindAllMobsResponse(
-    mobsInfo: GetFullMobWithUnixDtoResponse[],
-    updatedMobName: MobName,
-  ): Promise<string> {
-    let message = 'Осталось времени до респауна:\n\n';
-
-    for (const mobData of mobsInfo) {
-      const respawnTime = mobData.mobData.respawnTime;
-      const currentTime = mobData.unixtime;
-      const remainingTime = respawnTime ? respawnTime - currentTime : 0;
-
-      if (remainingTime <= 0) {
-        continue;
-      }
-
-      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-      const minutes = Math.floor(
-        (remainingTime % (1000 * 60 * 60)) / (1000 * 60),
-      );
-      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-      const formattedTime = [
-        hours.toString().padStart(2, '0'),
-        minutes.toString().padStart(2, '0'),
-        seconds.toString().padStart(2, '0'),
-      ].join(':');
-
-      const isUpdated = mobData.mob.mobName === updatedMobName;
-      const updatedTag = isUpdated ? ' 🔄' : '';
-
-      message += `${mobData.mob.mobName} - ${formattedTime}${updatedTag}\n`;
-    }
-
-    return message.trim();
-  }
-
   static filterMobsForUser(
     fullMessage: string,
     unavailableMobs: string[],
@@ -88,5 +53,32 @@ export class HelperClass {
         return line;
       })
       .join('\n');
+  }
+
+  static async transformFindAllMobsResponse(
+    mobsInfo: GetFullMobWithUnixDtoResponse[],
+    updatedMobName: MobName,
+    timezone: string,
+  ): Promise<string> {
+    let message = `По ${timezone} респаун будет в :\n\n`;
+
+    for (const mobData of mobsInfo) {
+      const respawnTime = mobData.mobData.respawnTime;
+
+      if (!respawnTime) {
+        continue;
+      }
+
+      const localTime = DateTime.fromMillis(respawnTime)
+        .setZone(timezone)
+        .toFormat('dd.MM.yyyy HH:mm:ss');
+
+      const isUpdated = mobData.mob.mobName === updatedMobName;
+      const updatedTag = isUpdated ? ' 🔄' : '';
+
+      message += `${mobData.mob.mobName} - ${localTime}${updatedTag}\n`;
+    }
+
+    return message.trim();
   }
 }

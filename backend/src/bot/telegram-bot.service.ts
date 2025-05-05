@@ -148,8 +148,16 @@ export class TelegramBotService {
     }
 
     await this.sessionModel.updateOne(
-      { userId },
-      { $set: { server, isVerified: true, email, groupName: user.groupName } },
+      { email },
+      {
+        $set: {
+          server,
+          isVerified: true,
+          email,
+          userId,
+          groupName: user.groupName,
+        },
+      },
       { upsert: true },
     );
     this.tempUserServers.delete(userId);
@@ -187,13 +195,8 @@ export class TelegramBotService {
       const allMobs: GetFullMobWithUnixDtoResponse[] =
         await this.mobService.findAllMobsByGroup(groupName, { server });
 
-      const mobsResponse = await HelperClass.transformFindAllMobsResponse(
-        allMobs,
-        updatedMobName,
-      );
-
       for (const chunk of this.chunkArray(sessions, 28)) {
-        await this.sendBatchMessages(chunk, mobsResponse, updatedMobName);
+        await this.sendBatchMessages(chunk, allMobs, updatedMobName);
       }
     } catch (error) {
       console.error('Ошибка при отправке обновлений пользователям:', error);
@@ -202,7 +205,7 @@ export class TelegramBotService {
 
   private async sendBatchMessages(
     sessions: BotSession[],
-    allMobsMessage: string,
+    allMobs: GetFullMobWithUnixDtoResponse[],
     updatedMobName: MobName,
   ): Promise<void> {
     await Promise.allSettled(
@@ -217,18 +220,25 @@ export class TelegramBotService {
             return;
           }
 
-          const filteredMessage = HelperClass.filterMobsForUser(
-            allMobsMessage,
-            user.unavailableMobs,
-            user.excludedMobs,
-          );
-
           if (
             user.unavailableMobs.includes(updatedMobName) ||
             user.excludedMobs.includes(updatedMobName)
           ) {
             return;
           }
+
+          const userMobsMessage =
+            await HelperClass.transformFindAllMobsResponse(
+              allMobs,
+              updatedMobName,
+              session.timezone,
+            );
+
+          const filteredMessage = HelperClass.filterMobsForUser(
+            userMobsMessage,
+            user.unavailableMobs,
+            user.excludedMobs,
+          );
 
           if (filteredMessage) {
             await this.bot.telegram.sendMessage(

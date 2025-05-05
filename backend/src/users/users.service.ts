@@ -26,11 +26,14 @@ import { IUser } from './user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 import { OtpService } from '../OTP/otp.service';
+import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 
 export class UsersService implements IUser {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
+    @InjectModel(BotSession.name)
+    private sessionModel: Model<BotSessionDocument>,
     @Inject(forwardRef(() => OtpService)) private otpService: OtpService,
   ) {}
 
@@ -282,5 +285,12 @@ export class UsersService implements IUser {
       throw new BadRequestException('Something went wrong ');
     }
     return { message: 'All users deleted', status: 200 };
+  }
+
+  async updateTimezone(email: string, timezone: string): Promise<BotSession> {
+    return this.sessionModel
+      .findOneAndUpdate({ email }, { timezone }, { new: true, upsert: true })
+      .lean()
+      .exec();
   }
 }

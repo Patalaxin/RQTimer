@@ -43,6 +43,7 @@ import {
 } from './dto/delete-user.dto';
 import { IUser } from './user.interface';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { BotSession } from '../schemas/telegram-bot.schema';
 
 @ApiTags('User API')
 @UseGuards(RolesGuard)
@@ -169,5 +170,18 @@ export class UsersController {
   @Delete()
   deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     return this.userInterface.deleteAll();
+  }
+
+  @UseGuards(TokensGuard)
+  @Roles()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update Timezone for Bot Session' })
+  @ApiOkResponse({ description: 'Success', type: BotSession })
+  @Put('/timezone')
+  updateTimezone(
+    @GetEmailFromToken() email: string,
+    @Body('timezone') timezone: string,
+  ): Promise<BotSession> {
+    return this.userInterface.updateTimezone(email, timezone);
   }
 }

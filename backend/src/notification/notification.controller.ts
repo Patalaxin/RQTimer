@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { INotification } from './notification.interface';
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
+import { TokensGuard } from '../guards/tokens.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { RolesTypes } from '../schemas/user.schema';
 
 @ApiTags('Notification API')
 @Controller('notifications')
@@ -11,6 +14,9 @@ export class NotificationController {
     private readonly notificationInterface: INotification,
   ) {}
 
+  @UseGuards(TokensGuard)
+  @Roles(RolesTypes.Admin)
+  @ApiBearerAuth()
   @Post()
   @ApiResponse({
     status: 200,
