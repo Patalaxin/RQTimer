@@ -37,6 +37,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "cron": "^4.1.0",
+    "luxon": "^3.6.1",
     "mongoose": "^7.5.2",
     "nestjs": "^0.0.1",
     "nestjs-telegraf": "^2.8.1",

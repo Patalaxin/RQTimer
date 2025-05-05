@@ -25,6 +25,9 @@ export class BotSession {
 
   @Prop({ default: false })
   isVerified: boolean;
+
+  @Prop({ type: String, default: null })
+  timezone: string | null;
 }
 
 export const BotSessionSchema = SchemaFactory.createForClass(BotSession);

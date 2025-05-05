@@ -19,6 +19,7 @@ import {
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { BotSession } from '../schemas/telegram-bot.schema';
 
 export interface IUser {
   createUser(createUserDto: CreateUserDtoRequest): Promise<User>;
@@ -50,4 +51,6 @@ export interface IUser {
   deleteOne(identifier: string): Promise<DeleteUserDtoResponse>;
 
   deleteAll(): Promise<DeleteAllUsersDtoResponse>;
+
+  updateTimezone(email: string, timezone: string): Promise<BotSession>;
 }
