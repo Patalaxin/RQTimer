@@ -13,6 +13,7 @@ import { GroupModule } from '../group/group.module';
 import * as process from 'process';
 import { TelegramBotModule } from '../bot/telegram-bot.module';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TelegrafModule } from 'nestjs-telegraf';
     GroupModule,
     ConfigurationModule,
     UnixtimeModule,
+    NotificationModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => {
