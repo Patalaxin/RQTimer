@@ -1,14 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import * as moment from 'moment';
+import { UserService } from './user.service';
 
 const EMAIL: string = 'email';
 const NICKNAME: string = 'nickname';
 const ACCESS_TOKEN: string = 'token';
 const SERVER: string = 'server';
+const TIMEZONE: string = 'timezone';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StorageService {
+  private readonly userService = inject(UserService);
+
   currentServer: 'Гелиос' | 'Игнис' | 'Astus' | 'Pyros' | 'Aztec' | 'Ortos' =
     'Гелиос';
 
@@ -23,6 +28,8 @@ export class StorageService {
   }
 
   setLocalStorage(key: string, token?: any): void {
+    let userTimezone = moment.tz.guess();
+
     key.includes('@')
       ? window.localStorage.setItem(EMAIL, key)
       : window.localStorage.setItem(NICKNAME, key);
@@ -31,9 +38,23 @@ export class StorageService {
 
     if (!window.localStorage.getItem(SERVER))
       window.localStorage.setItem(SERVER, this.currentServer);
+
+    if (window.localStorage.getItem(TIMEZONE)) {
+      if (window.localStorage.getItem(TIMEZONE) !== userTimezone) {
+        window.localStorage.setItem('timezone', userTimezone);
+        this.userService.setUserTimezone(userTimezone).subscribe();
+      }
+    }
+
+    if (!window.localStorage.getItem(TIMEZONE)) {
+      window.localStorage.setItem(TIMEZONE, userTimezone);
+      this.userService.setUserTimezone(userTimezone).subscribe();
+    }
   }
 
-  getLocalStorage(key: 'email' | 'nickname' | 'token' | 'server'): any {
+  getLocalStorage(
+    key: 'email' | 'nickname' | 'token' | 'server' | 'timezone',
+  ): any {
     const value = window.localStorage.getItem(key);
     return value ?? '';
   }
