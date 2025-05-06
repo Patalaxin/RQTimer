@@ -282,6 +282,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentUser() {
     let accessToken;
+    let userTimezone = moment.tz.guess();
+
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.currentUser = res;
@@ -289,6 +291,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
           res.email,
           (accessToken = this.storageService.getLocalStorage('token')),
         );
+
+        if (window.localStorage.getItem('timezone')) {
+          if (window.localStorage.getItem('timezone') !== userTimezone) {
+            window.localStorage.setItem('timezone', userTimezone);
+            this.userService.setUserTimezone(userTimezone).subscribe();
+          }
+        }
+
+        if (!window.localStorage.getItem('timezone')) {
+          window.localStorage.setItem('timezone', userTimezone);
+          this.userService.setUserTimezone(userTimezone).subscribe();
+        }
+
         this.connectWebSocket();
 
         const decodedToken = jwtDecode(accessToken) as { exp: number };
@@ -349,7 +364,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerSearch(value: any): void {
     this.timerService.filteredTimerList = value
       ? this.timerList.filter((item: any) =>
-          item.mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+          item.mob.mobName.toLowerCase().includes(value.toLowerCase()),
         )
       : [...this.timerList];
   }

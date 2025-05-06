@@ -32,7 +32,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     if (
       req.url.includes('/auth/login') ||
-      req.url.includes('/auth/exchange-refresh')
+      req.url.includes('/auth/exchange-refresh') ||
+      req.url.includes('/notifications')
     ) {
       return next.handle(req);
     }

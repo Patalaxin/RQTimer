@@ -95,11 +95,7 @@
   </div>
 
   <div *ngIf="selectedSegments === 0">
-    <div
-      *ngIf="isVisible"
-      class="telegram-bot"
-      [tourAnchor]="isVisible ? 'telegram-bot' : ''"
-    >
+    <div *ngIf="isVisible" class="telegram-bot" tourAnchor="telegram-bot">
       <div class="telegram-bot-content">
         <a href="https://t.me/timerroyalquest_bot" target="_blank">
           <span>
@@ -108,6 +104,42 @@
         </a>
       </div>
     </div>
+
+    <div
+      class="notification"
+      (click)="showNotifications(currentNotificationIndex)"
+      tourAnchor="notification"
+    >
+      <div class="notification-content">
+        <span nz-icon nzType="notification" style="font-size: 25px"></span>
+      </div>
+    </div>
+
+    <ng-template #notificationTemplate let-notification="data">
+      <h2 style="color: #000000">Уведомление</h2>
+      <span>{{ notification.text }}</span>
+
+      <div class="notification-template-content">
+        <button
+          nz-button
+          nzSize="small"
+          (click)="previousNotification(notification.index)"
+          [disabled]="notification.index <= 0"
+        >
+          <span nz-icon nzType="left" nzTheme="outline"></span>
+        </button>
+        <span>{{ notification.index + 1 }}/{{ notifications.length }}</span>
+        <button
+          nz-button
+          nzSize="small"
+          (click)="nextNotification(notification.index)"
+          [disabled]="notification.index + 1 >= notifications.length"
+        >
+          <span nz-icon nzType="right" nzTheme="outline"></span>
+        </button>
+      </div>
+    </ng-template>
+
     <div class="tour" (click)="startTour()">
       <div class="tour-content">
         <span nz-icon nzType="question-circle" style="font-size: 25px"></span>

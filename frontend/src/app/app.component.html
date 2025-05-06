@@ -1,5 +1,30 @@
 <div [class.background]="showBackground"></div>
 <tui-root>
+  <ng-template #notificationTemplate let-notification="data">
+    <h2 style="color: #000000">Уведомление</h2>
+    <span>{{ notification.text }}</span>
+
+    <div class="notification-template-content">
+      <button
+        nz-button
+        nzSize="small"
+        (click)="previousNotification(notification.index)"
+        [disabled]="notification.index <= 0"
+      >
+        <span nz-icon nzType="left" nzTheme="outline"></span>
+      </button>
+      <span>{{ notification.index + 1 }}/{{ notifications.length }}</span>
+      <button
+        nz-button
+        nzSize="small"
+        (click)="nextNotification(notification.index)"
+        [disabled]="notification.index + 1 >= notifications.length"
+      >
+        <span nz-icon nzType="right" nzTheme="outline"></span>
+      </button>
+    </div>
+  </ng-template>
+
   <app-header *ngIf="isVisible"></app-header>
   <router-outlet></router-outlet>
 </tui-root>

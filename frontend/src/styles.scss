@@ -118,6 +118,18 @@ tui-dropdown {
   }
 }
 
+.notification-template-content {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    border: none;
+  }
+}
+
 .ant-modal-body {
   border-top-left-radius: 9px;
   border-top-right-radius: 9px;
@@ -171,7 +183,7 @@ nz-segmented .ng-animating {
 
 .background {
   position: fixed;
-  background-image: url('/assets/img/Comander.avif');
+  background-image: url("/assets/img/Comander.avif");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
