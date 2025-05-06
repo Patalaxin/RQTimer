@@ -5,7 +5,7 @@ import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { MobName, Servers } from '../schemas/mobs.enum';
+import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { MobService } from '../mob/mob.service';
 import { HelperClass } from '../helper-class';
 import { MESSAGES } from './messages';
@@ -179,6 +179,7 @@ export class TelegramBotService {
     groupName: string,
     server: Servers,
     updatedMobName: MobName,
+    updatedMobLocation: Locations,
   ): Promise<void> {
     try {
       const sessions: BotSession[] = await this.sessionModel.find({
@@ -187,7 +188,6 @@ export class TelegramBotService {
         server: server,
         groupName: groupName,
       });
-
       if (!sessions.length) {
         return;
       }
@@ -196,7 +196,12 @@ export class TelegramBotService {
         await this.mobService.findAllMobsByGroup(groupName, { server });
 
       for (const chunk of this.chunkArray(sessions, 28)) {
-        await this.sendBatchMessages(chunk, allMobs, updatedMobName);
+        await this.sendBatchMessages(
+          chunk,
+          allMobs,
+          updatedMobName,
+          updatedMobLocation,
+        );
       }
     } catch (error) {
       console.error('Ошибка при отправке обновлений пользователям:', error);
@@ -207,6 +212,7 @@ export class TelegramBotService {
     sessions: BotSession[],
     allMobs: GetFullMobWithUnixDtoResponse[],
     updatedMobName: MobName,
+    updatedMobLocation: Locations,
   ): Promise<void> {
     await Promise.allSettled(
       sessions.map(async (session: BotSession) => {
@@ -231,6 +237,7 @@ export class TelegramBotService {
             await HelperClass.transformFindAllMobsResponse(
               allMobs,
               updatedMobName,
+              updatedMobLocation,
               session.timezone,
             );
 

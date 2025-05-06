@@ -163,6 +163,7 @@ export class MobController {
       groupName,
       updateMobByCooldownDto.server,
       updateMobByCooldownDto.mobName,
+      updateMobByCooldownDto.location,
     );
 
     return mob;
@@ -199,6 +200,7 @@ export class MobController {
       groupName,
       updateMobDateOfDeathDto.server,
       updateMobDateOfDeathDto.mobName,
+      updateMobDateOfDeathDto.location,
     );
 
     return mob;
@@ -235,6 +237,7 @@ export class MobController {
       groupName,
       updateMobDateOfRespawnDto.server,
       updateMobDateOfRespawnDto.mobName,
+      updateMobDateOfRespawnDto.location,
     );
 
     return mob;
