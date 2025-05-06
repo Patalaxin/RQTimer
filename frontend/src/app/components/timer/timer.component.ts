@@ -351,7 +351,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.currentProgressTime = res.unixtime;
 
-        if (Math.abs(this.currentProgressTime - Date.now()) >= 0) {
+        if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
           this.messageService.create(
             'warning',
             `Время на вашем устройстве отличается от серверного на ${Math.abs(this.currentProgressTime - Date.now()) / 1000} секунд. Пожалуйста, проверьте настройки времени на вашем устройстве.`,
