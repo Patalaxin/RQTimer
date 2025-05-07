@@ -6,9 +6,9 @@
 
 <div *ngIf="!(isLoading | async)" class="history container">
   <nz-page-header class="site-page-header" nzBackIcon (nzBack)="onTimer()">
-    <nz-page-header-title (click)="onBack($event)" style="cursor: pointer"
-      >Таймер</nz-page-header-title
-    >
+    <nz-page-header-title (click)="onBack($event)" style="cursor: pointer">{{
+      "HISTORY.HEADER_TITLE" | translate
+    }}</nz-page-header-title>
     <nz-page-header-extra>
       <app-info [user]="user"></app-info>
     </nz-page-header-extra>

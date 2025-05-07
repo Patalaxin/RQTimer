@@ -1,5 +1,5 @@
 <div class="admin">
-  <h2>Список пользователей</h2>
+  <h2>{{ "ADMIN.USER_LIST" | translate }}</h2>
   <nz-table
     #adminTable
     [nzScroll]="{ x: '787px', y: '350px' }"
@@ -15,7 +15,7 @@
       <tr>
         <th nzWidth="75px" nzAlign="center">#</th>
         <th nzCustomFilter>
-          Никнейм
+          {{ "ADMIN.TABLE.NICKNAME" | translate }}
           <nz-filter-trigger
             [(nzVisible)]="isSearchVisible"
             [nzActive]="searchValue.length > 0"
@@ -41,17 +41,17 @@
           nzWidth="100px"
           nzAlign="center"
         >
-          Роль
+          {{ "ADMIN.TABLE.ROLE" | translate }}
         </th>
-        <th>Email</th>
+        <th>{{ "ADMIN.TABLE.EMAIL" | translate }}</th>
         <th
           [nzSortOrder]="null"
           [nzSortFn]="sortGroupName"
           [nzSortDirections]="['ascend', 'descend', null]"
         >
-          Группа
+          {{ "ADMIN.TABLE.GROUP" | translate }}
         </th>
-        <th class="admin-buttons">Действия</th>
+        <th class="admin-buttons">{{ "ADMIN.TABLE.ACTIONS" | translate }}</th>
       </tr>
     </thead>
     <tbody>
@@ -72,7 +72,7 @@
             nz-button
             nzType="primary"
             nz-tooltip
-            nzTooltipTitle="Редактировать"
+            [nzTooltipTitle]="'ADMIN.TABLE.EDIT' | translate"
             [nzTooltipMouseEnterDelay]="1"
             (click)="onShowUserModal(user)"
             nzShape="circle"
@@ -84,7 +84,7 @@
             nzType="primary"
             nzDanger
             nz-tooltip
-            nzTooltipTitle="Удалить"
+            [nzTooltipTitle]="'ADMIN.TABLE.DELETE' | translate"
             [nzTooltipMouseEnterDelay]="1"
             (click)="onShowDeleteModal(user.nickname)"
             nzShape="circle"
@@ -112,7 +112,7 @@
                   *ngIf="!isUserDataLoading"
                 >
                   <nz-tag [nzColor]="getUserColor(user.role)"
-                    >Пользователь: {{ user.nickname }}
+                    >{{ "ADMIN.USER" | translate }} {{ user.nickname }}
                   </nz-tag>
                   <div
                     class="admin-user-modal-role"
@@ -123,13 +123,15 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Обновить роль для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UPDATE_ROLE_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Обновить роль:
+                      {{ "ADMIN.UPDATE_ROLE_TITLE" | translate }}
                     </h4>
-                    <span class="role">Роль: </span>
+                    <span class="role">{{ "ADMIN.ROLE" | translate }} </span>
                     <nz-select
                       [ngModel]="user.role"
                       style="width: 30%"
@@ -148,11 +150,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выберите боссов для исключения для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UNAVAILABLE_BOSSES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите боссов для исключения:
+                      {{ "ADMIN.UNAVAILABLE_BOSSES_TITLE" | translate }}
                     </h4>
                     <tui-reorder
                       class="list"
@@ -164,11 +168,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выберите элиток для исключения для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UNAVAILABLE_ELITES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите элиток для исключения:
+                      {{ "ADMIN.UNAVAILABLE_ELITES_TITLE" | translate }}
                     </h4>
                     <tui-reorder
                       class="list"
@@ -193,7 +199,7 @@
             <input
               type="text"
               nz-input
-              placeholder="Поиск юзера..."
+              [placeholder]="'ADMIN.TABLE.SEARCH_USER' | translate"
               [(ngModel)]="searchValue"
             />
           </nz-input-group>
@@ -204,9 +210,11 @@
           (click)="onSearch()"
           class="admin-search-button"
         >
-          Поиск
+          {{ "COMMON.BUTTONS.SEARCH" | translate }}
         </button>
-        <button nz-button (click)="onReset()">Сброс</button>
+        <button nz-button (click)="onReset()">
+          {{ "COMMON.BUTTONS.RESET" | translate }}
+        </button>
       </div>
     </div>
   </nz-dropdown-menu>

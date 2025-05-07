@@ -20,6 +20,8 @@
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
+    "@ngx-translate/core": "^16.0.4",
+    "@ngx-translate/http-loader": "^16.0.1",
     "@taiga-ui/addon-table": "^3.87.0",
     "@taiga-ui/addon-tablebars": "^3.87.0",
     "@taiga-ui/cdk": "^3.87.0",

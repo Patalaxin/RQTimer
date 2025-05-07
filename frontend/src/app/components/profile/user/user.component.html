@@ -6,7 +6,8 @@
 
 <div class="user" *ngIf="!isLoading">
   <nz-tabset>
-    <nz-tab nzTitle="Настройки отображения">
+    <nz-tab [nzTitle]="'USER.DISPLAY_SETTINGS' | translate">
+      <app-language-switcher></app-language-switcher>
       <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
         <div nz-row class="update-excluded-form">
           <nz-form-item>
@@ -21,11 +22,13 @@
                       nz-icon
                       nzType="question-circle"
                       nzTheme="outline"
-                      nzTooltipTitle="Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                      [nzTooltipTitle]="
+                        'USER.EXCLUDE_BOSSES_DESCRIPTION' | translate
+                      "
                       nzTooltipPlacement="bottom"
                       nz-tooltip
                     ></span>
-                    Выберите боссов для исключения:
+                    {{ "USER.EXCLUDE_BOSSES_TITLE" | translate }}
                   </h4>
                   <div
                     formArrayName="excludedBosses"
@@ -56,11 +59,13 @@
                       nz-icon
                       nzType="question-circle"
                       nzTheme="outline"
-                      nzTooltipTitle="Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                      [nzTooltipTitle]="
+                        'USER.EXCLUDE_ELITES_DESCRIPTION' | translate
+                      "
                       nzTooltipPlacement="bottom"
                       nz-tooltip
                     ></span>
-                    Выберите элиток для исключения:
+                    {{ "USER.EXCLUDE_ELITES_TITLE" | translate }}
                   </h4>
                   <div
                     formArrayName="excludedElites"
@@ -82,19 +87,25 @@
         </div>
         <nz-form-item>
           <nz-form-control class="update-excluded-form-center">
-            <button nz-button nzType="primary" nzShape="round">Обновить</button>
+            <button nz-button nzType="primary" nzShape="round">
+              {{ "COMMON.BUTTONS.UPDATE" | translate }}
+            </button>
           </nz-form-control>
         </nz-form-item>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="Изменить пароль">
+    <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
       <form
         [formGroup]="changePasswordForm"
         class="change-password-form"
         (ngSubmit)="onChangePassword()"
       >
         <nz-form-item>
-          <nz-form-control nzErrorTip="Введите старый пароль!">
+          <nz-form-control
+            [nzErrorTip]="
+              'COMMON.VALIDATIONS.OLD_PASSWORD_REQUIRED' | translate
+            "
+          >
             <nz-input-group
               nzPrefixIcon="lock"
               [nzSuffix]="suffixTemplate"
@@ -104,7 +115,7 @@
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
                 formControlName="oldPassword"
-                placeholder="Старый пароль"
+                [placeholder]="'USER.OLD_PASSWORD' | translate"
                 name="mix"
                 minlength="6"
                 required
@@ -123,7 +134,7 @@
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
                 formControlName="newPassword"
-                placeholder="Новый пароль"
+                [placeholder]="'USER.NEW_PASSWORD' | translate"
                 name="mix"
                 minlength="6"
                 required
@@ -131,36 +142,48 @@
             </nz-input-group>
           </nz-form-control>
           <ng-template #passwordErrorTpl let-control>
-            <div *ngIf="control.errors?.required">• Введите новый пароль!</div>
+            <div *ngIf="control.errors?.required">
+              {{ "COMMON.VALIDATIONS.NEW_PASSWORD_REQUIRED" | translate }}
+            </div>
             <div *ngIf="!control.errors?.required && control.errors?.minlength">
-              • Минимальная длина пароля 6 символов!
+              {{
+                "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
+                  | translate: { value: 6 }
+              }}
             </div>
             <div *ngIf="!control.errors?.required && control.errors?.maxlength">
-              • Максимальная длина пароля 64 символа!
+              {{
+                "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
+                  | translate: { value: 64 }
+              }}
             </div>
             <div
               *ngIf="!control.errors?.required && control.errors?.missingNumber"
             >
-              • Пароль должен содержать хотя бы одну цифру!
+              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate }}
             </div>
             <div
               *ngIf="
                 !control.errors?.required && control.errors?.missingUpperCase
               "
             >
-              • Пароль должен содержать хотя бы одну заглавную латинскую букву!
+              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN" | translate }}
             </div>
             <div
               *ngIf="
                 !control.errors?.required && control.errors?.missingLowerCase
               "
             >
-              • Пароль должен содержать хотя бы одну строчную латинскую букву!
+              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN" | translate }}
             </div>
           </ng-template>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-control nzErrorTip="Новый пароль не совпадает!">
+          <nz-form-control
+            [nzErrorTip]="
+              'COMMON.VALIDATIONS.NEW_PASSWORD_MISMATCH' | translate
+            "
+          >
             <nz-input-group
               nzPrefixIcon="lock"
               [nzSuffix]="suffixTemplate"
@@ -170,7 +193,7 @@
                 nz-input
                 [type]="passwordVisible ? 'text' : 'password'"
                 formControlName="confirmNewPassword"
-                placeholder="Подтвердите новый пароль"
+                [placeholder]="'USER.CONFIRM_NEW_PASSWORD' | translate"
                 name="mix"
                 matching
                 required
@@ -194,11 +217,11 @@
           nzShape="round"
           [nzLoading]="passwordChangeLoading"
         >
-          Поменять пароль
+          {{ "COMMON.BUTTONS.CHANGE_PASSWORD" | translate }}
         </button>
       </form>
     </nz-tab>
-    <nz-tab nzTitle="Админ" *ngIf="role === 'Admin'">
+    <nz-tab [nzTitle]="'USER.ADMIN' | translate" *ngIf="role === 'Admin'">
       <app-admin [bossList]="bossList" [eliteList]="eliteList"></app-admin>
     </nz-tab>
   </nz-tabset>

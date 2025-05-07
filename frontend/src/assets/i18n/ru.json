@@ -1,0 +1,166 @@
+{
+  "HEADER": {
+    "UPDATE": "Обновить",
+    "COPY_RESP": "Скопировать респы",
+    "SERVER_CRASH": "Учитывать падение сервера",
+    "SEARCH": "Поиск...",
+    "HISTORY": "История",
+    "TIMER": "Таймер",
+    "PROFILE": "Личный кабинет",
+    "LOGOUT": "Выход",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Внимание",
+      "SERVER_CRASH_MESSAGE": "<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</b>",
+      "LOGOUT_TITLE": "Внимание",
+      "LOGOUT_MESSAGE": "<b>Вы точно хотите выйти?</b>"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Почта или никнейм",
+    "PASSWORD": "Пароль",
+    "FORGOT_PASSWORD": "Забыли пароль?",
+    "NO_ACCOUNT": "Нет учетной записи?",
+    "REGISTER": "Зарегистрируйтесь",
+    "ALL_QUESTION": "По всем вопросам:",
+    "INFORMATION": "Информация:"
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Почта",
+    "PASSWORD": "Пароль",
+    "CONFIRM_PASSWORD": "Подтвердите пароль",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Подтверждение почты",
+      "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
+      "OTP_INVALID": "OTP недействителен."
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Шаг 1:",
+    "STEP_2": "Шаг 2:",
+    "GENERAL": "Основной",
+    "DISPLAY": "Отображение",
+    "NICKNAME": "Никнейм",
+    "EMAIL": "Почти",
+    "PASSWORD": "Пароль",
+    "CONFIRM_PASSWORD": "Подтвердите пароль",
+    "HAVE_ACCOUNT": "У меня уже есть аккаунт",
+    "EXCLUDE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "EXCLUDE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Подтверждение почты",
+      "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
+      "OTP_INVALID": "OTP недействителен."
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Никнейм:",
+    "EMAIL": "Почта:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Таймер"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Таймер"
+  },
+  "LOG": {
+    "OF": "из",
+    "USER": "Пользователь",
+    "UPDATED": "переписал",
+    "COOLDOWN_COUNT": "по кд {{count}} раз",
+    "EXACT_DEATH_TIME": "по точному времени смерти",
+    "EXACT_RESPAWN_TIME": "по точному времени респауна",
+    "SERVER_CRASH": "всех боссов/элиток из-за краша сервера",
+    "LOST_RESPAWN": "как утерянный респаун",
+    "DUMB_METHOD": "по тупому",
+    "INITIAL_COOLDOWN": "Начальный кд:",
+    "UPDATED_COOLDOWN": "Обновлённый кд:",
+    "RESPAWN_TIME": "Время возрождение:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Настройки отображения",
+    "CHANGE_PASSWORD": "Изменить пароль",
+    "ADMIN": "Админ",
+    "EXCLUDE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "EXCLUDE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "OLD_PASSWORD": "Старый пароль",
+    "NEW_PASSWORD": "Новый пароль",
+    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль"
+  },
+  "ADMIN": {
+    "USER_LIST": "Список пользователей",
+    "USER": "Пользователь:",
+    "UPDATE_ROLE_TITLE": "Обновить роль:",
+    "UPDATE_ROLE_DESCRIPTION": "Обновить роль для выбранного пользователя.",
+    "ROLE": "Роль:",
+    "UNAVAILABLE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Выберите боссов для исключения для выбранного пользователя.",
+    "UNAVAILABLE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Выберите элиток для исключения для выбранного пользователя.",
+    "TABLE": {
+      "NICKNAME": "Никнейм",
+      "ROLE": "Роль",
+      "EMAIL": "Почта",
+      "GROUP": "Группа",
+      "ACTIONS": "Действия",
+      "EDIT": "Редактировать",
+      "DELETE": "Удалить",
+      "SEARCH_USER": "Поиск юзера..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "Пользователь {{nickname}} удалён",
+      "USER_ROLE_UPDATED": "Роль пользователя {{nickname}} успешно обновлён",
+      "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Внимание",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>"
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Войти",
+      "VIDEO_GUIDE": "Видеогайд",
+      "CANCEL": "Отмена",
+      "CHANGE_PASSWORD": "Поменять пароль",
+      "VERIFY": "Подтвердить",
+      "GET_NEW_OTP": "Получить новый OTP",
+      "NEXT": "Вперёд",
+      "BACK": "Назад",
+      "VERIFY_EMAIL": "Подтвердить почту",
+      "YES": "Да",
+      "NO": "Нет",
+      "UPDATE": "Обновить",
+      "SEARCH": "Поиск",
+      "RESET": "Сброс",
+      "OK": "ОК"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Введите почту или никнейм!",
+      "PASSWORD_REQUIRED": "• Введите пароль!",
+      "EMAIL_REQUIRED": "• Введите почту!",
+      "PASSWORD_MISMATCH": "• Пароль не совпадает!",
+      "PASSWORD_MIN_LENGTH": "• Минимальная длина пароля {{value}} символов!",
+      "PASSWORD_MAX_LENGTH": "• Максимальная длина пароля {{value}} символов!",
+      "PASSWORD_MISS_NUMBER": "• Пароль должен содержать хотя бы одну цифру!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Пароль должен содержать хотя бы одну заглавную латинскую букву!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Пароль должен содержать хотя бы одну строчную латинскую букву!",
+      "NICKNAME_REQUIRED": "• Введите никнейм!",
+      "NICKNAME_MIN_LENGTH": "• Минимальная длина никнейм {{value}} символа!",
+      "NICKNAME_MAX_LENGTH": "• Максимальная длина никнейм {{value}} символов!",
+      "NICKNAME_MAX_UPPER": "• Никнейм может содержать не более 2 заглавных букв!",
+      "NICKNAME_NO_SPACES": "• Никнейм не может содержать пробелы!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Никнейм не должен содержать специальные символы!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Никнейм не должен начинаться или заканчиваться на дефис!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Никнейм может содержать не более одного дефиса!",
+      "NICKNAME_NO_NUMBERS": "• Никнейм не может содержать цифры!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Никнейм не может содержать смешение кириллицы и латиницы!",
+      "NEW_PASSWORD_REQUIRED": "• Введите новый пароль!",
+      "OLD_PASSWORD_REQUIRED": "• Введите старый пароль!",
+      "NEW_PASSWORD_MISMATCH": "• Новый пароль не совпадает!"
+    }
+  }
+}

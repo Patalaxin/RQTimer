@@ -17,6 +17,7 @@ import {
 } from 'ng-zorro-antd/notification';
 import { NotificationService } from './services/notification.service';
 import { StorageService } from './services/storage.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   private readonly notificationService = inject(NotificationService);
   private readonly storageService = inject(StorageService);
   private readonly nzNotificationService = inject(NzNotificationService);
+  private readonly translateService = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('notificationTemplate', { static: false })
@@ -42,6 +44,14 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   isVisible: boolean = false;
 
   ngOnInit() {
+    // Инициализация языков
+    this.translateService.addLangs(['ru', 'en']);
+    this.translateService.setDefaultLang('ru');
+
+    // Используем язык из localStorage или дефолтный
+    const savedLang = localStorage.getItem('language');
+    this.translateService.use(savedLang || 'ru');
+
     this.currentNotificationIndex = 0;
     this.timerService.telegramBotVisibility = false;
 

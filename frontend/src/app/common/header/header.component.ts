@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -38,6 +39,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly websocketService = inject(WebsocketService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
+  private readonly translateService = inject(TranslateService);
 
   currentServer: string = 'Гелиос';
   currentRoute: string = '';
@@ -337,12 +339,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   showCrashServerModal() {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent:
-        '<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</br>',
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('HEADER.MODAL.SERVER_CRASH_TITLE'),
+      nzContent: this.translateService.instant(
+        'HEADER.MODAL.SERVER_CRASH_MESSAGE',
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOnOk: () => this.onCrashServer(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -379,13 +382,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   showLogoutModal(): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: '<b>Вы точно хотите выйти?</b>',
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('HEADER.MODAL.LOGOUT_TITLE'),
+      nzContent: this.translateService.instant('HEADER.MODAL.LOGOUT_MESSAGE'),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onLogout(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 

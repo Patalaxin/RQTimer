@@ -1,0 +1,166 @@
+{
+  "HEADER": {
+    "UPDATE": "Update",
+    "COPY_RESP": "Copy Respawns",
+    "SERVER_CRASH": "Consider Server Crash",
+    "SEARCH": "Search...",
+    "HISTORY": "History",
+    "TIMER": "Timer",
+    "PROFILE": "Profile",
+    "LOGOUT": "Logout",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Attention",
+      "SERVER_CRASH_MESSAGE": "<b>Are you sure you want to reset all respawns due to the server crash?<br>- Boss respawns will be rolled back by 5 minutes<br>- Elite respawns will be rolled back by 18 seconds</b>",
+      "LOGOUT_TITLE": "Attention",
+      "LOGOUT_MESSAGE": "<b>Are you sure you want to log out?</b>"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Email or username",
+    "PASSWORD": "Password",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "NO_ACCOUNT": "Don't have an account?",
+    "REGISTER": "Register",
+    "ALL_QUESTION": "For all questions:",
+    "INFORMATION": "Information:"
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Email confirmation",
+      "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
+      "OTP_INVALID": "OTP is invalid."
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Step 1:",
+    "STEP_2": "Step 2:",
+    "GENERAL": "General",
+    "DISPLAY": "Display",
+    "NICKNAME": "Nickname",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "HAVE_ACCOUNT": "I already have an account",
+    "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Email confirmation",
+      "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
+      "OTP_INVALID": "OTP is invalid."
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Nickname:",
+    "EMAIL": "Email:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Timer"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Timer"
+  },
+  "LOG": {
+    "OF": "of",
+    "USER": "User",
+    "UPDATED": "updated",
+    "COOLDOWN_COUNT": "by cooldown {{count}} times",
+    "EXACT_DEATH_TIME": "by exact time of death",
+    "EXACT_RESPAWN_TIME": "by exact respawn time",
+    "SERVER_CRASH": "all bosses/elites due to server crash",
+    "LOST_RESPAWN": "as a lost respawn",
+    "DUMB_METHOD": "by dumb method",
+    "INITIAL_COOLDOWN": "Initial cooldown:",
+    "UPDATED_COOLDOWN": "Updated cooldown:",
+    "RESPAWN_TIME": "Respawn time:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Display settings",
+    "CHANGE_PASSWORD": "Change password",
+    "ADMIN": "Admin",
+    "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "OLD_PASSWORD": "Old password",
+    "NEW_PASSWORD": "New password",
+    "CONFIRM_NEW_PASSWORD": "Confirm new password"
+  },
+  "ADMIN": {
+    "USER_LIST": "User list",
+    "USER": "User:",
+    "UPDATE_ROLE_TITLE": "Update role:",
+    "UPDATE_ROLE_DESCRIPTION": "Update role for the selected user.",
+    "ROLE": "Role:",
+    "UNAVAILABLE_BOSSES_TITLE": "Select bosses to exclude:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Select bosses to exclude for the selected user.",
+    "UNAVAILABLE_ELITES_TITLE": "Select elites to exclude:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Select elites to exclude for the selected user.",
+    "TABLE": {
+      "NICKNAME": "Nickname",
+      "ROLE": "Role",
+      "EMAIL": "Email",
+      "GROUP": "Group",
+      "ACTIONS": "Actions",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "SEARCH_USER": "Searching for user..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "User {{nickname}} has been deleted",
+      "USER_ROLE_UPDATED": "User role for {{nickname}} has been successfully updated",
+      "USER_ACCESS_SETTINGS_UPDATED": "Accessibility settings for user {{nickname}} have been successfully updated"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Attention",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete user {{nickname}}?</b>"
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Log in",
+      "VIDEO_GUIDE": "Video guide",
+      "CANCEL": "Cancel",
+      "CHANGE_PASSWORD": "Change password",
+      "VERIFY": "Verify",
+      "GET_NEW_OTP": "Get new OTP",
+      "NEXT": "Next",
+      "BACK": "Back",
+      "VERIFY_EMAIL": "Verify email",
+      "YES": "Yes",
+      "NO": "No",
+      "UPDATE": "Update",
+      "SEARCH": "Search",
+      "RESET": "Reset",
+      "OK": "ОK"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Please enter your email or username!",
+      "PASSWORD_REQUIRED": "• Please enter your password!",
+      "EMAIL_REQUIRED": "• Please enter your email!",
+      "PASSWORD_MISMATCH": "• Passwords do not match!",
+      "PASSWORD_MIN_LENGTH": "• Minimum password length is {{value}} characters!",
+      "PASSWORD_MAX_LENGTH": "• Maximum password length is {{value}} characters!",
+      "PASSWORD_MISS_NUMBER": "• Password must contain at least one number!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Password must contain at least one uppercase Latin letter!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Password must contain at least one lowercase Latin letter!",
+      "NICKNAME_REQUIRED": "• Please enter a nickname!",
+      "NICKNAME_MIN_LENGTH": "• Minimum nickname length is {{value}} characters!",
+      "NICKNAME_MAX_LENGTH": "• Maximum nickname length is {{value}} characters!",
+      "NICKNAME_MAX_UPPER": "• Nickname can contain no more than 2 uppercase letters!",
+      "NICKNAME_NO_SPACES": "• Nickname cannot contain spaces!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Nickname must not contain special characters!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Nickname must not start or end with a hyphen!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Nickname can contain no more than one hyphen!",
+      "NICKNAME_NO_NUMBERS": "• Nickname cannot contain numbers!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Nickname cannot mix Cyrillic and Latin characters!",
+      "NEW_PASSWORD_REQUIRED": "• Enter a new password!",
+      "OLD_PASSWORD_REQUIRED": "• Enter your old password!",
+      "NEW_PASSWORD_MISMATCH": "• New password does not match!"
+    }
+  }
+}

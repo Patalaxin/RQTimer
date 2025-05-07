@@ -3,6 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './modules/core/core.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { HttpLoaderFactory } from './translate-loader.factory';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './common/header/header.component';
@@ -28,6 +31,7 @@ import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
 import { TimerSettingsComponent } from './components/timer/timer-settings/timer-settings.component';
 
 import { CapitalizeDirective } from './directives/capitalize.directive';
+import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 
 registerLocaleData(ru);
 
@@ -49,6 +53,7 @@ registerLocaleData(ru);
     NotFoundComponent,
     TimerSettingsComponent,
     CapitalizeDirective,
+    LanguageSwitcherComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,6 +61,15 @@ registerLocaleData(ru);
     CoreModule,
     SharedModule,
     NgOptimizedImage,
+    HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+      defaultLanguage: 'ru',
+    }),
   ],
   providers: [
     { provide: NZ_I18N, useValue: ru_RU },

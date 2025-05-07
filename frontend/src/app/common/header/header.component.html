@@ -16,7 +16,7 @@
       nzType="primary"
       (click)="updateCurrentServer()"
       nz-tooltip
-      nzTooltipTitle="Обновить"
+      [nzTooltipTitle]="'HEADER.UPDATE' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
@@ -29,7 +29,7 @@
       nzType="primary"
       (click)="copyRespText()"
       nz-tooltip
-      nzTooltipTitle="Скопировать респы"
+      [nzTooltipTitle]="'HEADER.COPY_RESP' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
@@ -43,7 +43,7 @@
       [class]="isOnline === 'online' ? 'green' : 'red'"
       nz-tooltip
       (click)="showCrashServerModal()"
-      nzTooltipTitle="Учитывать падение сервера"
+      [nzTooltipTitle]="'HEADER.SERVER_CRASH' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"
@@ -68,6 +68,7 @@
       nz-input
       [(ngModel)]="timerSearchValue"
       (ngModelChange)="timerSearch($event)"
+      [placeholder]="'HEADER.SEARCH' | translate"
     />
   </nz-input-group>
   <ng-template #suffixSearch>
@@ -99,7 +100,7 @@
       nzType="primary"
       (click)="onHistory()"
       nz-tooltip
-      nzTooltipTitle="История"
+      [nzTooltipTitle]="'HEADER.HISTORY' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/history')"
@@ -113,7 +114,7 @@
       nzType="primary"
       (click)="onTimer()"
       nz-tooltip
-      nzTooltipTitle="Таймер"
+      [nzTooltipTitle]="'HEADER.TIMER' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/timer')"
@@ -126,7 +127,7 @@
       nzType="primary"
       (click)="onProfile()"
       nz-tooltip
-      nzTooltipTitle="Личный кабинет"
+      [nzTooltipTitle]="'HEADER.PROFILE' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       *ngIf="!(currentRoute == '/profile')"
@@ -141,7 +142,7 @@
       nzDanger
       (click)="showLogoutModal()"
       nz-tooltip
-      nzTooltipTitle="Выход"
+      [nzTooltipTitle]="'HEADER.LOGOUT' | translate"
       nzTooltipPlacement="bottom"
       [nzTooltipMouseEnterDelay]="1"
       nzShape="circle"

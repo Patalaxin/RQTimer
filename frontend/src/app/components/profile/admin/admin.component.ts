@@ -1,5 +1,6 @@
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { AuthService } from 'src/app/services/auth.service';
@@ -16,6 +17,7 @@ export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
+  private readonly translateService = inject(TranslateService);
 
   @Input() bossList: string[] = [];
   @Input() eliteList: string[] = [];
@@ -88,7 +90,9 @@ export class AdminComponent implements OnInit {
         if (nickname) {
           this.messageService.create(
             'success',
-            `Пользователь ${nickname} удалён`,
+            this.translateService.instant('ADMIN.MESSAGE.USER_DELETED', {
+              nickname: nickname,
+            }),
           );
         }
       },
@@ -135,13 +139,16 @@ export class AdminComponent implements OnInit {
 
   onShowDeleteModal(nickname: string): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите удалить пользователя ${nickname}?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('ADMIN.MODAL.USER_DELETION_TITLE'),
+      nzContent: this.translateService.instant(
+        'ADMIN.MODAL.USER_DELETION_MESSAGE',
+        { nickname: nickname },
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onDelete(nickname),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -158,7 +165,9 @@ export class AdminComponent implements OnInit {
         next: () => {
           this.messageService.create(
             'success',
-            `Роль пользователя ${item.nickname} успешно обновлён`,
+            this.translateService.instant('ADMIN.MESSAGE.USER_ROLE_UPDATED', {
+              nickname: item.nickname,
+            }),
           );
         },
       });
@@ -184,7 +193,10 @@ export class AdminComponent implements OnInit {
           this.getAllUsers();
           this.messageService.create(
             'success',
-            `Настройки доступности для пользователя ${item.nickname} успешно обновлены`,
+            this.translateService.instant(
+              'ADMIN.MESSAGE.USER_ACCESS_SETTINGS_UPDATED',
+              { nickname: item.nickname },
+            ),
           );
         },
       });

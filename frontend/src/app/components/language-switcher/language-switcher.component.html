@@ -1,0 +1,5 @@
+<nz-select
+  [(ngModel)]="currentLang"
+  [nzOptions]="langList"
+  (ngModelChange)="switchLanguage($event)"
+></nz-select>

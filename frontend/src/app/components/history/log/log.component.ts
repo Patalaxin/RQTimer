@@ -1,4 +1,5 @@
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 
@@ -10,6 +11,7 @@ import { StorageService } from 'src/app/services/storage.service';
 export class LogComponent implements OnInit {
   private readonly historyService = inject(HistoryService);
   private readonly storageService = inject(StorageService);
+  private readonly translateService = inject(TranslateService);
 
   @Input() historyList: any;
   @Input() historyListData: any;
@@ -77,13 +79,22 @@ export class LogComponent implements OnInit {
 
   getInputMethod(item: any): string {
     const methods: { [key: string]: string } = {
-      updateMobByCooldown: `по кд ${item.toCooldown - item.fromCooldown} раз`,
-      updateMobDateOfDeath: 'по точному времени смерти',
-      updateMobDateOfRespawn: 'по точному времени респауна',
-      crashMobServer: 'всех боссов/элиток из-за краша сервера',
-      respawnLost: 'как утерянный респаун',
+      updateMobByCooldown: this.translateService.instant('LOG.COOLDOWN_COUNT', {
+        count: item.toCooldown - item.fromCooldown,
+      }),
+      updateMobDateOfDeath: this.translateService.instant(
+        'LOG.EXACT_DEATH_TIME',
+      ),
+      updateMobDateOfRespawn: this.translateService.instant(
+        'LOG.EXACT_RESPAWN_TIME',
+      ),
+      crashMobServer: this.translateService.instant('LOG.SERVER_CRASH'),
+      respawnLost: this.translateService.instant('LOG.LOST_RESPAWN'),
     };
 
-    return methods[item.historyTypes] || 'по тупому';
+    return (
+      methods[item.historyTypes] ||
+      this.translateService.instant('LOG.DUMB_METHOD')
+    );
   }
 }
