@@ -7,7 +7,7 @@ export type BotSessionDocument = HydratedDocument<BotSession>;
 
 @Schema()
 export class BotSession {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   userId: number;
 
   @Prop()
@@ -31,3 +31,12 @@ export class BotSession {
 }
 
 export const BotSessionSchema = SchemaFactory.createForClass(BotSession);
+BotSessionSchema.index(
+  { userId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      userId: { $type: 'number' },
+    },
+  },
+);
