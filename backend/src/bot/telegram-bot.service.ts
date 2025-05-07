@@ -201,6 +201,7 @@ export class TelegramBotService {
           allMobs,
           updatedMobName,
           updatedMobLocation,
+          server,
         );
       }
     } catch (error) {
@@ -213,6 +214,7 @@ export class TelegramBotService {
     allMobs: GetFullMobWithUnixDtoResponse[],
     updatedMobName: MobName,
     updatedMobLocation: Locations,
+    server,
   ): Promise<void> {
     await Promise.allSettled(
       sessions.map(async (session: BotSession) => {
@@ -239,6 +241,7 @@ export class TelegramBotService {
               updatedMobName,
               updatedMobLocation,
               session.timezone,
+              server,
             );
 
           const filteredMessage = HelperClass.filterMobsForUser(

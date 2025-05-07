@@ -2,7 +2,7 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RolesTypes } from './schemas/user.schema';
 import { GetFullMobWithUnixDtoResponse } from './mob/dto/get-mob.dto';
-import { Locations, MobName } from './schemas/mobs.enum';
+import { Locations, MobName, Servers } from './schemas/mobs.enum';
 import { DateTime } from 'luxon';
 
 export class HelperClass {
@@ -60,6 +60,7 @@ export class HelperClass {
     updatedMobName: MobName,
     updatedMobLocation: Locations,
     timezone: string,
+    server: Servers,
   ): Promise<string> {
     const groupedByDate: Record<string, string[]> = {};
 
@@ -80,9 +81,14 @@ export class HelperClass {
         groupedByDate[date] = [];
       }
 
-      groupedByDate[date].push(
-        `${mobData.mob.mobName} - ${mobData.mob.location} - ${time}${updatedTag}`,
-      );
+      const { mobName, location, mobType } = mobData.mob;
+
+      const line =
+        mobType === 'Босс'
+          ? `${mobName} - ${time}${updatedTag}`
+          : `${mobName} - ${location} - ${time}${updatedTag}`;
+
+      groupedByDate[date].push(line);
     }
 
     const sortedDates = Object.keys(groupedByDate).sort(
@@ -91,7 +97,7 @@ export class HelperClass {
         DateTime.fromFormat(b, 'dd.MM.yyyy').toMillis(),
     );
 
-    let message = `По часовому поясу "${timezone}" респаун будет в :\n`;
+    let message = `Сервер: ${server} \nПо часовому поясу "${timezone}" респаун будет в:\n`;
 
     for (const date of sortedDates) {
       message += `\n${date}:\n`;
