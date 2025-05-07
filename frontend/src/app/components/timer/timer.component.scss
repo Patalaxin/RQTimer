@@ -34,6 +34,8 @@
     width: 100%;
   }
 
+  .telegram-bot,
+  .notification,
   .tour {
     box-sizing: border-box;
     margin: 0;
@@ -52,6 +54,8 @@
     height: 40px;
     cursor: pointer;
 
+    .telegram-bot-content,
+    .notification-content,
     .tour-content {
       width: 40px;
       height: 40px;
@@ -64,9 +68,28 @@
       line-height: 48px;
     }
 
+    .telegram-bot-content:hover,
     .tour-content:hover {
       background-color: rgba(0, 0, 0, 0.85);
       transition: all 0.3s;
+    }
+  }
+
+  .notification {
+    bottom: 150px;
+  }
+
+  .telegram-bot {
+    bottom: 200px;
+
+    .telegram-bot-content {
+      a {
+        img {
+          width: 25px;
+          height: 25px;
+          vertical-align: text-bottom;
+        }
+      }
     }
   }
 
@@ -166,6 +189,8 @@
 
 @media only screen and (max-width: 768px) {
   .timer {
+    .telegram-bot,
+    .notification,
     .tour {
       right: 60px;
     }
@@ -174,6 +199,8 @@
 
 @media only screen and (max-width: 650px) {
   .timer {
+    .telegram-bot,
+    .notification,
     .tour {
       display: none;
     }

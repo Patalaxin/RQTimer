@@ -47,6 +47,11 @@ export class UserService {
     return this.http.delete(`${this.USER_API}${key}`);
   }
 
+  setUserTimezone(timezone: string): Observable<any> {
+    let payload = { timezone };
+    return this.http.put(`${this.USER_API}timezone`, payload);
+  }
+
   forgotPassword(email: string, newPassword: string): Observable<any> {
     let payload = {
       email,

@@ -15,9 +15,10 @@ export class TimerService {
   private readonly MOB_URL = environment.apiUrl + '/mobs';
 
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
-  filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
+  private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
   private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
+  private telegramBotVisibilitySubject$ = new BehaviorSubject<boolean>(false);
 
   get timerList$(): Observable<TimerItem[]> {
     return this.timerListSubject$.asObservable();
@@ -35,6 +36,10 @@ export class TimerService {
     return this.headerVisibilitySubject$.asObservable();
   }
 
+  get telegramBotVisibility$(): Observable<boolean> {
+    return this.telegramBotVisibilitySubject$.asObservable();
+  }
+
   set timerList(list: TimerItem[]) {
     this.timerListSubject$.next(list);
   }
@@ -49,6 +54,10 @@ export class TimerService {
 
   set headerVisibility(visible: boolean) {
     this.headerVisibilitySubject$.next(visible);
+  }
+
+  set telegramBotVisibility(visible: boolean) {
+    this.telegramBotVisibilitySubject$.next(visible);
   }
 
   getUnixtime(): Observable<any> {

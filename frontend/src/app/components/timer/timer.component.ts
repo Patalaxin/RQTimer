@@ -4,17 +4,24 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  TemplateRef,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import {
+  NzNotificationPlacement,
+  NzNotificationService,
+} from 'ng-zorro-antd/notification';
 import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { GroupsService } from 'src/app/services/groups.service';
 import { HistoryService } from 'src/app/services/history.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { TokenService } from 'src/app/services/token.service';
@@ -36,6 +43,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly historyService = inject(HistoryService);
   private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly nzNotificationService = inject(NzNotificationService);
   private readonly messageService = inject(NzMessageService);
   private readonly modalService = inject(NzModalService);
   private readonly tourService = inject(TourService);
@@ -108,11 +117,17 @@ export class TimerComponent implements OnInit, OnDestroy {
   isOnlyComment: boolean = false;
   comment: string = '';
 
+  isVisible: boolean = false;
+
   timerOptions: any[] = [
     { label: 'Таймер', value: 'Timer', icon: 'history' },
     { label: 'Настройки', value: 'Settings', icon: 'setting' },
   ];
   selectedSegments: number = 0;
+
+  notifications: any[] = [];
+  currentNotificationIndex: number = 0;
+  position: NzNotificationPlacement | undefined = 'bottomRight';
 
   private readonly steps: IStepOption[] = [
     {
@@ -232,6 +247,17 @@ export class TimerComponent implements OnInit, OnDestroy {
       title: 'Выход',
       content: `Выйди и зайди нормально, пон?`,
     },
+    {
+      anchorId: 'notification',
+      title: 'Уведомления',
+      content: `Тут можно будет просмотреть актуальные уведомления от нас, разработчиков`,
+    },
+    {
+      anchorId: 'telegram-bot',
+      title: 'Telegram-бот',
+      content: `По многочисленным просьбам, добавили также Telegram-бота, который будет <b>присылать переписанные респы</b>`,
+      isOptional: true,
+    },
   ];
 
   @HostListener('window:resize', ['$event'])
@@ -239,7 +265,18 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.checkScreenWidth();
   }
 
+  @ViewChild('notificationTemplate', { static: false })
+  template?: TemplateRef<{}>;
+
   ngOnInit(): void {
+    this.currentNotificationIndex = 0;
+
+    this.timerService.telegramBotVisibility$.subscribe({
+      next: (res) => {
+        this.isVisible = res;
+      },
+    });
+
     this.tourService.initialize(this.steps, {
       enableBackdrop: true,
       backdropConfig: {
@@ -313,6 +350,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.getUnixtime().subscribe({
       next: (res) => {
         this.currentProgressTime = res.unixtime;
+
+        if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
+          this.messageService.create(
+            'warning',
+            `Время на вашем устройстве отличается от серверного на ${Math.abs(this.currentProgressTime - Date.now()) / 1000} секунд. Пожалуйста, проверьте настройки времени на вашем устройстве.`,
+          );
+        }
 
         if (typeof Worker !== 'undefined') {
           this.worker = new Worker(
@@ -1149,6 +1193,59 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.exchangeRefresh(() => {
       this.getCurrentUser();
     });
+  }
+
+  showNotifications(index: number): void {
+    this.notificationService.notificationList$.subscribe({
+      next: (res) => {
+        this.notifications = res;
+
+        console.log(this.notifications);
+
+        if (this.notifications[index]) {
+          this.nzNotificationService.template(this.template!, {
+            nzKey: 'key',
+            nzData: { ...this.notifications[index], index },
+            nzPlacement: this.position,
+            nzDuration: 0,
+          });
+        }
+      },
+    });
+  }
+
+  previousNotification(index: number) {
+    if (index > 0) {
+      this.currentNotificationIndex = index - 1;
+      if (this.notifications[this.currentNotificationIndex]) {
+        this.nzNotificationService.template(this.template!, {
+          nzKey: 'key',
+          nzData: {
+            ...this.notifications[this.currentNotificationIndex],
+            index: this.currentNotificationIndex,
+          },
+          nzPlacement: this.position,
+          nzDuration: 0,
+        });
+      }
+    }
+  }
+
+  nextNotification(index: number) {
+    if (index + 1 < this.notifications.length) {
+      this.currentNotificationIndex = index + 1;
+      if (this.notifications[this.currentNotificationIndex]) {
+        this.nzNotificationService.template(this.template!, {
+          nzKey: 'key',
+          nzData: {
+            ...this.notifications[this.currentNotificationIndex],
+            index: this.currentNotificationIndex,
+          },
+          nzPlacement: this.position,
+          nzDuration: 0,
+        });
+      }
+    }
   }
 
   private onCreateGroup(name: string) {

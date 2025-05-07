@@ -32,7 +32,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     if (
       req.url.includes('/auth/login') ||
-      req.url.includes('/auth/exchange-refresh')
+      req.url.includes('/auth/exchange-refresh') ||
+      req.url.includes('/notifications')
     ) {
       return next.handle(req);
     }
@@ -48,7 +49,15 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         if ((err.status >= 500 && err.status < 600) || err.status === 0) {
           this.messageService.create(
             'error',
-            'Ошибка обращения к сервису. Поробуйте обновить страницу',
+            'Ошибка обращения к сервису. Попробуйте обновить страницу',
+          );
+          return throwError(() => err);
+        }
+
+        if (err.status === 409 && err.error.message.includes('Mob data for')) {
+          this.messageService.create(
+            'error',
+            'Добавление в групповой таймер невозможен. Проверьте настройки отображения.',
           );
           return throwError(() => err);
         }

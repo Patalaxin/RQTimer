@@ -282,6 +282,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentUser() {
     let accessToken;
+    let userTimezone = moment.tz.guess();
+
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.currentUser = res;
@@ -289,6 +291,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
           res.email,
           (accessToken = this.storageService.getLocalStorage('token')),
         );
+
+        if (window.localStorage.getItem('timezone')) {
+          if (window.localStorage.getItem('timezone') !== userTimezone) {
+            window.localStorage.setItem('timezone', userTimezone);
+            this.userService.setUserTimezone(userTimezone).subscribe();
+          }
+        }
+
+        if (!window.localStorage.getItem('timezone')) {
+          window.localStorage.setItem('timezone', userTimezone);
+          this.userService.setUserTimezone(userTimezone).subscribe();
+        }
+
         this.connectWebSocket();
 
         const decodedToken = jwtDecode(accessToken) as { exp: number };
@@ -324,7 +339,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.modalService.confirm({
       nzTitle: 'Внимание',
       nzContent:
-        '<b>Вы точно хотите переписать все респы с учётом падения сервера?</b>',
+        '<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</br>',
       nzOkText: 'Да',
       nzOnOk: () => this.onCrashServer(),
       nzCancelText: 'Нет',
@@ -349,7 +364,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerSearch(value: any): void {
     this.timerService.filteredTimerList = value
       ? this.timerList.filter((item: any) =>
-          item.mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
+          item.mob.mobName.toLowerCase().includes(value.toLowerCase()),
         )
       : [...this.timerList];
   }

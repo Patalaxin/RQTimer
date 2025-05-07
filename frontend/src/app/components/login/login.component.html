@@ -61,11 +61,11 @@
         <a [routerLink]="['/register']">Зарегистрируйтесь</a>
       </div>
     </form>
-    <div class="login-link">
+    <!-- <div class="login-link">
       <a target="_blank" *ngFor="let image of images" [href]="image.link">
         <img [src]="image.src" [alt]="image.name" />
       </a>
-    </div>
+    </div> -->
     <div class="login-support login-form-center">
       <span>По всем вопросам:</span>
       <div class="login-support-buttons">
@@ -94,7 +94,11 @@
           >
         </a>
       </div>
-      <div style="margin-top: 5px">
+    </div>
+
+    <div class="login-info login-form-center">
+      <span>Информация:</span>
+      <div class="login-info-buttons">
         <button
           nz-button
           nzType="primary"
@@ -106,6 +110,20 @@
           <span nz-icon nzType="youtube"></span>
           Видеогайд
         </button>
+
+        <a
+          *ngIf="isVisible"
+          href="https://t.me/rqtimerbot"
+          target="_blank"
+          nz-button
+          nzType="primary"
+          nzShape="round"
+        >
+          <span>
+            <img src="../../../assets/img/tg.svg" alt="" />
+            Telegram-бот</span
+          >
+        </a>
       </div>
 
       <nz-modal

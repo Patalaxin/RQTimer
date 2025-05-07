@@ -16,6 +16,7 @@
         class="register-form"
         [formGroup]="form"
         (ngSubmit)="onVerifyOTP()"
+        autocomplete="off"
       >
         <div class="steps-content" *ngIf="currentStep === 0">
           <div class="register-form-info">
@@ -30,6 +31,9 @@
                     minlength="4"
                     required
                     appCapitalize
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -60,7 +64,12 @@
                 >
                   • Никнейм не может содержать пробелы!
                 </div>
-                <div *ngIf="!control.errors?.required && control.errors?.containsSpecialCharacters">
+                <div
+                  *ngIf="
+                    !control.errors?.required &&
+                    control.errors?.containsSpecialCharacters
+                  "
+                >
                   • Никнейм не должен содержать специальные символы!
                 </div>
                 <div
@@ -105,6 +114,9 @@
                     name="mix"
                     email
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -124,6 +136,9 @@
                     name="mix"
                     minlength="6"
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -181,6 +196,9 @@
                     name="mix"
                     matching
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>

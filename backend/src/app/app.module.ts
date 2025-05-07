@@ -11,9 +11,13 @@ import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
 import * as process from 'process';
+import { TelegramBotModule } from '../bot/telegram-bot.module';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
@@ -21,6 +25,7 @@ import * as process from 'process';
     GroupModule,
     ConfigurationModule,
     UnixtimeModule,
+    NotificationModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => {
@@ -33,6 +38,8 @@ import * as process from 'process';
       rootPath: join(resolve(), 'client'),
     }),
     ScheduleModule.forRoot(),
+    TelegrafModule.forRoot({ token: process.env.TELEGRAM_BOT_TOKEN }),
+    TelegramBotModule,
   ],
   controllers: [],
   providers: [],

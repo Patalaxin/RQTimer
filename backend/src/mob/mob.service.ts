@@ -237,6 +237,47 @@ export class MobService implements IMob {
     });
   }
 
+  async findAllMobsByGroup(
+    groupName: string,
+    getMobsDto: GetMobsDtoRequest,
+  ): Promise<GetFullMobWithUnixDtoResponse[]> {
+    const unixtimeResponse = await this.unixtimeService.getUnixtime();
+
+    const allMobsData = await this.mobsDataModel
+      .find({ groupName: groupName, server: getMobsDto.server }, { __v: 0 })
+      .lean()
+      .exec();
+
+    const mobIds = allMobsData.map(
+      (data) => new mongoose.Types.ObjectId(data.mobId),
+    );
+
+    const allMobs = await this.mobModel
+      .find(
+        {
+          _id: { $in: mobIds },
+        },
+        { __v: 0 },
+      )
+      .lean()
+      .exec();
+
+    const allMobsDataMap = new Map<string, MobsData>();
+    allMobsData.forEach((data) => {
+      allMobsDataMap.set(data.mobId.toString(), data);
+    });
+
+    return allMobs.map((mob) => {
+      const mobData = allMobsDataMap.get(mob._id.toString()) || null;
+
+      return {
+        mob,
+        mobData,
+        unixtime: unixtimeResponse.unixtime,
+      };
+    });
+  }
+
   async findAllAvailableMobs(): Promise<GetMobDtoResponse[]> {
     return this.mobModel.find().select('-__v').lean();
   }

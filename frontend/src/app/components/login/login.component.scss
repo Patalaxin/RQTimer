@@ -68,11 +68,17 @@
     }
   }
 
-  .login-support {
+  .login-support,
+  .login-info {
     margin-top: 16px;
 
-    .login-support-buttons {
-      margin-top: 16px;
+    .login-support-buttons,
+    .login-info-buttons {
+      margin-top: 5px;
+
+      button {
+        margin: 2.5px;
+      }
 
       a {
         margin: 2.5px;

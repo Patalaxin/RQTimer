@@ -56,6 +56,7 @@ import {
   UpdateMobCommentDtoBodyRequest,
   UpdateMobCommentDtoParamsRequest,
 } from './dto/update-mob-comment.dto';
+import { TelegramBotService } from '../bot/telegram-bot.service';
 
 @ApiTags('Mob API')
 @ApiBearerAuth()
@@ -67,6 +68,7 @@ export class MobController {
     @Inject('IMob') private readonly mobInterface: IMob,
     private jwtService: JwtService,
     private mobGateway: MobGateway,
+    private readonly telegramBotService: TelegramBotService,
   ) {}
 
   @Roles(RolesTypes.Admin)
@@ -141,6 +143,7 @@ export class MobController {
       request,
       this.jwtService,
     );
+
     const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobByCooldown(
         parsedToken.nickname,
@@ -148,12 +151,21 @@ export class MobController {
         updateMobByCooldownDto,
         groupName,
       );
+
     this.mobGateway.sendMobUpdate({
       ...updateMobByCooldownDto,
       ...mob,
       socketType: 'updateMobByCooldown',
       groupName,
     });
+
+    this.telegramBotService.notifyGroupUsers(
+      groupName,
+      updateMobByCooldownDto.server,
+      updateMobByCooldownDto.mobName,
+      updateMobByCooldownDto.location,
+    );
+
     return mob;
   }
 
@@ -184,6 +196,13 @@ export class MobController {
       groupName,
     });
 
+    this.telegramBotService.notifyGroupUsers(
+      groupName,
+      updateMobDateOfDeathDto.server,
+      updateMobDateOfDeathDto.mobName,
+      updateMobDateOfDeathDto.location,
+    );
+
     return mob;
   }
 
@@ -213,6 +232,13 @@ export class MobController {
       socketType: 'updateMobDateOfRespawn',
       groupName,
     });
+
+    this.telegramBotService.notifyGroupUsers(
+      groupName,
+      updateMobDateOfRespawnDto.server,
+      updateMobDateOfRespawnDto.mobName,
+      updateMobDateOfRespawnDto.location,
+    );
 
     return mob;
   }
