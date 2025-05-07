@@ -38,7 +38,12 @@ import { NotificationModule } from '../notification/notification.module';
       rootPath: join(resolve(), 'client'),
     }),
     ScheduleModule.forRoot(),
-    TelegrafModule.forRoot({ token: process.env.TELEGRAM_BOT_TOKEN }),
+    TelegrafModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        token: process.env.TELEGRAM_BOT_TOKEN,
+      }),
+    }),
     TelegramBotModule,
   ],
   controllers: [],
