@@ -62,7 +62,7 @@ export class HelperClass {
     timezone: string,
     server: Servers,
   ): Promise<string> {
-    const groupedByDate: Record<string, string[]> = {};
+    const groupedByDate: Record<string, { time: number; line: string }[]> = {};
 
     for (const mobData of mobsInfo) {
       const respawnTime = mobData.mobData.respawnTime;
@@ -77,10 +77,6 @@ export class HelperClass {
         mobData.mob.location === updatedMobLocation;
       const updatedTag = isUpdated ? ' 🔄' : '';
 
-      if (!groupedByDate[date]) {
-        groupedByDate[date] = [];
-      }
-
       const { mobName, location, mobType } = mobData.mob;
 
       const line =
@@ -88,7 +84,11 @@ export class HelperClass {
           ? `${mobName} - ${time}${updatedTag}`
           : `${mobName} - ${location} - ${time}${updatedTag}`;
 
-      groupedByDate[date].push(line);
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = [];
+      }
+
+      groupedByDate[date].push({ time: dateTime.toMillis(), line });
     }
 
     const sortedDates = Object.keys(groupedByDate).sort(
@@ -101,7 +101,11 @@ export class HelperClass {
 
     for (const date of sortedDates) {
       message += `\n${date}:\n`;
-      for (const line of groupedByDate[date]) {
+      const lines = groupedByDate[date]
+        .sort((a, b) => a.time - b.time)
+        .map((entry) => entry.line);
+
+      for (const line of lines) {
         message += `${line}\n`;
       }
     }
