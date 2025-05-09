@@ -1,7 +1,10 @@
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 export interface INotification {
-  createNotification(text: string): Promise<void>;
+  createNotification(
+    createNotificationDto: CreateNotificationDto,
+  ): Promise<void>;
 
   getNotifications(): Promise<GetNotificationsDtoResponse[]>;
 }

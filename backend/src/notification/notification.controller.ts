@@ -1,13 +1,24 @@
-import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { INotification } from './notification.interface';
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
 import { TokensGuard } from '../guards/tokens.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @ApiTags('Notification API')
 @Controller('notifications')
+@UseInterceptors(ClassSerializerInterceptor)
 export class NotificationController {
   constructor(
     @Inject('INotification')
@@ -28,8 +39,10 @@ export class NotificationController {
       },
     },
   })
-  async create(@Body('text') text: string) {
-    await this.notificationInterface.createNotification(text);
+  async create(
+    @Body() dto: CreateNotificationDto,
+  ): Promise<{ status: string }> {
+    await this.notificationInterface.createNotification(dto);
     return { status: 'ok' };
   }
 
