@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
 import { ConfigurationService } from 'src/app/services/configuration.service';
@@ -23,6 +24,7 @@ export class RegisterComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly otpService = inject(OtpService);
+  private readonly translateService = inject(TranslateService);
   private readonly configurationService = inject(ConfigurationService);
   private readonly messageService = inject(NzMessageService);
 
@@ -205,7 +207,12 @@ export class RegisterComponent implements OnInit {
           this.registerLoading = false;
           this.isModalLoading = false;
           this.isModalVisible = false;
-          this.messageService.create('success', 'Пользователь успешно создан');
+          this.messageService.create(
+            'success',
+            this.translateService.instant(
+              'REGISTER.MESSAGE.USER_CREATED_SUCCESSFULLY',
+            ),
+          );
           this.router.navigate(['/login']);
         },
         error: (err) => {
@@ -217,12 +224,14 @@ export class RegisterComponent implements OnInit {
           ) {
             return this.messageService.create(
               'error',
-              'Пользователь с данным никнеймом или почтой уже существует',
+              this.translateService.instant(
+                'REGISTER.MESSAGE.USER_ALREADY_EXISTS',
+              ),
             );
           }
           return this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера',
+            this.translateService.instant('REGISTER.MESSAGE.UNKNOWN_ERROR'),
           );
         },
       });

@@ -21,6 +21,10 @@
       "SERVER_CRASH_MESSAGE": "<b>Are you sure you want to reset all respawns due to the server crash?<br>- Boss respawns will be rolled back by 5 minutes<br>- Elite respawns will be rolled back by 18 seconds</b>",
       "LOGOUT_TITLE": "Attention",
       "LOGOUT_MESSAGE": "<b>Are you sure you want to log out?</b>"
+    },
+    "MESSAGE": {
+      "RESPAWNS_COPIED_SUCCESSFULLY": "Respawns were copied successfully",
+      "RESPAWNS_WITH_SERVER_CRASH": "Respawns now account for server crash"
     }
   },
   "LOGIN": {
@@ -30,7 +34,10 @@
     "NO_ACCOUNT": "Don't have an account?",
     "REGISTER": "Register",
     "ALL_QUESTION": "For all questions:",
-    "INFORMATION": "Information:"
+    "INFORMATION": "Information:",
+    "MESSAGE": {
+      "INVALID_LOGIN_OR_PASSWORD": "Invalid login or password"
+    }
   },
   "CHANGE_PASSWORD": {
     "LOGIN": "Email",
@@ -40,6 +47,10 @@
       "CONFIRM_EMAIL": "Email confirmation",
       "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
       "OTP_INVALID": "OTP is invalid."
+    },
+    "MESSAGE": {
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Password changed successfully",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
     }
   },
   "REGISTER": {
@@ -60,6 +71,11 @@
       "CONFIRM_EMAIL": "Email confirmation",
       "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
       "OTP_INVALID": "OTP is invalid."
+    },
+    "MESSAGE": {
+      "USER_CREATED_SUCCESSFULLY": "User created successfully",
+      "USER_ALREADY_EXISTS": "A user with this username or email already exists",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
     }
   },
   "INFO": {
@@ -183,7 +199,7 @@
     "SETTINGS": "Settings",
     "REWRITE_MANUALLY": "Rewrite",
     "REWRITE_MANUALLY_TOOLTIP": "Rewrite manually",
-    "REWRITE_NOW": "Die now",
+    "REWRITE_NOW": "Died now",
     "REWRITE_NOW_TOOLTIP": "Rewrite using (current time - 10 sec)",
     "REWRITE_HISTORY": "Rewrite history of {{mobName}}",
     "SIMULATE_NEXT_CD_RESPAWN": "Simulate next cooldown respawn",

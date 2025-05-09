@@ -166,7 +166,9 @@
                 </nz-input-group>
               </nz-form-control>
               <ng-template #passwordErrorTpl let-control>
-                <div *ngIf="control.errors?.required">• Введите пароль!</div>
+                <div *ngIf="control.errors?.required">
+                  {{ "COMMON.VALIDATIONS.PASSWORD_REQUIRED" | translate }}
+                </div>
                 <div
                   *ngIf="!control.errors?.required && control.errors?.minlength"
                 >
@@ -377,7 +379,7 @@
         >
           <p *nzModalContent class="modal-center">
             <span class="otp-modal-name">{{
-              "REGISTER.MODAL.CONFIRM_EMAIL"
+              "REGISTER.MODAL.CONFIRM_EMAIL" | translate
             }}</span>
             <ngx-otp-input
               [options]="otpOptions"

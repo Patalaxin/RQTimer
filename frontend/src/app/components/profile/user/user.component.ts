@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
@@ -19,6 +20,7 @@ import Validation from 'src/app/utils/validation';
 export class UserComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly configurationService = inject(ConfigurationService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -164,7 +166,12 @@ export class UserComponent implements OnInit {
       .subscribe({
         next: () => {
           this.passwordChangeLoading = false;
-          this.messageService.create('success', 'Пароль успешно изменён');
+          this.messageService.create(
+            'success',
+            this.translateService.instant(
+              'USER.MESSAGE.PASSWORD_CHANGED_SUCCESSFULLY',
+            ),
+          );
 
           this.changePasswordForm.reset();
         },
@@ -175,7 +182,7 @@ export class UserComponent implements OnInit {
           }
           return this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера',
+            this.translateService.instant('USER.MESSAGE.UNKNOWN_ERROR'),
           );
         },
       });

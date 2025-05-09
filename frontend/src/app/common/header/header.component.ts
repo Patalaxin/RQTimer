@@ -331,7 +331,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
             );
           }
         });
-        this.messageService.create('success', 'Респы были успешно скопированы');
+        this.messageService.create(
+          'success',
+          this.translateService.instant(
+            'HEADER.MESSAGE.RESPAWNS_COPIED_SUCCESSFULLY',
+          ),
+        );
         navigator.clipboard.writeText(data.join(',\n'));
       },
     });
@@ -358,7 +363,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.updateAllBosses();
         this.messageService.create(
           'success',
-          'Респы теперь с учётом падения сервера',
+          this.translateService.instant(
+            'HEADER.MESSAGE.RESPAWNS_WITH_SERVER_CRASH',
+          ),
         );
       },
     });

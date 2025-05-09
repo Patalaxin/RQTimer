@@ -21,6 +21,10 @@
       "SERVER_CRASH_MESSAGE": "<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</b>",
       "LOGOUT_TITLE": "Внимание",
       "LOGOUT_MESSAGE": "<b>Вы точно хотите выйти?</b>"
+    },
+    "MESSAGE": {
+      "RESPAWNS_COPIED_SUCCESSFULLY": "Респауны были успешно скопированы",
+      "RESPAWNS_WITH_SERVER_CRASH": "Респауны теперь с учётом падения сервера"
     }
   },
   "LOGIN": {
@@ -30,7 +34,10 @@
     "NO_ACCOUNT": "Нет учетной записи?",
     "REGISTER": "Зарегистрируйтесь",
     "ALL_QUESTION": "По всем вопросам:",
-    "INFORMATION": "Информация:"
+    "INFORMATION": "Информация:",
+    "MESSAGE": {
+      "INVALID_LOGIN_OR_PASSWORD": "Неверный логин или пароль"
+    }
   },
   "CHANGE_PASSWORD": {
     "LOGIN": "Почта",
@@ -40,6 +47,10 @@
       "CONFIRM_EMAIL": "Подтверждение почты",
       "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
       "OTP_INVALID": "OTP недействителен."
+    },
+    "MESSAGE": {
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
     }
   },
   "REGISTER": {
@@ -60,6 +71,11 @@
       "CONFIRM_EMAIL": "Подтверждение почты",
       "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
       "OTP_INVALID": "OTP недействителен."
+    },
+    "MESSAGE": {
+      "USER_CREATED_SUCCESSFULLY": "Пользователь успешно создан",
+      "USER_ALREADY_EXISTS": "Пользователь с данным никнеймом или почтой уже существует",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
     }
   },
   "INFO": {
@@ -122,7 +138,9 @@
     "MESSAGE": {
       "USER_DELETED": "Пользователь {{nickname}} удалён",
       "USER_ROLE_UPDATED": "Роль пользователя {{nickname}} успешно обновлён",
-      "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены"
+      "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены",
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
     },
     "MODAL": {
       "USER_DELETION_TITLE": "Внимание",
