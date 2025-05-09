@@ -8,6 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -48,6 +49,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(NzMessageService);
   private readonly modalService = inject(NzModalService);
   private readonly tourService = inject(TourService);
+  private readonly translateService = inject(TranslateService);
 
   private mobUpdateSubscription: Subscription | undefined;
   private worker: Worker | undefined;
@@ -119,10 +121,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   isVisible: boolean = false;
 
-  timerOptions: any[] = [
-    { label: 'Таймер', value: 'Timer', icon: 'history' },
-    { label: 'Настройки', value: 'Settings', icon: 'setting' },
-  ];
+  timerOptions: any[] = [];
   selectedSegments: number = 0;
 
   notifications: any[] = [];
@@ -269,6 +268,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   template?: TemplateRef<{}>;
 
   ngOnInit(): void {
+    this.setTimerOptions();
+
+    this.translateService.onLangChange.subscribe(() => {
+      this.setTimerOptions();
+    });
+
     this.currentNotificationIndex = 0;
 
     this.timerService.telegramBotVisibility$.subscribe({
@@ -330,6 +335,21 @@ export class TimerComponent implements OnInit, OnDestroy {
     // }
   }
 
+  private setTimerOptions() {
+    this.timerOptions = [
+      {
+        label: this.translateService.instant('TIMER.TIMER'),
+        value: 'Timer',
+        icon: 'history',
+      },
+      {
+        label: this.translateService.instant('TIMER.SETTINGS'),
+        value: 'Settings',
+        icon: 'setting',
+      },
+    ];
+  }
+
   private getOnlineUserList(): void {
     this.websocketService.onlineUserList$.subscribe((res: any) => {
       if (res) {
@@ -354,7 +374,9 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
           this.messageService.create(
             'warning',
-            `Время на вашем устройстве отличается от серверного на ${Math.abs(this.currentProgressTime - Date.now()) / 1000} секунд. Пожалуйста, проверьте настройки времени на вашем устройстве.`,
+            this.translateService.instant('TIMER.MESSAGE.TIME_DESYNC_WARNING', {
+              seconds: Math.abs(this.currentProgressTime - Date.now()) / 1000,
+            }),
           );
         }
 
@@ -458,14 +480,20 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (timeDifference === minute * 60000) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.mobName} реснется меньше чем через ${minute} минут(у).`,
+            this.translateService.instant(
+              'TIMER.NOTIFICATIONS.MOB_RESPAWN_SOON',
+              {
+                mobName: item.mob.mobName,
+                minute: minute,
+              },
+            ),
           );
         }
 
         if (timeDifference === 0) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.respawnText ? item.mob.respawnText : `Притаился крыс, и сам себя не прихлопнет..`}`,
+            `${item.mob.respawnText ? item.mob.respawnText : this.translateService.instant('TIMER.NOTIFICATIONS.MOB_ENCOURAGEMENT')}`,
           );
         }
       }
@@ -576,7 +604,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.isAddModalVisible = false;
           this.messageService.create(
             'success',
-            'Боссы/элитки были успешно добавлены.',
+            this.translateService.instant('TIMER.MESSAGE.MOBS_ADDED_SUCCESS'),
           );
         },
         error: () => {
@@ -679,13 +707,15 @@ export class TimerComponent implements OnInit, OnDestroy {
   showDeleteModal(item: TimerItem): void {
     event?.stopPropagation();
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите удалить ${item.mob.mobName}?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('TIMER.MODAL.DELETE_TITLE'),
+      nzContent: this.translateService.instant('TIMER.MODAL.DELETE_MESSAGE', {
+        mobName: item.mob.mobName,
+      }),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onDelete(item),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -702,7 +732,9 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.getAllBosses();
           this.messageService.create(
             'success',
-            `${item.mob.mobName} успешно удалён.`,
+            this.translateService.instant('TIMER.MESSAGE.MOB_DELETED_SUCCESS', {
+              mobName: item.mob.mobName,
+            }),
           );
         },
         error: () => {
@@ -785,7 +817,9 @@ export class TimerComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (res: any) => {
                 handleSuccess(
-                  'Респ был успешно обновлён по точному времени смерти',
+                  this.translateService.instant(
+                    'TIMER.MESSAGE.RESP_UPDATED_BY_DEATH',
+                  ),
                   res,
                 );
                 item.mob.isOnDieNow = false;
@@ -814,7 +848,9 @@ export class TimerComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
-                  'Респ был успешно обновлён по точному времени респауна',
+                  this.translateService.instant(
+                    'TIMER.MESSAGE.RESP_UPDATED_BY_RESPAWN',
+                  ),
                   res,
                 ),
               error: (err) => handleError(err),
@@ -833,7 +869,12 @@ export class TimerComponent implements OnInit, OnDestroy {
           .subscribe({
             next: (res: any) =>
               handleSuccess(
-                `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
+                this.translateService.instant(
+                  'TIMER.MESSAGE.RESP_UPDATED_BY_CD',
+                  {
+                    cooldown: this.cooldown ? this.cooldown : 1,
+                  },
+                ),
                 res,
               ),
             error: (err) => handleError(err),
@@ -852,7 +893,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.isOnlyComment) {
       this.timerService.addComment(this.currentItem, this.comment).subscribe({
         next: (res: any) =>
-          handleSuccess(`Комментарий был успешно добавлен/отредактирован`, res),
+          handleSuccess(
+            this.translateService.instant('TIMER.MESSAGE.COMMENT_UPDATED'),
+            res,
+          ),
         error: (err) => handleError(err),
       });
     }
@@ -882,17 +926,49 @@ export class TimerComponent implements OnInit, OnDestroy {
       if (item.mobData.respawnTime)
         if (action === 'death') {
           if (item.mobData.respawnTime <= item.unixtime) {
-            return `<b>${item.mob.mobName}</b> реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
+            return this.translateService.instant(
+              'TIMER.MODAL.DEATH_TIME_OVERWRITE_1',
+              {
+                mobName: item.mob.mobName,
+                respTime: moment(item.mobData.respawnTime).format(
+                  'HH:mm:ss (DD/MM/YYYY)',
+                ),
+                currentTime: moment(this.currentTime).format(
+                  'HH:mm:ss (DD/MM/YYYY)',
+                ),
+              },
+            );
           }
-
-          return `<b>${item.mob.mobName}</b> реснется в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
+          return this.translateService.instant(
+            'TIMER.MODAL.DEATH_TIME_OVERWRITE_2',
+            {
+              mobName: item.mob.mobName,
+              respTime: moment(item.mobData.respawnTime).format(
+                'HH:mm:ss (DD/MM/YYYY)',
+              ),
+              currentTime: moment(this.currentTime).format(
+                'HH:mm:ss (DD/MM/YYYY)',
+              ),
+            },
+          );
         }
 
       if (item.mobData.respawnTime)
         if (action === 'respawn') {
           if (item.mobData.respawnTime < item.unixtime) {
             if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
-              return `<b>${item.mob.mobName}</b> уже реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
+              return this.translateService.instant(
+                'TIMER.MODAL.RESPAWN_TIME_OVERWRITE_1',
+                {
+                  mobName: item.mob.mobName,
+                  respTime: moment(item.mobData.respawnTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                  currentTime: moment(this.currentTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                },
+              );
             }
 
             if (
@@ -900,7 +976,21 @@ export class TimerComponent implements OnInit, OnDestroy {
               moment(this.currentTime).valueOf() <
                 item.mobData.respawnTime + item.mob.cooldownTime
             ) {
-              return `<b>${item.mob.mobName}</b> уже реснулся в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b> и следующий респаун предположительно будет в <b>${moment(item.mobData.respawnTime + item.mob.cooldownTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
+              return this.translateService.instant(
+                'TIMER.MODAL.RESPAWN_TIME_OVERWRITE_2',
+                {
+                  mobName: item.mob.mobName,
+                  respTime: moment(item.mobData.respawnTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                  nestRespTime: moment(
+                    item.mobData.respawnTime + item.mob.cooldownTime,
+                  ).format('HH:mm:ss (DD/MM/YYYY)'),
+                  currentTime: moment(this.currentTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                },
+              );
             }
           }
 
@@ -908,7 +998,18 @@ export class TimerComponent implements OnInit, OnDestroy {
             if (
               moment(this.currentTime).valueOf() !== item.mobData.respawnTime
             ) {
-              return `Cледующий респаун <b>${item.mob.mobName}</b> будет в <b>${moment(item.mobData.respawnTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>${moment(this.currentTime).format('HH:mm:ss (DD/MM/YYYY)')}</b>?`;
+              return this.translateService.instant(
+                'TIMER.MODAL.NEXT_RESPAWN_TIME_OVERWRITE',
+                {
+                  mobName: item.mob.mobName,
+                  respTime: moment(item.mobData.respawnTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                  currentTime: moment(this.currentTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                },
+              );
             }
           }
         }
@@ -921,10 +1022,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     };
 
     this.modalService.confirm({
-      nzTitle: 'Внимание',
+      nzTitle: this.translateService.instant('TIMER.MODAL.REWRITE_TITLE'),
       nzContent: handleText(),
       nzCentered: true,
-      nzOkText: 'Да',
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOnOk: () => {
         if (action === 'death') {
           this.timerService
@@ -936,7 +1037,9 @@ export class TimerComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
-                  'Респ был успешно обновлён по точному времени смерти',
+                  this.translateService.instant(
+                    'TIMER.MESSAGE.RESP_UPDATED_BY_DEATH',
+                  ),
                   res,
                 ),
               error: (err) => handleError(err),
@@ -953,7 +1056,9 @@ export class TimerComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
-                  'Респ был успешно обновлён по точному времени респауна',
+                  this.translateService.instant(
+                    'TIMER.MESSAGE.RESP_UPDATED_BY_RESPAWN',
+                  ),
                   res,
                 ),
               error: (err) => handleError(err),
@@ -970,14 +1075,19 @@ export class TimerComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (res: any) =>
                 handleSuccess(
-                  `Респ был успешно обновлён по кд ${this.cooldown ? this.cooldown : 1} раз`,
+                  this.translateService.instant(
+                    'TIMER.MESSAGE.RESP_UPDATED_BY_CD',
+                    {
+                      cooldown: this.cooldown ? this.cooldown : 1,
+                    },
+                  ),
                   res,
                 ),
               error: (err) => handleError(err),
             });
         }
       },
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
       nzOnCancel: () => {
         item.mob.isDeathOkLoading = false;
         item.mob.isOnDieNow = false;
@@ -1002,7 +1112,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 this.timerService.isLoading = false;
                 this.messageService.create(
                   'success',
-                  'Респ был успешно переписан',
+                  this.translateService.instant('TIMER.MESSAGE.RESP_REWRITTEN'),
                 );
                 item.mob.isOnDieNow = false;
               },
@@ -1050,11 +1160,14 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.timerService.isLoading = false;
         this.messageService.create(
           'success',
-          'Респ был успешно переписан по кд',
+          this.translateService.instant('TIMER.MESSAGE.RESP_REWRITTEN_BY_CD'),
         );
       },
       error: () => {
-        this.messageService.create('error', 'Респ утерян');
+        this.messageService.create(
+          'error',
+          this.translateService.instant('TIMER.MESSAGE.RESP_LOST'),
+        );
         this.timerService.isLoading = false;
       },
     });
@@ -1153,9 +1266,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.groupInputValue = '';
     this.isCreateGroupLoading = true;
     this.isGroupModalVisible = true;
-    this.groupModalName = 'Создать группу';
-    this.groupModalPlaceholder = 'Введите название группы';
-    this.groupOkButton = 'Создать';
+    this.groupModalName = this.translateService.instant(
+      'TIMER.MODAL.CREATE_GROUP_TITLE',
+    );
+    this.groupModalPlaceholder = this.translateService.instant(
+      'TIMER.MODAL.CREATE_GROUP_PLACEHOLDER',
+    );
+    this.groupOkButton = this.translateService.instant('COMMON.BUTTONS.CREATE');
     this.groupModalMode = 'create';
   }
 
@@ -1163,9 +1280,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.groupInputValue = '';
     this.isJoinGroupLoading = true;
     this.isGroupModalVisible = true;
-    this.groupModalName = 'Присоединиться к группе';
-    this.groupModalPlaceholder = 'Введите код приглашение';
-    this.groupOkButton = 'Вступить';
+    this.groupModalName = this.translateService.instant(
+      'TIMER.MODAL.JOIN_GROUP_TITLE',
+    );
+    this.groupModalPlaceholder = this.translateService.instant(
+      'TIMER.MODAL.JOIN_GROUP_PLACEHOLDER',
+    );
+    this.groupOkButton = this.translateService.instant('COMMON.BUTTONS.JOIN');
     this.groupModalMode = 'join';
   }
 

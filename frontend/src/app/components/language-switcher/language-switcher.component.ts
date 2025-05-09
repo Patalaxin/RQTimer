@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { en_US, ru_RU, vi_VN, pl_PL, NzI18nService } from 'ng-zorro-antd/i18n';
 
 @Component({
   selector: 'app-language-switcher',
@@ -19,13 +20,16 @@ import { NzMessageService } from 'ng-zorro-antd/message';
   ],
 })
 export class LanguageSwitcherComponent implements OnInit {
-  private readonly translate = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
+  private readonly translateService = inject(TranslateService);
+  private readonly i18nService = inject(NzI18nService);
 
   currentLang: string;
   langList = [
     { label: 'Русский', value: 'ru' },
     { label: 'English', value: 'en' },
+    { label: 'Tiếng Việt', value: 'vi' },
+    { label: 'Polski', value: 'pl' },
   ];
 
   constructor() {
@@ -34,14 +38,39 @@ export class LanguageSwitcherComponent implements OnInit {
 
   ngOnInit() {
     // Устанавливаем начальный язык
-    this.translate.use(this.currentLang);
+    this.translateService.use(this.currentLang);
   }
 
   switchLanguage(event: any): void {
     const lang = event;
-    this.translate.use(lang);
+    const langLabel = this.langList.find((lang) => lang.value === event)?.label;
+    this.translateService.use(lang);
     this.currentLang = lang;
     localStorage.setItem('language', lang);
-    this.messageService.create('success', `Язык успешно сменен на ${lang}`);
+
+    switch (lang) {
+      case 'ru':
+        this.i18nService.setLocale(ru_RU);
+        break;
+      case 'en':
+        this.i18nService.setLocale(en_US);
+        break;
+      case 'vi':
+        this.i18nService.setLocale(vi_VN);
+        break;
+      case 'pl':
+        this.i18nService.setLocale(pl_PL);
+        break;
+      default:
+        this.i18nService.setLocale(ru_RU);
+    }
+
+    this.messageService.create(
+      'success',
+      this.translateService.instant(
+        'LANGUAGE_SWITCHER.MESSAGE.CHANGE_LANGUAGE',
+        { language: langLabel },
+      ),
+    );
   }
 }

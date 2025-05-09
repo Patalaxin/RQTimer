@@ -45,7 +45,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   ngOnInit() {
     // Инициализация языков
-    this.translateService.addLangs(['ru', 'en']);
+    this.translateService.addLangs(['ru', 'en', 'vi', 'pl']);
     this.translateService.setDefaultLang('ru');
 
     // Используем язык из localStorage или дефолтный

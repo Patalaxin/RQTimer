@@ -15,7 +15,7 @@ import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import * as moment from 'moment';
+// import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
@@ -24,6 +24,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
   private readonly tokenService = inject(TokenService);
+  // private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
   intercept(
@@ -49,6 +50,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         if ((err.status >= 500 && err.status < 600) || err.status === 0) {
           this.messageService.create(
             'error',
+            // this.translateService.instant('INTERCEPTOR.MESSAGE.SERVICE_ERROR)',
             'Ошибка обращения к сервису. Попробуйте обновить страницу',
           );
           return throwError(() => err);
@@ -57,6 +59,9 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         if (err.status === 409 && err.error.message.includes('Mob data for')) {
           this.messageService.create(
             'error',
+            // this.translateService.instant(
+            //   'INTERCEPTOR.MESSAGE.GROUP_TIMER_ADD_ERROR',
+            // ),
             'Добавление в групповой таймер невозможен. Проверьте настройки отображения.',
           );
           return throwError(() => err);

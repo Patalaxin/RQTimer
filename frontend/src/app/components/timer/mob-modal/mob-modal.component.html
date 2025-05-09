@@ -32,13 +32,13 @@
         <input
           class="mob-modal-mb-10px br-50px"
           nz-input
-          placeholder="Короткое имя"
+          [placeholder]="'MOB_MODAL.SHORT_NAME' | translate"
           [ngModel]="this.itemData.mob.shortName"
           disabled
         />
         <textarea
           nz-input
-          placeholder="Текст респауна"
+          [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
           [ngModel]="this.itemData.mob.respawnText"
           disabled
           nzAutosize
@@ -60,7 +60,7 @@
           style="width: fit-content"
           [ngModel]="this.itemData.mob.location"
           disabled
-          nzPlaceHolder="Локация"
+          [placeholder]="'MOB_MODAL.LOCATION' | translate"
         />
       </div>
     </div>
