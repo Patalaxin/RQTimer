@@ -24,7 +24,14 @@ import { TimerComponent } from './components/timer/timer.component';
 
 import { NgOptimizedImage, registerLocaleData } from '@angular/common';
 import ru from '@angular/common/locales/ru';
-import { NZ_I18N, ru_RU } from 'ng-zorro-antd/i18n';
+import {
+  en_US,
+  NZ_I18N,
+  NzI18nInterface,
+  pl_PL,
+  ru_RU,
+  vi_VN,
+} from 'ng-zorro-antd/i18n';
 
 import { TUI_SANITIZER } from '@taiga-ui/core';
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
@@ -34,6 +41,20 @@ import { CapitalizeDirective } from './directives/capitalize.directive';
 import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 
 registerLocaleData(ru);
+
+export function getZorroLocale(): NzI18nInterface {
+  const lang = localStorage.getItem('language');
+  switch (lang) {
+    case 'en':
+      return en_US;
+    // case 'vi':
+    //   return vi_VN;
+    // case 'pl':
+    //   return pl_PL;
+    default:
+      return ru_RU;
+  }
+}
 
 @NgModule({
   declarations: [
@@ -72,7 +93,7 @@ registerLocaleData(ru);
     }),
   ],
   providers: [
-    { provide: NZ_I18N, useValue: ru_RU },
+    { provide: NZ_I18N, useFactory: getZorroLocale },
     { provide: TUI_SANITIZER, useClass: NgDompurifySanitizer },
   ],
   bootstrap: [AppComponent],

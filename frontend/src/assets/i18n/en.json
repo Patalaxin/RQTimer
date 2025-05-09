@@ -88,6 +88,7 @@
   },
   "USER": {
     "DISPLAY_SETTINGS": "Display settings",
+    "GENERAL_SETTINGS": "General settings",
     "CHANGE_PASSWORD": "Change password",
     "ADMIN": "Admin",
     "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",

@@ -7,7 +7,6 @@
 <div class="user" *ngIf="!isLoading">
   <nz-tabset>
     <nz-tab [nzTitle]="'USER.DISPLAY_SETTINGS' | translate">
-      <app-language-switcher></app-language-switcher>
       <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
         <div nz-row class="update-excluded-form">
           <nz-form-item>
@@ -93,6 +92,9 @@
           </nz-form-control>
         </nz-form-item>
       </form>
+    </nz-tab>
+    <nz-tab [nzTitle]="'USER.GENERAL_SETTINGS' | translate">
+      <app-language-switcher></app-language-switcher>
     </nz-tab>
     <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
       <form

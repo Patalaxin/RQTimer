@@ -28,8 +28,8 @@ export class LanguageSwitcherComponent implements OnInit {
   langList = [
     { label: 'Русский', value: 'ru' },
     { label: 'English', value: 'en' },
-    { label: 'Tiếng Việt', value: 'vi' },
-    { label: 'Polski', value: 'pl' },
+    // { label: 'Tiếng Việt', value: 'vi' },
+    // { label: 'Polski', value: 'pl' },
   ];
 
   constructor() {
@@ -55,12 +55,12 @@ export class LanguageSwitcherComponent implements OnInit {
       case 'en':
         this.i18nService.setLocale(en_US);
         break;
-      case 'vi':
-        this.i18nService.setLocale(vi_VN);
-        break;
-      case 'pl':
-        this.i18nService.setLocale(pl_PL);
-        break;
+      // case 'vi':
+      //   this.i18nService.setLocale(vi_VN);
+      //   break;
+      // case 'pl':
+      //   this.i18nService.setLocale(pl_PL);
+      //   break;
       default:
         this.i18nService.setLocale(ru_RU);
     }
