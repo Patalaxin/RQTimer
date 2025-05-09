@@ -53,7 +53,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.translateService.use(savedLang || 'ru');
 
     this.currentNotificationIndex = 0;
-    this.timerService.telegramBotVisibility = false;
+    this.timerService.telegramBotVisibility = true;
 
     this.timerService.headerVisibility$.subscribe({
       next: (res) => {
