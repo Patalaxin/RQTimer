@@ -24,7 +24,7 @@ import {
 } from './dto/delete-user.dto';
 import { IUser } from './user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
-import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { OtpService } from '../OTP/otp.service';
 import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 
@@ -94,13 +94,29 @@ export class UsersService implements IUser {
     return user;
   }
 
-  async findAll(): Promise<FindAllUsersDtoResponse[]> {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedUsersDto> {
     try {
-      return this.userModel
+      const skip = (page - 1) * limit;
+      const total = await this.userModel.countDocuments().exec();
+      const pages = Math.ceil(total / limit);
+
+      const data = await this.userModel
         .find()
         .select({ email: 1, _id: 1, nickname: 1, role: 1, groupName: 1 })
+        .skip(skip)
+        .limit(limit)
         .lean()
         .exec();
+
+      return {
+        data,
+        total,
+        page,
+        pages,
+      };
     } catch (err) {
       throw new BadRequestException('Something went wrong');
     }
