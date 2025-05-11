@@ -1,9 +1,14 @@
-import { IsString, IsOptional, IsNumber, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  IsMongoId,
+} from 'class-validator';
 import {
   Locations,
   MobName,
   MobsTypes,
-  Servers,
   ShortMobName,
 } from '../../schemas/mobs.enum';
 
@@ -38,12 +43,6 @@ export class UpdateMobDtoBodyRequest {
 }
 
 export class UpdateMobDtoParamsRequest {
-  @IsEnum(MobName)
-  mobName: MobName;
-
-  @IsEnum(Servers)
-  server: Servers;
-
-  @IsEnum(Locations)
-  location: Locations;
+  @IsMongoId()
+  mobId: string;
 }

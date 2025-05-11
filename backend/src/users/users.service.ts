@@ -211,7 +211,7 @@ export class UsersService implements IUser {
   ): Promise<User> {
     const user: User = await this.findUser(email);
     await this.userModel
-      .updateOne(
+      .findOneAndUpdate(
         { email: user.email },
         {
           excludedMobs: updateExcludedDto.excludedMobs,

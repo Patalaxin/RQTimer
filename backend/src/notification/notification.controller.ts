@@ -16,7 +16,7 @@ import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
-@ApiTags('Notification API')
+@ApiTags('Notifications API')
 @Controller('notifications')
 @UseInterceptors(ClassSerializerInterceptor)
 export class NotificationController {

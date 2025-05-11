@@ -1,5 +1,6 @@
 import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Mob } from '../../schemas/mob.schema';
 
 class MobDto {
   @IsString()
@@ -29,10 +30,10 @@ export class GetMobsDtoResponse {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BossDto)
-  bossesArray: BossDto[];
+  bossesArray: Mob[];
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MobDto)
-  elitesArray: MobDto[];
+  elitesArray: Mob[];
 }

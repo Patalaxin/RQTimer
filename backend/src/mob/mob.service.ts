@@ -6,9 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { isValidObjectId, Model, Types } from 'mongoose';
 import { UsersService } from '../users/users.service';
-import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import { Mob, MobDocument } from '../schemas/mob.schema';
 import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
@@ -16,7 +15,6 @@ import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
   GetMobDtoRequest,
-  GetMobDtoResponse,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -30,12 +28,10 @@ import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respa
 import { MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
 import {
   DeleteAllMobsDataDtoResponse,
-  DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
   RemoveMobFromGroupDtoParamsRequest,
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
-import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes, User } from '../schemas/user.schema';
 import { UnixtimeService } from '../unixtime/unixtime.service';
 import { GroupService } from '../group/group.service';
@@ -43,10 +39,13 @@ import { Group } from '../schemas/group.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { plainToInstance } from 'class-transformer';
 import { History, HistoryTypes } from '../history/history-types.interface';
+import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import {
   UpdateMobCommentDtoBodyRequest,
   UpdateMobCommentDtoParamsRequest,
 } from './dto/update-mob-comment.dto';
+import { IMob } from './mob.interface';
+import { translateMob } from '../utils/translate-mob';
 
 export class MobService implements IMob {
   constructor(
@@ -80,7 +79,7 @@ export class MobService implements IMob {
     server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
-  ): Promise<MobsData[]> {
+  ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const group: Group = await this.groupService.getGroupByName(groupName);
     if (!group) {
       throw new NotFoundException('Group not found');
@@ -93,24 +92,17 @@ export class MobService implements IMob {
       );
     }
 
-    const mobDataList: MobsData[] = [];
+    const result: GetFullMobWithUnixDtoResponse[] = [];
 
-    for (const mobString of addMobInGroupDto.mobs) {
-      // Разбиваем строку на имя моба и локацию
-      const [mobName, location] = mobString.split(':').map((str) => str.trim());
-
-      const mob = await this.mobModel
-        .findOne({ location, mobName }, { __v: 0 })
-        .exec();
+    for (const mobId of addMobInGroupDto.mobs) {
+      const mob = await this.mobModel.findById(mobId, { __v: 0 }).lean().exec();
 
       if (!mob) {
-        throw new BadRequestException(
-          `Mob ${mobName} at ${location} not found`,
-        );
+        throw new BadRequestException(`Mob not found`);
       }
 
       const mobData = new this.mobsDataModel({
-        mobId: mob._id,
+        mobId: mobId,
         server: server,
         groupName: groupName,
         mobTypeAdditionalTime: mob.mobType,
@@ -118,99 +110,119 @@ export class MobService implements IMob {
 
       try {
         await mobData.save();
-        mobDataList.push(plainToInstance(MobsData, mobData.toObject()));
+
+        const unixtimeResponse = await this.unixtimeService.getUnixtime();
+
+        const translatedMob = translateMob(mob);
+        const mobInstance = plainToInstance(Mob, translatedMob, {
+          excludeExtraneousValues: true,
+        });
+
+        const mobDataInstance = plainToInstance(MobsData, mobData.toObject(), {
+          excludeExtraneousValues: true,
+        });
+
+        result.push({
+          mob: mobInstance,
+          mobData: mobDataInstance,
+          unixtime: unixtimeResponse.unixtime,
+        });
       } catch (error) {
         if (error.code === 11000) {
-          throw new ConflictException(`Mob data for ${mobName} already exists`);
+          throw new ConflictException(`Mob data already exists`);
         }
         throw error;
       }
     }
 
-    return mobDataList;
+    return result;
   }
 
-  async findMob(
+  async getMobFromGroup(
     getMobDto: GetMobDtoRequest,
     groupName: string,
+    lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
-    const [mob, unixtimeResponse] = await Promise.all([
-      this.mobModel
-        .findOne(
-          {
-            location: getMobDto.location,
-            mobName: getMobDto.mobName,
-          },
-          { __v: 0 },
-        )
-        .lean()
-        .exec(),
+    try {
+      const [mob, mobData, unixtimeResponse] = await Promise.all([
+        this.mobModel.findById(getMobDto.mobId, { __v: 0 }).lean().exec(),
 
-      this.unixtimeService.getUnixtime(),
-    ]);
+        this.mobsDataModel
+          .findOne(
+            {
+              mobId: getMobDto.mobId,
+              server: getMobDto.server,
+              groupName: groupName,
+            },
+            { __v: 0, _id: 0 },
+          )
+          .lean()
+          .exec(),
 
-    if (!mob) {
-      throw new BadRequestException('Mob not found');
+        this.unixtimeService.getUnixtime(),
+      ]);
+
+      if (!mob || !mobData) {
+        throw new Error();
+      }
+
+      const translatedMob = translateMob(mob, lang);
+      const mobInstance = plainToInstance(Mob, translatedMob, {
+        excludeExtraneousValues: true,
+      });
+      const mobDataInstance = plainToInstance(MobsData, mobData, {
+        excludeExtraneousValues: true,
+      });
+
+      return {
+        mob: mobInstance,
+        mobData: mobDataInstance,
+        unixtime: unixtimeResponse.unixtime,
+      };
+    } catch (err) {
+      if (!isValidObjectId(getMobDto.mobId)) {
+        throw new BadRequestException(`Invalid ObjectId: ${getMobDto.mobId}`);
+      } else {
+        throw new BadRequestException(
+          'Mob or Mob data not found for this group',
+        );
+      }
     }
-
-    const mobData = await this.mobsDataModel
-      .findOne(
-        {
-          mobId: mob._id,
-          server: getMobDto.server,
-          groupName: groupName,
-        },
-        { __v: 0, _id: 0 },
-      )
-      .lean()
-      .exec();
-
-    if (!mobData) {
-      throw new BadRequestException('Mob data not found for this group');
-    }
-
-    return {
-      mob,
-      mobData,
-      unixtime: unixtimeResponse.unixtime,
-    };
   }
 
   async findAllMobsByUser(
     email: string,
     getMobsDto: GetMobsDtoRequest,
+    lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const [userData, unixtimeResponse] = await Promise.all([
       this.usersService.findUser(email),
       this.unixtimeService.getUnixtime(),
     ]);
 
-    const { excludedMobs, unavailableMobs, groupName } = userData;
+    const { excludedMobs = [], unavailableMobs = [], groupName } = userData;
 
-    const undisplayedMobs: string[] = excludedMobs.concat(
-      unavailableMobs.filter((item) => excludedMobs.indexOf(item) === -1),
+    const undisplayedMobIds = Array.from(
+      new Set([...excludedMobs, ...unavailableMobs]),
     );
 
-    const arrayOfObjectsUndisplayedMob = undisplayedMobs.map((item) => ({
-      mobName: item,
-    }));
-    arrayOfObjectsUndisplayedMob.push({ mobName: 'Mocked Name of Mob' });
-
     const allMobsData = await this.mobsDataModel
-      .find({ groupName: groupName, server: getMobsDto.server }, { __v: 0 })
+      .find(
+        { groupName: groupName, server: getMobsDto.server },
+        { __v: 0, _id: 0 },
+      )
       .lean()
       .exec();
 
-    const mobIds = allMobsData.map(
-      (data) => new mongoose.Types.ObjectId(data.mobId),
-    );
+    const mobIds = allMobsData
+      .map((data) => data.mobId.toString())
+      .filter((id) => !undisplayedMobIds.includes(id));
+
+    if (mobIds.length === 0) return [];
 
     const allMobs = await this.mobModel
       .find(
-        {
-          _id: { $in: mobIds },
-          $nor: arrayOfObjectsUndisplayedMob,
-        },
+        { _id: { $in: mobIds.map((id) => new mongoose.Types.ObjectId(id)) } },
         { __v: 0 },
       )
       .lean()
@@ -221,17 +233,22 @@ export class MobService implements IMob {
       allMobsDataMap.set(data.mobId.toString(), data);
     });
 
-    const allMobsMap = new Map<string, any>();
-    allMobs.forEach((mob) => {
-      allMobsMap.set(mob._id.toString(), mob);
-    });
-
     return allMobs.map((mob) => {
-      const mobData = allMobsDataMap.get(mob._id.toString()) || null;
+      const translatedMob = translateMob(mob, lang);
+      const mobInstance = plainToInstance(Mob, translatedMob, {
+        excludeExtraneousValues: true,
+      });
+
+      const mobDataRaw = allMobsDataMap.get(mob._id.toString());
+      const mobDataInstance = mobDataRaw
+        ? plainToInstance(MobsData, mobDataRaw, {
+            excludeExtraneousValues: true,
+          })
+        : null;
 
       return {
-        mob,
-        mobData,
+        mob: mobInstance,
+        mobData: mobDataInstance,
         unixtime: unixtimeResponse.unixtime,
       };
     });
@@ -240,6 +257,7 @@ export class MobService implements IMob {
   async findAllMobsByGroup(
     groupName: string,
     getMobsDto: GetMobsDtoRequest,
+    lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const unixtimeResponse = await this.unixtimeService.getUnixtime();
 
@@ -271,57 +289,65 @@ export class MobService implements IMob {
       const mobData = allMobsDataMap.get(mob._id.toString()) || null;
 
       return {
-        mob,
+        mob: translateMob(mob, lang),
         mobData,
         unixtime: unixtimeResponse.unixtime,
       };
     });
   }
 
-  async findAllAvailableMobs(): Promise<GetMobDtoResponse[]> {
-    return this.mobModel.find().select('-__v').lean();
+  async findAllAvailableMobs(lang: string = 'ru'): Promise<Mob[]> {
+    const mobs = await this.mobModel.find().select('-__v').lean();
+
+    const translated = mobs.map((mob) => translateMob(mob, lang));
+
+    return plainToInstance(Mob, translated, { excludeExtraneousValues: true });
   }
 
   async updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<GetMobDtoResponse> {
+  ): Promise<Mob> {
     const mob: Mob = await this.mobModel
       .findOneAndUpdate(
         {
-          location: updateMobDtoParams.location,
-          mobName: updateMobDtoParams.mobName,
+          _id: new Types.ObjectId(updateMobDtoParams.mobId),
         },
         { $set: updateMobDtoBody },
         { new: true },
       )
-      .select('-_id -__v')
+      .select('-__v')
       .lean()
       .exec();
 
-    return { mob };
+    return plainToInstance(Mob, mob, { excludeExtraneousValues: true });
   }
 
   async updateMobByCooldown(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: Servers,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
-    const { mobName, server, location, cooldown } = updateMobByCooldownDto;
+    const { cooldown } = updateMobByCooldownDto;
     let { comment } = updateMobByCooldownDto;
 
     if (!comment) {
       comment = '';
     }
 
-    const getMobDto = { mobName, server, location };
+    const getMobDto = { mobId, server };
 
-    const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
+    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
+      getMobDto,
+      groupName,
+    );
 
     if (mob.mobData.respawnTime === null) {
       throw new BadRequestException(
-        'Respawn time is missing. Specify either date of death (dateOfDeath) or date of respawn (dateOfRespawn).',
+        'Respawn time is missing. Specify either date of death or date of respawn.',
       );
     }
 
@@ -329,8 +355,8 @@ export class MobService implements IMob {
       mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
 
     const history: History = {
-      location,
-      mobName,
+      location: mob.mob.location,
+      mobName: mob.mob.mobName,
       nickname,
       server,
       groupName,
@@ -344,7 +370,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
+        { mobId: mobId, groupName: groupName, server: server },
         {
           $inc: { cooldown },
           respawnTime: nextResurrectTime,
@@ -353,7 +379,7 @@ export class MobService implements IMob {
         },
         { new: true },
       )
-      .select('-_id -__v')
+      .select('-__v -_id')
       .lean()
       .exec();
 
@@ -369,25 +395,30 @@ export class MobService implements IMob {
   async updateMobDateOfDeath(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: Servers,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
-    const { mobName, server, location, dateOfDeath } = updateMobDateOfDeathDto;
+    const { dateOfDeath } = updateMobDateOfDeathDto;
     let { comment } = updateMobDateOfDeathDto;
 
     if (!comment) {
       comment = '';
     }
 
-    const getMobDto: GetMobDtoRequest = { mobName, server, location };
+    const getMobDto = { mobId, server };
 
-    const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
+    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
+      getMobDto,
+      groupName,
+    );
 
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
     const history: History = {
-      location,
-      mobName,
+      location: mob.mob.location,
+      mobName: mob.mob.mobName,
       nickname,
       server,
       groupName,
@@ -399,7 +430,7 @@ export class MobService implements IMob {
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
+        { mobId: mobId, groupName: groupName, server: server },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -425,29 +456,32 @@ export class MobService implements IMob {
   async updateMobDateOfRespawn(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: Servers,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
-    const { mobName, server, location, dateOfRespawn } =
-      updateMobDateOfRespawnDto;
+    const { dateOfRespawn } = updateMobDateOfRespawnDto;
     let { comment } = updateMobDateOfRespawnDto;
 
     if (!comment) {
       comment = '';
     }
 
-    const getMobDto: GetMobDtoRequest = { mobName, server, location };
+    const getMobDto = { mobId, server };
 
-    // Fetch mob data to access mob and mobsDataId
-    const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
+    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
+      getMobDto,
+      groupName,
+    );
 
     const nextResurrectTime: number = dateOfRespawn;
     const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
     const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
 
     const history: History = {
-      location,
-      mobName,
+      location: mob.mob.location,
+      mobName: mob.mob.mobName,
       nickname,
       server,
       groupName,
@@ -457,10 +491,9 @@ export class MobService implements IMob {
       toWillResurrect: nextResurrectTime,
     };
 
-    // Update MobsData
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
-        { mobId: mob.mobData.mobId, groupName: groupName, server: server },
+        { mobId: mobId, groupName: groupName, server: server },
         {
           respawnTime: nextResurrectTime,
           cooldown: 0,
@@ -475,7 +508,7 @@ export class MobService implements IMob {
       .exec();
 
     if (!updatedMobData) {
-      throw new Error('Failed to update mob data.');
+      throw new BadRequestException('Failed to update mob data.');
     }
 
     await this.historyService.createHistory(history);
@@ -483,16 +516,11 @@ export class MobService implements IMob {
     return { mob: mob.mob, mobData: updatedMobData };
   }
 
-  async deleteMob(
-    deleteMobDtoParams: DeleteMobDtoParamsRequest,
-  ): Promise<DeleteMobDtoResponse> {
-    const { mobName, location } = deleteMobDtoParams;
-
+  async deleteMob(mobId: string): Promise<DeleteMobDtoResponse> {
     const mob: Mob = await this.mobModel
       .findOneAndDelete(
         {
-          location: location,
-          mobName: mobName,
+          _id: mobId,
         },
         { __v: 0 },
       )
@@ -503,7 +531,7 @@ export class MobService implements IMob {
     }
 
     await this.mobsDataModel.deleteMany({
-      mobId: mob._id,
+      mobId: mobId,
     });
 
     return { message: 'Mob deleted' };
@@ -513,18 +541,21 @@ export class MobService implements IMob {
     removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
     groupName: string,
   ): Promise<RemoveMobFromGroupDtoResponse> {
-    const { mobName, server, location } = removeMobDtoParams;
+    const { mobId, server } = removeMobDtoParams;
 
-    const getMobDto: GetMobDtoRequest = { mobName, server, location };
+    const getMobDto: GetMobDtoRequest = { mobId, server };
 
-    const mob: GetFullMobDtoResponse = await this.findMob(getMobDto, groupName);
+    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
+      getMobDto,
+      groupName,
+    );
 
     if (!mob) {
       throw new NotFoundException('Mob not found');
     }
 
     await this.mobsDataModel.deleteOne({
-      mobId: mob.mobData.mobId,
+      mobId: mobId,
       groupName: groupName,
       server: server,
     });
@@ -588,33 +619,18 @@ export class MobService implements IMob {
     role: RolesTypes,
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
-    const { server, location, mobName } = respawnLostDtoParams;
-
-    const history: History = {
-      location,
-      mobName,
-      nickname,
-      server,
-      groupName,
-      date: Date.now(),
-      role,
-      historyTypes: HistoryTypes.respawnLost,
-    };
+    const { server, mobId } = respawnLostDtoParams;
 
     try {
-      const mob: GetFullMobDtoResponse = await this.findMob(
-        {
-          mobName,
-          server,
-          location,
-        },
+      const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
+        respawnLostDtoParams,
         groupName,
       );
 
       const mobData: MobsData = await this.mobsDataModel
         .findOneAndUpdate(
           {
-            mobId: mob.mobData.mobId,
+            mobId: mobId,
             groupName: groupName,
             server: server,
           },
@@ -626,9 +642,20 @@ export class MobService implements IMob {
           },
           { new: true },
         )
-        .select('-__v')
+        .select('-_id -__v')
         .lean()
         .exec();
+
+      const history: History = {
+        location: mob.mob.location,
+        mobName: mob.mob.mobName,
+        nickname,
+        server,
+        groupName,
+        date: Date.now(),
+        role,
+        historyTypes: HistoryTypes.respawnLost,
+      };
 
       await this.historyService.createHistory(history);
 
@@ -653,26 +680,18 @@ export class MobService implements IMob {
     updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const mob: Mob = await this.mobModel
-      .findOne(
-        {
-          location: updateMobCommentParams.location,
-          mobName: updateMobCommentParams.mobName,
-        },
-        { __v: 0 },
-      )
-      .lean()
-      .exec();
+    const { mobId, server } = updateMobCommentParams;
 
-    if (!mob) {
-      throw new NotFoundException('Mob not found');
-    }
+    const mobFromGroup = await this.getMobFromGroup(
+      { mobId, server },
+      groupName,
+    );
 
-    const mobData: MobsData = await this.mobsDataModel
+    const mobData = await this.mobsDataModel
       .findOneAndUpdate(
         {
-          mobId: mob._id,
-          server: updateMobCommentParams.server,
+          mobId: mobId,
+          server: server,
           groupName: groupName,
         },
         { $set: updateMobCommentBody },
@@ -682,6 +701,15 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    return { mob: mob, mobData };
+    if (!mobData) {
+      throw new NotFoundException('Mob data not found');
+    }
+
+    return {
+      mob: mobFromGroup.mob,
+      mobData: plainToInstance(MobsData, mobData, {
+        excludeExtraneousValues: true,
+      }),
+    };
   }
 }

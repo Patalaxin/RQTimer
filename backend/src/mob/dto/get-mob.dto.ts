@@ -1,5 +1,5 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
-import { Locations, Servers, MobName } from '../../schemas/mobs.enum';
+import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { Servers } from '../../schemas/mobs.enum';
 import { Expose, Type } from 'class-transformer';
 import { Mob } from '../../schemas/mob.schema';
 import { MobsData } from '../../schemas/mobsData.schema';
@@ -10,13 +10,9 @@ export class GetMobDtoRequest {
   @IsNotEmpty()
   server: Servers;
 
-  @IsEnum(Locations)
+  @IsString()
   @IsNotEmpty()
-  location: Locations;
-
-  @IsEnum(MobName)
-  @IsNotEmpty()
-  mobName: MobName;
+  mobId: string;
 }
 
 export class GetFullMobDtoResponse {
@@ -45,10 +41,4 @@ export class GetFullMobWithUnixDtoResponse {
   @ApiProperty({ description: 'Unix time at the time of response generation' })
   @Expose()
   unixtime: number;
-}
-
-export class GetMobDtoResponse {
-  @Expose()
-  @Type(() => Mob)
-  mob: Mob;
 }

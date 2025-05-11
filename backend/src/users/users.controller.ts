@@ -45,7 +45,7 @@ import { IUser } from './user.interface';
 import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
 import { BotSession } from '../schemas/telegram-bot.schema';
 
-@ApiTags('User API')
+@ApiTags('Users API')
 @UseGuards(RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
