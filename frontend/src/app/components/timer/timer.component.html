@@ -541,7 +541,7 @@
                   [nzTooltipTitle]="'TIMER.DELETE' | translate"
                   nzDanger
                   [nzTooltipMouseEnterDelay]="1"
-                  *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
+                  *ngIf="currentUser.isGroupLeader"
                   nzShape="circle"
                   [tourAnchor]="i == 0 ? 'delete' : ''"
                 >
@@ -705,11 +705,7 @@
               >
                 <div>
                   <div *ngFor="let mob of filteredMobList; let i = index">
-                    <label
-                      nz-checkbox
-                      nzValue="{{ mob.mobName }}: {{ mob.location }}"
-                      class="add-mob"
-                    >
+                    <label nz-checkbox [nzValue]="mob._id" class="add-mob">
                       <nz-avatar
                         [nzSize]="32"
                         [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"

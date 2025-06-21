@@ -688,6 +688,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.indeterminate = false;
     }
 
+    console.log(event);
     this.addMobList = event;
   }
 
@@ -724,8 +725,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService
       .deleteMobGroup(
         this.storageService.getLocalStorage('server'),
-        item.mob.location,
-        item.mob.mobName,
+        item.mobData.mobId,
       )
       .subscribe({
         next: () => {
