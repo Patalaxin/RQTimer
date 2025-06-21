@@ -29,6 +29,15 @@ export class UserComponent implements OnInit {
 
   isLoading: boolean = true;
 
+  duplicatedMobList: any = [
+    'Дуан Безжалостный',
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
+
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
@@ -64,6 +73,8 @@ export class UserComponent implements OnInit {
 
   passwordVisible: boolean = false;
   passwordChangeLoading: boolean = false;
+
+  volume: string = localStorage.getItem('volume') || '80';
 
   ngOnInit(): void {
     this.getMobs();
@@ -107,8 +118,17 @@ export class UserComponent implements OnInit {
     return this.excludedForm.controls['excludedElites'] as FormArray;
   }
 
+  volumeFormatter(value: number): string {
+    return `${value}%`;
+  }
+
+  volumeChange(event: any): any {
+    localStorage.setItem('volume', event);
+  }
+
   getMobs() {
-    this.configurationService.getMobs().subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.configurationService.getMobs(lang).subscribe({
       next: (res) => {
         res.bossesArray.forEach((boss: any) => {
           this.bossList.push(boss.mobName);

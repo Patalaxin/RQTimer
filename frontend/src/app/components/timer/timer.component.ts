@@ -408,7 +408,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private updateItem(timerList: TimerItem[], res: any): void {
-    console.log(timerList, res);
     timerList.forEach((item) => {
       if (
         item.mobData.mobId === res.mobData.mobId &&
@@ -453,6 +452,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private checkAndNotify(item: TimerItem, minute: number): void {
     const playSound = () => {
       const audio = new Audio('../../../assets/audio/notification.mp3');
+      audio.volume = Number(localStorage.getItem('volume') || '80') / 100;
       audio.play();
     };
 
@@ -569,7 +569,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.indeterminate = false;
     this.isAddModalLoading = true;
     this.isAddModalVisible = true;
-    this.timerService.getAvailableBosses().subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getAvailableBosses(lang).subscribe({
       next: (res) => {
         this.availableMobList = res.filter(
           (availableItem: any) =>
@@ -688,7 +689,6 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.indeterminate = false;
     }
 
-    console.log(event);
     this.addMobList = event;
   }
 
@@ -1194,8 +1194,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   getAllBosses(): void {
+    const lang = localStorage.getItem('language') || 'ru';
     this.currentServer = this.storageService.getLocalStorage('server');
-    this.timerService.getAllBosses(this.currentServer).subscribe({
+    this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();

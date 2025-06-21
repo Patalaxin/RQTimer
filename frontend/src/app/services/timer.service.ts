@@ -12,8 +12,6 @@ export class TimerService {
   private readonly http = inject(HttpClient);
 
   private readonly MOB_URL = environment.apiUrl + '/mobs';
-  private readonly lang = localStorage.getItem('language') || 'ru';
-
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
@@ -77,18 +75,16 @@ export class TimerService {
     );
   }
 
-  getMob(mobId: string, server: string) {
-    return this.http.get(
-      `${this.MOB_URL}/${server}/${mobId}?lang=${this.lang}`,
-    );
+  getMob(mobId: string, server: string, lang: string) {
+    return this.http.get(`${this.MOB_URL}/${server}/${mobId}?lang=${lang}`);
   }
 
-  getAllBosses(server: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}/${server}?lang=${this.lang}`);
+  getAllBosses(server: string, lang: string): Observable<any> {
+    return this.http.get(`${this.MOB_URL}/${server}?lang=${lang}`);
   }
 
-  getAvailableBosses(): Observable<any> {
-    return this.http.get(`${this.MOB_URL}?lang=${this.lang}`);
+  getAvailableBosses(lang: string): Observable<any> {
+    return this.http.get(`${this.MOB_URL}?lang=${lang}`);
   }
 
   crashServerBosses(server: string): Observable<any> {

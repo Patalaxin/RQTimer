@@ -107,6 +107,8 @@
     "GENERAL_SETTINGS": "General settings",
     "CHANGE_PASSWORD": "Change password",
     "ADMIN": "Admin",
+    "LANGUAGE_SETTING": "Language",
+    "VOLUME_SETTING": "Notification volume",
     "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
     "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
     "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",

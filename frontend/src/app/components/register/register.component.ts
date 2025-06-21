@@ -33,6 +33,15 @@ export class RegisterComponent implements OnInit {
 
   currentStep: number = 0;
 
+  duplicatedMobList: any = [
+    'Дуан Безжалостный',
+    'Альфа Самец',
+    'Богатый Упырь',
+    'Кабан Вожак',
+    'Слепоглаз',
+    'Хозяин',
+  ];
+
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
@@ -115,7 +124,8 @@ export class RegisterComponent implements OnInit {
   }
 
   getMobs() {
-    this.configurationService.getMobs().subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.configurationService.getMobs(lang).subscribe({
       next: (res) => {
         this.bossesCheckboxList = res.bossesArray;
         this.elitesCheckboxList = res.elitesArray;

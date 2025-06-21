@@ -180,9 +180,6 @@ export class AdminComponent implements OnInit {
       (item: any) => !this.availableEliteList.includes(item),
     );
 
-    console.log(this.availableBossList);
-    console.log(unavailableBossList);
-
     this.isTableLoading = true;
     item.isUserModalVisible = false;
 

@@ -65,6 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // serverList: any[] = [];
 
   duplicatedMobList: any = [
+    'Дуан Безжалостный',
     'Альфа Самец',
     'Богатый Упырь',
     'Кабан Вожак',
@@ -248,7 +249,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateAllBosses(): void {
-    this.timerService.getAllBosses(this.currentServer).subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
         this.sortTimerList([...res]);
 
@@ -317,7 +319,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   copyRespText() {
     let data: string[] = [];
     this.initCurrentServer();
-    this.timerService.getAllBosses(this.currentServer).subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
         this.sortTimerList([...res]);
 

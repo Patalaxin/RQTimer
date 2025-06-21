@@ -289,7 +289,13 @@
                         [nzValue]="bossesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          bossesCheckboxList[i].mobName
+                          !duplicatedMobList.includes(
+                            bossesCheckboxList[i].mobName
+                          )
+                            ? bossesCheckboxList[i].mobName
+                            : bossesCheckboxList[i].mobName +
+                              ": " +
+                              bossesCheckboxList[i].location
                         }}</span>
                       </label>
                     </div>
@@ -330,7 +336,13 @@
                         [nzValue]="elitesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          elitesCheckboxList[i].mobName
+                          !duplicatedMobList.includes(
+                            elitesCheckboxList[i].mobName
+                          )
+                            ? elitesCheckboxList[i].mobName
+                            : elitesCheckboxList[i].mobName +
+                              ": " +
+                              elitesCheckboxList[i].location
                         }}</span>
                       </label>
                     </div>
