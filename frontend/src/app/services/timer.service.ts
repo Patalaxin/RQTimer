@@ -10,9 +10,9 @@ import { environment } from 'src/environments/environment';
 })
 export class TimerService {
   private readonly http = inject(HttpClient);
-  private readonly storageService = inject(StorageService);
 
   private readonly MOB_URL = environment.apiUrl + '/mobs';
+  private readonly lang = localStorage.getItem('language') || 'ru';
 
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
@@ -66,36 +66,34 @@ export class TimerService {
 
   addMobGroup(server: string, mobs: string[]): Observable<any> {
     const payload = { mobs };
-    return this.http.post(`${this.MOB_URL}/add-in-group/${server}`, payload);
+    return this.http.post(`${this.MOB_URL}/${server}/add-in-group`, payload);
   }
 
-  deleteMobGroup(
-    server: string,
-    location: string,
-    mobName: string,
-  ): Observable<any> {
+  deleteMobGroup(server: string, mobId: string): Observable<any> {
     const payload = {};
     return this.http.delete(
-      `${this.MOB_URL}/remove-from-group/${server}/${location}/${mobName}`,
+      `${this.MOB_URL}/${server}/${mobId}/remove-from-group`,
       payload,
     );
   }
 
-  getMob(mobName: string, server: string, location: string) {
-    return this.http.get(`${this.MOB_URL}/${server}/${location}/${mobName}`);
+  getMob(mobId: string, server: string) {
+    return this.http.get(
+      `${this.MOB_URL}/${server}/${mobId}?lang=${this.lang}`,
+    );
   }
 
   getAllBosses(server: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}/${server}`);
+    return this.http.get(`${this.MOB_URL}/${server}?lang=${this.lang}`);
   }
 
   getAvailableBosses(): Observable<any> {
-    return this.http.get(`${this.MOB_URL}`);
+    return this.http.get(`${this.MOB_URL}?lang=${this.lang}`);
   }
 
   crashServerBosses(server: string): Observable<any> {
     const payload = {};
-    return this.http.post(`${this.MOB_URL}/crash-server/${server}`, payload);
+    return this.http.post(`${this.MOB_URL}/${server}/crash-server`, payload);
   }
 
   setByDeathTime(
@@ -105,13 +103,13 @@ export class TimerService {
   ): Observable<any> {
     let payload = {
       dateOfDeath,
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/date-of-death`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-death`,
+      payload,
+    );
   }
 
   setByRespawnTime(
@@ -121,13 +119,13 @@ export class TimerService {
   ): Observable<any> {
     let payload = {
       dateOfRespawn,
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/date-of-respawn`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-respawn`,
+      payload,
+    );
   }
 
   setByCooldownTime(
@@ -136,21 +134,21 @@ export class TimerService {
     comment: string,
   ): Observable<any> {
     let payload = {
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       cooldown,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/cooldown`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/cooldown`,
+      payload,
+    );
   }
 
   respawnLost(item: TimerItem): Observable<any> {
     let payload = {};
 
     return this.http.put(
-      `${this.MOB_URL}/respawn-lost/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/respawn-lost`,
       payload,
     );
   }
@@ -159,7 +157,7 @@ export class TimerService {
     let payload = { comment };
 
     return this.http.put(
-      `${this.MOB_URL}/comment/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/comment`,
       payload,
     );
   }
