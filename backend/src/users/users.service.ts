@@ -30,11 +30,12 @@ import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 
 export class UsersService implements IUser {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
     @InjectModel(BotSession.name)
-    private sessionModel: Model<BotSessionDocument>,
-    @Inject(forwardRef(() => OtpService)) private otpService: OtpService,
+    private readonly sessionModel: Model<BotSessionDocument>,
+    @Inject(forwardRef(() => OtpService))
+    private readonly otpService: OtpService,
   ) {}
 
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
