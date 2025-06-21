@@ -37,7 +37,7 @@
                       nz-checkbox
                       [formControlName]="i"
                       class="boss-input"
-                      [nzValue]="bossesCheckboxList[i].mobName"
+                      [nzValue]="bossesCheckboxList[i]._id"
                     >
                       {{ bossesCheckboxList[i].mobName }}
                     </label>
@@ -74,7 +74,7 @@
                       nz-checkbox
                       [formControlName]="i"
                       class="elite-input"
-                      [nzValue]="elitesCheckboxList[i].mobName"
+                      [nzValue]="elitesCheckboxList[i]._id"
                     >
                       {{ elitesCheckboxList[i].mobName }}
                     </label>

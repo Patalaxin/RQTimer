@@ -81,7 +81,7 @@ export class UserComponent implements OnInit {
     bossesCheckbox.forEach((item) => {
       if (this.excludedMobs) {
         this.excludedMobs.forEach((boss: any) => {
-          if (boss === item.textContent?.trim()) {
+          if (boss === item.getAttribute('ng-reflect-nz-value')) {
             (item as HTMLInputElement).click();
           }
         });
@@ -90,7 +90,7 @@ export class UserComponent implements OnInit {
     elitesCheckbox.forEach((item) => {
       if (this.excludedMobs) {
         this.excludedMobs.forEach((elite: any) => {
-          if (elite === item.textContent?.trim()) {
+          if (elite === item.getAttribute('ng-reflect-nz-value')) {
             (item as HTMLInputElement).click();
           }
         });

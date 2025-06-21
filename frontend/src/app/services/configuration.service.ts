@@ -9,7 +9,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
-  private readonly storageService = inject(StorageService);
+  private readonly lang = localStorage.getItem('language') || 'ru';
 
   private readonly CONFIGURATION_API = environment.apiUrl + '/configurations/';
 
@@ -28,7 +28,7 @@ export class ConfigurationService {
   }
 
   getMobs(): Observable<any> {
-    return this.http.get(`${this.CONFIGURATION_API}mobs`);
+    return this.http.get(`${this.CONFIGURATION_API}mobs?lang=${this.lang}`);
   }
 
   getLocations(): Observable<any> {

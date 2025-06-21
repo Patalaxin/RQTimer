@@ -286,7 +286,7 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="bossesCheckboxList[i].mobName"
+                        [nzValue]="bossesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
                           bossesCheckboxList[i].mobName
@@ -327,7 +327,7 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="elitesCheckboxList[i].mobName"
+                        [nzValue]="elitesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
                           elitesCheckboxList[i].mobName
