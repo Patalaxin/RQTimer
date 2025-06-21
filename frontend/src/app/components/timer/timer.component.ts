@@ -411,8 +411,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     console.log(timerList, res);
     timerList.forEach((item) => {
       if (
-        item.mob.mobName === res.mob.mobName &&
-        item.mob.location === res.mob.location &&
+        item.mobData.mobId === res.mobData.mobId &&
         item.mobData.server === res.mobData.server
       ) {
         item.mobData = res.mobData;
