@@ -118,8 +118,8 @@
     "NEW_PASSWORD": "New password",
     "CONFIRM_NEW_PASSWORD": "Confirm new password",
     "MESSAGE": {
-      "VOICE_SETTING_ACTIVATED": "Voice notifications are on",
-      "VOICE_SETTING_DEACTIVATED": "Voice notifications are off"
+      "VOICE_SETTING_ACTIVATED": "Voice notifications enabled",
+      "VOICE_SETTING_DEACTIVATED": "Voice notifications disabled"
     }
   },
   "ADMIN": {
