@@ -109,13 +109,18 @@
     "ADMIN": "Admin",
     "LANGUAGE_SETTING": "Language",
     "VOLUME_SETTING": "Notification volume",
+    "VOICE_SETTING": "Voice notification",
     "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
     "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
     "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",
     "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
     "OLD_PASSWORD": "Old password",
     "NEW_PASSWORD": "New password",
-    "CONFIRM_NEW_PASSWORD": "Confirm new password"
+    "CONFIRM_NEW_PASSWORD": "Confirm new password",
+    "MESSAGE": {
+      "VOICE_SETTING_ACTIVATED": "Voice notifications are on",
+      "VOICE_SETTING_DEACTIVATED": "Voice notifications are off"
+    }
   },
   "ADMIN": {
     "USER_LIST": "User list",

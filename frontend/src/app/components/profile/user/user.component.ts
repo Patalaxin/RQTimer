@@ -139,7 +139,7 @@ export class UserComponent implements OnInit {
     );
     this.messageService.create(
       'success',
-      `${this.switchValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CAN_EDIT_MOBS') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CANNOT_EDIT_MOBS')}`,
+      `${this.switchValue ? this.translateService.instant('USER.MESSAGE.VOICE_SETTING_ACTIVATED') : this.translateService.instant('USER.MESSAGE.VOICE_SETTING_DEACTIVATED')}`,
     );
   }
 

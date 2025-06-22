@@ -131,6 +131,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   currentNotificationIndex: number = 0;
   position: NzNotificationPlacement | undefined = 'bottomRight';
 
+  private audioQueue: HTMLAudioElement[] = [];
+  private isPlayingAudio = false;
+  private playNextAudio: () => void = () => {};
+
   private readonly steps: IStepOption[] = [
     {
       anchorId: 'timer',
@@ -395,8 +399,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.worker.onmessage = (event) => {
             const { updatedProgressTime } = event.data;
             this.currentProgressTime = updatedProgressTime;
-            this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-            this.timerList.forEach((item) => this.checkAndNotify(item, 5));
+            this.timerList.forEach((item) => this.checkAndNotify(item, [1, 5]));
           };
         } else {
           console.log('Web Workers не поддерживаются');
@@ -452,25 +455,49 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
-  private checkAndNotify(item: TimerItem, minute: number): void {
+  private checkAndNotify(item: TimerItem, minutes: number[]): void {
+    const enqueueAudio = (audio: HTMLAudioElement) => {
+      this.audioQueue.push(audio);
+      this.playNextAudio();
+    };
+
+    this.playNextAudio = () => {
+      if (this.isPlayingAudio || this.audioQueue.length === 0) return;
+
+      this.isPlayingAudio = true;
+      const nextAudio = this.audioQueue.shift()!;
+      nextAudio.volume = Number(localStorage.getItem('volume') || '50') / 100;
+      nextAudio.play();
+
+      nextAudio.onended = () => {
+        this.isPlayingAudio = false;
+        this.playNextAudio();
+      };
+    };
+
     const playSound = (timeDifference: number) => {
       const specialNotification = JSON.parse(
         localStorage.getItem('specialNotification') || 'false',
       );
-      let audio: HTMLAudioElement;
+      const volume = Number(localStorage.getItem('volume') || '50') / 100;
+
       if (specialNotification && timeDifference === 1) {
-        audio = new Audio(
+        const audio = new Audio(
           `${this.IMAGE_SRC}/1mDeadVoices/${item.mobData.mobId}.m4a`,
         );
+        audio.volume = volume;
+        enqueueAudio(audio);
       } else if (specialNotification && timeDifference === 0) {
-        audio = new Audio(
+        const audio = new Audio(
           `${this.IMAGE_SRC}/deadVoices/${item.mobData.mobId}.m4a`,
         );
+        audio.volume = volume;
+        enqueueAudio(audio);
       } else {
-        audio = new Audio('../../../assets/audio/notification.mp3');
+        const audio = new Audio('../../../assets/audio/notification.mp3');
+        audio.volume = volume;
+        audio.play();
       }
-      audio.volume = Number(localStorage.getItem('volume') || '50') / 100;
-      audio.play();
     };
 
     const sendNotification = (
@@ -485,7 +512,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       playSound(timeDifference);
     };
 
-    if ('Notification' in window && Notification?.permission === 'granted') {
+    if ('Notification' in window && Notification.permission === 'granted') {
       if (item.mobData.respawnTime) {
         const timeDifference =
           moment
@@ -496,26 +523,31 @@ export class TimerComponent implements OnInit, OnDestroy {
                 ) / 1000,
               ) * 1000,
             )
-            .valueOf() - 1000; // 1000 - 1 сек погрешности
+            .valueOf() - 1000;
 
-        if (timeDifference === minute * 60000) {
-          sendNotification(
-            `${item.mob.mobName} - ${item.mob.location}`,
-            this.translateService.instant(
-              'TIMER.NOTIFICATIONS.MOB_RESPAWN_SOON',
-              {
-                mobName: item.mob.mobName,
-                minute: minute,
-              },
-            ),
-            minute,
-          );
-        }
+        minutes.forEach((minute) => {
+          if (timeDifference === minute * 60000) {
+            sendNotification(
+              `${item.mob.mobName} - ${item.mob.location}`,
+              this.translateService.instant(
+                'TIMER.NOTIFICATIONS.MOB_RESPAWN_SOON',
+                {
+                  mobName: item.mob.mobName,
+                  minute: minute,
+                },
+              ),
+              minute,
+            );
+          }
+        });
 
         if (timeDifference === 0) {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
-            `${item.mob.respawnText ? item.mob.respawnText : this.translateService.instant('TIMER.NOTIFICATIONS.MOB_ENCOURAGEMENT')}`,
+            item.mob.respawnText ??
+              this.translateService.instant(
+                'TIMER.NOTIFICATIONS.MOB_ENCOURAGEMENT',
+              ),
             timeDifference,
           );
         }
