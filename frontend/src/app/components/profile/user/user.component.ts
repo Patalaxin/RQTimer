@@ -129,6 +129,10 @@ export class UserComponent implements OnInit {
 
   volumeChange(event: any): any {
     localStorage.setItem('volume', event);
+    const volume = Number(localStorage.getItem('volume') || '50') / 100;
+    const audio = new Audio('../../../assets/audio/notification.mp3');
+    audio.volume = volume;
+    audio.play();
   }
 
   clickSwitch(): void {
