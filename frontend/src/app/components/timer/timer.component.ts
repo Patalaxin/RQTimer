@@ -62,12 +62,22 @@ export class TimerComponent implements OnInit, OnDestroy {
   availableMobList: any = [];
   filteredMobList: any = [];
   duplicatedMobList: any = [
-    'Дуан Безжалостный',
-    'Альфа Самец',
-    'Богатый Упырь',
-    'Кабан Вожак',
-    'Слепоглаз',
-    'Хозяин',
+    '673a9b38697139657bf024ad',
+    '673a9b3f697139657bf024b5',
+    '673a9b46697139657bf024b9',
+    '673a9b4e697139657bf024bd',
+    '67314c701e738aba75ba3484',
+    '67314c5f1e738aba75ba3480',
+    '67314c511e738aba75ba347c',
+    '67314d111e738aba75ba3488',
+    '67314d191e738aba75ba348c',
+    '67314d431e738aba75ba3490',
+    '67314e2d1e738aba75ba349e',
+    '67314e341e738aba75ba34a2',
+    '673151961e738aba75ba34ce',
+    '6731519c1e738aba75ba34d2',
+    '673152a61e738aba75ba34e8',
+    '673152aa1e738aba75ba34ec',
   ];
   addMobList: any = [];
   historyList: any = [];
@@ -577,7 +587,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onClickTimerItem(item: TimerItem): void {
     if (item.mobData.respawnTime) {
-      let data: string = `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
+      let data: string = `${this.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
         item.mobData.respawnTime,
       ).format('HH:mm:ss')}`;
       this.messageService.create('success', `${data}`);

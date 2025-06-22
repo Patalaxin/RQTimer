@@ -289,9 +289,7 @@
                         [nzValue]="bossesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          !duplicatedMobList.includes(
-                            bossesCheckboxList[i].mobName
-                          )
+                          !duplicatedMobList.includes(bossesCheckboxList[i]._id)
                             ? bossesCheckboxList[i].mobName
                             : bossesCheckboxList[i].mobName +
                               ": " +
@@ -336,9 +334,7 @@
                         [nzValue]="elitesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          !duplicatedMobList.includes(
-                            elitesCheckboxList[i].mobName
-                          )
+                          !duplicatedMobList.includes(elitesCheckboxList[i]._id)
                             ? elitesCheckboxList[i].mobName
                             : elitesCheckboxList[i].mobName +
                               ": " +
