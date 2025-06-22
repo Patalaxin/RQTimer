@@ -28,6 +28,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private onlineUsers = new Map<string, OnlineUser>();
 
   getOnlineUsers() {
+    console.log(this.onlineUsers);
     return this.onlineUsers;
   }
 

@@ -29,9 +29,9 @@ export class WebsocketService {
   }
 
   connect(token: string, email: string): void {
-    this.socket = io(environment.url, {
-      path: '/api/socket.io',
+    this.socket = io(environment.apiUrl, {
       query: { token },
+      transports: ['websocket'],
     });
 
     this.socket.on('mobUpdate', (res) => this.mobUpdateSubject$.next(res));
