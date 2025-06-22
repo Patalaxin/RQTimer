@@ -3,6 +3,7 @@ import * as moment from 'moment-timezone';
 
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-mob-modal',
@@ -12,6 +13,8 @@ import { TimerService } from 'src/app/services/timer.service';
 export class MobModalComponent implements OnInit {
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
+
+  IMAGE_SRC = environment.apiUrl + '/';
 
   @Input() item: any;
 

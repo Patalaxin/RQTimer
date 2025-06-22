@@ -29,6 +29,8 @@ export class UserComponent implements OnInit {
 
   isLoading: boolean = true;
 
+  switchValue = false;
+
   duplicatedMobList: any = [
     'Дуан Безжалостный',
     'Альфа Самец',
@@ -74,10 +76,13 @@ export class UserComponent implements OnInit {
   passwordVisible: boolean = false;
   passwordChangeLoading: boolean = false;
 
-  volume: string = localStorage.getItem('volume') || '80';
+  volume: string = localStorage.getItem('volume') || '50';
 
   ngOnInit(): void {
     this.getMobs();
+    this.switchValue = JSON.parse(
+      localStorage.getItem('specialNotification') || 'false',
+    );
   }
 
   private addCheckbox(checkboxList: any[], control: FormArray): void {
@@ -124,6 +129,18 @@ export class UserComponent implements OnInit {
 
   volumeChange(event: any): any {
     localStorage.setItem('volume', event);
+  }
+
+  clickSwitch(): void {
+    this.switchValue = !this.switchValue;
+    localStorage.setItem(
+      'specialNotification',
+      JSON.stringify(this.switchValue),
+    );
+    this.messageService.create(
+      'success',
+      `${this.switchValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CAN_EDIT_MOBS') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CANNOT_EDIT_MOBS')}`,
+    );
   }
 
   getMobs() {

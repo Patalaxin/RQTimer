@@ -122,6 +122,14 @@
           (nzOnAfterChange)="volumeChange($event)"
         ></nz-slider>
       </div>
+      <div class="voice-setting">
+        <h3>{{ "USER.VOLUME_SETTING" | translate }}</h3>
+        <nz-switch
+          [(ngModel)]="switchValue"
+          [nzControl]="true"
+          (click)="clickSwitch()"
+        ></nz-switch>
+      </div>
     </nz-tab>
     <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
       <form

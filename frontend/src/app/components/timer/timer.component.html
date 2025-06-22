@@ -175,11 +175,7 @@
           <div class="timer-left">
             <nz-list-item-meta
               class="timer-avatar"
-              [nzAvatar]="
-                item.mob.image
-                  ? 'https://www.rqtimer.ru/static/' + item.mob.image
-                  : ''
-              "
+              [nzAvatar]="item.mob.image ? IMAGE_SRC + item.mob.image : ''"
               nz-tooltip
               [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
               [nzTooltipMouseEnterDelay]="1"
@@ -708,7 +704,7 @@
                     <label nz-checkbox [nzValue]="mob._id" class="add-mob">
                       <nz-avatar
                         [nzSize]="32"
-                        [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
+                        [nzSrc]="IMAGE_SRC + mob.image"
                         style="margin: 5px 10px"
                       ></nz-avatar>
                       <span class="mob-name"

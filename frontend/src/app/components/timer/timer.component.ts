@@ -28,6 +28,7 @@ import { TimerService } from 'src/app/services/timer.service';
 import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-timer',
@@ -54,6 +55,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   private mobUpdateSubscription: Subscription | undefined;
   private worker: Worker | undefined;
   permission: string = '';
+
+  IMAGE_SRC = environment.apiUrl + '/';
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
@@ -450,18 +453,36 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private checkAndNotify(item: TimerItem, minute: number): void {
-    const playSound = () => {
-      const audio = new Audio('../../../assets/audio/notification.mp3');
-      audio.volume = Number(localStorage.getItem('volume') || '80') / 100;
+    const playSound = (timeDifference: number) => {
+      const specialNotification = JSON.parse(
+        localStorage.getItem('specialNotification') || 'false',
+      );
+      let audio: HTMLAudioElement;
+      if (specialNotification && timeDifference === 1) {
+        audio = new Audio(
+          `${this.IMAGE_SRC}/1mDeadVoices/${item.mobData.mobId}.m4a`,
+        );
+      } else if (specialNotification && timeDifference === 0) {
+        audio = new Audio(
+          `${this.IMAGE_SRC}/deadVoices/${item.mobData.mobId}.m4a`,
+        );
+      } else {
+        audio = new Audio('../../../assets/audio/notification.mp3');
+      }
+      audio.volume = Number(localStorage.getItem('volume') || '50') / 100;
       audio.play();
     };
 
-    const sendNotification = (title: string, body: string) => {
+    const sendNotification = (
+      title: string,
+      body: string,
+      timeDifference: number,
+    ) => {
       new Notification(title, {
         body,
-        icon: `https://www.rqtimer.ru/static/${item.mob.image}`,
+        icon: `${this.IMAGE_SRC}/${item.mob.image}`,
       });
-      playSound();
+      playSound(timeDifference);
     };
 
     if ('Notification' in window && Notification?.permission === 'granted') {
@@ -487,6 +508,7 @@ export class TimerComponent implements OnInit, OnDestroy {
                 minute: minute,
               },
             ),
+            minute,
           );
         }
 
@@ -494,6 +516,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           sendNotification(
             `${item.mob.mobName} - ${item.mob.location}`,
             `${item.mob.respawnText ? item.mob.respawnText : this.translateService.instant('TIMER.NOTIFICATIONS.MOB_ENCOURAGEMENT')}`,
+            timeDifference,
           );
         }
       }
