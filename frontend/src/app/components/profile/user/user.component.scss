@@ -1,27 +1,4 @@
 .user {
-  h3 {
-    font-size: 15.21px;
-    font-weight: 700;
-    margin-bottom: 20px;
-  }
-
-  .language-setting,
-  .volume-setting,
-  .voice-setting {
-    display: flex;
-    gap: 20px;
-  }
-
-  .language-setting {
-    align-items: baseline;
-  }
-
-  .volume-setting {
-    nz-slider {
-      width: 100px;
-    }
-  }
-
   .update-excluded-form {
     margin: 0 auto;
     width: 700px;

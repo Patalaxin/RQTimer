@@ -104,7 +104,6 @@
   },
   "USER": {
     "DISPLAY_SETTINGS": "Display settings",
-    "GENERAL_SETTINGS": "General settings",
     "CHANGE_PASSWORD": "Change password",
     "ADMIN": "Admin",
     "LANGUAGE_SETTING": "Language",
@@ -116,11 +115,7 @@
     "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
     "OLD_PASSWORD": "Old password",
     "NEW_PASSWORD": "New password",
-    "CONFIRM_NEW_PASSWORD": "Confirm new password",
-    "MESSAGE": {
-      "VOICE_SETTING_ACTIVATED": "Voice notifications enabled",
-      "VOICE_SETTING_DEACTIVATED": "Voice notifications disabled"
-    }
+    "CONFIRM_NEW_PASSWORD": "Confirm new password"
   },
   "ADMIN": {
     "USER_LIST": "User list",
@@ -154,6 +149,10 @@
   },
   "TIMER_SETTINGS": {
     "INVITE": "Invite",
+    "NOTIFICATION_SETTINGS": "Notification settings",
+    "LANGUAGE_SETTING": "Language",
+    "VOLUME_SETTING": "Notification volume",
+    "VOICE_SETTING": "Voice notification",
     "GROUP_MANAGEMENT": "Group management",
     "MEMBER_LIST": "Member list",
     "ADD_MOBS": "Allow members to add mobs",
@@ -169,6 +168,8 @@
       "SEARCH_USER": "Searching for user..."
     },
     "MESSAGE": {
+      "VOICE_SETTING_ACTIVATED": "Voice notifications enabled",
+      "VOICE_SETTING_DEACTIVATED": "Voice notifications disabled",
       "MEMBERS_CAN_EDIT_MOBS": "Regular members can now add/remove mobs",
       "MEMBERS_CANNOT_EDIT_MOBS": "Regular members can no longer add/remove mobs",
       "INVITE_COPIED": "Invite successfully copied!",

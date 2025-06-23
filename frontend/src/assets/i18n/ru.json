@@ -104,23 +104,15 @@
   },
   "USER": {
     "DISPLAY_SETTINGS": "Настройки отображения",
-    "GENERAL_SETTINGS": "Основные настройки",
     "CHANGE_PASSWORD": "Изменить пароль",
     "ADMIN": "Админ",
-    "LANGUAGE_SETTING": "Язык",
-    "VOLUME_SETTING": "Громкость уведомлений",
-    "VOICE_SETTING": "Голосовое уведомление",
     "EXCLUDE_BOSSES_TITLE": "Выберите боссов для исключения:",
     "EXCLUDE_BOSSES_DESCRIPTION": "Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
     "EXCLUDE_ELITES_TITLE": "Выберите элиток для исключения:",
     "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
     "OLD_PASSWORD": "Старый пароль",
     "NEW_PASSWORD": "Новый пароль",
-    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль",
-    "MESSAGE": {
-      "VOICE_SETTING_ACTIVATED": "Голосовые уведомления включены",
-      "VOICE_SETTING_DEACTIVATED": "Голосовые уведомления выключены"
-    }
+    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль"
   },
   "ADMIN": {
     "USER_LIST": "Список пользователей",
@@ -156,6 +148,10 @@
   },
   "TIMER_SETTINGS": {
     "INVITE": "Инвайт",
+    "NOTIFICATION_SETTINGS": "Настройки уведомлений",
+    "LANGUAGE_SETTING": "Язык",
+    "VOLUME_SETTING": "Громкость уведомлений",
+    "VOICE_SETTING": "Голосовое уведомление",
     "GROUP_MANAGEMENT": "Управление группой",
     "MEMBER_LIST": "Список участников",
     "ADD_MOBS": "Разрешить участникам добавлять мобов",
@@ -171,6 +167,8 @@
       "SEARCH_USER": "Поиск юзера..."
     },
     "MESSAGE": {
+      "VOICE_SETTING_ACTIVATED": "Голосовые уведомления включены",
+      "VOICE_SETTING_DEACTIVATED": "Голосовые уведомления выключены",
       "MEMBERS_CAN_EDIT_MOBS": "Обычные участники теперь могут добавлять/удалять мобов",
       "MEMBERS_CANNOT_EDIT_MOBS": "Обычные участники теперь не могут добавлять/удалять мобов",
       "INVITE_COPIED": "Инвайт успешно скопирован!",

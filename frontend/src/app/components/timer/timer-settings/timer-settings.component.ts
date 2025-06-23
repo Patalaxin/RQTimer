@@ -53,8 +53,11 @@ export class TimerSettingsComponent implements OnInit {
 
   isScreenWidth550: boolean = false;
 
-  switchValue = false;
+  switchVoiceValue = false;
+  switchAddMobsValue = false;
   isSwitchLoading = false;
+
+  volume: string = localStorage.getItem('volume') || '50';
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -66,7 +69,7 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.switchValue = this.canMembersAddMobs;
+    this.switchAddMobsValue = this.canMembersAddMobs;
     this.checkScreenWidth();
     this.getGroupUsers();
   }
@@ -75,17 +78,41 @@ export class TimerSettingsComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
-  clickSwitch(): void {
+  volumeFormatter(value: number): string {
+    return `${value}%`;
+  }
+
+  volumeChange(event: any): any {
+    localStorage.setItem('volume', event);
+    const volume = Number(localStorage.getItem('volume') || '50') / 100;
+    const audio = new Audio('../../../assets/audio/notification.mp3');
+    audio.volume = volume;
+    audio.play();
+  }
+
+  clickVoiceSwitch(): void {
+    this.switchVoiceValue = !this.switchVoiceValue;
+    localStorage.setItem(
+      'specialNotification',
+      JSON.stringify(this.switchVoiceValue),
+    );
+    this.messageService.create(
+      'success',
+      `${this.switchVoiceValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.VOICE_SETTING_ACTIVATED') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.VOICE_SETTING_DEACTIVATED')}`,
+    );
+  }
+
+  clickAddMobsSwitch(): void {
     if (!this.isSwitchLoading) {
       this.isSwitchLoading = true;
 
-      this.groupsService.updateGroup(!this.switchValue).subscribe({
+      this.groupsService.updateGroup(!this.switchAddMobsValue).subscribe({
         next: () => {
-          this.switchValue = !this.switchValue;
-          this.updateGroup.emit(this.switchValue);
+          this.switchAddMobsValue = !this.switchAddMobsValue;
+          this.updateGroup.emit(this.switchAddMobsValue);
           this.messageService.create(
             'success',
-            `${this.switchValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CAN_EDIT_MOBS') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CANNOT_EDIT_MOBS')}`,
+            `${this.switchAddMobsValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CAN_EDIT_MOBS') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CANNOT_EDIT_MOBS')}`,
           );
           this.isSwitchLoading = false;
         },

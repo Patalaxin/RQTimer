@@ -85,6 +85,7 @@
       'header-d-inline': isScreenWidth600,
     }"
   >
+    <app-language-switcher></app-language-switcher>
     <button
       nz-button
       nzType="primary"
@@ -95,60 +96,134 @@
     >
       <span nz-icon nzType="search"></span>
     </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onHistory()"
-      nz-tooltip
-      [nzTooltipTitle]="'HEADER.HISTORY' | translate"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/history')"
-      nzShape="circle"
-      tourAnchor="history"
-    >
-      <span nz-icon nzType="history"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onTimer()"
-      nz-tooltip
-      [nzTooltipTitle]="'HEADER.TIMER' | translate"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/timer')"
-      nzShape="circle"
-    >
-      <span nz-icon nzType="clock-circle"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      (click)="onProfile()"
-      nz-tooltip
-      [nzTooltipTitle]="'HEADER.PROFILE' | translate"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      *ngIf="!(currentRoute == '/profile')"
-      nzShape="circle"
-      tourAnchor="settings"
-    >
-      <span nz-icon nzType="user"></span>
-    </button>
-    <button
-      nz-button
-      nzType="primary"
-      nzDanger
-      (click)="showLogoutModal()"
-      nz-tooltip
-      [nzTooltipTitle]="'HEADER.LOGOUT' | translate"
-      nzTooltipPlacement="bottom"
-      [nzTooltipMouseEnterDelay]="1"
-      nzShape="circle"
-      tourAnchor="logout"
-    >
-      <span nz-icon nzType="logout"></span>
-    </button>
+    <div class="header-navigation-menu">
+      <button
+        nz-button
+        nzType="primary"
+        (click)="onHistory()"
+        nz-tooltip
+        [nzTooltipTitle]="'HEADER.HISTORY' | translate"
+        nzTooltipPlacement="bottom"
+        [nzTooltipMouseEnterDelay]="1"
+        *ngIf="!(currentRoute == '/history')"
+        nzShape="circle"
+        tourAnchor="history"
+      >
+        <span nz-icon nzType="history"></span>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        (click)="onTimer()"
+        nz-tooltip
+        [nzTooltipTitle]="'HEADER.TIMER' | translate"
+        nzTooltipPlacement="bottom"
+        [nzTooltipMouseEnterDelay]="1"
+        *ngIf="!(currentRoute == '/timer')"
+        nzShape="circle"
+      >
+        <span nz-icon nzType="clock-circle"></span>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        (click)="onProfile()"
+        nz-tooltip
+        [nzTooltipTitle]="'HEADER.PROFILE' | translate"
+        nzTooltipPlacement="bottom"
+        [nzTooltipMouseEnterDelay]="1"
+        *ngIf="!(currentRoute == '/profile')"
+        nzShape="circle"
+        tourAnchor="settings"
+      >
+        <span nz-icon nzType="user"></span>
+      </button>
+      <button
+        nz-button
+        nzType="primary"
+        nzDanger
+        (click)="showLogoutModal()"
+        nz-tooltip
+        [nzTooltipTitle]="'HEADER.LOGOUT' | translate"
+        nzTooltipPlacement="bottom"
+        [nzTooltipMouseEnterDelay]="1"
+        nzShape="circle"
+        tourAnchor="logout"
+      >
+        <span nz-icon nzType="logout"></span>
+      </button>
+    </div>
+
+    <div class="header-navigation-menu-mob">
+      <button
+        nzType="primary"
+        nz-button
+        nz-dropdown
+        nzTrigger="click"
+        (click)="$event.stopPropagation()"
+        [nzDropdownMenu]="menu"
+        nzPlacement="bottomRight"
+        nzShape="circle"
+      >
+        <span nz-icon nzType="menu-unfold"></span>
+      </button>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <button
+          nz-button
+          nzType="primary"
+          (click)="onHistory()"
+          nz-tooltip
+          [nzTooltipTitle]="'HEADER.HISTORY' | translate"
+          nzTooltipPlacement="bottom"
+          [nzTooltipMouseEnterDelay]="1"
+          *ngIf="!(currentRoute == '/history')"
+          nzShape="circle"
+          tourAnchor="history"
+        >
+          <span nz-icon nzType="history"></span>
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="onTimer()"
+          nz-tooltip
+          [nzTooltipTitle]="'HEADER.TIMER' | translate"
+          nzTooltipPlacement="bottom"
+          [nzTooltipMouseEnterDelay]="1"
+          *ngIf="!(currentRoute == '/timer')"
+          nzShape="circle"
+        >
+          <span nz-icon nzType="clock-circle"></span>
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="onProfile()"
+          nz-tooltip
+          [nzTooltipTitle]="'HEADER.PROFILE' | translate"
+          nzTooltipPlacement="bottom"
+          [nzTooltipMouseEnterDelay]="1"
+          *ngIf="!(currentRoute == '/profile')"
+          nzShape="circle"
+          tourAnchor="settings"
+        >
+          <span nz-icon nzType="user"></span>
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          nzDanger
+          (click)="showLogoutModal()"
+          nz-tooltip
+          [nzTooltipTitle]="'HEADER.LOGOUT' | translate"
+          nzTooltipPlacement="bottom"
+          [nzTooltipMouseEnterDelay]="1"
+          nzShape="circle"
+          tourAnchor="logout"
+        >
+          <span nz-icon nzType="logout"></span>
+        </button>
+      </nz-dropdown-menu>
+    </div>
   </div>
 </div>

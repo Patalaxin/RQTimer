@@ -28,6 +28,28 @@
     </div>
 
     <h2>
+      {{ "TIMER_SETTINGS.NOTIFICATION_SETTINGS" | translate }}
+    </h2>
+    <div class="notification-setting">
+      <div class="volume-setting">
+        <h3>{{ "TIMER_SETTINGS.VOLUME_SETTING" | translate }}</h3>
+        <nz-slider
+          [ngModel]="volume"
+          [nzTipFormatter]="volumeFormatter"
+          (nzOnAfterChange)="volumeChange($event)"
+        ></nz-slider>
+      </div>
+      <div class="voice-setting">
+        <h3>{{ "TIMER_SETTINGS.VOICE_SETTING" | translate }}</h3>
+        <nz-switch
+          [(ngModel)]="switchVoiceValue"
+          [nzControl]="true"
+          (click)="clickVoiceSwitch()"
+        ></nz-switch>
+      </div>
+    </div>
+
+    <h2>
       {{
         (isGroupLeader
           ? "TIMER_SETTINGS.GROUP_MANAGEMENT"
@@ -35,12 +57,12 @@
         ) | translate
       }}
     </h2>
-    <div *ngIf="isGroupLeader" style="display: flex; gap: 20px">
+    <div *ngIf="isGroupLeader" class="add-mobs-setting">
       <h3>{{ "TIMER_SETTINGS.ADD_MOBS" | translate }}</h3>
       <nz-switch
-        [(ngModel)]="switchValue"
+        [(ngModel)]="switchAddMobsValue"
         [nzControl]="true"
-        (click)="clickSwitch()"
+        (click)="clickAddMobsSwitch()"
         [nzLoading]="isSwitchLoading"
       ></nz-switch>
     </div>

@@ -14,9 +14,23 @@ body[data-tui-theme] {
   font-weight: 700;
 }
 
+.ant-slider-rail {
+  background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    linear-gradient(to right, #fff, #fff);
+}
+
 .ant-segmented-item-selected,
-nz-segmented .ng-animating {
+nz-segmented .ng-animating,
+.ant-slider-track {
   background-color: #1890ff;
+}
+
+.ant-slider-handle {
+  border: solid 2px #1890ff;
 }
 
 .ant-table,

@@ -80,11 +80,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     '673152aa1e738aba75ba34ec',
   ];
   pvpMobList: any = [
-    'Эдвард',
-    'Воко',
-    'Денгур Кровавый топор',
-    'Превосходный пожиратель элениума',
-    'Превосходный пожиратель моземия',
+    '673148be1e738aba75ba344d',
+    '673149261e738aba75ba3455',
+    '673a4607925dabf6e082f029',
+    '673a4636925dabf6e082f03f',
+    '67314b311e738aba75ba3475',
   ];
   addMobList: any = [];
   historyList: any = [];

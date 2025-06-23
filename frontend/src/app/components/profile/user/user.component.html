@@ -105,28 +105,6 @@
         </nz-form-item>
       </form>
     </nz-tab>
-    <nz-tab [nzTitle]="'USER.GENERAL_SETTINGS' | translate">
-      <div class="language-setting">
-        <h3>{{ "USER.LANGUAGE_SETTING" | translate }}</h3>
-        <app-language-switcher></app-language-switcher>
-      </div>
-      <div class="volume-setting">
-        <h3>{{ "USER.VOLUME_SETTING" | translate }}</h3>
-        <nz-slider
-          [ngModel]="volume"
-          [nzTipFormatter]="volumeFormatter"
-          (nzOnAfterChange)="volumeChange($event)"
-        ></nz-slider>
-      </div>
-      <div class="voice-setting">
-        <h3>{{ "USER.VOICE_SETTING" | translate }}</h3>
-        <nz-switch
-          [(ngModel)]="switchValue"
-          [nzControl]="true"
-          (click)="clickSwitch()"
-        ></nz-switch>
-      </div>
-    </nz-tab>
     <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
       <form
         [formGroup]="changePasswordForm"
