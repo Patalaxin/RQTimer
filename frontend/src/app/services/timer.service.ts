@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
@@ -76,15 +76,33 @@ export class TimerService {
   }
 
   getMob(mobId: string, server: string, lang: string) {
-    return this.http.get(`${this.MOB_URL}/${server}/${mobId}?lang=${lang}`);
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}/${server}/${mobId}`, {
+      params,
+    });
   }
 
   getAllBosses(server: string, lang: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}/${server}?lang=${lang}`);
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}/${server}`, {
+      params,
+    });
   }
 
   getAvailableBosses(lang: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}?lang=${lang}`);
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}`, {
+      params,
+    });
   }
 
   crashServerBosses(server: string): Observable<any> {

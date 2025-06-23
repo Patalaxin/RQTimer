@@ -163,9 +163,7 @@
                 ? 'orange'
                 : this.currentProgressTime > item.mobData.respawnTime
                   ? 'red'
-                  : item.mob.mobName === 'Эдвард' ||
-                      item.mob.mobName === 'Воко' ||
-                      item.mob.mobName === 'Денгур Кровавый топор'
+                  : pvpMobList.includes(item.mob.mobName)
                     ? 'blue'
                     : 'green'
               : 'white'

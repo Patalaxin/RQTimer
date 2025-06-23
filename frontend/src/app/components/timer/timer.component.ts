@@ -79,6 +79,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     '673152a61e738aba75ba34e8',
     '673152aa1e738aba75ba34ec',
   ];
+  pvpMobList: any = [
+    'Эдвард',
+    'Воко',
+    'Денгур Кровавый топор',
+    'Превосходный пожиратель элениума',
+    'Превосходный пожиратель моземия',
+  ];
   addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
@@ -641,7 +648,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           (availableItem: any) =>
             !this.timerList.some(
               (timerItem) =>
-                timerItem.mob.mobName === availableItem.mobName &&
+                timerItem.mobData.mobId === availableItem._id &&
                 timerItem.mob.location === availableItem.location,
             ),
         );

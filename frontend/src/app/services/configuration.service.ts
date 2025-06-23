@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -25,7 +25,13 @@ export class ConfigurationService {
   }
 
   getMobs(lang: string): Observable<any> {
-    return this.http.get(`${this.CONFIGURATION_API}mobs?lang=${lang}`);
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.CONFIGURATION_API}mobs`, {
+      params,
+    });
   }
 
   getLocations(): Observable<any> {
