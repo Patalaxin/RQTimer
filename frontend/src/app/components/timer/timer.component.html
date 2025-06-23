@@ -142,7 +142,7 @@
       </div>
     </ng-template>
 
-    <div class="tour" (click)="startTour()">
+    <div class="tour" (click)="startTour()" *ngIf="language !== 'en'">
       <div class="tour-content">
         <span nz-icon nzType="question-circle" style="font-size: 25px"></span>
       </div>

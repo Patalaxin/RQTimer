@@ -29,8 +29,6 @@ export class UserComponent implements OnInit {
 
   isLoading: boolean = true;
 
-  switchValue = false;
-
   duplicatedMobList: any = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
@@ -86,13 +84,8 @@ export class UserComponent implements OnInit {
   passwordVisible: boolean = false;
   passwordChangeLoading: boolean = false;
 
-  volume: string = localStorage.getItem('volume') || '50';
-
   ngOnInit(): void {
     this.getMobs();
-    this.switchValue = JSON.parse(
-      localStorage.getItem('specialNotification') || 'false',
-    );
   }
 
   private addCheckbox(checkboxList: any[], control: FormArray): void {
@@ -131,30 +124,6 @@ export class UserComponent implements OnInit {
 
   get excludedElites() {
     return this.excludedForm.controls['excludedElites'] as FormArray;
-  }
-
-  volumeFormatter(value: number): string {
-    return `${value}%`;
-  }
-
-  volumeChange(event: any): any {
-    localStorage.setItem('volume', event);
-    const volume = Number(localStorage.getItem('volume') || '50') / 100;
-    const audio = new Audio('../../../assets/audio/notification.mp3');
-    audio.volume = volume;
-    audio.play();
-  }
-
-  clickSwitch(): void {
-    this.switchValue = !this.switchValue;
-    localStorage.setItem(
-      'specialNotification',
-      JSON.stringify(this.switchValue),
-    );
-    this.messageService.create(
-      'success',
-      `${this.switchValue ? this.translateService.instant('USER.MESSAGE.VOICE_SETTING_ACTIVATED') : this.translateService.instant('USER.MESSAGE.VOICE_SETTING_DEACTIVATED')}`,
-    );
   }
 
   getMobs() {

@@ -148,6 +148,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   currentNotificationIndex: number = 0;
   position: NzNotificationPlacement | undefined = 'bottomRight';
 
+  language: string = 'ru';
+
   private audioQueue: HTMLAudioElement[] = [];
   private isPlayingAudio = false;
   private playNextAudio: () => void = () => {};
@@ -292,6 +294,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   template?: TemplateRef<{}>;
 
   ngOnInit(): void {
+    this.timerService.language$.subscribe({
+      next: (res) => {
+        this.language = res;
+      },
+    });
+
     this.setTimerOptions();
 
     this.translateService.onLangChange.subscribe(() => {

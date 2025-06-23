@@ -39,7 +39,7 @@
           (nzOnAfterChange)="volumeChange($event)"
         ></nz-slider>
       </div>
-      <div class="voice-setting">
+      <div class="voice-setting" *ngIf="language !== 'en'">
         <h3>{{ "TIMER_SETTINGS.VOICE_SETTING" | translate }}</h3>
         <nz-switch
           [(ngModel)]="switchVoiceValue"

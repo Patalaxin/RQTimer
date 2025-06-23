@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { en_US, ru_RU, vi_VN, pl_PL, NzI18nService } from 'ng-zorro-antd/i18n';
+import { TimerService } from 'src/app/services/timer.service';
 
 @Component({
   selector: 'app-language-switcher',
@@ -20,6 +21,7 @@ import { en_US, ru_RU, vi_VN, pl_PL, NzI18nService } from 'ng-zorro-antd/i18n';
   ],
 })
 export class LanguageSwitcherComponent implements OnInit {
+  private readonly timerService = inject(TimerService);
   private readonly messageService = inject(NzMessageService);
   private readonly translateService = inject(TranslateService);
   private readonly i18nService = inject(NzI18nService);
@@ -47,6 +49,7 @@ export class LanguageSwitcherComponent implements OnInit {
     this.translateService.use(lang);
     this.currentLang = lang;
     localStorage.setItem('language', lang);
+    this.timerService.language = lang;
 
     switch (lang) {
       case 'ru':
@@ -54,6 +57,8 @@ export class LanguageSwitcherComponent implements OnInit {
         break;
       case 'en':
         this.i18nService.setLocale(en_US);
+        localStorage.setItem('specialNotification', 'false');
+        this.timerService.switchVoice = false;
         break;
       // case 'vi':
       //   this.i18nService.setLocale(vi_VN);

@@ -12,6 +12,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { GroupsService } from 'src/app/services/groups.service';
 import { WebsocketService } from '../../../services/websocket.service';
 import { TranslateService } from '@ngx-translate/core';
+import { TimerService } from 'src/app/services/timer.service';
 
 @Component({
   selector: 'app-timer-settings',
@@ -20,6 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class TimerSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
+  private readonly timerService = inject(TimerService);
   private readonly modalService = inject(NzModalService);
   private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
@@ -58,6 +60,7 @@ export class TimerSettingsComponent implements OnInit {
   isSwitchLoading = false;
 
   volume: string = localStorage.getItem('volume') || '50';
+  language: string = 'ru';
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -69,7 +72,22 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.timerService.language$.subscribe({
+      next: (res) => {
+        this.language = res;
+      },
+    });
+
+    this.timerService.switchVoice$.subscribe({
+      next: (res) => {
+        this.switchVoiceValue = res;
+      },
+    });
+
     this.switchAddMobsValue = this.canMembersAddMobs;
+    // this.switchVoiceValue = JSON.parse(
+    //   localStorage.getItem('specialNotification') || 'false',
+    // );
     this.checkScreenWidth();
     this.getGroupUsers();
   }
