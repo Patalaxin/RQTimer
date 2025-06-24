@@ -1,9 +1,11 @@
 import {
   Component,
+  ElementRef,
   HostListener,
   inject,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,6 +16,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { BindingService } from 'src/app/services/binding.service';
 // import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -40,6 +43,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
   private readonly translateService = inject(TranslateService);
+  private readonly bindingService = inject(BindingService);
 
   currentServer: string = 'Гелиос';
   currentRoute: string = '';
@@ -90,6 +94,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.checkScreenWidth();
   }
 
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+
   constructor() {
     this.initCurrentServer();
   }
@@ -97,6 +103,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkScreenWidth();
     this.getCurrentUser();
+    this.bindingHotkey();
 
     this.timerService.timerList$.subscribe({
       next: (res) => {
@@ -216,6 +223,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.onLogout();
         }
       },
+    });
+  }
+
+  bindingHotkey(): void {
+    this.bindingService.clickReloadButton$.subscribe(() => {
+      this.updateCurrentServer();
+    });
+
+    this.bindingService.clickCopyButton$.subscribe(() => {
+      this.copyRespText();
+    });
+
+    this.bindingService.focusSearchInput$.subscribe(() => {
+      this.searchInput.nativeElement.focus();
     });
   }
 

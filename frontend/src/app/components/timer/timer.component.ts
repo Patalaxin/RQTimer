@@ -20,6 +20,7 @@ import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { BindingService } from 'src/app/services/binding.service';
 import { GroupsService } from 'src/app/services/groups.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -51,6 +52,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NzModalService);
   private readonly tourService = inject(TourService);
   private readonly translateService = inject(TranslateService);
+  private readonly bindingService = inject(BindingService);
 
   private mobUpdateSubscription: Subscription | undefined;
   private worker: Worker | undefined;
@@ -288,6 +290,27 @@ export class TimerComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyEvents(event: KeyboardEvent) {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+
+    if (ctrlOrCmd && event.key.toLowerCase() === 'r') {
+      event.preventDefault();
+      this.bindingService.triggerClickReloadButton();
+    }
+
+    if (ctrlOrCmd && event.key.toLowerCase() === 'c') {
+      event.preventDefault();
+      this.bindingService.triggerClickCopyButton();
+    }
+
+    if (ctrlOrCmd && event.key.toLowerCase() === 'f') {
+      event.preventDefault();
+      this.bindingService.triggerFocusSearchInput();
+    }
   }
 
   @ViewChild('notificationTemplate', { static: false })
