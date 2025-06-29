@@ -10,7 +10,7 @@ import { translateMob } from '../utils/translate-mob';
 export class ConfigurationService {
   constructor(
     @InjectModel(Mob.name)
-    private mobModel: Model<MobDocument>,
+    private readonly mobModel: Model<MobDocument>,
   ) {}
 
   getServers(): Servers[] {

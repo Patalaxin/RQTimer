@@ -50,13 +50,14 @@ import { translateMob } from '../utils/translate-mob';
 export class MobService implements IMob {
   constructor(
     @InjectModel(Mob.name)
-    private mobModel: Model<MobDocument>,
+    private readonly mobModel: Model<MobDocument>,
     @InjectModel(MobsData.name)
-    private mobsDataModel: Model<MobsDataDocument>,
-    private usersService: UsersService,
-    private historyService: HistoryService,
+    private readonly mobsDataModel: Model<MobsDataDocument>,
+    private readonly usersService: UsersService,
+    private readonly historyService: HistoryService,
     private readonly unixtimeService: UnixtimeService,
-    @Inject(forwardRef(() => GroupService)) private groupService: GroupService,
+    @Inject(forwardRef(() => GroupService))
+    private readonly groupService: GroupService,
   ) {}
 
   async createMob(createMobDto: CreateMobDtoRequest): Promise<Mob> {
@@ -355,6 +356,7 @@ export class MobService implements IMob {
       mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
 
     const history: History = {
+      mobId,
       location: mob.mob.location,
       mobName: mob.mob.mobName,
       nickname,
@@ -417,6 +419,7 @@ export class MobService implements IMob {
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
     const history: History = {
+      mobId: mobId,
       location: mob.mob.location,
       mobName: mob.mob.mobName,
       nickname,
@@ -427,6 +430,7 @@ export class MobService implements IMob {
       historyTypes: HistoryTypes.updateMobDateOfDeath,
       toWillResurrect: nextResurrectTime,
     };
+    console.log(history);
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(
@@ -480,6 +484,7 @@ export class MobService implements IMob {
     const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
 
     const history: History = {
+      mobId,
       location: mob.mob.location,
       mobName: mob.mob.mobName,
       nickname,

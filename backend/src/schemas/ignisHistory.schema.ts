@@ -25,6 +25,10 @@ export class IgnisHistory {
 
   @Expose()
   @Prop()
+  mobId: string;
+
+  @Expose()
+  @Prop()
   mobName: MobName;
 
   @Expose()

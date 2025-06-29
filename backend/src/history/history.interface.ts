@@ -1,5 +1,5 @@
 import { History } from './history-types.interface';
-import { Locations, MobName, Servers } from '../schemas/mobs.enum';
+import { Servers } from '../schemas/mobs.enum';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 
@@ -11,8 +11,16 @@ export interface IHistory {
     groupName: string,
     page: number,
     limit: number,
-    mobName?: MobName,
-    location?: Locations,
+    language?: string,
+  ): Promise<PaginatedHistoryDto>;
+
+  getMobHistory(
+    server: Servers,
+    groupName: string,
+    mobId: string,
+    page: number,
+    limit: number,
+    language?: string,
   ): Promise<PaginatedHistoryDto>;
 
   deleteAll(

@@ -20,15 +20,14 @@ interface OnlineUser {
   },
 })
 export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   @WebSocketServer()
   server: Server;
 
-  private onlineUsers = new Map<string, OnlineUser>();
+  private readonly onlineUsers = new Map<string, OnlineUser>();
 
   getOnlineUsers() {
-    console.log(this.onlineUsers);
     return this.onlineUsers;
   }
 
