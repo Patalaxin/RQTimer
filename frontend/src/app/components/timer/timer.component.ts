@@ -430,7 +430,9 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.messageService.create(
             'warning',
             this.translateService.instant('TIMER.MESSAGE.TIME_DESYNC_WARNING', {
-              seconds: Math.abs(this.currentProgressTime - Date.now()) / 1000,
+              seconds: Math.ceil(
+                Math.abs(this.currentProgressTime - Date.now()) / 1000,
+              ),
             }),
           );
         }
@@ -1079,7 +1081,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             }
 
             if (
-              moment(this.currentTime).valueOf() > item.mobData.respawnTime &&
+              moment(this.currentTime).valueOf() >= item.mobData.respawnTime &&
               moment(this.currentTime).valueOf() <
                 item.mobData.respawnTime + item.mob.cooldownTime
             ) {
@@ -1103,7 +1105,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
           if (item.mobData.respawnTime > item.unixtime) {
             if (
-              moment(this.currentTime).valueOf() !== item.mobData.respawnTime
+              moment(this.currentTime).valueOf() >= item.mobData.respawnTime
             ) {
               return this.translateService.instant(
                 'TIMER.MODAL.NEXT_RESPAWN_TIME_OVERWRITE',

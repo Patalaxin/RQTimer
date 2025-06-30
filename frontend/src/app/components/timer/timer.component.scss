@@ -69,6 +69,7 @@
     }
 
     .telegram-bot-content:hover,
+    .notification-content:hover,
     .tour-content:hover {
       background-color: rgba(0, 0, 0, 0.85);
       transition: all 0.3s;
@@ -84,6 +85,10 @@
 
     .telegram-bot-content {
       a {
+        display: block;
+        width: 40px;
+        height: 40px;
+
         img {
           width: 25px;
           height: 25px;
