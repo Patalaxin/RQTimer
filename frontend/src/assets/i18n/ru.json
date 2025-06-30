@@ -302,6 +302,7 @@
     "BUTTONS": {
       "LOG_IN": "Войти",
       "VIDEO_GUIDE": "Видеогайд",
+      "TELEGRAM_BOT": "Telegram-бот",
       "CANCEL": "Отмена",
       "CHANGE_PASSWORD": "Поменять пароль",
       "VERIFY": "Подтвердить",

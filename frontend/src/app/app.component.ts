@@ -43,14 +43,37 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   showBackground: boolean = false;
   isVisible: boolean = false;
 
+  cyrillicLanguages = [
+    'ru', // Русский
+    'uk', // Украинский
+    'be', // Белорусский
+    'kk', // Казахский
+    'ky', // Киргизский
+    'tg', // Таджикский
+    'uz', // Узбекский
+    'tk', // Туркменский
+    'ab', // Абхазский
+    'hy', // Армянский
+    'az', // Азербайджанский
+    'mo', // Молдавский
+  ];
+
   ngOnInit() {
     // Инициализация языков
     this.translateService.addLangs(['ru', 'en', 'vi', 'pl']);
-    this.translateService.setDefaultLang('ru');
 
     // Используем язык из localStorage или дефолтный
     const savedLang = localStorage.getItem('language');
-    this.translateService.use(savedLang || 'ru');
+    const browserLang = navigator.language.toLowerCase();
+
+    const isCyrillicLang = this.cyrillicLanguages.some((code) =>
+      browserLang.startsWith(code),
+    );
+
+    const defaultLang = isCyrillicLang ? 'ru' : 'en';
+
+    this.translateService.setDefaultLang(defaultLang);
+    this.translateService.use(savedLang || defaultLang);
 
     this.currentNotificationIndex = 0;
     this.timerService.telegramBotVisibility = true;

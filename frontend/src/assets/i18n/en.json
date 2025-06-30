@@ -303,6 +303,7 @@
     "BUTTONS": {
       "LOG_IN": "Log in",
       "VIDEO_GUIDE": "Video guide",
+      "TELEGRAM_BOT": "Telegram-bot",
       "CANCEL": "Cancel",
       "CHANGE_PASSWORD": "Change password",
       "VERIFY": "Verify",
