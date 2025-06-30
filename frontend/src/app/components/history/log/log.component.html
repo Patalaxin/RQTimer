@@ -4,8 +4,8 @@
   nzShowSizeChanger
   [nzPageSize]="pageSize"
   [nzShowTotal]="rangeTemplate"
-  (nzPageIndexChange)="changePage($event, mobName)"
-  (nzPageSizeChange)="changePageSize($event, mobName)"
+  (nzPageIndexChange)="changePage($event, mobId)"
+  (nzPageSizeChange)="changePageSize($event, mobId)"
   [nzSize]="!isScreenWidth550 ? 'default' : 'small'"
 ></nz-pagination>
 

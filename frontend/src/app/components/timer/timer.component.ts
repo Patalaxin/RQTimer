@@ -653,10 +653,14 @@ export class TimerComponent implements OnInit, OnDestroy {
   getHistory(item: TimerItem): void {
     this.historyService.isLoading = true;
     item.mob.isHistoryModalVisible = true;
+    const lang = localStorage.getItem('language') || 'ru';
     this.historyService
-      .getHistory(
+      .getMobHistory(
         this.storageService.getLocalStorage('server'),
-        item.mob.mobName,
+        item.mobData.mobId,
+        undefined,
+        undefined,
+        lang,
       )
       .subscribe({
         next: (res: any) => {

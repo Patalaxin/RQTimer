@@ -97,7 +97,7 @@ export class TimerService {
     );
   }
 
-  getMob(mobId: string, server: string, lang: string) {
+  getMob(mobId: string, server: string, lang?: string) {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
@@ -107,7 +107,7 @@ export class TimerService {
     });
   }
 
-  getAllBosses(server: string, lang: string): Observable<any> {
+  getAllBosses(server: string, lang?: string): Observable<any> {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
@@ -117,7 +117,7 @@ export class TimerService {
     });
   }
 
-  getAvailableBosses(lang: string): Observable<any> {
+  getAvailableBosses(lang?: string): Observable<any> {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);

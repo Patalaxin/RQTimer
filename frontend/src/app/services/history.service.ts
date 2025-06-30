@@ -41,16 +41,36 @@ export class HistoryService {
     this.isLoadingSubject$.next(value);
   }
 
-  getHistory(server: string, mobName?: string, page?: number, limit?: number) {
+  getHistory(server: string, page?: number, limit?: number, lang?: string) {
     let params = new HttpParams();
-
-    if (mobName) params = params.set('mobName', mobName);
 
     if (page) params = params.set('page', page);
 
     if (limit) params = params.set('limit', limit);
 
+    if (lang) params = params.set('lang', lang);
+
     return this.http.get(`${this.HISTORY_API}list/${server}`, {
+      params,
+    });
+  }
+
+  getMobHistory(
+    server: string,
+    mobId: string,
+    page?: number,
+    limit?: number,
+    lang?: string,
+  ) {
+    let params = new HttpParams();
+
+    if (page) params = params.set('page', page);
+
+    if (limit) params = params.set('limit', limit);
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.HISTORY_API}${server}/${mobId}`, {
       params,
     });
   }

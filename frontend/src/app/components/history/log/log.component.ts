@@ -15,7 +15,7 @@ export class LogComponent implements OnInit {
 
   @Input() historyList: any;
   @Input() historyListData: any;
-  @Input() mobName: string = '';
+  @Input() mobId: string = '';
 
   pageSize: number = 10;
   page: number = 1;
@@ -40,41 +40,84 @@ export class LogComponent implements OnInit {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
-  changePage($event: any, mobName: string): void {
+  changePage($event: any, mobId: string): void {
     this.isLoading = true;
-    this.historyService
-      .getHistory(
-        this.storageService.getLocalStorage('server'),
-        mobName,
-        Number($event),
-        Number(this.pageSize),
-      )
-      .subscribe({
-        next: (res: any) => {
-          this.page = $event;
-          this.historyList = res.data;
-          this.isLoading = false;
-        },
-      });
+    const lang = localStorage.getItem('language') || 'ru';
+    if (mobId) {
+      this.historyService
+        .getMobHistory(
+          this.storageService.getLocalStorage('server'),
+          mobId,
+          Number($event),
+          Number(this.pageSize),
+          lang,
+        )
+        .subscribe({
+          next: (res: any) => {
+            this.page = $event;
+            this.historyList = res.data;
+            this.isLoading = false;
+          },
+        });
+    }
+
+    if (!mobId) {
+      this.historyService
+        .getHistory(
+          this.storageService.getLocalStorage('server'),
+          Number($event),
+          Number(this.pageSize),
+          lang,
+        )
+        .subscribe({
+          next: (res: any) => {
+            this.page = $event;
+            this.historyList = res.data;
+            this.isLoading = false;
+          },
+        });
+    }
   }
 
-  changePageSize($event: any, mobName: string): void {
+  changePageSize($event: any, mobId: string): void {
     this.isLoading = true;
-    this.historyService
-      .getHistory(
-        this.storageService.getLocalStorage('server'),
-        mobName,
-        1,
-        Number($event),
-      )
-      .subscribe({
-        next: (res: any) => {
-          this.pageSize = $event;
-          this.changePage(1, mobName);
-          this.historyList = res.data;
-          this.isLoading = false;
-        },
-      });
+    const lang = localStorage.getItem('language') || 'ru';
+    if (mobId) {
+      this.historyService
+        .getMobHistory(
+          this.storageService.getLocalStorage('server'),
+          mobId,
+          1,
+          Number($event),
+          lang,
+        )
+        .subscribe({
+          next: (res: any) => {
+            this.pageSize = $event;
+            this.changePage(1, mobId);
+            this.historyList = res.data;
+            this.isLoading = false;
+          },
+        });
+    }
+
+    if (!mobId) {
+      this.historyService
+        .getHistory(
+          this.storageService.getLocalStorage('server'),
+          1,
+          Number($event),
+          lang,
+        )
+        .subscribe({
+          next: (res: any) => {
+            this.pageSize = $event;
+            this.changePage(1, mobId);
+            this.historyList = res.data;
+            this.isLoading = false;
+          },
+        });
+    }
   }
 
   getInputMethod(item: any): string {

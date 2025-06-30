@@ -301,18 +301,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateHistory(): void {
-    this.historyService.getHistory(this.currentServer).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.historyList = this.historyList;
-        this.historyService.historyListData = this.historyListData;
-        this.historyService.isLoading = false;
-      },
-      error: () => {
-        this.historyService.isLoading = false;
-      },
-    });
+    const lang = localStorage.getItem('language') || 'ru';
+    this.historyService
+      .getHistory(this.currentServer, undefined, undefined, lang)
+      .subscribe({
+        next: (res: any) => {
+          this.historyListData = res;
+          this.historyList = res.data;
+          this.historyService.historyList = this.historyList;
+          this.historyService.historyListData = this.historyListData;
+          this.historyService.isLoading = false;
+        },
+        error: () => {
+          this.historyService.isLoading = false;
+        },
+      });
   }
 
   getCurrentUser() {
