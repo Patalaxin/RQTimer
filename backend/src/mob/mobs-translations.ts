@@ -114,6 +114,51 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
+  '68115b0c9ade77989c40d83f': {
+    en: {
+      mobName: 'General Hrungnir',
+      shortName: 'General',
+      respawnText: 'Undefined',
+      location: 'Teuton',
+      mobType: 'Boss',
+    },
+  },
+  '68115b669ade77989c40d858': {
+    en: {
+      mobName: "Cardigan's Courier",
+      shortName: 'Cardigan',
+      respawnText: 'Undefined',
+      location: 'Eltane',
+      mobType: 'Boss',
+    },
+  },
+  '68115bbb9ade77989c40d86c': {
+    en: {
+      mobName: 'Dark Morious',
+      shortName: 'Morious',
+      respawnText: 'Undefined',
+      location: 'Arcon',
+      mobType: 'Boss',
+    },
+  },
+  '68115c339ade77989c40d88f': {
+    en: {
+      mobName: 'Unholy Rebel',
+      shortName: 'Rebel',
+      respawnText: 'Undefined',
+      location: 'Dead City',
+      mobType: 'Boss',
+    },
+  },
+  '68115c7c9ade77989c40d89c': {
+    en: {
+      mobName: 'Unholy Rebel',
+      shortName: 'Rebel',
+      respawnText: 'Undefined',
+      location: "Baron Logart's Island",
+      mobType: 'Boss',
+    },
+  },
   '67314c511e738aba75ba347c': {
     en: {
       mobName: 'Alpha Male',
@@ -287,6 +332,62 @@ export const mobTranslations = {
       mobName: 'Black Widow',
       shortName: 'Widow',
       location: 'Zagre Cave',
+      mobType: 'Elite',
+    },
+  },
+  '67314f301e738aba75ba34af': {
+    en: {
+      mobName: 'Royal Spider',
+      shortName: 'Royal Spider',
+      location: 'Cobweb Dungeon',
+      mobType: 'Elite',
+    },
+  },
+  '67314fd61e738aba75ba34ba': {
+    en: {
+      mobName: 'Mega Irex',
+      shortName: 'Mega',
+      location: 'Great Fissure',
+      mobType: 'Elite',
+    },
+  },
+  '673151961e738aba75ba34ce': {
+    en: {
+      mobName: 'Blind Eye',
+      shortName: 'Blind',
+      location: 'Crockos',
+      mobType: 'Elite',
+    },
+  },
+  '6731519c1e738aba75ba34d2': {
+    en: {
+      mobName: 'Blind Eye',
+      shortName: 'Blind',
+      location: 'Mistgun',
+      mobType: 'Elite',
+    },
+  },
+  '673151f81e738aba75ba34db': {
+    en: {
+      mobName: 'Rat #13',
+      shortName: 'Rat13',
+      location: 'Trogul',
+      mobType: 'Elite',
+    },
+  },
+  '673a4607925dabf6e082f029': {
+    en: {
+      mobName: 'Excellent Mozemium Devourer',
+      shortName: 'Devourer(M)',
+      location: 'Adamant',
+      mobType: 'Elite',
+    },
+  },
+  '673a4636925dabf6e082f03f': {
+    en: {
+      mobName: 'Excellent Elenium Devourer',
+      shortName: 'Devourer(E)',
+      location: 'Adamant',
       mobType: 'Elite',
     },
   },
