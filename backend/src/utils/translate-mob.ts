@@ -3,7 +3,7 @@ import { Mob } from '../schemas/mob.schema';
 
 export function translateMob(mob: Mob, lang?: string): any {
   if (lang !== 'ru') {
-    const t = mobTranslations[mob.mobName]?.[lang];
+    const t = mobTranslations[mob._id]?.[lang];
     return {
       ...mob,
       mobName: t?.mobName ?? mob.mobName,

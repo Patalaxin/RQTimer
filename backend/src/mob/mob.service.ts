@@ -430,7 +430,6 @@ export class MobService implements IMob {
       historyTypes: HistoryTypes.updateMobDateOfDeath,
       toWillResurrect: nextResurrectTime,
     };
-    console.log(history);
 
     const updatedMobData: MobsData = await this.mobsDataModel
       .findOneAndUpdate(

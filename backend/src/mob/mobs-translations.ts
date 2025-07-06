@@ -1,5 +1,5 @@
 export const mobTranslations = {
-  Архон: {
+  '673148021e738aba75ba3402': {
     en: {
       mobName: 'Archon',
       shortName: 'Arch',
@@ -9,7 +9,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Баксбакуалануксивайе: {
+  '673148911e738aba75ba3449': {
     en: {
       mobName: 'Buxbuqalanuxiwe',
       shortName: 'Bux',
@@ -19,7 +19,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Воко: {
+  '673148be1e738aba75ba344d': {
     en: {
       mobName: 'Voko',
       shortName: 'Voko',
@@ -29,7 +29,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  'Гигантская Тортолла': {
+  '673148ec1e738aba75ba3451': {
     en: {
       mobName: 'Giant Tortolla',
       shortName: 'Tort',
@@ -39,7 +39,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  'Денгур Кровавый топор': {
+  '673149261e738aba75ba3455': {
     en: {
       mobName: 'Dengur',
       shortName: 'Den',
@@ -49,7 +49,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Деструктор: {
+  '673149461e738aba75ba3459': {
     en: {
       mobName: 'Destructor',
       shortName: 'Dest',
@@ -59,7 +59,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  'Древний Энт': {
+  '673149751e738aba75ba345d': {
     en: {
       mobName: 'Ancient Treant',
       shortName: 'Treant',
@@ -68,7 +68,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Зверомор: {
+  '673149d41e738aba75ba3461': {
     en: {
       mobName: 'Beastbane',
       shortName: 'Beast',
@@ -77,7 +77,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  'Королева Крыс': {
+  '67314a1d1e738aba75ba3465': {
     en: {
       mobName: 'Rat Queen',
       shortName: 'Rat',
@@ -86,7 +86,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  'Тёмный Шаман': {
+  '67314aaa1e738aba75ba346b': {
     en: {
       mobName: 'Dark Shaman',
       shortName: 'Shaman',
@@ -95,7 +95,7 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Хьюго: {
+  '67314afa1e738aba75ba3470': {
     en: {
       mobName: 'Hugo',
       shortName: 'Hugo',
@@ -105,13 +105,189 @@ export const mobTranslations = {
       mobType: 'Boss',
     },
   },
-  Эдвард: {
+  '67314b311e738aba75ba3475': {
     en: {
       mobName: 'Edward',
       shortName: 'Ed',
       respawnText: 'More razors and shaving foam once again.',
       location: "Puppet Master's Mansion Floor 2",
       mobType: 'Boss',
+    },
+  },
+  '67314c511e738aba75ba347c': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: 'Worlax',
+      mobType: 'Elite',
+    },
+  },
+  '67314c5f1e738aba75ba3480': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: "Morra's Forest",
+      mobType: 'Elite',
+    },
+  },
+  '67314c701e738aba75ba3484': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: 'Wolf Pits',
+      mobType: 'Elite',
+    },
+  },
+  '67314d111e738aba75ba3488': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: 'Small Crypt (Catalania)',
+      mobType: 'Elite',
+    },
+  },
+  '67314d191e738aba75ba348c': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: 'Small Crypt (Dancing Forest)',
+      mobType: 'Elite',
+    },
+  },
+  '67314d431e738aba75ba3490': {
+    en: {
+      mobName: 'Alpha Male',
+      shortName: 'Alpha',
+      location: 'Smugglers Catacombs (Worlax)',
+      mobType: 'Elite',
+    },
+  },
+  '67314dad1e738aba75ba3494': {
+    en: {
+      mobName: 'Dark Carabus',
+      shortName: 'DC',
+      location: "Abandon Mine's Floor 3",
+      mobType: 'Elite',
+    },
+  },
+  '67314dfc1e738aba75ba3498': {
+    en: {
+      mobName: 'Golden Cockroach',
+      shortName: 'GC',
+      location: "Catacomb's 2nd Floor",
+      mobType: 'Elite',
+    },
+  },
+  '67314e2d1e738aba75ba349e': {
+    en: {
+      mobName: 'Alpha Boar',
+      shortName: 'Boar',
+      location: 'Trilakes',
+      mobType: 'Elite',
+    },
+  },
+  '67314e341e738aba75ba34a2': {
+    en: {
+      mobName: 'Alpha Boar',
+      shortName: 'Boar',
+      location: 'Soaring Valley',
+      mobType: 'Elite',
+    },
+  },
+  '67314e851e738aba75ba34a7': {
+    en: {
+      mobName: 'Termite Queen',
+      shortName: 'Termite',
+      location: "Abandon Mine's Floor 1",
+      mobType: 'Elite',
+    },
+  },
+  '67314ef51e738aba75ba34ab': {
+    en: {
+      mobName: 'Royal Thorn',
+      shortName: 'Boar',
+      location: 'Elgore',
+      mobType: 'Elite',
+    },
+  },
+  '67314f9f1e738aba75ba34b6': {
+    en: {
+      mobName: 'Frogster',
+      shortName: 'Frog',
+      location: 'Tadano',
+      mobType: 'Elite',
+    },
+  },
+  '673150341e738aba75ba34bf': {
+    en: {
+      mobName: 'Cave Wolf',
+      shortName: 'Wolf',
+      location: 'Trade Route',
+      mobType: 'Elite',
+    },
+  },
+  '6731507b1e738aba75ba34c3': {
+    en: {
+      mobName: 'Flameroar',
+      shortName: 'Flame',
+      location: 'Placer Mine',
+      mobType: 'Elite',
+    },
+  },
+  '6731515f1e738aba75ba34c8': {
+    en: {
+      mobName: 'Bumble Buzz Queen',
+      shortName: 'Bumblebuzz',
+      location: 'Illayr',
+      mobType: 'Elite',
+    },
+  },
+  '673151cf1e738aba75ba34d7': {
+    en: {
+      mobName: 'Austin',
+      shortName: 'Austin',
+      location: 'Burglar Settlement',
+      mobType: 'Elite',
+    },
+  },
+  '673152541e738aba75ba34df': {
+    en: {
+      mobName: 'Dark Oracle',
+      shortName: 'Oracle',
+      location: 'Pyramid Floor 2',
+      mobType: 'Elite',
+    },
+  },
+  '6731527c1e738aba75ba34e3': {
+    en: {
+      mobName: 'Pharaoh',
+      shortName: 'Pharaoh',
+      location: 'Pyramid Floor 2',
+      mobType: 'Elite',
+    },
+  },
+  '673152a61e738aba75ba34e8': {
+    en: {
+      mobName: 'Master',
+      shortName: 'Master',
+      location: "Puppet Master's Mansion floor 1",
+      mobType: 'Elite',
+    },
+  },
+  '673152aa1e738aba75ba34ec': {
+    en: {
+      mobName: 'Master',
+      shortName: 'Master',
+      location: "Puppet Master's Mansion floor 2",
+      mobType: 'Elite',
+    },
+  },
+  '673152c91e738aba75ba34f3': {
+    en: {
+      mobName: 'Black Widow',
+      shortName: 'Widow',
+      location: 'Zagre Cave',
+      mobType: 'Elite',
     },
   },
 };
