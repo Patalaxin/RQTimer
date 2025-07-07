@@ -94,6 +94,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   isLoading = this.timerService.isLoading$;
   isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
+  currentLang: string = 'ru';
   currentUser: any = [];
 
   radioValue: string = 'death';
@@ -297,10 +298,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const ctrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
 
-    if (ctrlOrCmd && event.key.toLowerCase() === 'r') {
-      event.preventDefault();
-      this.bindingService.triggerClickReloadButton();
-    }
+    // if (ctrlOrCmd && event.key.toLowerCase() === 'r') {
+    //   event.preventDefault();
+    //   this.bindingService.triggerClickReloadButton();
+    // }
 
     if (ctrlOrCmd && event.key.toLowerCase() === 'c') {
       event.preventDefault();
@@ -1427,11 +1428,14 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   showNotifications(index: number): void {
+    // this.notificationService.getNotifications().subscribe({
+    //   next: (res) => {
+    //     this.notificationService.notificationList = res.reverse();
+
     this.notificationService.notificationList$.subscribe({
       next: (res) => {
         this.notifications = res;
-
-        console.log(this.notifications);
+        this.currentLang = localStorage.getItem('language') || 'ru';
 
         if (this.notifications[index]) {
           this.nzNotificationService.template(this.template!, {
@@ -1443,6 +1447,8 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
       },
     });
+    // },
+    // });
   }
 
   previousNotification(index: number) {

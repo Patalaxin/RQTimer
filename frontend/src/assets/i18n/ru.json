@@ -139,11 +139,15 @@
       "USER_ROLE_UPDATED": "Роль пользователя {{nickname}} успешно обновлён",
       "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены",
       "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
-      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера",
+      "NOTIFICATION_CREATED": "Уведомление успешно создано"
     },
     "MODAL": {
       "USER_DELETION_TITLE": "Внимание",
-      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>"
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>",
+      "NOTIFICATION_TITLE": "Уведомление",
+      "RUSSIAN": "Русский:",
+      "ENGLISH": "Английский:"
     }
   },
   "TIMER_SETTINGS": {
@@ -324,7 +328,8 @@
       "ADD": "Добавить",
       "END": "Конец",
       "JOIN": "Вступить",
-      "CREATE": "Создать"
+      "CREATE": "Создать",
+      "CREATE_NOTIFICATION": "Создать уведомление"
     },
     "VALIDATIONS": {
       "EMAIL_OR_NICKNAME_REQUIRED": "• Введите почту или никнейм!",

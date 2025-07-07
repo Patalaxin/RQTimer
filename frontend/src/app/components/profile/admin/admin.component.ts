@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { AuthService } from 'src/app/services/auth.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
@@ -15,6 +16,7 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class AdminComponent implements OnInit {
   private readonly userService = inject(UserService);
+  private readonly notificationService = inject(NotificationService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
   private readonly translateService = inject(TranslateService);
@@ -49,6 +51,12 @@ export class AdminComponent implements OnInit {
   availableBossList: any;
   availableEliteList: any;
 
+  isCreateNotificationModalVisible: boolean = false;
+  isCreateNotificationOkLoading: boolean = false;
+
+  russianText: string = '';
+  englishText: string = '';
+
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
@@ -68,6 +76,34 @@ export class AdminComponent implements OnInit {
   private checkScreenWidth(): void {
     this.isScreenWidth800 = window.innerWidth <= 800;
     this.isScreenWidth550 = window.innerWidth <= 550;
+  }
+
+  showCreateNotificationModal(): void {
+    event?.stopPropagation();
+    this.isCreateNotificationModalVisible = true;
+  }
+
+  confirmCreateNotificationModal(): void {
+    this.isCreateNotificationOkLoading = true;
+    this.notificationService
+      .createNotification(this.russianText, this.englishText)
+      .subscribe({
+        next: () => {
+          this.isCreateNotificationOkLoading = false;
+          this.isCreateNotificationModalVisible = false;
+          this.messageService.create(
+            'success',
+            this.translateService.instant('ADMIN.MESSAGE.NOTIFICATION_CREATED'),
+          );
+        },
+        error: () => {
+          this.isCreateNotificationOkLoading = false;
+        },
+      });
+  }
+
+  cancelCreateNotificationModal(): void {
+    this.isCreateNotificationModalVisible = false;
   }
 
   getUserColor(role: string): any {

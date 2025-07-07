@@ -34,7 +34,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     if (
       req.url.includes('/auth/login') ||
       req.url.includes('/auth/exchange-refresh') ||
-      req.url.includes('/notifications')
+      (req.url.includes('/notifications') && req.method === 'GET')
     ) {
       return next.handle(req);
     }

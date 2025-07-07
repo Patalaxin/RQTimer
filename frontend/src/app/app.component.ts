@@ -42,6 +42,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   position: NzNotificationPlacement | undefined = 'bottomRight';
   showBackground: boolean = false;
   isVisible: boolean = false;
+  currentLang: string = 'ru';
 
   cyrillicLanguages = [
     'ru', // Русский
@@ -113,6 +114,8 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
           const viewedArr: string[] = viewed ? JSON.parse(viewed) : [];
           return !viewedArr.includes(item.id);
         });
+
+        this.currentLang = localStorage.getItem('language') || 'ru';
 
         if (this.notifications[index]) {
           this.nzNotificationService

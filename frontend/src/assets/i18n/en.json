@@ -140,11 +140,15 @@
     "MESSAGE": {
       "USER_DELETED": "User {{nickname}} has been deleted",
       "USER_ROLE_UPDATED": "User role for {{nickname}} has been successfully updated",
-      "USER_ACCESS_SETTINGS_UPDATED": "Accessibility settings for user {{nickname}} have been successfully updated"
+      "USER_ACCESS_SETTINGS_UPDATED": "Accessibility settings for user {{nickname}} have been successfully updated",
+      "NOTIFICATION_CREATED": "Notification has been successfully created"
     },
     "MODAL": {
       "USER_DELETION_TITLE": "Attention",
-      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete user {{nickname}}?</b>"
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete user {{nickname}}?</b>",
+      "NOTIFICATION_TITLE": "Notification",
+      "RUSSIAN": "Russian:",
+      "ENGLISH": "English:"
     }
   },
   "TIMER_SETTINGS": {
@@ -325,7 +329,8 @@
       "ADD": "Add",
       "END": "End",
       "JOIN": "Join",
-      "CREATE": "Create"
+      "CREATE": "Create",
+      "CREATE_NOTIFICATION": "Create notification"
     },
     "VALIDATIONS": {
       "EMAIL_OR_NICKNAME_REQUIRED": "• Please enter your email or username!",
