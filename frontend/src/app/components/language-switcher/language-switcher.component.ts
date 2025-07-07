@@ -70,13 +70,13 @@ export class LanguageSwitcherComponent implements OnInit {
         this.i18nService.setLocale(ru_RU);
     }
 
-    this.messageService.create(
-      'success',
-      this.translateService.instant(
-        'LANGUAGE_SWITCHER.MESSAGE.CHANGE_LANGUAGE',
-        { language: langLabel },
-      ),
-    );
+    // this.messageService.create(
+    //   'success',
+    //   this.translateService.instant(
+    //     'LANGUAGE_SWITCHER.MESSAGE.CHANGE_LANGUAGE',
+    //     { language: langLabel },
+    //   ),
+    // );
 
     location.reload();
   }
