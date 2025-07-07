@@ -303,10 +303,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     //   this.bindingService.triggerClickReloadButton();
     // }
 
-    if (ctrlOrCmd && event.key.toLowerCase() === 'c') {
-      event.preventDefault();
-      this.bindingService.triggerClickCopyButton();
-    }
+    // if (ctrlOrCmd && event.key.toLowerCase() === 'c') {
+    //   event.preventDefault();
+    //   this.bindingService.triggerClickCopyButton();
+    // }
 
     if (ctrlOrCmd && event.key.toLowerCase() === 'f') {
       event.preventDefault();
