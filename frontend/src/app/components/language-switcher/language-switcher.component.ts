@@ -77,5 +77,7 @@ export class LanguageSwitcherComponent implements OnInit {
         { language: langLabel },
       ),
     );
+
+    location.reload();
   }
 }
