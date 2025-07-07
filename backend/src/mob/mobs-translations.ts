@@ -32,7 +32,7 @@ export const mobTranslations = {
   '673148ec1e738aba75ba3451': {
     en: {
       mobName: 'Giant Tortolla',
-      shortName: 'Tort',
+      shortName: 'GT',
       respawnText:
         "The ancient evil has awoken, yet only Alnore's Guard can see it.",
       location: 'Trogul',
@@ -52,7 +52,7 @@ export const mobTranslations = {
   '673149461e738aba75ba3459': {
     en: {
       mobName: 'Destructor',
-      shortName: 'Dest',
+      shortName: 'Destr',
       respawnText:
         'The desert is marked by the sign of a raven by the pyramid slope.',
       location: 'Mara Desert',
@@ -62,7 +62,7 @@ export const mobTranslations = {
   '673149751e738aba75ba345d': {
     en: {
       mobName: 'Ancient Treant',
-      shortName: 'Treant',
+      shortName: 'Ent',
       respawnText: 'The ancient forest is advancing upon Lythan Castle.',
       location: 'Catalania',
       mobType: 'Boss',
@@ -118,7 +118,7 @@ export const mobTranslations = {
     en: {
       mobName: 'General Hrungnir',
       shortName: 'General',
-      respawnText: 'Undefined',
+      respawnText: 'General Hrungnir has besieged Teuton!',
       location: 'Teuton',
       mobType: 'Boss',
     },
@@ -127,7 +127,7 @@ export const mobTranslations = {
     en: {
       mobName: "Cardigan's Courier",
       shortName: 'Cardigan',
-      respawnText: 'Undefined',
+      respawnText: 'A Cardigan’s Courier is attacking travelers in Eltane!',
       location: 'Eltane',
       mobType: 'Boss',
     },
@@ -136,7 +136,7 @@ export const mobTranslations = {
     en: {
       mobName: 'Dark Morious',
       shortName: 'Morious',
-      respawnText: 'Undefined',
+      respawnText: 'A Dark Morius is disturbing Arcon’s peace!',
       location: 'Arcon',
       mobType: 'Boss',
     },
@@ -145,17 +145,57 @@ export const mobTranslations = {
     en: {
       mobName: 'Unholy Rebel',
       shortName: 'Rebel',
-      respawnText: 'Undefined',
+      respawnText: 'An Unholy Rebel has awakened once again in the Dead City!',
       location: 'Dead City',
       mobType: 'Boss',
     },
   },
   '68115c7c9ade77989c40d89c': {
     en: {
-      mobName: 'Unholy Rebel',
-      shortName: 'Rebel',
-      respawnText: 'Undefined',
+      mobName: 'Fire Irex',
+      shortName: 'Irex',
+      respawnText: 'A Fire Irex is devastating Baron Logart’s land! Stop it!',
       location: "Baron Logart's Island",
+      mobType: 'Boss',
+    },
+  },
+  '673a9b38697139657bf024ad': {
+    en: {
+      mobName: 'Dwan the Merciless',
+      shortName: 'Dwan',
+      respawnText:
+        'What a funny place. Is this the kingdom’s main pumpkin garden? Anyway, be they pumpkins or mortals, it doesn’t matter!',
+      location: 'Elgor',
+      mobType: 'Boss',
+    },
+  },
+  '673a9b3f697139657bf024b5': {
+    en: {
+      mobName: 'Dwan the Merciless',
+      shortName: 'Dwan',
+      respawnText:
+        'The hooves of my steel horse tread the Dark Goddess’s lands once again! Tremble, you worthless fools!',
+      location: "Morra's Forest",
+      mobType: 'Boss',
+    },
+  },
+  '673a9b46697139657bf024b9': {
+    en: {
+      mobName: 'Dwan the Merciless',
+      shortName: 'Dwan',
+      respawnText:
+        'I’m here again, in the land of those who have rejected the Light. In the cradle of oblivion and eternity. Come to me and accept death!',
+      location: 'Arcon',
+      mobType: 'Boss',
+    },
+  },
+  '673a9b4e697139657bf024bd': {
+    en: {
+      mobName: 'Dwan the Merciless',
+      shortName: 'Dwan',
+      respawnText:
+        'The cave vaults smell of filth and dampness... I’m really close, Maximus! Two steps away from you!',
+      location: 'Zagre Cave',
       mobType: 'Boss',
     },
   },
@@ -185,24 +225,24 @@ export const mobTranslations = {
   },
   '67314d111e738aba75ba3488': {
     en: {
-      mobName: 'Alpha Male',
-      shortName: 'Alpha',
+      mobName: 'Rich Ghoul',
+      shortName: 'Ghoul',
       location: 'Small Crypt (Catalania)',
       mobType: 'Elite',
     },
   },
   '67314d191e738aba75ba348c': {
     en: {
-      mobName: 'Alpha Male',
-      shortName: 'Alpha',
+      mobName: 'Rich Ghoul',
+      shortName: 'Ghoul',
       location: 'Small Crypt (Dancing Forest)',
       mobType: 'Elite',
     },
   },
   '67314d431e738aba75ba3490': {
     en: {
-      mobName: 'Alpha Male',
-      shortName: 'Alpha',
+      mobName: 'Rich Ghoul',
+      shortName: 'Ghoul',
       location: 'Smugglers Catacombs (Worlax)',
       mobType: 'Elite',
     },
@@ -250,7 +290,7 @@ export const mobTranslations = {
   '67314ef51e738aba75ba34ab': {
     en: {
       mobName: 'Royal Thorn',
-      shortName: 'Boar',
+      shortName: 'Thorn',
       location: 'Elgore',
       mobType: 'Elite',
     },
