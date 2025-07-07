@@ -94,7 +94,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   isLoading = this.timerService.isLoading$;
   isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
-  currentLang: string = 'ru';
   currentUser: any = [];
 
   radioValue: string = 'death';
@@ -320,7 +319,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.timerService.language$.subscribe({
       next: (res) => {
-        this.language = res;
+        this.language = res || localStorage.getItem('language') || 'ru';
       },
     });
 
@@ -1435,7 +1434,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.notificationService.notificationList$.subscribe({
       next: (res) => {
         this.notifications = res;
-        this.currentLang = localStorage.getItem('language') || 'ru';
 
         if (this.notifications[index]) {
           this.nzNotificationService.template(this.template!, {

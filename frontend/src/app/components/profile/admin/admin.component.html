@@ -59,6 +59,7 @@
           nzType="primary"
           (click)="confirmCreateNotificationModal()"
           [nzLoading]="isCreateNotificationOkLoading"
+          [disabled]="!russianText || !englishText"
         >
           {{ "COMMON.BUTTONS.CREATE" | translate }}
         </button>

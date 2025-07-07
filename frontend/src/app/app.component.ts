@@ -42,7 +42,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   position: NzNotificationPlacement | undefined = 'bottomRight';
   showBackground: boolean = false;
   isVisible: boolean = false;
-  currentLang: string = 'ru';
+  language: string = 'ru';
 
   cyrillicLanguages = [
     'ru', // Русский
@@ -60,6 +60,12 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   ];
 
   ngOnInit() {
+    this.timerService.language$.subscribe({
+      next: (res) => {
+        this.language = res || localStorage.getItem('language') || 'ru';
+      },
+    });
+
     // Инициализация языков
     this.translateService.addLangs(['ru', 'en', 'vi', 'pl']);
 
@@ -114,8 +120,6 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
           const viewedArr: string[] = viewed ? JSON.parse(viewed) : [];
           return !viewedArr.includes(item.id);
         });
-
-        this.currentLang = localStorage.getItem('language') || 'ru';
 
         if (this.notifications[index]) {
           this.nzNotificationService
