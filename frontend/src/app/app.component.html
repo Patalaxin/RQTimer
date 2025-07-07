@@ -4,7 +4,7 @@
     <h2 style="color: #000000">
       {{ "ADMIN.MODAL.NOTIFICATION_TITLE" | translate }}
     </h2>
-    <span>{{ notification.text[currentLang] }}</span>
+    <span [innerHTML]="notification.text[currentLang]"></span>
 
     <div class="notification-template-content">
       <button
