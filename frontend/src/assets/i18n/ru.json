@@ -173,8 +173,8 @@
     "MESSAGE": {
       "VOICE_SETTING_ACTIVATED": "Голосовые уведомления включены",
       "VOICE_SETTING_DEACTIVATED": "Голосовые уведомления выключены",
-      "MEMBERS_CAN_EDIT_MOBS": "Обычные участники теперь могут добавлять/удалять мобов",
-      "MEMBERS_CANNOT_EDIT_MOBS": "Обычные участники теперь не могут добавлять/удалять мобов",
+      "MEMBERS_CAN_EDIT_MOBS": "Обычные участники теперь могут добавлять мобов",
+      "MEMBERS_CANNOT_EDIT_MOBS": "Обычные участники теперь не могут добавлять мобов",
       "INVITE_COPIED": "Инвайт успешно скопирован!",
       "USER_DELETED": "Пользователь {{email}} удалён",
       "USER_ASSIGNED_AS_LEADER": "Пользователь {{email}} назначен лидером",

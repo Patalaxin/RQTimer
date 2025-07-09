@@ -174,8 +174,8 @@
     "MESSAGE": {
       "VOICE_SETTING_ACTIVATED": "Voice notifications enabled",
       "VOICE_SETTING_DEACTIVATED": "Voice notifications disabled",
-      "MEMBERS_CAN_EDIT_MOBS": "Regular members can now add/remove mobs",
-      "MEMBERS_CANNOT_EDIT_MOBS": "Regular members can no longer add/remove mobs",
+      "MEMBERS_CAN_EDIT_MOBS": "Regular members can now add mobs",
+      "MEMBERS_CANNOT_EDIT_MOBS": "Regular members can no longer add mobs",
       "INVITE_COPIED": "Invite successfully copied!",
       "USER_DELETED": "User {{email}} has been removed",
       "USER_ASSIGNED_AS_LEADER": "User {{email}} has been assigned as leader",
