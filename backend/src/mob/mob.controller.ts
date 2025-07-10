@@ -70,8 +70,8 @@ import {
 export class MobController {
   constructor(
     @Inject('IMob') private readonly mobInterface: IMob,
-    private jwtService: JwtService,
-    private mobGateway: MobGateway,
+    private readonly jwtService: JwtService,
+    private readonly mobGateway: MobGateway,
     private readonly telegramBotService: TelegramBotService,
   ) {}
 

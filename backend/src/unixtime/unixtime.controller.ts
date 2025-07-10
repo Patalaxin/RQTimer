@@ -6,7 +6,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UnixtimeResponseDto } from './dto/get-unixtime.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokensGuard } from '../guards/tokens.guard';
 import { IUnixtime } from './unixtime.interface';
@@ -23,7 +22,7 @@ export class UnixtimeController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get Unixtime' })
   @Get()
-  async getUnixTime(): Promise<UnixtimeResponseDto> {
-    return this.unixtimeInterface.getUnixtime();
+  async getUnixTime(): Promise<{ unixtime: number }> {
+    return this.unixtimeInterface.getCurrentUnixtime();
   }
 }

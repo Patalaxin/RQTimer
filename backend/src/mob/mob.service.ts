@@ -33,7 +33,6 @@ import {
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RolesTypes, User } from '../schemas/user.schema';
-import { UnixtimeService } from '../unixtime/unixtime.service';
 import { GroupService } from '../group/group.service';
 import { Group } from '../schemas/group.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
@@ -46,6 +45,7 @@ import {
 } from './dto/update-mob-comment.dto';
 import { IMob } from './mob.interface';
 import { translateMob } from '../utils/translate-mob';
+import { IUnixtime } from '../unixtime/unixtime.interface';
 
 export class MobService implements IMob {
   constructor(
@@ -55,7 +55,7 @@ export class MobService implements IMob {
     private readonly mobsDataModel: Model<MobsDataDocument>,
     private readonly usersService: UsersService,
     private readonly historyService: HistoryService,
-    private readonly unixtimeService: UnixtimeService,
+    @Inject('IUnixtime') private readonly unixtimeService: IUnixtime,
     @Inject(forwardRef(() => GroupService))
     private readonly groupService: GroupService,
   ) {}
@@ -112,7 +112,7 @@ export class MobService implements IMob {
       try {
         await mobData.save();
 
-        const unixtimeResponse = await this.unixtimeService.getUnixtime();
+        const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
         const translatedMob = translateMob(mob);
         const mobInstance = plainToInstance(Mob, translatedMob, {
@@ -160,7 +160,7 @@ export class MobService implements IMob {
           .lean()
           .exec(),
 
-        this.unixtimeService.getUnixtime(),
+        this.unixtimeService.getCurrentUnixtime(),
       ]);
 
       if (!mob || !mobData) {
@@ -198,7 +198,7 @@ export class MobService implements IMob {
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const [userData, unixtimeResponse] = await Promise.all([
       this.usersService.findUser(email),
-      this.unixtimeService.getUnixtime(),
+      this.unixtimeService.getCurrentUnixtime(),
     ]);
 
     const { excludedMobs = [], unavailableMobs = [], groupName } = userData;
@@ -260,7 +260,7 @@ export class MobService implements IMob {
     getMobsDto: GetMobsDtoRequest,
     lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    const unixtimeResponse = await this.unixtimeService.getUnixtime();
+    const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
     const allMobsData = await this.mobsDataModel
       .find({ groupName: groupName, server: getMobsDto.server }, { __v: 0 })
