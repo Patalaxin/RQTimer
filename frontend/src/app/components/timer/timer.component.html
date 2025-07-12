@@ -660,7 +660,10 @@
           [(nzVisible)]="isAddModalVisible"
           [nzFooter]="addFooter"
           (nzOnCancel)="cancelAddModal()"
-          [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
+          [nzBodyStyle]="{
+            height: '450px',
+            overflow: 'auto',
+          }"
         >
           <p *nzModalContent>
             <span
@@ -671,6 +674,7 @@
             <nz-skeleton
               [nzActive]="true"
               *ngIf="isAddModalLoading"
+              style="height: 100%"
             ></nz-skeleton>
             <span *ngIf="!isAddModalLoading">
               <div *ngIf="availableMobList.length">
