@@ -1,4 +1,8 @@
 {
+  "APP": {
+    "TITLE": "RQTimer - таймер мобов для Royal Quest",
+    "DESCRIPTION": "RQTimer предлагает удобный интерфейс для переписывания мобов как для одиночных игроков, так и для групп"
+  },
   "LANGUAGE_SWITCHER": {
     "MESSAGE": {
       "CHANGE_LANGUAGE": "Язык успешно сменен на {{language}}"

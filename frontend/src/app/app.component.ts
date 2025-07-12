@@ -18,6 +18,7 @@ import {
 import { NotificationService } from './services/notification.service';
 import { StorageService } from './services/storage.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +27,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   private readonly router = inject(Router);
+  private readonly titleService = inject(Title);
+  private readonly metaService = inject(Meta);
   private readonly timerService = inject(TimerService);
   private readonly notificationService = inject(NotificationService);
   private readonly storageService = inject(StorageService);
@@ -60,10 +63,11 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   ];
 
   ngOnInit() {
-    this.timerService.language$.subscribe({
-      next: (res) => {
-        this.language = res || localStorage.getItem('language') || 'ru';
-      },
+    this.setMeta();
+
+    // Обновляем мета-теги при смене языка
+    this.translateService.onLangChange.subscribe(() => {
+      this.setMeta();
     });
 
     // Инициализация языков
@@ -78,6 +82,14 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
     );
 
     const defaultLang = isCyrillicLang ? 'ru' : 'en';
+
+    if (!savedLang) localStorage.setItem('language', defaultLang);
+
+    this.timerService.language$.subscribe({
+      next: (res) => {
+        this.language = res || savedLang || defaultLang;
+      },
+    });
 
     this.translateService.setDefaultLang(defaultLang);
     this.translateService.use(savedLang || defaultLang);
@@ -109,6 +121,15 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   checkRoute(url: string) {
     // Проверяем текущий маршрут и задаем значение для showBackground
     this.showBackground = url === '/timer';
+  }
+
+  setMeta() {
+    this.translateService.get('APP.TITLE').subscribe((title: string) => {
+      this.titleService.setTitle(title);
+    });
+    this.translateService.get('APP.DESCRIPTION').subscribe((desc: string) => {
+      this.metaService.updateTag({ name: 'description', content: desc });
+    });
   }
 
   showNotifications(index: number): void {

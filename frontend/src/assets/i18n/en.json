@@ -1,4 +1,8 @@
 {
+  "APP": {
+    "TITLE": "RQTimer - mob timer for Royal Quest",
+    "DESCRIPTION": "RQTimer offers a convenient interface for tracking mobs both for solo players and for groups"
+  },
   "LANGUAGE_SWITCHER": {
     "MESSAGE": {
       "CHANGE_LANGUAGE": "Language successfully changed to {{language}}"

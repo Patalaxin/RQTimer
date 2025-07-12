@@ -45,7 +45,7 @@ export class LanguageSwitcherComponent implements OnInit {
 
   switchLanguage(event: any): void {
     const lang = event;
-    const langLabel = this.langList.find((lang) => lang.value === event)?.name;
+    // const langLabel = this.langList.find((lang) => lang.value === event)?.name;
     // this.translateService.use(lang);
     this.currentLang = lang;
     localStorage.setItem('language', lang);

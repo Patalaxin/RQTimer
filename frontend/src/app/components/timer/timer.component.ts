@@ -151,6 +151,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   position: NzNotificationPlacement | undefined = 'bottomRight';
 
   language: string = 'ru';
+  isLangReady: boolean = false;
+  private justLoaded = true;
 
   private audioQueue: HTMLAudioElement[] = [];
   private isPlayingAudio = false;
@@ -317,11 +319,18 @@ export class TimerComponent implements OnInit, OnDestroy {
   template?: TemplateRef<{}>;
 
   ngOnInit(): void {
-    this.timerService.language$.subscribe({
-      next: (res) => {
-        this.language = res || localStorage.getItem('language') || 'ru';
-      },
-    });
+    // this.timerService.language$.subscribe({
+    //   next: (res) => {
+    //     this.language = res || localStorage.getItem('language') || 'ru';
+    //   },
+    // });
+
+    setTimeout(() => {
+      this.justLoaded = false;
+    }, 10000); // 10 секунд "грейс-периода"
+
+    this.language = localStorage.getItem('language') || 'ru';
+    this.isLangReady = true;
 
     this.setTimerOptions();
 
@@ -426,7 +435,10 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.currentProgressTime = res.unixtime;
 
-        if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
+        if (
+          !this.justLoaded &&
+          Math.abs(this.currentProgressTime - Date.now()) >= 15000
+        ) {
           this.messageService.create(
             'warning',
             this.translateService.instant('TIMER.MESSAGE.TIME_DESYNC_WARNING', {
