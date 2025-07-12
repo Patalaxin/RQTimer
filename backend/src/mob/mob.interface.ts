@@ -2,7 +2,7 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest,
+  GetMobDtoRequest, GetMobDtoResponse,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -37,6 +37,8 @@ export interface IMob {
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
+
+  getMob(getMobDto: GetMobDtoRequest, lang: string): Promise<GetMobDtoResponse>;
 
   getMobFromGroup(
     getMobDto: GetMobDtoRequest,

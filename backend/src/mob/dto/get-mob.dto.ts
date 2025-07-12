@@ -5,7 +5,7 @@ import { Mob } from '../../schemas/mob.schema';
 import { MobsData } from '../../schemas/mobsData.schema';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class GetMobDtoRequest {
+export class GetMobInGroupDtoRequest {
   @IsEnum(Servers)
   @IsNotEmpty()
   server: Servers;
@@ -13,6 +13,19 @@ export class GetMobDtoRequest {
   @IsString()
   @IsNotEmpty()
   mobId: string;
+}
+
+export class GetMobDtoRequest {
+  @IsString()
+  @IsNotEmpty()
+  mobId: string;
+}
+
+export class GetMobDtoResponse {
+  @ApiProperty()
+  @Expose()
+  @Type(() => Mob)
+  mob: Mob;
 }
 
 export class GetFullMobDtoResponse {

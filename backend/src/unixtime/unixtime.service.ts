@@ -64,8 +64,8 @@ export class UnixtimeService
       this.logger.debug(
         `Synced unixtime: ${this.unixtime}, processingTime: ${processingTimeMs}ms`,
       );
-    } catch (error) {
-      this.logger.warn('Using local time due to error', error);
+    } catch {
+      this.logger.warn('Using local time due to error');
       this.unixtime = Date.now();
       this.lastSyncTime = Date.now();
     }

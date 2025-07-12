@@ -29,7 +29,7 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest,
+  GetMobDtoRequest, GetMobDtoResponse, GetMobInGroupDtoRequest,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -99,12 +99,23 @@ export class MobController {
   }
 
   @Roles()
-  @Get('/:server/:mobId/')
+  @Get('/:mobId/')
   @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob' })
-  getMobAndData(
-    @GetGroupNameFromToken() groupName: string,
+  getMob(
     @Param() getMobDto: GetMobDtoRequest,
+    @Query('lang') lang: string = 'ru',
+  ): Promise<GetMobDtoResponse> {
+    return this.mobInterface.getMob(getMobDto, lang);
+  }
+
+  @Roles()
+  @Get('/group/:server/:mobId/')
+  @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
+  @ApiOperation({ summary: 'Get Mob From Group' })
+  getMobFromGroup(
+    @GetGroupNameFromToken() groupName: string,
+    @Param() getMobDto: GetMobInGroupDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
     return this.mobInterface.getMobFromGroup(getMobDto, groupName, lang);
@@ -112,7 +123,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Find All User Mobs' })
-  @Get('/:server/')
+  @Get('/server/:server/')
   findAllMobsByUser(
     @GetEmailFromToken() email: string,
     @Param() getMobsDto: GetMobsDtoRequest,

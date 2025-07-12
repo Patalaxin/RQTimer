@@ -15,6 +15,8 @@ import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
   GetMobDtoRequest,
+  GetMobDtoResponse,
+  GetMobInGroupDtoRequest,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -139,8 +141,40 @@ export class MobService implements IMob {
     return result;
   }
 
-  async getMobFromGroup(
+  async getMob(
     getMobDto: GetMobDtoRequest,
+    lang: string = 'ru',
+  ): Promise<GetMobDtoResponse> {
+    try {
+      const mob = await this.mobModel
+        .findById(getMobDto.mobId, { __v: 0 })
+        .lean();
+
+      if (!mob) {
+        throw new Error();
+      }
+
+      const translatedMob = translateMob(mob, lang);
+      const mobInstance = plainToInstance(Mob, translatedMob, {
+        excludeExtraneousValues: true,
+      });
+
+      return {
+        mob: mobInstance,
+      };
+    } catch {
+      if (!isValidObjectId(getMobDto.mobId)) {
+        throw new BadRequestException(`Invalid ObjectId: ${getMobDto.mobId}`);
+      } else {
+        throw new BadRequestException(
+          'Mob or Mob data not found for this group',
+        );
+      }
+    }
+  }
+
+  async getMobFromGroup(
+    getMobDto: GetMobInGroupDtoRequest,
     groupName: string,
     lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
@@ -180,7 +214,7 @@ export class MobService implements IMob {
         mobData: mobDataInstance,
         unixtime: unixtimeResponse.unixtime,
       };
-    } catch (err) {
+    } catch {
       if (!isValidObjectId(getMobDto.mobId)) {
         throw new BadRequestException(`Invalid ObjectId: ${getMobDto.mobId}`);
       } else {
@@ -547,7 +581,7 @@ export class MobService implements IMob {
   ): Promise<RemoveMobFromGroupDtoResponse> {
     const { mobId, server } = removeMobDtoParams;
 
-    const getMobDto: GetMobDtoRequest = { mobId, server };
+    const getMobDto: GetMobInGroupDtoRequest = { mobId, server };
 
     const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
       getMobDto,
@@ -610,7 +644,7 @@ export class MobService implements IMob {
       await this.historyService.createHistory(history);
 
       return this.findAllMobsByUser(email, { server });
-    } catch (err) {
+    } catch {
       throw new BadRequestException(
         'Something went wrong while crashing the server.',
       );
@@ -664,7 +698,7 @@ export class MobService implements IMob {
       await this.historyService.createHistory(history);
 
       return { mob: mob.mob, mobData };
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Failed to process respawn lost.');
     }
   }
