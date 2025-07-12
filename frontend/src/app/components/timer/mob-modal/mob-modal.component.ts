@@ -36,9 +36,8 @@ export class MobModalComponent implements OnInit {
   }
 
   getMob() {
-    const server = this.storageService.getLocalStorage('server');
     const lang = localStorage.getItem('language') || 'ru';
-    this.timerService.getMob(this.item.mobData.mobId, server, lang).subscribe({
+    this.timerService.getMob(this.item.mobData.mobId, lang).subscribe({
       next: (res) => {
         this.itemData = res;
         this.isLoading = false;

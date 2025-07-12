@@ -97,12 +97,12 @@ export class TimerService {
     );
   }
 
-  getMob(mobId: string, server: string, lang?: string) {
+  getMob(mobId: string, lang?: string) {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.MOB_URL}/${server}/${mobId}`, {
+    return this.http.get(`${this.MOB_URL}/${mobId}`, {
       params,
     });
   }
@@ -112,7 +112,7 @@ export class TimerService {
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.MOB_URL}/${server}`, {
+    return this.http.get(`${this.MOB_URL}/server/${server}`, {
       params,
     });
   }
