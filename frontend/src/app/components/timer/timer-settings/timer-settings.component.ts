@@ -13,6 +13,7 @@ import { GroupsService } from 'src/app/services/groups.service';
 import { WebsocketService } from '../../../services/websocket.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TimerService } from 'src/app/services/timer.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-timer-settings',
@@ -38,6 +39,7 @@ export class TimerSettingsComponent implements OnInit {
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
   @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
 
+  IMAGE_SRC = environment.apiUrl + '/';
   userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
@@ -59,6 +61,7 @@ export class TimerSettingsComponent implements OnInit {
   switchAddMobsValue = false;
   isSwitchLoading = false;
 
+  private currentAudio: HTMLAudioElement | null = null;
   volume: string = localStorage.getItem('volume') || '50';
   language: string = 'ru';
 
@@ -103,11 +106,29 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   volumeChange(event: any): any {
+    let audio: HTMLAudioElement;
+    const specialNotification = JSON.parse(
+      localStorage.getItem('specialNotification') || 'false',
+    );
     localStorage.setItem('volume', event);
     const volume = Number(localStorage.getItem('volume') || '50') / 100;
-    const audio = new Audio('../../../assets/audio/notification.mp3');
+
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+    }
+
+    if (!specialNotification) {
+      audio = new Audio('../../../assets/audio/notification.mp3');
+    } else {
+      audio = new Audio(
+        `${this.IMAGE_SRC}/deadVoices/673148021e738aba75ba3402.m4a`,
+      );
+    }
     audio.volume = volume;
     audio.play();
+
+    this.currentAudio = audio;
   }
 
   clickVoiceSwitch(): void {
