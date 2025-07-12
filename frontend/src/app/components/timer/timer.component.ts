@@ -1076,7 +1076,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       if (item.mobData.respawnTime)
         if (action === 'respawn') {
-          if (item.mobData.respawnTime < item.unixtime) {
+          if (item.mobData.respawnTime <= item.unixtime) {
             if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
               return this.translateService.instant(
                 'TIMER.MODAL.RESPAWN_TIME_OVERWRITE_1',
