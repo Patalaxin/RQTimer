@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Inject,
   Param,
   Post,
@@ -29,7 +30,9 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest, GetMobDtoResponse, GetMobInGroupDtoRequest,
+  GetMobDtoRequest,
+  GetMobDtoResponse,
+  GetMobInGroupDtoRequest,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -102,6 +105,7 @@ export class MobController {
   @Get('/:mobId/')
   @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob' })
+  @Header('Cache-Control', 'public, max-age=86400, immutable')
   getMob(
     @Param() getMobDto: GetMobDtoRequest,
     @Query('lang') lang: string = 'ru',
