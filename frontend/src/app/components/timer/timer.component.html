@@ -77,9 +77,9 @@
   <nz-alert
     *ngIf="isDesync"
     nzType="warning"
-    nzMessage="{{
+    [nzMessage]="
       'TIMER.MESSAGE.TIME_DESYNC_WARNING' | translate: { seconds: desyncTime }
-    }}"
+    "
     nzCloseable
     nzShowIcon
   ></nz-alert>

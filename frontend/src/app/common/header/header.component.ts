@@ -17,6 +17,7 @@ import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 // import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -38,6 +39,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly tokenService = inject(TokenService);
   private readonly historyService = inject(HistoryService);
   private readonly authService = inject(AuthService);
+  private readonly configurationService = inject(ConfigurationService);
   private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
   private readonly modalService = inject(NzModalService);
@@ -58,15 +60,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isOnlineSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
-  serverList = [
-    { label: 'Гелиос', value: 'Гелиос' },
-    { label: 'Игнис', value: 'Игнис' },
-    { label: 'Astus', value: 'Astus' },
-    { label: 'Pyros', value: 'Pyros' },
-    { label: 'Aztec', value: 'Aztec' },
-    { label: 'Ortos', value: 'Ortos' },
-  ];
-  // serverList: any[] = [];
+  // serverList = [
+  //   { label: 'Гелиос', value: 'Гелиос' },
+  //   { label: 'Игнис', value: 'Игнис' },
+  //   { label: 'Astus', value: 'Astus' },
+  //   { label: 'Pyros', value: 'Pyros' },
+  //   { label: 'Aztec', value: 'Aztec' },
+  //   { label: 'Ortos', value: 'Ortos' },
+  // ];
+  serverList: any[] = [];
 
   duplicatedMobList: any = [
     '673a9b38697139657bf024ad',
@@ -182,16 +184,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private initCurrentServer() {
-    // this.configurationService.getServers().subscribe({
-    //   next: (res) => {
-    //     res.map((item: string) => {
-    //       let server = { label: item, value: item };
-    //       this.serverList.push(server);
-    //     });
-    this.currentServer =
-      this.storageService.getLocalStorage('server') || 'Гелиос';
-    // },
-    // });
+    this.configurationService.getServers().subscribe({
+      next: (res) => {
+        this.serverList = res.map((item: string) => ({
+          label: item,
+          value: item,
+        }));
+        this.currentServer =
+          this.storageService.getLocalStorage('server') || 'Гелиос';
+      },
+    });
   }
 
   private sortTimerList(timerList: TimerItem[]): void {

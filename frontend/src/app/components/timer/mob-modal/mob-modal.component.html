@@ -46,7 +46,14 @@
           style="resize: none; border-radius: 15px"
           *ngIf="this.itemData.mob.mobType === 'Босс'"
         ></textarea>
-
+        <input
+          nz-input
+          class="br-50px"
+          style="width: 100%"
+          [ngModel]="this.itemData.mob.location"
+          disabled
+          [placeholder]="'MOB_MODAL.LOCATION' | translate"
+        />
         <nz-time-picker
           class="mob-modal-ml-0 mob-modal-mb-10px"
           style="width: 150px; margin-top: 0"
@@ -55,14 +62,6 @@
           nzNowText=" "
         >
         </nz-time-picker>
-        <input
-          nz-input
-          class="br-50px"
-          style="width: fit-content"
-          [ngModel]="this.itemData.mob.location"
-          disabled
-          [placeholder]="'MOB_MODAL.LOCATION' | translate"
-        />
       </div>
     </div>
   </div>
