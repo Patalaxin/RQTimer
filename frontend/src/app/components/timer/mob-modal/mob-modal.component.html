@@ -19,6 +19,14 @@
         [ngModel]="this.itemData.mob.mobName"
         disabled
       />
+      <nz-time-picker
+        class="mob-modal-ml-0 mob-modal-mb-10px"
+        style="width: 150px; margin-top: 0"
+        [ngModel]="itemCooldownTime"
+        disabled=""
+        nzNowText=" "
+      >
+      </nz-time-picker>
     </div>
     <div class="mob-modal-bottom mob-modal-d-flex-space-between">
       <div class="mob-modal-bottom-left">
@@ -54,14 +62,6 @@
           disabled
           [placeholder]="'MOB_MODAL.LOCATION' | translate"
         />
-        <nz-time-picker
-          class="mob-modal-ml-0 mob-modal-mb-10px"
-          style="width: 150px; margin-top: 0"
-          [ngModel]="itemCooldownTime"
-          disabled=""
-          nzNowText=" "
-        >
-        </nz-time-picker>
       </div>
     </div>
   </div>
