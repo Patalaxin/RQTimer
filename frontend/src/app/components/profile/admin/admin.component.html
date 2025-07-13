@@ -69,10 +69,13 @@
   <nz-table
     #adminTable
     [nzScroll]="{ x: '787px', y: '350px' }"
-    [nzData]="userList"
+    [nzData]="userList.data"
     nzShowPagination
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-    (nzPageIndexChange)="onPageIndexChange($event)"
+    [nzFrontPagination]="false"
+    [nzTotal]="userList.total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="userList.page"
+    (nzQueryParams)="onQueryParamsChange($event)"
     [nzLoading]="isTableLoading"
     [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
     [nzSize]="!isScreenWidth550 ? 'default' : 'small'"
@@ -122,7 +125,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let user of adminTable.data; let i = index">
-        <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
+        <td nzAlign="center">{{ i + pageSize * (userList.page - 1) + 1 }}</td>
         <td nzCustomFilter>
           {{ user.nickname }}
         </td>

@@ -1,12 +1,8 @@
 import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { AuthService } from 'src/app/services/auth.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { StorageService } from 'src/app/services/storage.service';
-import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -110,29 +106,41 @@ export class AdminComponent implements OnInit {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
-  getAllUsers(nickname?: any): void {
-    this.userService.getAllUsers().subscribe({
-      next: (res) => {
-        this.userSearchList = res;
-        this.userSearchList.forEach((item: any, i: any) => {
-          item.id = i++;
-          item.isUserModalVisible = false;
-          item.isUserOkLoading = false;
-        });
+  getAllUsers(nickname?: any, params?: any): void {
+    this.isTableLoading = true;
+    this.userService
+      .getAllUsers(
+        params?.pageIndex || this.pageIndex,
+        params?.pageSize || this.pageSize,
+      )
+      .subscribe({
+        next: (res) => {
+          this.userSearchList = res;
+          this.userSearchList?.data.forEach((item: any, i: any) => {
+            item.id = i++;
+            item.isUserModalVisible = false;
+            item.isUserOkLoading = false;
+          });
 
-        this.userList = [...this.userSearchList];
-        this.isTableLoading = false;
+          this.userList = { ...this.userSearchList };
+          this.isTableLoading = false;
 
-        if (nickname) {
-          this.messageService.create(
-            'success',
-            this.translateService.instant('ADMIN.MESSAGE.USER_DELETED', {
-              nickname: nickname,
-            }),
-          );
-        }
-      },
-    });
+          if (nickname) {
+            this.messageService.create(
+              'success',
+              this.translateService.instant('ADMIN.MESSAGE.USER_DELETED', {
+                nickname: nickname,
+              }),
+            );
+          }
+        },
+      });
+  }
+
+  onQueryParamsChange(params: any): void {
+    console.log(params);
+    const { pageSize, pageIndex, sort, filter } = params;
+    this.getAllUsers(undefined, { pageSize, pageIndex });
   }
 
   onReset(): void {
@@ -142,20 +150,20 @@ export class AdminComponent implements OnInit {
 
   onSearch(): void {
     this.isSearchVisible = false;
-    this.userList = this.userSearchList.filter(
+    this.userList.data = this.userSearchList.data.filter(
       (item: any) => item.nickname.indexOf(this.searchValue) !== -1,
     );
   }
 
-  onCurrentPageDataChange(listOfCurrentPageData: any): void {
-    this.isTableLoading = true;
-    this.listOfCurrentPageData = listOfCurrentPageData;
-    this.isTableLoading = false;
-  }
+  // onCurrentPageDataChange(listOfCurrentPageData: any): void {
+  //   this.isTableLoading = true;
+  //   this.listOfCurrentPageData = listOfCurrentPageData;
+  //   this.isTableLoading = false;
+  // }
 
-  onPageIndexChange(pageIndex: any): void {
-    this.pageIndex = pageIndex;
-  }
+  // onPageIndexChange(pageIndex: any): void {
+  //   this.pageIndex = pageIndex;
+  // }
 
   getSpecificUser(nickname: string): void {
     this.isUserDataLoading = true;

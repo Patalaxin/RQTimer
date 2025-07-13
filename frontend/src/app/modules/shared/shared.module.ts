@@ -37,6 +37,7 @@ import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 // Add Taiga UI Modules
 import { TuiReorderModule } from '@taiga-ui/addon-table';
@@ -82,6 +83,7 @@ const sharedModules = [
   NzSwitchModule,
   NzNotificationModule,
   NzSliderModule,
+  NzAlertModule,
   TuiRootModule,
   TuiDialogModule,
   TuiAlertModule,

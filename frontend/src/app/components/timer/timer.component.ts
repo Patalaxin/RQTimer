@@ -152,7 +152,9 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   language: string = 'ru';
   isLangReady: boolean = false;
-  private justLoaded = true;
+
+  isDesync: boolean = false;
+  desyncTime: any;
 
   private audioQueue: HTMLAudioElement[] = [];
   private isPlayingAudio = false;
@@ -325,10 +327,6 @@ export class TimerComponent implements OnInit, OnDestroy {
     //   },
     // });
 
-    setTimeout(() => {
-      this.justLoaded = false;
-    }, 10000); // 10 секунд "грейс-периода"
-
     this.language = localStorage.getItem('language') || 'ru';
     this.isLangReady = true;
 
@@ -435,17 +433,10 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.currentProgressTime = res.unixtime;
 
-        if (
-          !this.justLoaded &&
-          Math.abs(this.currentProgressTime - Date.now()) >= 15000
-        ) {
-          this.messageService.create(
-            'warning',
-            this.translateService.instant('TIMER.MESSAGE.TIME_DESYNC_WARNING', {
-              seconds: Math.ceil(
-                Math.abs(this.currentProgressTime - Date.now()) / 1000,
-              ),
-            }),
+        if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
+          this.isDesync = true;
+          this.desyncTime = Math.ceil(
+            Math.abs(this.currentProgressTime - Date.now()) / 1000,
           );
         }
 
