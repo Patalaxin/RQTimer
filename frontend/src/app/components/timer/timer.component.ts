@@ -1123,6 +1123,21 @@ export class TimerComponent implements OnInit, OnDestroy {
                 },
               );
             }
+
+            if (moment(this.currentTime).valueOf() < item.mobData.respawnTime) {
+              return this.translateService.instant(
+                'TIMER.MODAL.RESPAWN_TIME_NEXT_PROTECTED',
+                {
+                  mobName: item.mob.mobName,
+                  respTime: moment(item.mobData.respawnTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                  currentTime: moment(this.currentTime).format(
+                    'HH:mm:ss (DD/MM/YYYY)',
+                  ),
+                },
+              );
+            }
           }
         }
 

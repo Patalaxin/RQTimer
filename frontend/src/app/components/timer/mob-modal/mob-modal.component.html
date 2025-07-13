@@ -40,15 +40,16 @@
           nz-input
           [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
           [ngModel]="this.itemData.mob.respawnText"
+          class="mob-modal-mb-10px"
           disabled
           nzAutosize
           style="resize: none; border-radius: 15px"
-          *ngIf="this.itemData.mob.mobType !== 'Элитка'"
+          *ngIf="this.itemData.mob.mobType === 'Босс'"
         ></textarea>
 
         <nz-time-picker
           class="mob-modal-ml-0 mob-modal-mb-10px"
-          style="width: 150px"
+          style="width: 150px; margin-top: 0"
           [ngModel]="itemCooldownTime"
           disabled=""
           nzNowText=" "

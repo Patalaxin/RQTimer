@@ -241,7 +241,8 @@
       "DEATH_TIME_OVERWRITE_2": "<b>{{mobName}}</b> реснется в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>{{currentTime}}</b>?",
       "RESPAWN_TIME_OVERWRITE_1": "<b>{{mobName}}</b> уже реснулся в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
       "RESPAWN_TIME_OVERWRITE_2": "<b>{{mobName}}</b> уже реснулся в <b>{{respTime}}</b> и следующий респаун предположительно будет в <b>{{nestRespTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
-      "NEXT_RESPAWN_TIME_OVERWRITE": "Cледующий респаун <b>{{mobName}}</b> будет в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?"
+      "NEXT_RESPAWN_TIME_OVERWRITE": "Cледующий респаун <b>{{mobName}}</b> будет в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_NEXT_PROTECTED": "Указано следующее время респауна <b>{{mobName}}</b> — <b>{{respTime}}</b>. Вы уверены, что хотите изменить его на <b>{{currentTime}}</b>?"
     },
     "TOUR": {
       "TIMER_TITLE": "Привет",

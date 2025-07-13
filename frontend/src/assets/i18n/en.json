@@ -242,7 +242,8 @@
       "DEATH_TIME_OVERWRITE_2": "<b>{{mobName}}</b> will respawn at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>death time</b> with <b>{{currentTime}}</b>?",
       "RESPAWN_TIME_OVERWRITE_1": "<b>{{mobName}}</b> has already respawned at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
       "RESPAWN_TIME_OVERWRITE_2": "<b>{{mobName}}</b> has already respawned at <b>{{respTime}}</b> and the next respawn is expected at <b>{{nestRespTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
-      "NEXT_RESPAWN_TIME_OVERWRITE": "The next respawn of <b>{{mobName}}</b> will be at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?"
+      "NEXT_RESPAWN_TIME_OVERWRITE": "The next respawn of <b>{{mobName}}</b> will be at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_NEXT_PROTECTED": "A next respawn time is already set for <b>{{mobName}}</b> — <b>{{respTime}}</b>. Are you sure you want to overwrite it with <b>{{currentTime}}</b>?"
     },
     "TOUR": {
       "TIMER_TITLE": "Hello",
