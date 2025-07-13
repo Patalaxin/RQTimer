@@ -73,7 +73,7 @@ export class UsersService implements IUser {
 
       this.otpService.removeVerifiedEmail(createUserDto.email);
       return newUser.toObject();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong!');
     }
   }
@@ -118,7 +118,7 @@ export class UsersService implements IUser {
         page,
         pages,
       };
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong');
     }
   }
@@ -217,7 +217,7 @@ export class UsersService implements IUser {
         )
         .lean()
         .exec();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong!');
     }
   }
@@ -265,7 +265,7 @@ export class UsersService implements IUser {
         )
         .lean()
         .exec();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong!');
     }
     return { message: 'Role has been updated successfully', status: 200 };
@@ -288,7 +288,7 @@ export class UsersService implements IUser {
     try {
       await this.userModel.deleteOne(deleteQuery);
       await this.tokenModel.findOneAndDelete(deleteQuery);
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong');
     }
     return { message: 'User deleted', status: 200 };
@@ -298,7 +298,7 @@ export class UsersService implements IUser {
     try {
       await this.userModel.deleteMany();
       await this.tokenModel.deleteMany();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong ');
     }
     return { message: 'All users deleted', status: 200 };
