@@ -44,8 +44,3 @@ export class Notification1Session {
 
 export const Notification1SessionSchema =
   SchemaFactory.createForClass(Notification1Session);
-
-Notification1SessionSchema.index(
-  { expireAt: 1 },
-  { expireAfterSeconds: 604800 },
-);

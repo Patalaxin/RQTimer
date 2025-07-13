@@ -3,7 +3,6 @@ import { HydratedDocument } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import { TokenSchema } from './refreshToken.schema';
 
 export type NotificationDocument = HydratedDocument<NotificationSession>;
 
@@ -29,4 +28,3 @@ export class NotificationSession {
 
 export const NotificationSessionSchema =
   SchemaFactory.createForClass(NotificationSession);
-TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 604800 }); //  7 day live for history
