@@ -135,7 +135,7 @@ export class HistoryService implements IHistory {
         page,
         pages,
       };
-    } catch (err) {
+    } catch {
       throw new NotFoundException('History not found!');
     }
   }
@@ -186,7 +186,7 @@ export class HistoryService implements IHistory {
         page,
         pages,
       };
-    } catch (err) {
+    } catch {
       throw new NotFoundException('History not found!');
     }
   }
@@ -202,7 +202,7 @@ export class HistoryService implements IHistory {
       await historyModel.deleteMany({
         groupName: groupName,
       });
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong ');
     }
     return { message: 'All history deleted', status: 200 };

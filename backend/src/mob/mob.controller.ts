@@ -138,6 +138,7 @@ export class MobController {
 
   @Roles()
   @ApiOperation({ summary: 'Find All Available Mobs' })
+  @Header('Cache-Control', 'public, max-age=3600')
   @Get()
   findAllAvailableMobs(@Query('lang') lang: string = 'ru'): Promise<Mob[]> {
     return this.mobInterface.findAllAvailableMobs(lang);

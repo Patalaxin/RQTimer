@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Inject,
   Param,
   Post,
@@ -84,6 +85,7 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
+  @Header('Cache-Control', 'public, max-age=180')
   @Get('/list')
   findAll(
     @Query('page') page: number = 1,

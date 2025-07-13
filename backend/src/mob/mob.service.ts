@@ -95,50 +95,65 @@ export class MobService implements IMob {
       );
     }
 
-    const result: GetFullMobWithUnixDtoResponse[] = [];
+    const mobs = await this.mobModel
+      .find({ _id: { $in: addMobInGroupDto.mobs } }, { __v: 0 })
+      .lean()
+      .exec();
 
-    for (const mobId of addMobInGroupDto.mobs) {
-      const mob = await this.mobModel.findById(mobId, { __v: 0 }).lean().exec();
-
-      if (!mob) {
-        throw new BadRequestException(`Mob not found`);
-      }
-
-      const mobData = new this.mobsDataModel({
-        mobId: mobId,
-        server: server,
-        groupName: groupName,
-        mobTypeAdditionalTime: mob.mobType,
-      });
-
-      try {
-        await mobData.save();
-
-        const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
-
-        const translatedMob = translateMob(mob);
-        const mobInstance = plainToInstance(Mob, translatedMob, {
-          excludeExtraneousValues: true,
-        });
-
-        const mobDataInstance = plainToInstance(MobsData, mobData.toObject(), {
-          excludeExtraneousValues: true,
-        });
-
-        result.push({
-          mob: mobInstance,
-          mobData: mobDataInstance,
-          unixtime: unixtimeResponse.unixtime,
-        });
-      } catch (error) {
-        if (error.code === 11000) {
-          throw new ConflictException(`Mob data already exists`);
-        }
-        throw error;
-      }
+    if (mobs.length !== addMobInGroupDto.mobs.length) {
+      throw new BadRequestException('One or more mobs not found');
     }
 
-    return result;
+    const mobDataArray = mobs.map((mob) => ({
+      mobId: mob._id,
+      server,
+      groupName,
+      mobTypeAdditionalTime: mob.mobType,
+    }));
+
+    try {
+      await this.mobsDataModel.insertMany(mobDataArray, { ordered: false });
+    } catch (error) {
+      if (error.code !== 11000) {
+        throw error;
+      }
+      // Если дубликаты — игнорируем ошибку, тк документы уже есть
+    }
+
+    // Загружаем все документы mobData для заданных mobs и группы
+    const mobDataDocs = await this.mobsDataModel
+      .find({
+        mobId: { $in: addMobInGroupDto.mobs },
+        groupName,
+        server,
+      })
+      .exec();
+
+    const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
+
+    return mobs.map((mob) => {
+      const translatedMob = translateMob(mob);
+      const mobInstance = plainToInstance(Mob, translatedMob, {
+        excludeExtraneousValues: true,
+      });
+
+      // Ищем соответствующий mobData документ
+      const mobData = mobDataDocs.find(
+        (md) => md.mobId.toString() === mob._id.toString(),
+      );
+
+      const mobDataInstance = mobData
+        ? plainToInstance(MobsData, mobData.toObject(), {
+            excludeExtraneousValues: true,
+          })
+        : null;
+
+      return {
+        mob: mobInstance,
+        mobData: mobDataInstance,
+        unixtime: unixtimeResponse.unixtime,
+      };
+    });
   }
 
   async getMob(

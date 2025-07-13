@@ -20,9 +20,9 @@ import { IAuth } from './auth.interface';
 @Injectable()
 export class AuthService implements IAuth {
   constructor(
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtService: JwtService,
+    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly jwtService: JwtService,
     private readonly authGateway: AuthGateway,
   ) {}
 
@@ -41,7 +41,7 @@ export class AuthService implements IAuth {
     const refreshToken: string = randomUUID();
     const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
     await this.tokenModel.findOneAndUpdate(
-      { email: user.email, nickname: user.nickname },
+      { email: user.email },
       {
         $set: {
           refreshToken: hashedRefreshToken,
@@ -122,7 +122,7 @@ export class AuthService implements IAuth {
       const tokenRecord = await this.tokenModel.findOne(query);
 
       refreshToken = tokenRecord.refreshToken;
-    } catch (err) {
+    } catch {
       throw new UnauthorizedException(
         'There is no valid refresh token for this user',
       );

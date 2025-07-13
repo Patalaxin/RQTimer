@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Header, Query } from '@nestjs/common';
 import { ConfigurationService } from './configuration.service';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Locations, Servers } from '../schemas/mobs.enum';
@@ -20,6 +20,7 @@ export class ConfigurationController {
       },
     },
   })
+  @Header('Cache-Control', 'public, max-age=3600')
   @Get('servers')
   getServers(): Servers[] {
     return this.configurationService.getServers();
@@ -36,6 +37,7 @@ export class ConfigurationController {
     description: 'Список мобов (боссы и элиты)',
     type: GetMobsDtoResponse,
   })
+  @Header('Cache-Control', 'public, max-age=3600')
   @Get('mobs')
   getMobs(@Query('lang') lang = 'ru'): Promise<GetMobsDtoResponse> {
     return this.configurationService.getMobs(lang);
@@ -52,6 +54,7 @@ export class ConfigurationController {
       },
     },
   })
+  @Header('Cache-Control', 'public, max-age=3600')
   @Get('locations')
   getLocations(): Locations[] {
     return this.configurationService.getLocations();
