@@ -75,7 +75,7 @@
     [nzTotal]="userList.total"
     [nzPageSize]="pageSize"
     [nzPageIndex]="userList.page"
-    (nzQueryParams)="onQueryParamsChange($event)"
+    (nzPageIndexChange)="onPageIndexChange($event)"
     [nzLoading]="isTableLoading"
     [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
     [nzSize]="!isScreenWidth550 ? 'default' : 'small'"

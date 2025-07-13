@@ -137,10 +137,14 @@ export class AdminComponent implements OnInit {
       });
   }
 
-  onQueryParamsChange(params: any): void {
-    console.log(params);
-    const { pageSize, pageIndex, sort, filter } = params;
-    this.getAllUsers(undefined, { pageSize, pageIndex });
+  // onQueryParamsChange(params: any): void {
+  //   console.log(params);
+  //   const { pageSize, pageIndex, sort, filter } = params;
+  //   this.getAllUsers(undefined, { pageSize, pageIndex });
+  // }
+
+  onPageIndexChange(pageIndex: any): void {
+    this.getAllUsers(undefined, { pageSize: this.pageSize, pageIndex });
   }
 
   onReset(): void {
