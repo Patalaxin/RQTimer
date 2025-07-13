@@ -29,3 +29,10 @@ export class FindAllUsersDtoResponse {
   @IsNotEmpty()
   role: RolesTypes;
 }
+
+export class PaginatedUsersDto {
+  data: FindAllUsersDtoResponse[];
+  total: number;
+  page: number;
+  pages: number;
+}
