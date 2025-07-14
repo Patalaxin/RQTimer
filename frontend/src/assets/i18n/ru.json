@@ -45,8 +45,8 @@
   },
   "CHANGE_PASSWORD": {
     "LOGIN": "Почта",
-    "PASSWORD": "Пароль",
-    "CONFIRM_PASSWORD": "Подтвердите пароль",
+    "PASSWORD": "Новый пароль",
+    "CONFIRM_PASSWORD": "Подтвердите новый пароль",
     "MODAL": {
       "CONFIRM_EMAIL": "Подтверждение почты",
       "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",

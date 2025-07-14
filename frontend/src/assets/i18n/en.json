@@ -45,8 +45,8 @@
   },
   "CHANGE_PASSWORD": {
     "LOGIN": "Email",
-    "PASSWORD": "Password",
-    "CONFIRM_PASSWORD": "Confirm password",
+    "PASSWORD": "New password",
+    "CONFIRM_PASSWORD": "Confirm new password",
     "MODAL": {
       "CONFIRM_EMAIL": "Email confirmation",
       "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
