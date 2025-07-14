@@ -321,12 +321,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   template?: TemplateRef<{}>;
 
   ngOnInit(): void {
-    // this.timerService.language$.subscribe({
-    //   next: (res) => {
-    //     this.language = res || localStorage.getItem('language') || 'ru';
-    //   },
-    // });
-
     this.language = localStorage.getItem('language') || 'ru';
     this.isLangReady = true;
 
@@ -1353,6 +1347,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userGroupName = res.groupName;
+        this.timerService.groupName = this.userGroupName;
         if (res.groupName) {
           this.groupsService.getGroup().subscribe({
             next: (res) => {

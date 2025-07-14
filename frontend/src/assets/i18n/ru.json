@@ -116,7 +116,12 @@
     "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
     "OLD_PASSWORD": "Старый пароль",
     "NEW_PASSWORD": "Новый пароль",
-    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль"
+    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль",
+    "MESSAGE": {
+      "DISPLAY_SETTINGS_UPDATED_SUCCESS": "Настройки отображения успешно обновлены",
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
+    }
   },
   "ADMIN": {
     "USER_LIST": "Список пользователей",
@@ -142,8 +147,6 @@
       "USER_DELETED": "Пользователь {{nickname}} удалён",
       "USER_ROLE_UPDATED": "Роль пользователя {{nickname}} успешно обновлён",
       "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены",
-      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
-      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера",
       "NOTIFICATION_CREATED": "Уведомление успешно создано"
     },
     "MODAL": {
@@ -191,9 +194,9 @@
       "CONFIRM_DELETE_USER_TITLE": "Внимание",
       "CONFIRM_DELETE_USER_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>",
       "CONFIRM_DELETE_GROUP_TITLE": "Внимание",
-      "CONFIRM_DELETE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить группу {{this.groupName}}?</b>",
+      "CONFIRM_DELETE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить группу {{groupName}}?</b>",
       "CONFIRM_LEAVE_GROUP_TITLE": "Внимание",
-      "CONFIRM_LEAVE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите покинуть группу {{this.groupName}}?</b>"
+      "CONFIRM_LEAVE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите покинуть группу {{groupName}}?</b>"
     }
   },
   "MOB_MODAL": {

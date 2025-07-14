@@ -17,9 +17,7 @@ export class TimerService {
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
   private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
   private telegramBotVisibilitySubject$ = new BehaviorSubject<boolean>(false);
-  private languageSubject$ = new BehaviorSubject<string>(
-    localStorage.getItem('language') || 'ru',
-  );
+  private groupNameSubject$ = new BehaviorSubject<string>('');
   private switchVoiceSubject$ = new BehaviorSubject<boolean>(
     JSON.parse(localStorage.getItem('specialNotification') || 'false'),
   );
@@ -44,8 +42,8 @@ export class TimerService {
     return this.telegramBotVisibilitySubject$.asObservable();
   }
 
-  get language$(): Observable<string> {
-    return this.languageSubject$.asObservable();
+  get groupName$(): Observable<string> {
+    return this.groupNameSubject$.asObservable();
   }
 
   get switchVoice$(): Observable<boolean> {
@@ -72,8 +70,8 @@ export class TimerService {
     this.telegramBotVisibilitySubject$.next(visible);
   }
 
-  set language(language: string) {
-    this.languageSubject$.next(language);
+  set groupName(groupName: string) {
+    this.groupNameSubject$.next(groupName);
   }
 
   set switchVoice(enable: boolean) {

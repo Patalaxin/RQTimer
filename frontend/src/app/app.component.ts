@@ -85,12 +85,6 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
     if (!savedLang) localStorage.setItem('language', defaultLang);
 
-    // this.timerService.language$.subscribe({
-    //   next: (res) => {
-    //     this.language = res || savedLang || defaultLang;
-    //   },
-    // });
-
     this.language = savedLang || defaultLang;
 
     this.translateService.setDefaultLang(defaultLang);

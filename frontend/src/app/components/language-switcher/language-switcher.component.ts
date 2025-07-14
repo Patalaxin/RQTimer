@@ -49,7 +49,6 @@ export class LanguageSwitcherComponent implements OnInit {
     // this.translateService.use(lang);
     this.currentLang = lang;
     localStorage.setItem('language', lang);
-    this.timerService.language = lang;
 
     switch (lang) {
       case 'ru':

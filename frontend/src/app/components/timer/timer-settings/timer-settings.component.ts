@@ -75,12 +75,6 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.timerService.language$.subscribe({
-    //   next: (res) => {
-    //     this.language = res || localStorage.getItem('language') || 'ru';
-    //   },
-    // });
-
     this.language = localStorage.getItem('language') || 'ru';
 
     this.timerService.switchVoice$.subscribe({

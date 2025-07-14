@@ -294,7 +294,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        this.updateHistory();
+        this.timerService.groupName$.subscribe({
+          next: (res) => {
+            if (res) {
+              this.updateHistory();
+            }
+          },
+        });
       },
       error: () => {
         this.timerService.isLoading = false;

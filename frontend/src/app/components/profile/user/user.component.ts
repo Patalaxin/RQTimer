@@ -164,7 +164,9 @@ export class UserComponent implements OnInit {
         next: () => {
           this.messageService.create(
             'success',
-            'Настройки отображения успешно обновлены',
+            this.translateService.instant(
+              'USER.MESSAGE.DISPLAY_SETTINGS_UPDATED_SUCCESS',
+            ),
           );
         },
       });
@@ -197,13 +199,6 @@ export class UserComponent implements OnInit {
         },
         error: (err) => {
           this.passwordChangeLoading = false;
-          if (err.error.message) {
-            return this.messageService.create('error', err.error.message);
-          }
-          return this.messageService.create(
-            'error',
-            this.translateService.instant('USER.MESSAGE.UNKNOWN_ERROR'),
-          );
         },
       });
   }

@@ -119,7 +119,12 @@
     "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
     "OLD_PASSWORD": "Old password",
     "NEW_PASSWORD": "New password",
-    "CONFIRM_NEW_PASSWORD": "Confirm new password"
+    "CONFIRM_NEW_PASSWORD": "Confirm new password",
+    "MESSAGE": {
+      "DISPLAY_SETTINGS_UPDATED_SUCCESS": "Display settings have been successfully updated",
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Password changed successfully",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
+    }
   },
   "ADMIN": {
     "USER_LIST": "User list",
