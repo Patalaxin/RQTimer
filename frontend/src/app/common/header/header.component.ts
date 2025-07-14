@@ -58,6 +58,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerSearchValue: string = '';
 
   isOnlineSubscription: Subscription | undefined;
+  groupNameSubscription: Subscription | undefined;
+  timerListSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
   // serverList = [
@@ -107,7 +109,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.getCurrentUser();
     this.bindingHotkey();
 
-    this.timerService.timerList$.subscribe({
+    this.timerListSubscription = this.timerService.timerList$.subscribe({
       next: (res) => {
         this.timerList = res;
       },
@@ -139,6 +141,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.isOnlineSubscription) {
       this.isOnlineSubscription.unsubscribe();
+    }
+    if (this.groupNameSubscription) {
+      this.groupNameSubscription.unsubscribe();
+    }
+    if (this.timerListSubscription) {
+      this.timerListSubscription.unsubscribe();
     }
 
     this.websocketService.disconnect();
@@ -294,8 +302,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        this.timerService.groupName$.subscribe({
+
+        if (this.groupNameSubscription) {
+          this.groupNameSubscription.unsubscribe();
+        }
+
+        this.groupNameSubscription = this.timerService.groupName$.subscribe({
           next: (res) => {
+            console.log(res);
             if (res) {
               this.updateHistory();
             }
