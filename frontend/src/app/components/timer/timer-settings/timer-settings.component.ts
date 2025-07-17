@@ -39,7 +39,7 @@ export class TimerSettingsComponent implements OnInit {
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
   @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
 
-  IMAGE_SRC = environment.url + '/static/api/';
+  IMAGE_SRC = environment.url + '/api/static/';
   userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
