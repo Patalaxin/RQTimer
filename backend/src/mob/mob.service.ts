@@ -700,6 +700,7 @@ export class MobService implements IMob {
         .exec();
 
       const history: History = {
+        mobId,
         location: mob.mob.location,
         mobName: mob.mob.mobName,
         nickname,
