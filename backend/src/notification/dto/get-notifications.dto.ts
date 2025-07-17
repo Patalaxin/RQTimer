@@ -1,11 +1,15 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { LanguageEnum } from '../../schemas/language.enum';
 
 export class GetNotificationsDtoResponse {
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty()
   id: string;
 
-  @IsString()
-  @IsNotEmpty()
-  text: string;
+  @ApiProperty({
+    example: {
+      ru: 'Текст',
+      en: 'Text',
+    },
+  })
+  text: Record<LanguageEnum, string>;
 }

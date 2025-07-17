@@ -7,10 +7,12 @@
 <div *ngIf="!userGroupName && !(isLoading | async)">
   <div class="timer container">
     <div class="form-container">
-      <h1>Уважаемый(ая), {{ currentUser.nickname }}</h1>
+      <h1>
+        {{ "TIMER.GROUP_ABSENCE_NOTICE" | translate }}
+        {{ currentUser.nickname }}
+      </h1>
       <p>
-        В данный момент, Вы не состоите в группе, но Вы можете создать группу
-        или вступить в уже существующую.
+        {{ "TIMER.GROUP_ABSENCE_MESSAGE" | translate }}
       </p>
       <div class="btn-group">
         <button
@@ -20,7 +22,7 @@
           [nzLoading]="isCreateGroupLoading"
           (click)="showCreateGroupModal()"
         >
-          Создать группу
+          {{ "COMMON.BUTTONS.CREATE_GROUP" | translate }}
         </button>
         <button
           nz-button
@@ -29,7 +31,7 @@
           [nzLoading]="isJoinGroupLoading"
           (click)="showJoinGroupModal()"
         >
-          Присоединиться к группе
+          {{ "COMMON.BUTTONS.JOIN_GROUP" | translate }}
         </button>
       </div>
 
@@ -54,7 +56,7 @@
 
         <ng-template #groupFooter>
           <button nz-button nzType="default" (click)="cancelGroupModal()">
-            Отмена
+            {{ "COMMON.BUTTONS.CANCEL" | translate }}
           </button>
           <button
             nz-button
@@ -71,667 +73,697 @@
   </div>
 </div>
 
-<div class="timer container" *ngIf="userGroupName && !(isLoading | async)">
-  <div class="timer-segments">
-    <nz-segmented
-      [nzOptions]="timerOptions"
-      [(ngModel)]="selectedSegments"
-      [nzSize]="isScreenWidth550 ? 'small' : 'default'"
-      tourAnchor="timer-settings"
-    ></nz-segmented>
-  </div>
-  <div *ngIf="selectedSegments === 1">
-    <app-timer-settings
-      [userList]="userGroupList"
-      [groupLeaderEmail]="groupLeaderEmail"
-      [isGroupLeader]="currentUser.isGroupLeader"
-      [currentUser]="currentUser"
-      [groupName]="userGroupName"
-      [onlineUserList]="onlineUserList"
-      [canMembersAddMobs]="canMembersAddMobs"
-      (updateGroup)="onCanMembersAddMobsChange($event)"
-      (exchangeRefresh)="onExchangeRefresh($event)"
-    ></app-timer-settings>
-  </div>
-
-  <div *ngIf="selectedSegments === 0">
-    <div *ngIf="isVisible" class="telegram-bot" tourAnchor="telegram-bot">
-      <div class="telegram-bot-content">
-        <a href="https://t.me/rqtimerbot" target="_blank">
-          <span>
-            <img src="../../../assets/img/tg.svg" alt="" />
-          </span>
-        </a>
-      </div>
+<div *ngIf="userGroupName && !(isLoading | async)">
+  <nz-alert
+    *ngIf="isDesync"
+    nzType="warning"
+    [nzMessage]="
+      'TIMER.MESSAGE.TIME_DESYNC_WARNING' | translate: { seconds: desyncTime }
+    "
+    nzCloseable
+    nzShowIcon
+  ></nz-alert>
+  <div class="timer container">
+    <div class="timer-segments">
+      <nz-segmented
+        [nzOptions]="timerOptions"
+        [(ngModel)]="selectedSegments"
+        [nzSize]="isScreenWidth550 ? 'small' : 'default'"
+        tourAnchor="timer-settings"
+      ></nz-segmented>
+    </div>
+    <div *ngIf="selectedSegments === 1">
+      <app-timer-settings
+        [userList]="userGroupList"
+        [groupLeaderEmail]="groupLeaderEmail"
+        [isGroupLeader]="currentUser.isGroupLeader"
+        [currentUser]="currentUser"
+        [groupName]="userGroupName"
+        [onlineUserList]="onlineUserList"
+        [canMembersAddMobs]="canMembersAddMobs"
+        (updateGroup)="onCanMembersAddMobsChange($event)"
+        (exchangeRefresh)="onExchangeRefresh($event)"
+      ></app-timer-settings>
     </div>
 
-    <div
-      class="notification"
-      (click)="showNotifications(currentNotificationIndex)"
-      tourAnchor="notification"
-    >
-      <div class="notification-content">
-        <span nz-icon nzType="notification" style="font-size: 25px"></span>
+    <div *ngIf="selectedSegments === 0">
+      <div *ngIf="isVisible" class="telegram-bot" tourAnchor="telegram-bot">
+        <div class="telegram-bot-content">
+          <a href="https://t.me/rqtimerbot" target="_blank">
+            <span>
+              <img src="../../../assets/img/tg.svg" alt="" />
+            </span>
+          </a>
+        </div>
       </div>
-    </div>
 
-    <ng-template #notificationTemplate let-notification="data">
-      <h2 style="color: #000000">Уведомление</h2>
-      <span>{{ notification.text }}</span>
-
-      <div class="notification-template-content">
-        <button
-          nz-button
-          nzSize="small"
-          (click)="previousNotification(notification.index)"
-          [disabled]="notification.index <= 0"
-        >
-          <span nz-icon nzType="left" nzTheme="outline"></span>
-        </button>
-        <span>{{ notification.index + 1 }}/{{ notifications.length }}</span>
-        <button
-          nz-button
-          nzSize="small"
-          (click)="nextNotification(notification.index)"
-          [disabled]="notification.index + 1 >= notifications.length"
-        >
-          <span nz-icon nzType="right" nzTheme="outline"></span>
-        </button>
-      </div>
-    </ng-template>
-
-    <div class="tour" (click)="startTour()">
-      <div class="tour-content">
-        <span nz-icon nzType="question-circle" style="font-size: 25px"></span>
-      </div>
-    </div>
-    <tour-step-template></tour-step-template>
-    <nz-list nzItemLayout="horizontal" tourAnchor="timer">
-      <nz-badge
-        *ngFor="let item of timerList; let i = index"
-        [nzCount]="item.mobData.cooldown"
-        [nzOffset]="[-5, 5]"
-        [tourAnchor]="i == 0 ? 'timer-item' : ''"
+      <div
+        class="notification"
+        (click)="showNotifications(currentNotificationIndex)"
+        tourAnchor="notification"
       >
-        <nz-list-item
-          class="timer-d-flex-space-between box-shadow"
-          [ngClass]="
-            item.mobData.respawnTime
-              ? item.mobData.cooldown
-                ? 'orange'
-                : this.currentProgressTime > item.mobData.respawnTime
-                  ? 'red'
-                  : item.mob.mobName === 'Эдвард' ||
-                      item.mob.mobName === 'Воко' ||
-                      item.mob.mobName === 'Денгур Кровавый топор'
-                    ? 'blue'
-                    : 'green'
-              : 'white'
-          "
-          (click)="onClickTimerItem(item)"
+        <div class="notification-content">
+          <span nz-icon nzType="notification" style="font-size: 25px"></span>
+        </div>
+      </div>
+
+      <ng-template #notificationTemplate let-notification="data">
+        <h2 style="color: #000000">
+          {{ "ADMIN.MODAL.NOTIFICATION_TITLE" | translate }}
+        </h2>
+        <span [innerHTML]="notification.text[language]"></span>
+
+        <div class="notification-template-content">
+          <button
+            nz-button
+            nzSize="small"
+            (click)="previousNotification(notification.index)"
+            [disabled]="notification.index <= 0"
+          >
+            <span nz-icon nzType="left" nzTheme="outline"></span>
+          </button>
+          <span>{{ notification.index + 1 }}/{{ notifications.length }}</span>
+          <button
+            nz-button
+            nzSize="small"
+            (click)="nextNotification(notification.index)"
+            [disabled]="notification.index + 1 >= notifications.length"
+          >
+            <span nz-icon nzType="right" nzTheme="outline"></span>
+          </button>
+        </div>
+      </ng-template>
+
+      <div
+        class="tour"
+        (click)="startTour()"
+        *ngIf="isLangReady && language !== 'en'"
+      >
+        <div class="tour-content">
+          <span nz-icon nzType="question-circle" style="font-size: 25px"></span>
+        </div>
+      </div>
+      <tour-step-template></tour-step-template>
+      <nz-list nzItemLayout="horizontal" tourAnchor="timer">
+        <nz-badge
+          *ngFor="let item of timerList; let i = index"
+          [nzCount]="item.mobData.cooldown"
+          [nzOffset]="[-5, 5]"
+          [tourAnchor]="i == 0 ? 'timer-item' : ''"
         >
-          <div class="timer-left">
-            <nz-list-item-meta
-              class="timer-avatar"
-              [nzAvatar]="
-                item.mob.image
-                  ? 'https://www.rqtimer.ru/static/' + item.mob.image
-                  : ''
-              "
-              nz-tooltip
-              [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
-              [nzTooltipMouseEnterDelay]="1"
-              (click)="showInfoModal(item)"
-            >
-            </nz-list-item-meta>
-            <nz-list-item-meta-title>
-              <nz-countdown
-                *ngIf="item.mobData.respawnTime"
-                [nzValue]="item.mobData.respawnTime"
-                [nzFormat]="'HH:mm:ss'"
-                [nzValueStyle]="
-                  item.mobData.respawnTime - this.currentProgressTime <= 300000
-                    ? { color: '#ff4d4f' }
-                    : {}
-                "
-              ></nz-countdown>
-              <nz-countdown
-                *ngIf="!item.mobData.respawnTime"
-                [nzValue]="undefined"
-                [nzFormat]="'HH:mm:ss'"
-              ></nz-countdown>
-              <span
-                class="timer-mx-10px"
-                [ngClass]="{
-                  'timer-d-none': isScreenWidth750,
-                }"
-              >
-                {{
-                  item.mobData.deathTime
-                    ? (item.mobData.deathTime | date: "HH:mm:ss")
-                    : "00:00:00"
-                }}
-              </span>
-              <nz-progress
-                [nzPercent]="updatePercent(item)"
-                [nzStatus]="updatePercent(item) >= 100 ? 'exception' : 'active'"
-                nzSize="small"
-                [nzStrokeWidth]="10"
-                [ngClass]="{
-                  'timer-d-none': isScreenWidth800,
-                }"
-              ></nz-progress>
-              <span
-                [ngClass]="{
-                  'timer-mx-10px': isScreenWidthInZone,
-                  'timer-d-none': isScreenWidth372,
-                }"
-                [nz-tooltip]="item.mobData.comment"
-                [nzTooltipTitle]="item.mobData.comment"
-                [style]="
-                  item.mobData.comment
-                    ? 'cursor: pointer; text-decoration: underline dashed'
-                    : ''
-                "
-              >
-                {{
-                  item.mobData.respawnTime
-                    ? (item.mobData.respawnTime | date: "HH:mm:ss")
-                    : "00:00:00"
-                }}
-              </span>
-            </nz-list-item-meta-title>
-          </div>
-          <div class="timer-center">
-            <nz-list-item-meta-title>
-              <button
-                nz-button
-                nzType="primary"
-                (click)="showDeathModal(item)"
+          <nz-list-item
+            class="timer-d-flex-space-between box-shadow"
+            [ngClass]="
+              item.mobData.respawnTime
+                ? item.mobData.cooldown
+                  ? 'orange'
+                  : this.currentProgressTime > item.mobData.respawnTime
+                    ? 'red'
+                    : pvpMobList.includes(item.mobData.mobId)
+                      ? 'blue'
+                      : 'green'
+                : 'white'
+            "
+            (click)="onClickTimerItem(item)"
+          >
+            <div class="timer-left">
+              <nz-list-item-meta
+                class="timer-avatar"
+                [nzAvatar]="item.mob.image ? IMAGE_SRC + item.mob.image : ''"
                 nz-tooltip
-                nzTooltipTitle="Переписать вручную"
+                [nzTooltipTitle]="item.mob.mobName + ' - ' + item.mob.location"
                 [nzTooltipMouseEnterDelay]="1"
-                class="timer-die-button"
-                nzShape="round"
-                [tourAnchor]="i == 0 ? 'rewrite' : ''"
+                (click)="showInfoModal(item)"
               >
-                <span nz-icon nzType="edit"></span>
-                <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
-                  >Переписать</span
-                >
-              </button>
-              <nz-modal
-                [(nzVisible)]="item.mob.isDeathModalVisible"
-                (nzOnCancel)="cancelDeathModal(item)"
-                (nzOnOk)="confirmDeathModal(item)"
-                [nzOkLoading]="item.mob.isDeathOkLoading"
-                nzCentered
-              >
-                <p *nzModalContent>
-                  <span class="timer-mob-name">{{ item.mob.mobName }}</span>
-                  <span class="timer-mob-location">{{
-                    item.mob.location
-                  }}</span>
-                  <nz-radio-group
-                    [(ngModel)]="radioValue"
-                    [nzDisabled]="isOnlyComment"
-                  >
-                    <label nz-radio nzValue="death"
-                      >Выберите точное время смерти:
-                    </label>
-                    <div class="timer-radio-option">
-                      <nz-date-picker
-                        [(ngModel)]="datePickerTime"
-                        (ngModelChange)="onTimeChange()"
-                        (click)="onFocus($event)"
-                        [nzDisabled]="isOnlyComment"
-                      ></nz-date-picker>
-                      <nz-time-picker
-                        [(ngModel)]="timePickerTime"
-                        (ngModelChange)="onTimeChange()"
-                        (click)="onFocus($event)"
-                        [nzDisabled]="isOnlyComment"
-                      >
-                      </nz-time-picker>
-                    </div>
-                    <label nz-radio nzValue="respawn"
-                      >Выберите точное время респауна:
-                    </label>
-                    <div class="timer-radio-option">
-                      <nz-date-picker
-                        [(ngModel)]="datePickerTime"
-                        (ngModelChange)="onTimeChange()"
-                        (click)="onFocus($event)"
-                        [nzDisabled]="isOnlyComment"
-                      ></nz-date-picker>
-                      <nz-time-picker
-                        [(ngModel)]="timePickerTime"
-                        (ngModelChange)="onTimeChange()"
-                        (click)="onFocus($event)"
-                        [nzDisabled]="isOnlyComment"
-                      >
-                      </nz-time-picker>
-                    </div>
-
-                    <label nz-radio nzValue="cd"
-                      >Впишите, сколько раз по кд:
-                    </label>
-                    <div class="timer-radio-option">
-                      <nz-space>
-                        <nz-input-group
-                          *nzSpaceItem
-                          style="width: 120px; margin-top: 10px"
-                        >
-                          <input
-                            nz-input
-                            [(ngModel)]="cooldown"
-                            type="number"
-                            min="1"
-                            max="10"
-                            step="1"
-                            class="br-50px"
-                            (click)="onFocus($event)"
-                            [disabled]="isOnlyComment"
-                          />
-                        </nz-input-group>
-                      </nz-space>
-                    </div>
-                  </nz-radio-group>
-
-                  <span style="margin: 20px 0 11px; display: block; color: #fff"
-                    >Комментарий:</span
-                  >
-                  <nz-input-group
-                    nzPrefixIcon="edit"
-                    class="br-50px"
-                    style="
-                      max-width: 400px;
-                      display: flex;
-                      justify-self: center;
-                    "
-                  >
-                    <input
-                      nz-input
-                      placeholder="Комментарий"
-                      [(ngModel)]="comment"
-                    />
-                  </nz-input-group>
-                  <label
-                    nz-checkbox
-                    [(ngModel)]="isOnlyComment"
-                    style="margin-top: 11px"
-                    >Редактировать комментарий без переписи респауна</label
-                  >
-                </p>
-              </nz-modal>
-              <button
-                nz-button
-                nzType="primary"
-                (click)="onDieNow(item)"
-                nz-tooltip
-                nzTooltipTitle="Переписать по (текущему времени - 10 сек)"
-                [nzTooltipMouseEnterDelay]="1"
-                class="timer-die-button"
-                [nzLoading]="item.mob.isOnDieNow"
-                nzShape="round"
-                [tourAnchor]="i == 0 ? 'die-now' : ''"
-              >
-                <!-- <span nz-icon nzType="scan"></span> -->
-                <svg
-                  version="1.1"
-                  id="Icons"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                  viewBox="0 0 32 32"
-                  xml:space="preserve"
-                  width="18px"
-                  height="18px"
-                  fill="#ffffff"
-                  stroke="#ffffff"
-                  style="vertical-align: -0.2em"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <style type="text/css">
-                      .st0 {
-                        fill: none;
-                        stroke: #ffffff;
-                        stroke-width: 2;
-                        stroke-linecap: round;
-                        stroke-linejoin: round;
-                        stroke-miterlimit: 10;
-                      }
-                    </style>
-                    <path
-                      class="st0"
-                      d="M28,14.8C28,8.3,22.6,3,16,3S4,8.3,4,14.8c0,1.3,0.2,2.5,0.6,3.6C4.2,19.1,4,19.9,4,20.7c0,2.6,2.1,4.7,4.8,4.7 c0.4,0,0.8-0.1,1.2-0.2V29h12v-3.7c0.4,0.1,0.8,0.2,1.2,0.2c2.7,0,4.8-2.1,4.8-4.7c0-0.8-0.2-1.6-0.6-2.3C27.8,17.3,28,16.1,28,14.8 z"
-                    ></path>
-                    <polyline
-                      class="st0"
-                      points="18,24 16,22 14,24 "
-                    ></polyline>
-                    <circle class="st0" cx="20.5" cy="18.5" r="2.5"></circle>
-                    <circle class="st0" cx="11.5" cy="18.5" r="2.5"></circle>
-                  </g>
-                </svg>
+              </nz-list-item-meta>
+              <nz-list-item-meta-title>
+                <nz-countdown
+                  *ngIf="item.mobData.respawnTime"
+                  [nzValue]="item.mobData.respawnTime"
+                  [nzFormat]="'HH:mm:ss'"
+                  [nzValueStyle]="
+                    item.mobData.respawnTime - this.currentProgressTime <=
+                    300000
+                      ? { color: '#ff4d4f' }
+                      : {}
+                  "
+                ></nz-countdown>
+                <nz-countdown
+                  *ngIf="!item.mobData.respawnTime"
+                  [nzValue]="undefined"
+                  [nzFormat]="'HH:mm:ss'"
+                ></nz-countdown>
                 <span
-                  [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
-                  style="margin-left: 8px"
-                  >Упал сейчас</span
+                  class="timer-mx-10px"
+                  [ngClass]="{
+                    'timer-d-none': isScreenWidth750,
+                  }"
                 >
-              </button>
-            </nz-list-item-meta-title>
-          </div>
-          <div class="timer-right">
-            <div class="timer-action-menu">
+                  {{
+                    item.mobData.deathTime
+                      ? (item.mobData.deathTime | date: "HH:mm:ss")
+                      : "00:00:00"
+                  }}
+                </span>
+                <nz-progress
+                  [nzPercent]="updatePercent(item)"
+                  [nzStatus]="
+                    updatePercent(item) >= 100 ? 'exception' : 'active'
+                  "
+                  nzSize="small"
+                  [nzStrokeWidth]="10"
+                  [ngClass]="{
+                    'timer-d-none': isScreenWidth800,
+                  }"
+                ></nz-progress>
+                <span
+                  [ngClass]="{
+                    'timer-mx-10px': isScreenWidthInZone,
+                    'timer-d-none': isScreenWidth372,
+                  }"
+                  [nz-tooltip]="item.mobData.comment"
+                  [nzTooltipTitle]="item.mobData.comment"
+                  [style]="
+                    item.mobData.comment
+                      ? 'cursor: pointer; text-decoration: underline dashed'
+                      : ''
+                  "
+                >
+                  {{
+                    item.mobData.respawnTime
+                      ? (item.mobData.respawnTime | date: "HH:mm:ss")
+                      : "00:00:00"
+                  }}
+                </span>
+              </nz-list-item-meta-title>
+            </div>
+            <div class="timer-center">
               <nz-list-item-meta-title>
                 <button
                   nz-button
                   nzType="primary"
-                  (click)="showHistoryModal(item)"
+                  (click)="showDeathModal(item)"
                   nz-tooltip
-                  nzTooltipTitle="История переписи {{ item.mob.mobName }}"
+                  [nzTooltipTitle]="
+                    'TIMER.REWRITE_MANUALLY_TOOLTIP' | translate
+                  "
                   [nzTooltipMouseEnterDelay]="1"
-                  nzShape="circle"
-                  [tourAnchor]="i == 0 ? 'mob-history' : ''"
+                  class="timer-die-button"
+                  nzShape="round"
+                  [tourAnchor]="i == 0 ? 'rewrite' : ''"
                 >
-                  <span nz-icon nzType="history"></span>
+                  <span nz-icon nzType="edit"></span>
+                  <span [ngClass]="{ 'timer-d-none': isScreenWidth1000 }">{{
+                    "TIMER.REWRITE_MANUALLY" | translate
+                  }}</span>
                 </button>
                 <nz-modal
-                  [(nzVisible)]="item.mob.isHistoryModalVisible"
-                  (nzOnCancel)="cancelHistoryModal(item)"
-                  (nzOnOk)="confirmHistoryModal(item)"
-                  [nzOkLoading]="item.mob.isHistoryOkLoading"
-                  [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
+                  [(nzVisible)]="item.mob.isDeathModalVisible"
+                  (nzOnCancel)="cancelDeathModal(item)"
+                  (nzOnOk)="confirmDeathModal(item)"
+                  [nzOkLoading]="item.mob.isDeathOkLoading"
+                  nzCentered
                 >
                   <p *nzModalContent>
-                    <nz-skeleton
-                      [nzActive]="true"
-                      *ngIf="isHistoryLoading | async"
-                    ></nz-skeleton>
-                    <app-log
-                      *ngIf="!(isHistoryLoading | async)"
-                      [historyList]="historyList"
-                      [historyListData]="historyListData"
-                      [mobName]="item.mob.mobName"
-                    ></app-log>
-                  </p>
-                </nz-modal>
-                <nz-badge
-                  [nzCount]="item.mob.plusCooldown"
-                  class="timer-plus-cooldown"
-                  [nzOffset]="[-7, 3]"
-                >
-                  <button
-                    nz-button
-                    nzType="primary"
-                    nz-tooltip
-                    nzTooltipTitle="Симуляция следующего кдшного респа"
-                    [nzTooltipMouseEnterDelay]="1"
-                    (click)="onPlusCooldown(item)"
-                    nzShape="circle"
-                    [tourAnchor]="i == 0 ? 'plus-cooldown' : ''"
-                  >
-                    <span nz-icon nzType="step-forward"></span>
-                  </button>
-                </nz-badge>
-                <button
-                  nz-button
-                  nzType="primary"
-                  class="timer-cd-button"
-                  (click)="onSetByCooldownTime(item)"
-                  nz-tooltip
-                  nzTooltipTitle="Переписать по кд"
-                  [nzTooltipMouseEnterDelay]="1"
-                  nzShape="circle"
-                  [tourAnchor]="i == 0 ? 'cooldown' : ''"
-                >
-                  <span>CD</span>
-                </button>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="onLostCooldown(item)"
-                  nz-tooltip
-                  nzTooltipTitle="Респ утерян"
-                  [nzTooltipMouseEnterDelay]="1"
-                  nzShape="circle"
-                  [tourAnchor]="i == 0 ? 'lost-cooldown' : ''"
-                >
-                  <span nz-icon nzType="fall"></span>
-                </button>
-                <nz-modal
-                  [(nzVisible)]="item.mob.isInfoModalVisible"
-                  [nzFooter]="infoFooter"
-                  (nzOnCancel)="cancelInfoModal(item)"
-                >
-                  <p *nzModalContent>
-                    <app-mob-modal [item]="item"></app-mob-modal>
-                  </p>
-
-                  <ng-template #infoFooter>
-                    <button
-                      nz-button
-                      nzType="default"
-                      (click)="cancelInfoModal(item)"
+                    <span class="timer-mob-name">{{ item.mob.mobName }}</span>
+                    <span class="timer-mob-location">{{
+                      item.mob.location
+                    }}</span>
+                    <nz-radio-group
+                      [(ngModel)]="radioValue"
+                      [nzDisabled]="isOnlyComment"
                     >
-                      Отмена
-                    </button>
-                  </ng-template>
-                </nz-modal>
+                      <label nz-radio nzValue="death"
+                        >{{ "TIMER.MODAL.SELECT_EXACT_DEATH_TIME" | translate }}
+                      </label>
+                      <div class="timer-radio-option">
+                        <nz-date-picker
+                          [(ngModel)]="datePickerTime"
+                          (ngModelChange)="onTimeChange()"
+                          (click)="onFocus($event)"
+                          [nzDisabled]="isOnlyComment"
+                        ></nz-date-picker>
+                        <nz-time-picker
+                          [(ngModel)]="timePickerTime"
+                          (ngModelChange)="onTimeChange()"
+                          (click)="onFocus($event)"
+                          [nzDisabled]="isOnlyComment"
+                        >
+                        </nz-time-picker>
+                      </div>
+                      <label nz-radio nzValue="respawn"
+                        >{{
+                          "TIMER.MODAL.SELECT_EXACT_RESPAWN_TIME" | translate
+                        }}
+                      </label>
+                      <div class="timer-radio-option">
+                        <nz-date-picker
+                          [(ngModel)]="datePickerTime"
+                          (ngModelChange)="onTimeChange()"
+                          (click)="onFocus($event)"
+                          [nzDisabled]="isOnlyComment"
+                        ></nz-date-picker>
+                        <nz-time-picker
+                          [(ngModel)]="timePickerTime"
+                          (ngModelChange)="onTimeChange()"
+                          (click)="onFocus($event)"
+                          [nzDisabled]="isOnlyComment"
+                        >
+                        </nz-time-picker>
+                      </div>
 
+                      <label nz-radio nzValue="cd"
+                        >{{ "TIMER.MODAL.ENTER_CD_COUNT" | translate }}
+                      </label>
+                      <div class="timer-radio-option">
+                        <nz-space>
+                          <nz-input-group
+                            *nzSpaceItem
+                            style="width: 120px; margin-top: 10px"
+                          >
+                            <input
+                              nz-input
+                              [(ngModel)]="cooldown"
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="1"
+                              class="br-50px"
+                              (click)="onFocus($event)"
+                              [disabled]="isOnlyComment"
+                            />
+                          </nz-input-group>
+                        </nz-space>
+                      </div>
+                    </nz-radio-group>
+
+                    <span
+                      style="margin: 20px 0 11px; display: block; color: #fff"
+                      >{{ "TIMER.MODAL.COMMENT" | translate }}</span
+                    >
+                    <nz-input-group
+                      nzPrefixIcon="edit"
+                      class="br-50px"
+                      style="
+                        max-width: 400px;
+                        display: flex;
+                        justify-self: center;
+                      "
+                    >
+                      <input
+                        nz-input
+                        [placeholder]="'TIMER.MODAL.COMMENT' | translate"
+                        [(ngModel)]="comment"
+                      />
+                    </nz-input-group>
+                    <label
+                      nz-checkbox
+                      [(ngModel)]="isOnlyComment"
+                      style="margin-top: 11px"
+                      >{{ "TIMER.MODAL.EDIT_COMMENT_ONLY" | translate }}</label
+                    >
+                  </p>
+                </nz-modal>
                 <button
                   nz-button
                   nzType="primary"
-                  (click)="showDeleteModal(item)"
+                  (click)="onDieNow(item)"
                   nz-tooltip
-                  nzTooltipTitle="Удалить"
-                  nzDanger
+                  [nzTooltipTitle]="'TIMER.REWRITE_NOW_TOOLTIP' | translate"
                   [nzTooltipMouseEnterDelay]="1"
-                  *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
-                  nzShape="circle"
-                  [tourAnchor]="i == 0 ? 'delete' : ''"
+                  class="timer-die-button"
+                  [nzLoading]="item.mob.isOnDieNow"
+                  nzShape="round"
+                  [tourAnchor]="i == 0 ? 'die-now' : ''"
                 >
-                  <span nz-icon nzType="delete"></span>
+                  <!-- <span nz-icon nzType="scan"></span> -->
+                  <svg
+                    version="1.1"
+                    id="Icons"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 32 32"
+                    xml:space="preserve"
+                    width="18px"
+                    height="18px"
+                    fill="#ffffff"
+                    stroke="#ffffff"
+                    style="vertical-align: -0.2em"
+                  >
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <style type="text/css">
+                        .st0 {
+                          fill: none;
+                          stroke: #ffffff;
+                          stroke-width: 2;
+                          stroke-linecap: round;
+                          stroke-linejoin: round;
+                          stroke-miterlimit: 10;
+                        }
+                      </style>
+                      <path
+                        class="st0"
+                        d="M28,14.8C28,8.3,22.6,3,16,3S4,8.3,4,14.8c0,1.3,0.2,2.5,0.6,3.6C4.2,19.1,4,19.9,4,20.7c0,2.6,2.1,4.7,4.8,4.7 c0.4,0,0.8-0.1,1.2-0.2V29h12v-3.7c0.4,0.1,0.8,0.2,1.2,0.2c2.7,0,4.8-2.1,4.8-4.7c0-0.8-0.2-1.6-0.6-2.3C27.8,17.3,28,16.1,28,14.8 z"
+                      ></path>
+                      <polyline
+                        class="st0"
+                        points="18,24 16,22 14,24 "
+                      ></polyline>
+                      <circle class="st0" cx="20.5" cy="18.5" r="2.5"></circle>
+                      <circle class="st0" cx="11.5" cy="18.5" r="2.5"></circle>
+                    </g>
+                  </svg>
+                  <span
+                    [ngClass]="{ 'timer-d-none': isScreenWidth1000 }"
+                    style="margin-left: 8px"
+                    >{{ "TIMER.REWRITE_NOW" | translate }}</span
+                  >
                 </button>
               </nz-list-item-meta-title>
             </div>
-
-            <div class="timer-action-menu-mob">
-              <button
-                nzType="primary"
-                nz-button
-                nz-dropdown
-                nzTrigger="click"
-                (click)="$event.stopPropagation()"
-                [nzDropdownMenu]="menu"
-                nzPlacement="bottomRight"
-                nzShape="circle"
-              >
-                <span nz-icon nzType="menu-unfold"></span>
-              </button>
-              <nz-dropdown-menu #menu="nzDropdownMenu">
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="showHistoryModal(item)"
-                  nz-tooltip
-                  nzTooltipTitle="История переписи {{ item.mob.mobName }}"
-                  [nzTooltipMouseEnterDelay]="1"
-                  nzShape="circle"
-                >
-                  <span nz-icon nzType="history"></span>
-                </button>
-                <nz-badge
-                  [nzCount]="item.mob.plusCooldown"
-                  class="timer-plus-cooldown"
-                  [nzOffset]="[-7, 3]"
-                >
+            <div class="timer-right">
+              <div class="timer-action-menu">
+                <nz-list-item-meta-title>
                   <button
                     nz-button
                     nzType="primary"
-                    (click)="onPlusCooldown(item)"
+                    (click)="showHistoryModal(item)"
                     nz-tooltip
-                    nzTooltipTitle="Симуляция следующего кдшного респа"
+                    [nzTooltipTitle]="
+                      'TIMER.REWRITE_HISTORY'
+                        | translate: { mobName: item.mob.mobName }
+                    "
+                    [nzTooltipMouseEnterDelay]="1"
+                    nzShape="circle"
+                    [tourAnchor]="i == 0 ? 'mob-history' : ''"
+                  >
+                    <span nz-icon nzType="history"></span>
+                  </button>
+                  <nz-modal
+                    [(nzVisible)]="item.mob.isHistoryModalVisible"
+                    (nzOnCancel)="cancelHistoryModal(item)"
+                    (nzOnOk)="confirmHistoryModal(item)"
+                    [nzOkLoading]="item.mob.isHistoryOkLoading"
+                    [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
+                  >
+                    <p *nzModalContent>
+                      <nz-skeleton
+                        [nzActive]="true"
+                        *ngIf="isHistoryLoading | async"
+                      ></nz-skeleton>
+                      <app-log
+                        *ngIf="!(isHistoryLoading | async)"
+                        [historyList]="historyList"
+                        [historyListData]="historyListData"
+                        [mobId]="item.mobData.mobId"
+                      ></app-log>
+                    </p>
+                  </nz-modal>
+                  <nz-badge
+                    [nzCount]="item.mob.plusCooldown"
+                    class="timer-plus-cooldown"
+                    [nzOffset]="[-7, 3]"
+                  >
+                    <button
+                      nz-button
+                      nzType="primary"
+                      nz-tooltip
+                      [nzTooltipTitle]="
+                        'TIMER.SIMULATE_NEXT_CD_RESPAWN' | translate
+                      "
+                      [nzTooltipMouseEnterDelay]="1"
+                      (click)="onPlusCooldown(item)"
+                      nzShape="circle"
+                      [tourAnchor]="i == 0 ? 'plus-cooldown' : ''"
+                    >
+                      <span nz-icon nzType="step-forward"></span>
+                    </button>
+                  </nz-badge>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    class="timer-cd-button"
+                    (click)="onSetByCooldownTime(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.REWRITE_BY_CD' | translate"
+                    [nzTooltipMouseEnterDelay]="1"
+                    nzShape="circle"
+                    [tourAnchor]="i == 0 ? 'cooldown' : ''"
+                  >
+                    <span>CD</span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="onLostCooldown(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.RESPAWN_LOST' | translate"
+                    [nzTooltipMouseEnterDelay]="1"
+                    nzShape="circle"
+                    [tourAnchor]="i == 0 ? 'lost-cooldown' : ''"
+                  >
+                    <span nz-icon nzType="fall"></span>
+                  </button>
+                  <nz-modal
+                    [(nzVisible)]="item.mob.isInfoModalVisible"
+                    [nzFooter]="infoFooter"
+                    (nzOnCancel)="cancelInfoModal(item)"
+                  >
+                    <p *nzModalContent>
+                      <app-mob-modal [item]="item"></app-mob-modal>
+                    </p>
+
+                    <ng-template #infoFooter>
+                      <button
+                        nz-button
+                        nzType="default"
+                        (click)="cancelInfoModal(item)"
+                      >
+                        {{ "COMMON.BUTTONS.CANCEL" | translate }}
+                      </button>
+                    </ng-template>
+                  </nz-modal>
+
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="showDeleteModal(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.DELETE' | translate"
+                    nzDanger
+                    [nzTooltipMouseEnterDelay]="1"
+                    *ngIf="currentUser.isGroupLeader"
+                    nzShape="circle"
+                    [tourAnchor]="i == 0 ? 'delete' : ''"
+                  >
+                    <span nz-icon nzType="delete"></span>
+                  </button>
+                </nz-list-item-meta-title>
+              </div>
+
+              <div class="timer-action-menu-mob">
+                <button
+                  nzType="primary"
+                  nz-button
+                  nz-dropdown
+                  nzTrigger="click"
+                  (click)="$event.stopPropagation()"
+                  [nzDropdownMenu]="menu"
+                  nzPlacement="bottomRight"
+                  nzShape="circle"
+                >
+                  <span nz-icon nzType="menu-unfold"></span>
+                </button>
+                <nz-dropdown-menu #menu="nzDropdownMenu">
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="showHistoryModal(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="
+                      'TIMER.REWRITE_HISTORY'
+                        | translate: { mobName: item.mob.mobName }
+                    "
                     [nzTooltipMouseEnterDelay]="1"
                     nzShape="circle"
                   >
-                    <span nz-icon nzType="step-forward"></span>
+                    <span nz-icon nzType="history"></span>
                   </button>
-                </nz-badge>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="onSetByCooldownTime(item)"
-                  nz-tooltip
-                  nzTooltipTitle="Переписать по кд"
-                  [nzTooltipMouseEnterDelay]="1"
-                  style="width: 32px; padding: 0"
-                  nzShape="circle"
-                >
-                  <span>CD</span>
-                </button>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="onLostCooldown(item)"
-                  nz-tooltip
-                  nzTooltipTitle="Респ утерян"
-                  [nzTooltipMouseEnterDelay]="1"
-                  nzShape="circle"
-                >
-                  <span nz-icon nzType="fall"></span>
-                </button>
-                <button
-                  nz-button
-                  nzType="primary"
-                  (click)="showDeleteModal(item)"
-                  nz-tooltip
-                  nzTooltipTitle="Удалить"
-                  nzDanger
-                  [nzTooltipMouseEnterDelay]="1"
-                  *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
-                  nzShape="circle"
-                >
-                  <span nz-icon nzType="delete"></span>
-                </button>
-              </nz-dropdown-menu>
-            </div>
-          </div>
-        </nz-list-item>
-      </nz-badge>
-      <nz-list-item
-        class="box-shadow timer-d-flex-space-between"
-        [ngClass]="'white'"
-        tourAnchor="add"
-        *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
-      >
-        <button
-          nz-button
-          nzType="default"
-          nz-tooltip
-          nzTooltipTitle="Добавление боссов/элиток"
-          [nzTooltipMouseEnterDelay]="1"
-          nzShape="circle"
-          class="timer-create-mobs-button"
-          (click)="showAddModal()"
-        >
-          <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
-        </button>
-        <nz-modal
-          [(nzVisible)]="isAddModalVisible"
-          [nzFooter]="addFooter"
-          (nzOnCancel)="cancelAddModal()"
-          [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
-        >
-          <p *nzModalContent>
-            <span
-              class="timer-add"
-              style="text-align: center; margin-bottom: 20px"
-              >Добавить в групповой таймер</span
-            >
-            <nz-skeleton
-              [nzActive]="true"
-              *ngIf="isAddModalLoading"
-            ></nz-skeleton>
-            <span *ngIf="!isAddModalLoading">
-              <div *ngIf="availableMobList.length">
-                <nz-input-group nzPrefixIcon="search" class="br-50px">
-                  <input
-                    nz-input
-                    [(ngModel)]="addSearchValue"
-                    (ngModelChange)="addSearch($event)"
-                  />
-                </nz-input-group>
-                <label
-                  nz-checkbox
-                  style="
-                    height: 32px;
-                    border-bottom: 1px solid #fff;
-                    margin: 16px 0;
-                    width: 100%;
-                  "
-                  [(ngModel)]="allAddChecked"
-                  (ngModelChange)="addAllChecked()"
-                  [nzIndeterminate]="indeterminate"
-                  class="check-all"
-                >
-                  <span class="mob-name"><b>Выбрать все</b></span>
-                </label>
-              </div>
-              <nz-checkbox-wrapper
-                style="width: 100%"
-                (nzOnChange)="onChangeCheckbox($event)"
-              >
-                <div>
-                  <div *ngFor="let mob of filteredMobList; let i = index">
-                    <label
-                      nz-checkbox
-                      nzValue="{{ mob.mobName }}: {{ mob.location }}"
-                      class="add-mob"
+                  <nz-badge
+                    [nzCount]="item.mob.plusCooldown"
+                    class="timer-plus-cooldown"
+                    [nzOffset]="[-7, 3]"
+                  >
+                    <button
+                      nz-button
+                      nzType="primary"
+                      (click)="onPlusCooldown(item)"
+                      nz-tooltip
+                      [nzTooltipTitle]="
+                        'TIMER.SIMULATE_NEXT_CD_RESPAWN' | translate
+                      "
+                      [nzTooltipMouseEnterDelay]="1"
+                      nzShape="circle"
                     >
-                      <nz-avatar
-                        [nzSize]="32"
-                        [nzSrc]="'https://www.rqtimer.ru/static/' + mob.image"
-                        style="margin: 5px 10px"
-                      ></nz-avatar>
-                      <span class="mob-name"
-                        ><b>{{ mob.mobName }}</b
-                        >: {{ mob.location }}</span
-                      >
-                    </label>
-                  </div>
+                      <span nz-icon nzType="step-forward"></span>
+                    </button>
+                  </nz-badge>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="onSetByCooldownTime(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.REWRITE_BY_CD' | translate"
+                    [nzTooltipMouseEnterDelay]="1"
+                    style="width: 32px; padding: 0"
+                    nzShape="circle"
+                  >
+                    <span>CD</span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="onLostCooldown(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.RESPAWN_LOST' | translate"
+                    [nzTooltipMouseEnterDelay]="1"
+                    nzShape="circle"
+                  >
+                    <span nz-icon nzType="fall"></span>
+                  </button>
+                  <button
+                    nz-button
+                    nzType="primary"
+                    (click)="showDeleteModal(item)"
+                    nz-tooltip
+                    [nzTooltipTitle]="'TIMER.DELETE' | translate"
+                    nzDanger
+                    [nzTooltipMouseEnterDelay]="1"
+                    *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
+                    nzShape="circle"
+                  >
+                    <span nz-icon nzType="delete"></span>
+                  </button>
+                </nz-dropdown-menu>
+              </div>
+            </div>
+          </nz-list-item>
+        </nz-badge>
+        <nz-list-item
+          class="box-shadow timer-d-flex-space-between"
+          [ngClass]="'white'"
+          tourAnchor="add"
+          *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
+        >
+          <button
+            nz-button
+            nzType="default"
+            nz-tooltip
+            [nzTooltipTitle]="'TIMER.ADD_BOSSES_ELITES' | translate"
+            [nzTooltipMouseEnterDelay]="1"
+            nzShape="circle"
+            class="timer-create-mobs-button"
+            (click)="showAddModal()"
+          >
+            <span nz-icon nzType="plus-circle" nzTheme="outline"></span>
+          </button>
+          <nz-modal
+            [(nzVisible)]="isAddModalVisible"
+            [nzFooter]="addFooter"
+            (nzOnCancel)="cancelAddModal()"
+            [nzBodyStyle]="{
+              height: '450px',
+              overflow: 'auto',
+            }"
+          >
+            <p *nzModalContent>
+              <span
+                class="timer-add"
+                style="text-align: center; margin-bottom: 20px"
+                >{{ "TIMER.MODAL.ADD_TO_GROUP_TIMER" | translate }}</span
+              >
+              <nz-skeleton
+                [nzActive]="true"
+                *ngIf="isAddModalLoading"
+              ></nz-skeleton>
+              <span *ngIf="!isAddModalLoading">
+                <div *ngIf="availableMobList.length">
+                  <nz-input-group nzPrefixIcon="search" class="br-50px">
+                    <input
+                      nz-input
+                      [(ngModel)]="addSearchValue"
+                      (ngModelChange)="addSearch($event)"
+                    />
+                  </nz-input-group>
+                  <label
+                    nz-checkbox
+                    style="
+                      height: 32px;
+                      border-bottom: 1px solid #fff;
+                      margin: 16px 0;
+                      width: 100%;
+                    "
+                    [(ngModel)]="allAddChecked"
+                    (ngModelChange)="addAllChecked()"
+                    [nzIndeterminate]="indeterminate"
+                    class="check-all"
+                  >
+                    <span class="mob-name"
+                      ><b>{{ "TIMER.MODAL.SELECT_ALL" | translate }}</b></span
+                    >
+                  </label>
                 </div>
-                <nz-list-empty
-                  *ngIf="filteredMobList.length === 0"
-                ></nz-list-empty>
-              </nz-checkbox-wrapper>
-            </span>
-          </p>
+                <nz-checkbox-wrapper
+                  style="width: 100%"
+                  (nzOnChange)="onChangeCheckbox($event)"
+                >
+                  <div>
+                    <div *ngFor="let mob of filteredMobList; let i = index">
+                      <label nz-checkbox [nzValue]="mob._id" class="add-mob">
+                        <nz-avatar
+                          [nzSize]="32"
+                          [nzSrc]="IMAGE_SRC + mob.image"
+                          style="margin: 5px 10px"
+                        ></nz-avatar>
+                        <span class="mob-name"
+                          ><b>{{ mob.mobName }}</b
+                          >: {{ mob.location }}</span
+                        >
+                      </label>
+                    </div>
+                  </div>
+                  <nz-list-empty
+                    *ngIf="filteredMobList.length === 0"
+                  ></nz-list-empty>
+                </nz-checkbox-wrapper>
+              </span>
+            </p>
 
-          <ng-template #addFooter>
-            <button nz-button nzType="default" (click)="cancelAddModal()">
-              Отмена
-            </button>
-            <button
-              nz-button
-              nzType="primary"
-              [disabled]="!addMobList.length"
-              (click)="onAddMobs()"
-              [nzLoading]="isAddOkLoading"
-            >
-              Добавить
-            </button>
-          </ng-template>
-        </nz-modal>
-      </nz-list-item>
-      <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>
-    </nz-list>
+            <ng-template #addFooter>
+              <button nz-button nzType="default" (click)="cancelAddModal()">
+                {{ "COMMON.BUTTONS.CANCEL" | translate }}
+              </button>
+              <button
+                nz-button
+                nzType="primary"
+                [disabled]="!addMobList.length"
+                (click)="onAddMobs()"
+                [nzLoading]="isAddOkLoading"
+              >
+                {{ "COMMON.BUTTONS.ADD" | translate }}
+              </button>
+            </ng-template>
+          </nz-modal>
+        </nz-list-item>
+        <nz-list-empty *ngIf="timerList.length === 0"></nz-list-empty>
+      </nz-list>
+    </div>
   </div>
 </div>
 

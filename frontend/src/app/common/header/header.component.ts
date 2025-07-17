@@ -1,11 +1,14 @@
 import {
   Component,
+  ElementRef,
   HostListener,
   inject,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -13,6 +16,8 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
+import { BindingService } from 'src/app/services/binding.service';
+import { ConfigurationService } from 'src/app/services/configuration.service';
 // import { ConfigurationService } from 'src/app/services/configuration.service';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -34,10 +39,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly tokenService = inject(TokenService);
   private readonly historyService = inject(HistoryService);
   private readonly authService = inject(AuthService);
+  private readonly configurationService = inject(ConfigurationService);
   private readonly userService = inject(UserService);
   private readonly websocketService = inject(WebsocketService);
   private readonly modalService = inject(NzModalService);
   private readonly messageService = inject(NzMessageService);
+  private readonly translateService = inject(TranslateService);
+  private readonly bindingService = inject(BindingService);
 
   currentServer: string = 'Гелиос';
   currentRoute: string = '';
@@ -50,24 +58,37 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerSearchValue: string = '';
 
   isOnlineSubscription: Subscription | undefined;
+  groupNameSubscription: Subscription | undefined;
+  timerListSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
-  serverList = [
-    { label: 'Гелиос', value: 'Гелиос' },
-    { label: 'Игнис', value: 'Игнис' },
-    { label: 'Astus', value: 'Astus' },
-    { label: 'Pyros', value: 'Pyros' },
-    { label: 'Aztec', value: 'Aztec' },
-    { label: 'Ortos', value: 'Ortos' },
-  ];
-  // serverList: any[] = [];
+  // serverList = [
+  //   { label: 'Гелиос', value: 'Гелиос' },
+  //   { label: 'Игнис', value: 'Игнис' },
+  //   { label: 'Astus', value: 'Astus' },
+  //   { label: 'Pyros', value: 'Pyros' },
+  //   { label: 'Aztec', value: 'Aztec' },
+  //   { label: 'Ortos', value: 'Ortos' },
+  // ];
+  serverList: any[] = [];
 
   duplicatedMobList: any = [
-    'Альфа Самец',
-    'Богатый Упырь',
-    'Кабан Вожак',
-    'Слепоглаз',
-    'Хозяин',
+    '673a9b38697139657bf024ad',
+    '673a9b3f697139657bf024b5',
+    '673a9b46697139657bf024b9',
+    '673a9b4e697139657bf024bd',
+    '67314c701e738aba75ba3484',
+    '67314c5f1e738aba75ba3480',
+    '67314c511e738aba75ba347c',
+    '67314d111e738aba75ba3488',
+    '67314d191e738aba75ba348c',
+    '67314d431e738aba75ba3490',
+    '67314e2d1e738aba75ba349e',
+    '67314e341e738aba75ba34a2',
+    '673151961e738aba75ba34ce',
+    '6731519c1e738aba75ba34d2',
+    '673152a61e738aba75ba34e8',
+    '673152aa1e738aba75ba34ec',
   ];
 
   isScreenWidth600: boolean = false;
@@ -77,6 +98,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.checkScreenWidth();
   }
 
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+
   constructor() {
     this.initCurrentServer();
   }
@@ -84,8 +107,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.checkScreenWidth();
     this.getCurrentUser();
+    this.bindingHotkey();
 
-    this.timerService.timerList$.subscribe({
+    this.timerListSubscription = this.timerService.timerList$.subscribe({
       next: (res) => {
         this.timerList = res;
       },
@@ -117,6 +141,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.isOnlineSubscription) {
       this.isOnlineSubscription.unsubscribe();
+    }
+    if (this.groupNameSubscription) {
+      this.groupNameSubscription.unsubscribe();
+    }
+    if (this.timerListSubscription) {
+      this.timerListSubscription.unsubscribe();
     }
 
     this.websocketService.disconnect();
@@ -162,16 +192,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private initCurrentServer() {
-    // this.configurationService.getServers().subscribe({
-    //   next: (res) => {
-    //     res.map((item: string) => {
-    //       let server = { label: item, value: item };
-    //       this.serverList.push(server);
-    //     });
-    this.currentServer =
-      this.storageService.getLocalStorage('server') || 'Гелиос';
-    // },
-    // });
+    this.configurationService.getServers().subscribe({
+      next: (res) => {
+        this.serverList = res.map((item: string) => ({
+          label: item,
+          value: item,
+        }));
+        this.currentServer =
+          this.storageService.getLocalStorage('server') || 'Гелиос';
+      },
+    });
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
@@ -203,6 +233,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.onLogout();
         }
       },
+    });
+  }
+
+  bindingHotkey(): void {
+    this.bindingService.clickReloadButton$.subscribe(() => {
+      this.updateCurrentServer();
+    });
+
+    this.bindingService.clickCopyButton$.subscribe(() => {
+      this.copyRespText();
+    });
+
+    this.bindingService.focusSearchInput$.subscribe(() => {
+      this.searchInput.nativeElement.focus();
     });
   }
 
@@ -246,7 +290,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateAllBosses(): void {
-    this.timerService.getAllBosses(this.currentServer).subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
         this.sortTimerList([...res]);
 
@@ -257,7 +302,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
         });
         this.timerService.isLoading = false;
-        this.updateHistory();
+
+        if (this.groupNameSubscription) {
+          this.groupNameSubscription.unsubscribe();
+        }
+
+        this.groupNameSubscription = this.timerService.groupName$.subscribe({
+          next: (res) => {
+            console.log(res);
+            if (res) {
+              this.updateHistory();
+            }
+          },
+        });
       },
       error: () => {
         this.timerService.isLoading = false;
@@ -266,18 +323,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   updateHistory(): void {
-    this.historyService.getHistory(this.currentServer).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.historyList = this.historyList;
-        this.historyService.historyListData = this.historyListData;
-        this.historyService.isLoading = false;
-      },
-      error: () => {
-        this.historyService.isLoading = false;
-      },
-    });
+    const lang = localStorage.getItem('language') || 'ru';
+    this.historyService
+      .getHistory(this.currentServer, undefined, undefined, lang)
+      .subscribe({
+        next: (res: any) => {
+          this.historyListData = res;
+          this.historyList = res.data;
+          this.historyService.historyList = this.historyList;
+          this.historyService.historyListData = this.historyListData;
+          this.historyService.isLoading = false;
+        },
+        error: () => {
+          this.historyService.isLoading = false;
+        },
+      });
   }
 
   getCurrentUser() {
@@ -315,7 +375,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   copyRespText() {
     let data: string[] = [];
     this.initCurrentServer();
-    this.timerService.getAllBosses(this.currentServer).subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
         this.sortTimerList([...res]);
 
@@ -323,13 +384,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
           if (item.mobData.respawnTime) {
             data.push(
-              `${this.duplicatedMobList.includes(item.mob.mobName) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
+              `${this.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
                 item.mobData.respawnTime,
               ).format('HH:mm:ss')}`,
             );
           }
         });
-        this.messageService.create('success', 'Респы были успешно скопированы');
+        this.messageService.create(
+          'success',
+          this.translateService.instant(
+            'HEADER.MESSAGE.RESPAWNS_COPIED_SUCCESSFULLY',
+          ),
+        );
         navigator.clipboard.writeText(data.join(',\n'));
       },
     });
@@ -337,12 +403,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   showCrashServerModal() {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent:
-        '<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</br>',
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('HEADER.MODAL.SERVER_CRASH_TITLE'),
+      nzContent: this.translateService.instant(
+        'HEADER.MODAL.SERVER_CRASH_MESSAGE',
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOnOk: () => this.onCrashServer(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -355,7 +422,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
         this.updateAllBosses();
         this.messageService.create(
           'success',
-          'Респы теперь с учётом падения сервера',
+          this.translateService.instant(
+            'HEADER.MESSAGE.RESPAWNS_WITH_SERVER_CRASH',
+          ),
         );
       },
     });
@@ -379,13 +448,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   showLogoutModal(): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: '<b>Вы точно хотите выйти?</b>',
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant('HEADER.MODAL.LOGOUT_TITLE'),
+      nzContent: this.translateService.instant('HEADER.MODAL.LOGOUT_MESSAGE'),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onLogout(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 

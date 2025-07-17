@@ -17,6 +17,8 @@ import {
 } from 'ng-zorro-antd/notification';
 import { NotificationService } from './services/notification.service';
 import { StorageService } from './services/storage.service';
+import { TranslateService } from '@ngx-translate/core';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -25,10 +27,13 @@ import { StorageService } from './services/storage.service';
 })
 export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   private readonly router = inject(Router);
+  private readonly titleService = inject(Title);
+  private readonly metaService = inject(Meta);
   private readonly timerService = inject(TimerService);
   private readonly notificationService = inject(NotificationService);
   private readonly storageService = inject(StorageService);
   private readonly nzNotificationService = inject(NzNotificationService);
+  private readonly translateService = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('notificationTemplate', { static: false })
@@ -40,8 +45,51 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   position: NzNotificationPlacement | undefined = 'bottomRight';
   showBackground: boolean = false;
   isVisible: boolean = false;
+  language: string = 'ru';
+
+  cyrillicLanguages = [
+    'ru', // Русский
+    'uk', // Украинский
+    'be', // Белорусский
+    'kk', // Казахский
+    'ky', // Киргизский
+    'tg', // Таджикский
+    'uz', // Узбекский
+    'tk', // Туркменский
+    'ab', // Абхазский
+    'hy', // Армянский
+    'az', // Азербайджанский
+    'mo', // Молдавский
+  ];
 
   ngOnInit() {
+    this.setMeta();
+
+    // Обновляем мета-теги при смене языка
+    this.translateService.onLangChange.subscribe(() => {
+      this.setMeta();
+    });
+
+    // Инициализация языков
+    this.translateService.addLangs(['ru', 'en', 'vi', 'pl']);
+
+    // Используем язык из localStorage или дефолтный
+    const savedLang = localStorage.getItem('language');
+    const browserLang = navigator.language.toLowerCase();
+
+    const isCyrillicLang = this.cyrillicLanguages.some((code) =>
+      browserLang.startsWith(code),
+    );
+
+    const defaultLang = isCyrillicLang ? 'ru' : 'en';
+
+    if (!savedLang) localStorage.setItem('language', defaultLang);
+
+    this.language = savedLang || defaultLang;
+
+    this.translateService.setDefaultLang(defaultLang);
+    this.translateService.use(savedLang || defaultLang);
+
     this.currentNotificationIndex = 0;
     this.timerService.telegramBotVisibility = true;
 
@@ -69,6 +117,15 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   checkRoute(url: string) {
     // Проверяем текущий маршрут и задаем значение для showBackground
     this.showBackground = url === '/timer';
+  }
+
+  setMeta() {
+    this.translateService.get('APP.TITLE').subscribe((title: string) => {
+      this.titleService.setTitle(title);
+    });
+    this.translateService.get('APP.DESCRIPTION').subscribe((desc: string) => {
+      this.metaService.updateTag({ name: 'description', content: desc });
+    });
   }
 
   showNotifications(index: number): void {

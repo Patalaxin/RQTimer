@@ -1,8 +1,10 @@
 <div [class.background]="showBackground"></div>
 <tui-root>
   <ng-template #notificationTemplate let-notification="data">
-    <h2 style="color: #000000">Уведомление</h2>
-    <span>{{ notification.text }}</span>
+    <h2 style="color: #000000">
+      {{ "ADMIN.MODAL.NOTIFICATION_TITLE" | translate }}
+    </h2>
+    <span [innerHTML]="notification.text[language]"></span>
 
     <div class="notification-template-content">
       <button

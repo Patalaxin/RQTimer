@@ -1,0 +1,367 @@
+{
+  "APP": {
+    "TITLE": "RQTimer - таймер мобов для Royal Quest",
+    "DESCRIPTION": "RQTimer предлагает удобный интерфейс для переписывания мобов как для одиночных игроков, так и для групп"
+  },
+  "LANGUAGE_SWITCHER": {
+    "MESSAGE": {
+      "CHANGE_LANGUAGE": "Язык успешно сменен на {{language}}"
+    }
+  },
+  "NOT_FOUND": {
+    "LOST": "Ты потерялся..."
+  },
+  "HEADER": {
+    "UPDATE": "Обновить",
+    "COPY_RESP": "Скопировать респы",
+    "SERVER_CRASH": "Учитывать падение сервера",
+    "SEARCH": "Поиск...",
+    "HISTORY": "История",
+    "TIMER": "Таймер",
+    "PROFILE": "Личный кабинет",
+    "LOGOUT": "Выход",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Внимание",
+      "SERVER_CRASH_MESSAGE": "<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</b>",
+      "LOGOUT_TITLE": "Внимание",
+      "LOGOUT_MESSAGE": "<b>Вы точно хотите выйти?</b>"
+    },
+    "MESSAGE": {
+      "RESPAWNS_COPIED_SUCCESSFULLY": "Респауны были успешно скопированы",
+      "RESPAWNS_WITH_SERVER_CRASH": "Респауны теперь с учётом падения сервера"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Почта или никнейм",
+    "PASSWORD": "Пароль",
+    "FORGOT_PASSWORD": "Забыли пароль?",
+    "NO_ACCOUNT": "Нет учетной записи?",
+    "REGISTER": "Зарегистрируйтесь",
+    "ALL_QUESTION": "По всем вопросам:",
+    "INFORMATION": "Информация:",
+    "MESSAGE": {
+      "INVALID_LOGIN_OR_PASSWORD": "Неверный логин или пароль"
+    }
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Почта",
+    "PASSWORD": "Новый пароль",
+    "CONFIRM_PASSWORD": "Подтвердите новый пароль",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Подтверждение почты",
+      "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
+      "OTP_INVALID": "OTP недействителен."
+    },
+    "MESSAGE": {
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Шаг 1:",
+    "STEP_2": "Шаг 2:",
+    "GENERAL": "Основной",
+    "DISPLAY": "Отображение",
+    "NICKNAME": "Никнейм",
+    "EMAIL": "Почти",
+    "PASSWORD": "Пароль",
+    "CONFIRM_PASSWORD": "Подтвердите пароль",
+    "HAVE_ACCOUNT": "У меня уже есть аккаунт",
+    "EXCLUDE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "EXCLUDE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Подтверждение почты",
+      "OTP_TIMER": "Код был отправлен на почту и действителен в течение {{seconds}} сек.",
+      "OTP_INVALID": "OTP недействителен."
+    },
+    "MESSAGE": {
+      "USER_CREATED_SUCCESSFULLY": "Пользователь успешно создан",
+      "USER_ALREADY_EXISTS": "Пользователь с данным никнеймом или почтой уже существует",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Никнейм:",
+    "EMAIL": "Почта:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Таймер"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Таймер"
+  },
+  "LOG": {
+    "OF": "из",
+    "USER": "Пользователь",
+    "UPDATED": "переписал",
+    "COOLDOWN_COUNT": "по кд {{count}} раз",
+    "EXACT_DEATH_TIME": "по точному времени смерти",
+    "EXACT_RESPAWN_TIME": "по точному времени респауна",
+    "SERVER_CRASH": "всех боссов/элиток из-за краша сервера",
+    "LOST_RESPAWN": "как утерянный респаун",
+    "DUMB_METHOD": "по тупому",
+    "INITIAL_COOLDOWN": "Начальный кд:",
+    "UPDATED_COOLDOWN": "Обновлённый кд:",
+    "RESPAWN_TIME": "Время возрождение:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Настройки отображения",
+    "CHANGE_PASSWORD": "Изменить пароль",
+    "ADMIN": "Админ",
+    "EXCLUDE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "EXCLUDE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете.",
+    "OLD_PASSWORD": "Старый пароль",
+    "NEW_PASSWORD": "Новый пароль",
+    "CONFIRM_NEW_PASSWORD": "Подтвердите новый пароль",
+    "MESSAGE": {
+      "DISPLAY_SETTINGS_UPDATED_SUCCESS": "Настройки отображения успешно обновлены",
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Пароль успешно изменён",
+      "UNKNOWN_ERROR": "Ошибка, обратитесь к создателям таймера"
+    }
+  },
+  "ADMIN": {
+    "USER_LIST": "Список пользователей",
+    "USER": "Пользователь:",
+    "UPDATE_ROLE_TITLE": "Обновить роль:",
+    "UPDATE_ROLE_DESCRIPTION": "Обновить роль для выбранного пользователя.",
+    "ROLE": "Роль:",
+    "UNAVAILABLE_BOSSES_TITLE": "Выберите боссов для исключения:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Выберите боссов для исключения для выбранного пользователя.",
+    "UNAVAILABLE_ELITES_TITLE": "Выберите элиток для исключения:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Выберите элиток для исключения для выбранного пользователя.",
+    "TABLE": {
+      "NICKNAME": "Никнейм",
+      "ROLE": "Роль",
+      "EMAIL": "Почта",
+      "GROUP": "Группа",
+      "ACTIONS": "Действия",
+      "EDIT": "Редактировать",
+      "DELETE": "Удалить",
+      "SEARCH_USER": "Поиск юзера..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "Пользователь {{nickname}} удалён",
+      "USER_ROLE_UPDATED": "Роль пользователя {{nickname}} успешно обновлён",
+      "USER_ACCESS_SETTINGS_UPDATED": "Настройки доступности для пользователя {{nickname}} успешно обновлены",
+      "NOTIFICATION_CREATED": "Уведомление успешно создано"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Внимание",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>",
+      "NOTIFICATION_TITLE": "Уведомление",
+      "RUSSIAN": "Русский:",
+      "ENGLISH": "Английский:"
+    }
+  },
+  "TIMER_SETTINGS": {
+    "INVITE": "Инвайт",
+    "NOTIFICATION_SETTINGS": "Настройки уведомлений",
+    "LANGUAGE_SETTING": "Язык",
+    "VOLUME_SETTING": "Громкость уведомлений",
+    "VOICE_SETTING": "Голосовое уведомление",
+    "GROUP_MANAGEMENT": "Управление группой",
+    "MEMBER_LIST": "Список участников",
+    "ADD_MOBS": "Разрешить участникам добавлять мобов",
+    "LEAVE_GROUP": "Выйти из группы",
+    "DELETE_GROUP": "Удалить группу",
+    "TABLE": {
+      "NICKNAME": "Никнейм",
+      "STATUS": "Статус",
+      "EMAIL": "Почта",
+      "ACTIONS": "Действия",
+      "ASSIGN_AS_LEADER": "Назначить лидером",
+      "DELETE": "Удалить",
+      "SEARCH_USER": "Поиск юзера..."
+    },
+    "MESSAGE": {
+      "VOICE_SETTING_ACTIVATED": "Голосовые уведомления включены",
+      "VOICE_SETTING_DEACTIVATED": "Голосовые уведомления выключены",
+      "MEMBERS_CAN_EDIT_MOBS": "Обычные участники теперь могут добавлять мобов",
+      "MEMBERS_CANNOT_EDIT_MOBS": "Обычные участники теперь не могут добавлять мобов",
+      "INVITE_COPIED": "Инвайт успешно скопирован!",
+      "USER_DELETED": "Пользователь {{email}} удалён",
+      "USER_ASSIGNED_AS_LEADER": "Пользователь {{email}} назначен лидером",
+      "GROUP_DELETED": "Группа {{groupName}} была успешно удалена",
+      "LEFT_GROUP": "Вы успешно вышли из группы {{groupName}}"
+    },
+    "MODAL": {
+      "CONFIRM_ASSIGN_LEADER_TITLE": "Внимание",
+      "CONFIRM_ASSIGN_LEADER_MESSAGE": "<b style=\"color: red;\">Вы точно хотите назначить пользователя {{nickname}} лидером?</b>",
+      "CONFIRM_DELETE_USER_TITLE": "Внимание",
+      "CONFIRM_DELETE_USER_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить пользователя {{nickname}}?</b>",
+      "CONFIRM_DELETE_GROUP_TITLE": "Внимание",
+      "CONFIRM_DELETE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить группу {{groupName}}?</b>",
+      "CONFIRM_LEAVE_GROUP_TITLE": "Внимание",
+      "CONFIRM_LEAVE_GROUP_MESSAGE": "<b style=\"color: red;\">Вы точно хотите покинуть группу {{groupName}}?</b>"
+    }
+  },
+  "MOB_MODAL": {
+    "SHORT_NAME": "Короткое имя",
+    "RESPAWN_TEXT": "Текст респауна",
+    "LOCATION": "Локация"
+  },
+  "INTERCEPTOR": {
+    "MESSAGE": {
+      "SERVICE_ERROR": "Ошибка обращения к сервису. Попробуйте обновить страницу",
+      "GROUP_TIMER_ADD_ERROR": "Добавление в групповой таймер невозможен. Проверьте настройки отображения"
+    }
+  },
+  "TIMER": {
+    "GROUP_ABSENCE_NOTICE": "Уважаемый(ая),",
+    "GROUP_ABSENCE_MESSAGE": "В данный момент, Вы не состоите в группе, но Вы можете создать группу или вступить в уже существующую.",
+    "TIMER": "Таймер",
+    "SETTINGS": "Настройки",
+    "REWRITE_MANUALLY": "Переписать",
+    "REWRITE_MANUALLY_TOOLTIP": "Переписать вручную",
+    "REWRITE_NOW": "Упал сейчас",
+    "REWRITE_NOW_TOOLTIP": "Переписать по (текущему времени - 10 сек)",
+    "REWRITE_HISTORY": "История переписи {{mobName}}",
+    "SIMULATE_NEXT_CD_RESPAWN": "Симуляция следующего кдшного респа",
+    "REWRITE_BY_CD": "Переписать по кд",
+    "RESPAWN_LOST": "Респаун утерян",
+    "DELETE": "Удалить",
+    "ADD_BOSSES_ELITES": "Добавление боссов/элиток",
+    "MODAL": {
+      "SELECT_EXACT_DEATH_TIME": "Выберите точное время смерти:",
+      "SELECT_EXACT_RESPAWN_TIME": "Выберите точное время респауна:",
+      "ENTER_CD_COUNT": "Впишите, сколько раз по кд:",
+      "COMMENT": "Комментарий:",
+      "EDIT_COMMENT_ONLY": "Редактировать комментарий без переписи респауна",
+      "ADD_TO_GROUP_TIMER": "Добавить в групповой таймер",
+      "SELECT_ALL": "Выбрать все",
+      "CREATE_GROUP_TITLE": "Создать группу",
+      "CREATE_GROUP_PLACEHOLDER": "Введите название группы",
+      "JOIN_GROUP_TITLE": "Присоединиться к группе",
+      "JOIN_GROUP_PLACEHOLDER": "Введите код приглашение",
+      "REWRITE_TITLE": "Внимание",
+      "DELETE_TITLE": "Внимание",
+      "DELETE_MESSAGE": "<b style=\"color: red;\">Вы точно хотите удалить {{mobName}}?</b>",
+      "DEATH_TIME_OVERWRITE_1": "<b>{{mobName}}</b> реснулся в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>{{currentTime}}</b>?",
+      "DEATH_TIME_OVERWRITE_2": "<b>{{mobName}}</b> реснется в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время смерти</b> на <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_OVERWRITE_1": "<b>{{mobName}}</b> уже реснулся в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_OVERWRITE_2": "<b>{{mobName}}</b> уже реснулся в <b>{{respTime}}</b> и следующий респаун предположительно будет в <b>{{nestRespTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
+      "NEXT_RESPAWN_TIME_OVERWRITE": "Cледующий респаун <b>{{mobName}}</b> будет в <b>{{respTime}}</b>. Вы точно хотите переписать <b>время респауна</b> на <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_NEXT_PROTECTED": "Указано следующее время респауна <b>{{mobName}}</b> — <b>{{respTime}}</b>. Вы уверены, что хотите изменить его на <b>{{currentTime}}</b>?"
+    },
+    "TOUR": {
+      "TIMER_TITLE": "Привет",
+      "TIMER_MESSAGE": "На связи <b>Жевти</b>! Cейчас я покажу основной функционал таймера!",
+      "SERVER_TITLE": "Выбор сервера",
+      "SERVER_MESSAGE": "Вот тут можно выбрать <b>сервер</b>, у каждого сервера естественно свой <b>таймер</b>, не перепутай",
+      "TIMER_ITEM_TITLE": "Таймер",
+      "TIMER_ITEM_MESSAGE": "Каждый моб будет изображён такой плашкой с множеством кнопок. Да, кнопок много, но с ними мы сейчас разберёмся",
+      "REWRITE_TITLE": "Переписать",
+      "REWRITE_MESSAGE": "С помощью этой <b>кнопки</b> можно переписать моба 3мя способами:<br>1) По <b>точному времени смерти</b><br>2) По <b>точному времени респауна</b><br>3) По <b>количеству раз по кд</b>",
+      "DIE_NOW_TITLE": "Упал сейчас",
+      "DIE_NOW_MESSAGE": "Эта <b>кнопка</b> позволяет переписать моба сразу <b>непосредственно после смерти</b>. Я также учёл среднее время нужное для того, чтоб открыть браузер и нажать кнопку, примерно на это уходит <b>~10 сек.</b>",
+      "MOB_HISTORY_TITLE": "История переписи моба",
+      "MOB_HISTORY_MESSAGE": "Тут можно увидеть <b>историю переписи определенного моба</b>: кто переписал, каким способом, исходные и итоговые значения времени после переписи",
+      "PLUS_COOLDOWN_TITLE": "Симуляция кд респауна",
+      "PLUS_COOLDOWN_MESSAGE": "Например, я знаю, что <b>не успею</b> зайти до реса моба, с помощью этой <b>кнопки</b> я могу получить <b>время следующего кдшного респа</b>, чтоб рассчитать свое время<br><br><b>Важно:</b> эта кнопка только <b>симулирует респ</b>, видите это значение только вы",
+      "COOLDOWN_TITLE": "Переписать по кд",
+      "COOLDOWN_MESSAGE": "А вот эта <b>кнопка</b> уже <b>переписывает и отображает кдшный респ</b> для всех участников группы",
+      "LOST_COOLDOWN_TITLE": "Респаун утерян",
+      "LOST_COOLDOWN_MESSAGE": "Ну тут понятно, когда <b>теряете респаун</b>, и не знаете точное время, лучше нажать эту кнопку, чтоб <b>сбросить все значений времени</b> для данного моба",
+      "DELETE_TITLE": "Удалить",
+      "DELETE_MESSAGE": "<b>Удаляет</b> моба из группы",
+      "ADD_TITLE": "Добавить",
+      "ADD_MESSAGE": "А эта <b>кнопка</b>, наоборот, <b>добавляет</b> моба в группу",
+      "TIMER_SETTINGS_TITLE": "Таймер и его настройки",
+      "TIMER_SETTINGS_MESSAGE": "Нуууу, хз что сказать, в самом названии все сказано :D",
+      "HEADER_TITLE": "Хедер",
+      "HEADER_MESSAGE": "Так-с, с основными кнопками таймера закончили, дальше рассмотрим <b>функций хедера</b>",
+      "SEARCH_TITLE": "Поиск",
+      "SEARCH_MESSAGE": "Осуществляет <b>поиск</b> определенного моба",
+      "RELOAD_TITLE": "Обновить",
+      "RELOAD_MESSAGE": "<b>Обновляет</b> таймер при необходимости",
+      "COPY_TITLE": "Скопировать",
+      "COPY_MESSAGE": "<b>Копирует все респы</b> в таймере, кроме утерянных",
+      "CONNECTION_TITLE": "Падение сервера",
+      "CONNECTION_MESSAGE": "При <b>падении сервера игры</b> жмётся эта кнопка, чтоб <b>учитывать время отката</b> при отключении серверов. Также эта кнопка позволяет увидеть <b>статус</b>:<br>1) <b>Online</b> - зелёный<br>2) <b>Offline</b> - красный",
+      "HISTORY_TITLE": "История переписи",
+      "HISTORY_MESSAGE": "Вот эта <b>кнопка</b> уже показывает <b>общую историю переписи</b> всех мобов",
+      "SETTINGS_TITLE": "Персональные настройки",
+      "SETTINGS_MESSAGE": "Можно будет <b>настроить отображение мобов</b> или <b>поменять пароль</b>",
+      "LOGOUT_TITLE": "Выход",
+      "LOGOUT_MESSAGE": "Выйди и зайди нормально, пон?",
+      "NOTIFICATION_TITLE": "Уведомления",
+      "NOTIFICATION_MESSAGE": "Тут можно будет просмотреть актуальные уведомления от нас, разработчиков",
+      "TELEGRAM_BOT_TITLE": "Telegram-бот",
+      "TELEGRAM_BOT_MESSAGE": "По многочисленным просьбам, добавили также Telegram-бота, который будет <b>присылать переписанные респы</b>"
+    },
+    "MESSAGE": {
+      "TIME_DESYNC_WARNING": "Время на вашем устройстве отличается от серверного на {{seconds}} секунд. Пожалуйста, проверьте настройки времени на вашем устройстве.",
+      "MOBS_ADDED_SUCCESS": "Боссы/элитки были успешно добавлены.",
+      "MOB_DELETED_SUCCESS": "{{mobName}} успешно удалён.",
+      "RESP_UPDATED_BY_DEATH": "Респ был успешно обновлён по точному времени смерти",
+      "RESP_UPDATED_BY_RESPAWN": "Респ был успешно обновлён по точному времени респауна",
+      "RESP_UPDATED_BY_CD": "Респ был успешно обновлён по кд {{cooldown}} раз",
+      "COMMENT_UPDATED": "Комментарий был успешно добавлен/отредактирован",
+      "RESP_REWRITTEN": "Респ был успешно переписан",
+      "RESP_REWRITTEN_BY_CD": "Респ был успешно переписан по кд",
+      "RESP_LOST": "Респ утерян"
+    },
+    "NOTIFICATIONS": {
+      "MOB_RESPAWN_SOON": "{{mobName}} реснется меньше чем через {{minute}} минут(у).",
+      "MOB_ENCOURAGEMENT": "Притаился крыс, и сам себя не прихлопнет..."
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Войти",
+      "VIDEO_GUIDE": "Видеогайд",
+      "TELEGRAM_BOT": "Telegram-бот",
+      "CANCEL": "Отмена",
+      "CHANGE_PASSWORD": "Поменять пароль",
+      "VERIFY": "Подтвердить",
+      "GET_NEW_OTP": "Получить новый OTP",
+      "NEXT": "Вперёд",
+      "BACK": "Назад",
+      "VERIFY_EMAIL": "Подтвердить почту",
+      "YES": "Да",
+      "NO": "Нет",
+      "UPDATE": "Обновить",
+      "SEARCH": "Поиск",
+      "RESET": "Сброс",
+      "OK": "ОК",
+      "GENERATE": "Сгенерировать",
+      "DELETE": "Удалить",
+      "LEAVE": "Выйти",
+      "CREATE_GROUP": "Создать группу",
+      "JOIN_GROUP": "Присоединиться к группе",
+      "ADD": "Добавить",
+      "END": "Конец",
+      "JOIN": "Вступить",
+      "CREATE": "Создать",
+      "CREATE_NOTIFICATION": "Создать уведомление"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Введите почту или никнейм!",
+      "PASSWORD_REQUIRED": "• Введите пароль!",
+      "EMAIL_REQUIRED": "• Введите почту!",
+      "PASSWORD_MISMATCH": "• Пароль не совпадает!",
+      "PASSWORD_MIN_LENGTH": "• Минимальная длина пароля {{value}} символов!",
+      "PASSWORD_MAX_LENGTH": "• Максимальная длина пароля {{value}} символов!",
+      "PASSWORD_MISS_NUMBER": "• Пароль должен содержать хотя бы одну цифру!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Пароль должен содержать хотя бы одну заглавную латинскую букву!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Пароль должен содержать хотя бы одну строчную латинскую букву!",
+      "NICKNAME_REQUIRED": "• Введите никнейм!",
+      "NICKNAME_MIN_LENGTH": "• Минимальная длина никнейм {{value}} символа!",
+      "NICKNAME_MAX_LENGTH": "• Максимальная длина никнейм {{value}} символов!",
+      "NICKNAME_MAX_UPPER": "• Никнейм может содержать не более 2 заглавных букв!",
+      "NICKNAME_NO_SPACES": "• Никнейм не может содержать пробелы!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Никнейм не должен содержать специальные символы!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Никнейм не должен начинаться или заканчиваться на дефис!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Никнейм может содержать не более одного дефиса!",
+      "NICKNAME_NO_NUMBERS": "• Никнейм не может содержать цифры!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Никнейм не может содержать смешение кириллицы и латиницы!",
+      "NEW_PASSWORD_REQUIRED": "• Введите новый пароль!",
+      "OLD_PASSWORD_REQUIRED": "• Введите старый пароль!",
+      "NEW_PASSWORD_MISMATCH": "• Новый пароль не совпадает!"
+    }
+  }
+}

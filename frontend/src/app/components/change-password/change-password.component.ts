@@ -6,6 +6,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
 import { OtpService } from 'src/app/services/otp.service';
@@ -21,6 +22,7 @@ export class ChangePasswordComponent {
   private readonly router = inject(Router);
   private readonly otpService = inject(OtpService);
   private readonly userService = inject(UserService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
   isModalVisible: boolean = false;
@@ -138,7 +140,12 @@ export class ChangePasswordComponent {
         next: (res) => {
           this.passwordChangeLoading = false;
           if (res.message === 'Password successfully changed') {
-            this.messageService.create('success', 'Пароль успешно изменён');
+            this.messageService.create(
+              'success',
+              this.translateService.instant(
+                'CHANGE_PASSWORD.MESSAGE.PASSWORD_CHANGED_SUCCESSFULLY',
+              ),
+            );
             this.router.navigate(['/login']);
           }
         },
@@ -149,7 +156,9 @@ export class ChangePasswordComponent {
           }
           return this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера',
+            this.translateService.instant(
+              'CHANGE_PASSWORD.MESSAGE.UNKNOWN_ERROR',
+            ),
           );
         },
       });

@@ -3,10 +3,8 @@ import {
   IsNotEmpty,
   IsString,
   IsArray,
-  IsEnum,
-  ArrayUnique,
+  IsMongoId,
 } from 'class-validator';
-import { MobName } from '../../schemas/mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPassword } from '../../decorators/isPassword.decorator';
 import { IsNickname } from '../../decorators/isNickname.decorator';
@@ -27,13 +25,11 @@ export class CreateUserDtoRequest {
   password: string;
 
   @ApiProperty({
-    description: 'Мобы которых пользователь не хочет видеть',
-    enum: MobName,
-    isArray: true,
-    example: [MobName.Архон, MobName.Хьюго],
+    description: 'Мобы, которых пользователь не хочет видеть',
+    type: [String],
+    example: ['665f1a15a7bbbdc01c56eefe', '665f1a15a7bbbdc01c56eeff'], // примеры ObjectId
   })
   @IsArray()
-  @ArrayUnique()
-  @IsEnum(MobName, { each: true })
-  excludedMobs: MobName[];
+  @IsMongoId({ each: true })
+  excludedMobs: string[];
 }

@@ -62,16 +62,19 @@ export class HistoryComponent implements OnInit {
   }
 
   getHistory(server: string): void {
-    this.historyService.getHistory(server).subscribe({
-      next: (res: any) => {
-        this.historyListData = res;
-        this.historyList = res.data;
-        this.historyService.isLoading = false;
-      },
-      error: () => {
-        this.historyService.isLoading = false;
-      },
-    });
+    const lang = localStorage.getItem('language') || 'ru';
+    this.historyService
+      .getHistory(server, undefined, undefined, lang)
+      .subscribe({
+        next: (res: any) => {
+          this.historyListData = res;
+          this.historyList = res.data;
+          this.historyService.isLoading = false;
+        },
+        error: () => {
+          this.historyService.isLoading = false;
+        },
+      });
   }
 
   onTimer(): void {

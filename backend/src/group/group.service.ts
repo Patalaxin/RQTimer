@@ -23,12 +23,13 @@ import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 @Injectable()
 export class GroupService implements IGroup {
   constructor(
-    @InjectModel(Group.name) private groupModel: Model<GroupDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly usersService: UsersService,
-    @Inject(forwardRef(() => MobService)) private mobService: MobService,
+    @Inject(forwardRef(() => MobService))
+    private readonly mobService: MobService,
     @InjectModel(BotSession.name)
-    private sessionModel: Model<BotSessionDocument>,
+    private readonly sessionModel: Model<BotSessionDocument>,
   ) {}
 
   async createGroup(
@@ -74,12 +75,14 @@ export class GroupService implements IGroup {
   }
 
   async getGroupByName(groupName: string): Promise<Group> {
-    const group: Group = await this.groupModel
-      .findOne({ name: groupName })
+    const group = await this.groupModel
+      .findOne({ name: groupName }, { _id: 0, __v: 0 })
       .lean();
+
     if (!group) {
       throw new NotFoundException('Group not found');
     }
+
     return plainToInstance(Group, group);
   }
 
@@ -243,7 +246,7 @@ export class GroupService implements IGroup {
       .findOneAndUpdate(
         { name: groupName },
         { $set: updateGroupDto },
-        { new: true, runValidators: true },
+        { new: true, runValidators: true, projection: { _id: 0, __v: 0 } },
       )
       .lean()
       .exec();

@@ -18,8 +18,8 @@ export interface TimerItem {
     isInfoOkLoading: boolean;
   };
   mobData: {
+    mobId: string;
     server?: string;
-    mobId?: {};
     respawnTime?: number;
     deathTime?: number;
     cooldown: number;

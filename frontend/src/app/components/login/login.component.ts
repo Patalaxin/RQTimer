@@ -13,6 +13,7 @@ import { TimerService } from 'src/app/services/timer.service';
 import { StorageService } from 'src/app/services/storage.service';
 import * as moment from 'moment';
 import { UserService } from 'src/app/services/user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,7 @@ export class LoginComponent implements OnInit {
   private readonly timerService = inject(TimerService);
   private readonly userService = inject(UserService);
   private readonly storageService = inject(StorageService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
   form: FormGroup = new FormGroup({
@@ -109,7 +111,12 @@ export class LoginComponent implements OnInit {
         },
         error: () => {
           this.isLoginLoading = false;
-          this.messageService.create('error', 'Неверный логин или пароль');
+          this.messageService.create(
+            'error',
+            this.translateService.instant(
+              'LOGIN.MESSAGE.INVALID_LOGIN_OR_PASSWORD',
+            ),
+          );
         },
       });
   }

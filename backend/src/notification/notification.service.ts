@@ -5,26 +5,27 @@ import {
 } from '../schemas/notification.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { INotification } from './notification.interface';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
+import { INotification } from './notification.interface';
 
 @Injectable()
 export class NotificationService implements INotification {
   constructor(
     @InjectModel(NotificationSession.name)
-    private notificationModel: Model<NotificationDocument>,
+    private readonly notificationModel: Model<NotificationDocument>,
   ) {}
 
-  async createNotification(text: string): Promise<void> {
-    await this.notificationModel.create({ text });
+  async createNotification(dto: CreateNotificationDto): Promise<void> {
+    await this.notificationModel.create({ text: dto });
   }
 
   async getNotifications(): Promise<GetNotificationsDtoResponse[]> {
     const notifications = await this.notificationModel
-      .find()
+      .find({}, { 'text._id': 0 })
       .sort({ expireAt: -1 })
+      .lean()
       .exec();
-
     return notifications.map((notification) => ({
       id: notification._id,
       text: notification.text,

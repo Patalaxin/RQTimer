@@ -18,7 +18,7 @@ import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
-import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { BotSession } from '../schemas/telegram-bot.schema';
 
 export interface IUser {
@@ -26,7 +26,7 @@ export interface IUser {
 
   findUser(nicknameOrEmail: string): Promise<User>;
 
-  findAll(): Promise<FindAllUsersDtoResponse[]>;
+  findAll(page: number, limit: number): Promise<PaginatedUsersDto>;
 
   changePassword(
     email: string,

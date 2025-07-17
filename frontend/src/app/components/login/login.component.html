@@ -5,12 +5,16 @@
     </div>
     <form nz-form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
       <nz-form-item>
-        <nz-form-control nzErrorTip="Введите почту или никнейм!">
+        <nz-form-control
+          [nzErrorTip]="
+            'COMMON.VALIDATIONS.EMAIL_OR_NICKNAME_REQUIRED' | translate
+          "
+        >
           <nz-input-group nzPrefixIcon="user" class="br-50px">
             <input
               nz-input
               formControlName="key"
-              placeholder="Почта или никнейм"
+              [placeholder]="'LOGIN.LOGIN' | translate"
               name="required"
               required
             />
@@ -18,7 +22,9 @@
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
-        <nz-form-control nzErrorTip="Введите пароль!">
+        <nz-form-control
+          [nzErrorTip]="'COMMON.VALIDATIONS.PASSWORD_REQUIRED' | translate"
+        >
           <nz-input-group
             nzPrefixIcon="lock"
             [nzSuffix]="suffixTemplate"
@@ -28,7 +34,7 @@
               nz-input
               [type]="passwordVisible ? 'text' : 'password'"
               formControlName="password"
-              placeholder="Пароль"
+              [placeholder]="'LOGIN.PASSWORD' | translate"
               name="mix"
               required
             />
@@ -43,7 +49,9 @@
         ></span>
       </ng-template>
       <div class="login-form-mb-16px">
-        <a [routerLink]="['/change-password']">Забыли пароль?</a>
+        <a [routerLink]="['/change-password']">{{
+          "LOGIN.FORGOT_PASSWORD" | translate
+        }}</a>
       </div>
       <button
         nz-button
@@ -54,11 +62,11 @@
         [nzLoading]="isLoginLoading"
         nzShape="round"
       >
-        Войти
+        {{ "COMMON.BUTTONS.LOG_IN" | translate }}
       </button>
       <div class="login-form-center">
-        <span>Нет учетной записи? </span>
-        <a [routerLink]="['/register']">Зарегистрируйтесь</a>
+        <span>{{ "LOGIN.NO_ACCOUNT" | translate }} </span>
+        <a [routerLink]="['/register']">{{ "LOGIN.REGISTER" | translate }}</a>
       </div>
     </form>
     <!-- <div class="login-link">
@@ -67,7 +75,7 @@
       </a>
     </div> -->
     <div class="login-support login-form-center">
-      <span>По всем вопросам:</span>
+      <span>{{ "LOGIN.ALL_QUESTION" | translate }}</span>
       <div class="login-support-buttons">
         <a
           href="https://t.me/FlamingoJouhatsu"
@@ -97,7 +105,7 @@
     </div>
 
     <div class="login-info login-form-center">
-      <span>Информация:</span>
+      <span>{{ "LOGIN.INFORMATION" | translate }}</span>
       <div class="login-info-buttons">
         <button
           nz-button
@@ -108,7 +116,7 @@
           (click)="showGuideModal()"
         >
           <span nz-icon nzType="youtube"></span>
-          Видеогайд
+          {{ "COMMON.BUTTONS.VIDEO_GUIDE" | translate }}
         </button>
 
         <a
@@ -121,7 +129,7 @@
         >
           <span>
             <img src="../../../assets/img/tg.svg" alt="" />
-            Telegram-бот</span
+            {{ "COMMON.BUTTONS.TELEGRAM_BOT" | translate }}</span
           >
         </a>
       </div>
@@ -147,7 +155,7 @@
 
         <ng-template #guideFooter>
           <button nz-button nzType="default" (click)="cancelGuideModal()">
-            Отмена
+            {{ "COMMON.BUTTONS.CANCEL" | translate }}
           </button>
         </ng-template>
       </nz-modal>

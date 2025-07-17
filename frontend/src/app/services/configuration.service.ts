@@ -1,7 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
@@ -9,8 +8,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
-  private readonly storageService = inject(StorageService);
-
   private readonly CONFIGURATION_API = environment.apiUrl + '/configurations/';
 
   private serverListSubject$ = new BehaviorSubject<any[]>([]);
@@ -27,8 +24,14 @@ export class ConfigurationService {
     return this.http.get(`${this.CONFIGURATION_API}servers`);
   }
 
-  getMobs(): Observable<any> {
-    return this.http.get(`${this.CONFIGURATION_API}mobs`);
+  getMobs(lang: string): Observable<any> {
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.CONFIGURATION_API}mobs`, {
+      params,
+    });
   }
 
   getLocations(): Observable<any> {

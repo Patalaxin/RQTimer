@@ -1,19 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-import { UnixtimeResponseDto } from './dto/get-unixtime.dto';
 import * as process from 'node:process';
 import { IUnixtime } from './unixtime.interface';
 
 @Injectable()
-export class UnixtimeService implements IUnixtime {
-  private readonly REQUEST_TIMEOUT = 3000;
+export class UnixtimeService
+  implements OnModuleInit, OnModuleDestroy, IUnixtime
+{
+  private readonly logger = new Logger(UnixtimeService.name);
+
+  private unixtime: number = Date.now();
+  private lastSyncTime: number = Date.now();
+  private syncInterval: NodeJS.Timeout;
+
+  private readonly REQUEST_TIMEOUT = 5000; // 5 секунд
 
   constructor(private readonly httpService: HttpService) {}
 
-  async getUnixtime(): Promise<UnixtimeResponseDto> {
-    const start = Date.now();
+  async onModuleInit() {
+    await this.syncUnixtimeFromApi();
 
+    this.syncInterval = setInterval(() => {
+      this.syncUnixtimeFromApi();
+    }, 60_000);
+  }
+
+  onModuleDestroy() {
+    if (this.syncInterval) {
+      clearInterval(this.syncInterval);
+    }
+  }
+
+  private async syncUnixtimeFromApi() {
+    const start = Date.now();
     try {
       const response = await lastValueFrom(
         this.httpService
@@ -22,28 +47,32 @@ export class UnixtimeService implements IUnixtime {
           )
           .pipe(
             timeout(this.REQUEST_TIMEOUT),
-            catchError(() => {
-              return this.handleError();
+            catchError((error) => {
+              this.logger.error('Failed to get unixtime from API', error);
+              throw error;
             }),
           ),
       );
 
       const end = Date.now();
-      const apiUnixtime = response.data.timestamp;
-      const processingTime = Math.floor((end - start) / 1000);
+      const apiUnixtime = response.data.timestamp * 1000;
+      const processingTimeMs = end - start;
 
-      const isApiUnixtimeInSeconds = apiUnixtime < 1e12; // Check if it's in seconds or already in milliseconds
-      const correctedUnixTime = isApiUnixtimeInSeconds
-        ? (apiUnixtime + processingTime) * 1000 // If seconds, convert to milliseconds
-        : apiUnixtime + processingTime * 1000; // If already in milliseconds, add processing time in ms
+      this.unixtime = apiUnixtime + processingTimeMs;
+      this.lastSyncTime = Date.now();
 
-      return { unixtime: correctedUnixTime };
-    } catch (error) {
-      return { unixtime: Date.now() };
+      this.logger.debug(
+        `Synced unixtime: ${this.unixtime}, processingTime: ${processingTimeMs}ms`,
+      );
+    } catch {
+      this.logger.warn('Using local time due to error');
+      this.unixtime = Date.now();
+      this.lastSyncTime = Date.now();
     }
   }
 
-  private handleError(): Promise<any> {
-    return Promise.resolve({ data: { timestamp: Date.now() } });
+  getCurrentUnixtime(): { unixtime: number } {
+    const time = this.unixtime + (Date.now() - this.lastSyncTime);
+    return { unixtime: time };
   }
 }

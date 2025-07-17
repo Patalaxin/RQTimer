@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
@@ -27,8 +27,15 @@ export class UserService {
     return this.http.get(this.USER_API);
   }
 
-  getAllUsers(): Observable<any> {
-    return this.http.get(`${this.USER_API}list`);
+  getAllUsers(page?: number, limit?: number): Observable<any> {
+    let params = new HttpParams();
+
+    if (page) params = params.set('page', page);
+
+    if (limit) params = params.set('limit', limit);
+    return this.http.get(`${this.USER_API}list`, {
+      params,
+    });
   }
 
   getSpecificUser(key: string): Observable<any> {

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { Exclude, Expose } from 'class-transformer';
+import { HydratedDocument } from 'mongoose';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { Locations, MobName, MobsTypes, ShortMobName } from './mobs.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -45,14 +45,14 @@ export class Mob {
   @Prop({ required: true })
   mobType: MobsTypes;
 
-  @ApiProperty()
   @Exclude()
   @Prop()
   __v: number;
 
   @ApiProperty()
-  @Exclude()
-  _id: mongoose.Types.ObjectId;
+  @Expose()
+  @Transform((value) => value.obj._id.toString())
+  _id: string;
 
   constructor(partial: Partial<Mob>) {
     Object.assign(this, partial);

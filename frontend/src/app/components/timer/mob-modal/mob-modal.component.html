@@ -19,12 +19,20 @@
         [ngModel]="this.itemData.mob.mobName"
         disabled
       />
+      <nz-time-picker
+        class="mob-modal-ml-0 mob-modal-mb-10px"
+        style="width: 150px; margin-top: 0"
+        [ngModel]="itemCooldownTime"
+        disabled=""
+        nzNowText=" "
+      >
+      </nz-time-picker>
     </div>
     <div class="mob-modal-bottom mob-modal-d-flex-space-between">
       <div class="mob-modal-bottom-left">
         <nz-avatar
           [nzSize]="64"
-          [nzSrc]="'https://www.rqtimer.ru/static/' + this.itemData.mob.image"
+          [nzSrc]="IMAGE_SRC + this.itemData.mob.image"
         ></nz-avatar>
       </div>
 
@@ -32,35 +40,27 @@
         <input
           class="mob-modal-mb-10px br-50px"
           nz-input
-          placeholder="Короткое имя"
+          [placeholder]="'MOB_MODAL.SHORT_NAME' | translate"
           [ngModel]="this.itemData.mob.shortName"
           disabled
         />
         <textarea
           nz-input
-          placeholder="Текст респауна"
+          [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
           [ngModel]="this.itemData.mob.respawnText"
+          class="mob-modal-mb-10px"
           disabled
           nzAutosize
           style="resize: none; border-radius: 15px"
-          *ngIf="this.itemData.mob.mobType !== 'Элитка'"
+          *ngIf="this.itemData.mob.mobType === 'Босс'"
         ></textarea>
-
-        <nz-time-picker
-          class="mob-modal-ml-0 mob-modal-mb-10px"
-          style="width: 150px"
-          [ngModel]="itemCooldownTime"
-          disabled=""
-          nzNowText=" "
-        >
-        </nz-time-picker>
         <input
           nz-input
-          class="br-50px"
-          style="width: fit-content"
+          class="br-50px mob-modal-mb-10px"
+          style="width: 100%"
           [ngModel]="this.itemData.mob.location"
           disabled
-          nzPlaceHolder="Локация"
+          [placeholder]="'MOB_MODAL.LOCATION' | translate"
         />
       </div>
     </div>

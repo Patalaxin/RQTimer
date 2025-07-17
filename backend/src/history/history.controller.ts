@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Locations, MobName, Servers } from '../schemas/mobs.enum';
+import { Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
@@ -40,7 +40,6 @@ export class HistoryController {
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({ summary: 'Get All History' })
   @ApiParam({ name: 'server', enum: Servers })
-  @ApiQuery({ name: 'mobName', enum: MobName, required: false })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiResponse({
@@ -54,16 +53,44 @@ export class HistoryController {
     @GetGroupNameFromToken() groupName: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('mobName') mobName?: MobName,
-    @Query('location') location?: Locations,
+    @Query('lang') language = 'ru',
   ): Promise<PaginatedHistoryDto> {
     return await this.historyInterface.getAllHistory(
       server,
       groupName,
       page,
       limit,
-      mobName,
-      location,
+      language,
+    );
+  }
+
+  @Roles()
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({ summary: 'Get Mob History' })
+  @ApiParam({ name: 'server', enum: Servers })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully fetched history',
+    type: PaginatedHistoryDto,
+  })
+  @Get('/:server/:mobId')
+  async findByMob(
+    @Param('server') server: Servers,
+    @GetGroupNameFromToken() groupName: string,
+    @Param('mobId') mobId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('lang') language = 'ru',
+  ): Promise<PaginatedHistoryDto> {
+    return await this.historyInterface.getMobHistory(
+      server,
+      groupName,
+      mobId,
+      page,
+      limit,
+      language,
     );
   }
 

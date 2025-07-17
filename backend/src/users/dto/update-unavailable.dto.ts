@@ -1,20 +1,17 @@
 import {
   IsArray,
-  IsEnum,
-  ArrayUnique,
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsMongoId,
 } from 'class-validator';
-import { MobName } from '../../schemas/mobs.enum';
 import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class UpdateUnavailableDto {
   @IsArray()
-  @ArrayUnique()
-  @IsEnum(MobName, { each: true })
-  unavailableMobs: MobName[];
+  @IsMongoId({ each: true })
+  unavailableMobs: string[];
 
   @IsEmail()
   @IsNotEmpty()

@@ -1,0 +1,166 @@
+{
+  "HEADER": {
+    "UPDATE": "Cập nhật",
+    "COPY_RESP": "Sao chép respawn",
+    "SERVER_CRASH": "Tính đến sự server",
+    "SEARCH": "Tìm kiếm...",
+    "HISTORY": "Lịch sử",
+    "TIMER": "Hẹn giờ",
+    "PROFILE": "Hồ sơ cá nhân",
+    "LOGOUT": "Đăng xuất",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Chú ý",
+      "SERVER_CRASH_MESSAGE": "<b>Bạn có chắc chắn muốn ghi đè tất cả phản hồi với sự cố máy chủ?<br>- Phản hồi của boss sẽ lùi lại 5 phút<br>- Phản hồi của elite sẽ lùi lại 18 giây</b>",
+      "LOGOUT_TITLE": "Chú ý",
+      "LOGOUT_MESSAGE": "<b>Bạn có chắc chắn muốn đăng xuất?</b>"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Email hoặc biệt danh",
+    "PASSWORD": "Mật khẩu",
+    "FORGOT_PASSWORD": "Quên mật khẩu?",
+    "NO_ACCOUNT": "Chưa có tài khoản?",
+    "REGISTER": "Đăng ký",
+    "ALL_QUESTION": "Mọi thắc mắc:",
+    "INFORMATION": "Thông tin:"
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Email",
+    "PASSWORD": "Mật khẩu",
+    "CONFIRM_PASSWORD": "Xác nhận mật khẩu",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Xác nhận email",
+      "OTP_TIMER": "Mã đã được gửi đến email và có hiệu lực trong {{seconds}} giây.",
+      "OTP_INVALID": "OTP không hợp lệ."
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Bước 1:",
+    "STEP_2": "Bước 2:",
+    "GENERAL": "Chung",
+    "DISPLAY": "Hiển thị",
+    "NICKNAME": "Biệt danh",
+    "EMAIL": "Email",
+    "PASSWORD": "Mật khẩu",
+    "CONFIRM_PASSWORD": "Xác nhận mật khẩu",
+    "HAVE_ACCOUNT": "Tôi đã có tài khoản",
+    "EXCLUDE_BOSSES_TITLE": "Chọn boss để loại trừ:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Các boss được chọn sẽ không hiển thị trong danh sách hẹn giờ chung. Nhưng bạn luôn có thể thêm lại sau nếu thay đổi ý định.",
+    "EXCLUDE_ELITES_TITLE": "Chọn elite để loại trừ:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Các elite được chọn sẽ không hiển thị trong danh sách hẹn giờ chung. Nhưng bạn luôn có thể thêm lại sau nếu thay đổi ý định.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Xác nhận email",
+      "OTP_TIMER": "Mã đã được gửi đến email và có hiệu lực trong {{seconds}} giây.",
+      "OTP_INVALID": "OTP không hợp lệ."
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Biệt danh:",
+    "EMAIL": "Email:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Timer"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Timer"
+  },
+  "LOG": {
+    "OF": "của",
+    "USER": "Người dùng",
+    "UPDATED": "đã cập nhật",
+    "COOLDOWN_COUNT": "theo thời gian hồi chiêu {{count}} lần",
+    "EXACT_DEATH_TIME": "theo thời gian chết chính xác",
+    "EXACT_RESPAWN_TIME": "theo thời gian hồi sinh chính xác",
+    "SERVER_CRASH": "tất cả boss/elite do sự cố máy chủ",
+    "LOST_RESPAWN": "như hồi sinh bị mất",
+    "DUMB_METHOD": "theo cách ngu ngốc",
+    "INITIAL_COOLDOWN": "Thời gian hồi chiêu ban đầu:",
+    "UPDATED_COOLDOWN": "Thời gian hồi chiêu đã cập nhật:",
+    "RESPAWN_TIME": "Thời gian hồi sinh:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Cài đặt hiển thị",
+    "CHANGE_PASSWORD": "Đổi mật khẩu",
+    "ADMIN": "Admin",
+    "EXCLUDE_BOSSES_TITLE": "Chọn boss để loại trừ:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Các boss được chọn sẽ không hiển thị trong danh sách hẹn giờ chung. Nhưng bạn luôn có thể thêm lại sau nếu thay đổi ý định.",
+    "EXCLUDE_ELITES_TITLE": "Chọn elite để loại trừ:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Các elite được chọn sẽ không hiển thị trong danh sách hẹn giờ chung. Nhưng bạn luôn có thể thêm lại sau nếu thay đổi ý định.",
+    "OLD_PASSWORD": "Mật khẩu cũ",
+    "NEW_PASSWORD": "Mật khẩu mới",
+    "CONFIRM_NEW_PASSWORD": "Xác nhận mật khẩu mới"
+  },
+  "ADMIN": {
+    "USER_LIST": "Danh sách người dùng",
+    "USER": "Người dùng:",
+    "UPDATE_ROLE_TITLE": "Cập nhật vai trò:",
+    "UPDATE_ROLE_DESCRIPTION": "Cập nhật vai trò cho người dùng đã chọn.",
+    "ROLE": "Vai trò:",
+    "UNAVAILABLE_BOSSES_TITLE": "Chọn boss để loại trừ:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Chọn boss để loại trừ cho người dùng đã chọn.",
+    "UNAVAILABLE_ELITES_TITLE": "Chọn elite để loại trừ:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Chọn elite để loại trừ cho người dùng đã chọn.",
+    "TABLE": {
+      "NICKNAME": "Biệt danh",
+      "ROLE": "Vai trò",
+      "EMAIL": "Email",
+      "GROUP": "Nhóm",
+      "ACTIONS": "Hành động",
+      "EDIT": "Chỉnh sửa",
+      "DELETE": "Xóa",
+      "SEARCH_USER": "Tìm kiếm người dùng..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "Người dùng {{nickname}} đã bị xóa",
+      "USER_ROLE_UPDATED": "Vai trò của người dùng {{nickname}} đã được cập nhật thành công",
+      "USER_ACCESS_SETTINGS_UPDATED": "Cài đặt quyền truy cập cho người dùng {{nickname}} đã được cập nhật thành công"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Chú ý",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Bạn có chắc chắn muốn xóa người dùng {{nickname}}?</b>"
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Đăng nhập",
+      "VIDEO_GUIDE": "Video hướng dẫn",
+      "CANCEL": "Hủy",
+      "CHANGE_PASSWORD": "Đổi mật khẩu",
+      "VERIFY": "Xác minh",
+      "GET_NEW_OTP": "Nhận OTP mới",
+      "NEXT": "Tiếp theo",
+      "BACK": "Quay lại",
+      "VERIFY_EMAIL": "Xác minh email",
+      "YES": "Có",
+      "NO": "Không",
+      "UPDATE": "Cập nhật",
+      "SEARCH": "Tìm kiếm",
+      "RESET": "Đặt lại",
+      "OK": "OK"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Vui lòng nhập email hoặc biệt danh!",
+      "PASSWORD_REQUIRED": "• Vui lòng nhập mật khẩu!",
+      "EMAIL_REQUIRED": "• Vui lòng nhập email!",
+      "PASSWORD_MISMATCH": "• Mật khẩu không khớp!",
+      "PASSWORD_MIN_LENGTH": "• Mật khẩu phải có ít nhất {{value}} ký tự!",
+      "PASSWORD_MAX_LENGTH": "• Mật khẩu không được vượt quá {{value}} ký tự!",
+      "PASSWORD_MISS_NUMBER": "• Mật khẩu phải chứa ít nhất một chữ số!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Mật khẩu phải chứa ít nhất một chữ cái in hoa Latin!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Mật khẩu phải chứa ít nhất một chữ cái thường Latin!",
+      "NICKNAME_REQUIRED": "• Vui lòng nhập biệt danh!",
+      "NICKNAME_MIN_LENGTH": "• Biệt danh phải có ít nhất {{value}} ký tự!",
+      "NICKNAME_MAX_LENGTH": "• Biệt danh không được vượt quá {{value}} ký tự!",
+      "NICKNAME_MAX_UPPER": "• Biệt danh không được chứa quá 2 chữ cái in hoa!",
+      "NICKNAME_NO_SPACES": "• Biệt danh không được chứa khoảng trắng!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Biệt danh không được chứa ký tự đặc biệt!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Biệt danh không được bắt đầu hoặc kết thúc bằng dấu gạch ngang!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Biệt danh chỉ được chứa tối đa một dấu gạch ngang!",
+      "NICKNAME_NO_NUMBERS": "• Biệt danh không được chứa chữ số!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Biệt danh không được pha trộn giữa chữ Cyrillic và Latin!",
+      "NEW_PASSWORD_REQUIRED": "• Vui lòng nhập mật khẩu mới!",
+      "OLD_PASSWORD_REQUIRED": "• Vui lòng nhập mật khẩu cũ!",
+      "NEW_PASSWORD_MISMATCH": "• Mật khẩu mới không khớp!"
+    }
+  }
+}

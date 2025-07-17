@@ -1,0 +1,370 @@
+{
+  "APP": {
+    "TITLE": "RQTimer - mob timer for Royal Quest",
+    "DESCRIPTION": "RQTimer offers a convenient interface for tracking mobs both for solo players and for groups"
+  },
+  "LANGUAGE_SWITCHER": {
+    "MESSAGE": {
+      "CHANGE_LANGUAGE": "Language successfully changed to {{language}}"
+    }
+  },
+  "NOT_FOUND": {
+    "LOST": "You seem to be lost..."
+  },
+  "HEADER": {
+    "UPDATE": "Update",
+    "COPY_RESP": "Copy Respawns",
+    "SERVER_CRASH": "Consider Server Crash",
+    "SEARCH": "Search...",
+    "HISTORY": "History",
+    "TIMER": "Timer",
+    "PROFILE": "Profile",
+    "LOGOUT": "Logout",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Attention",
+      "SERVER_CRASH_MESSAGE": "<b>Are you sure you want to reset all respawns due to the server crash?<br>- Boss respawns will be rolled back by 5 minutes<br>- Elite respawns will be rolled back by 18 seconds</b>",
+      "LOGOUT_TITLE": "Attention",
+      "LOGOUT_MESSAGE": "<b>Are you sure you want to log out?</b>"
+    },
+    "MESSAGE": {
+      "RESPAWNS_COPIED_SUCCESSFULLY": "Respawns were copied successfully",
+      "RESPAWNS_WITH_SERVER_CRASH": "Respawns now account for server crash"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Email or username",
+    "PASSWORD": "Password",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "NO_ACCOUNT": "Don't have an account?",
+    "REGISTER": "Register",
+    "ALL_QUESTION": "For all questions:",
+    "INFORMATION": "Information:",
+    "MESSAGE": {
+      "INVALID_LOGIN_OR_PASSWORD": "Invalid login or password"
+    }
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Email",
+    "PASSWORD": "New password",
+    "CONFIRM_PASSWORD": "Confirm new password",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Email confirmation",
+      "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
+      "OTP_INVALID": "OTP is invalid."
+    },
+    "MESSAGE": {
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Password changed successfully",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Step 1:",
+    "STEP_2": "Step 2:",
+    "GENERAL": "General",
+    "DISPLAY": "Display",
+    "NICKNAME": "Nickname",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "HAVE_ACCOUNT": "I already have an account",
+    "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Email confirmation",
+      "OTP_TIMER": "The code has been sent to your email and is valid for {{seconds}} seconds.",
+      "OTP_INVALID": "OTP is invalid."
+    },
+    "MESSAGE": {
+      "USER_CREATED_SUCCESSFULLY": "User created successfully",
+      "USER_ALREADY_EXISTS": "A user with this username or email already exists",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Nickname:",
+    "EMAIL": "Email:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Timer"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Timer"
+  },
+  "LOG": {
+    "OF": "of",
+    "USER": "User",
+    "UPDATED": "updated",
+    "COOLDOWN_COUNT": "by cooldown {{count}} times",
+    "EXACT_DEATH_TIME": "by exact time of death",
+    "EXACT_RESPAWN_TIME": "by exact respawn time",
+    "SERVER_CRASH": "all bosses/elites due to server crash",
+    "LOST_RESPAWN": "as a lost respawn",
+    "DUMB_METHOD": "by dumb method",
+    "INITIAL_COOLDOWN": "Initial cooldown:",
+    "UPDATED_COOLDOWN": "Updated cooldown:",
+    "RESPAWN_TIME": "Respawn time:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Display settings",
+    "CHANGE_PASSWORD": "Change password",
+    "ADMIN": "Admin",
+    "LANGUAGE_SETTING": "Language",
+    "VOLUME_SETTING": "Notification volume",
+    "VOICE_SETTING": "Voice notification",
+    "EXCLUDE_BOSSES_TITLE": "Select bosses to exclude:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Selected bosses will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "EXCLUDE_ELITES_TITLE": "Select elites to exclude:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Selected elites will not appear in the general timer list. However, you can always add them later if you change your mind.",
+    "OLD_PASSWORD": "Old password",
+    "NEW_PASSWORD": "New password",
+    "CONFIRM_NEW_PASSWORD": "Confirm new password",
+    "MESSAGE": {
+      "DISPLAY_SETTINGS_UPDATED_SUCCESS": "Display settings have been successfully updated",
+      "PASSWORD_CHANGED_SUCCESSFULLY": "Password changed successfully",
+      "UNKNOWN_ERROR": "An error occurred, please contact the timer developers"
+    }
+  },
+  "ADMIN": {
+    "USER_LIST": "User list",
+    "USER": "User:",
+    "UPDATE_ROLE_TITLE": "Update role:",
+    "UPDATE_ROLE_DESCRIPTION": "Update role for the selected user.",
+    "ROLE": "Role:",
+    "UNAVAILABLE_BOSSES_TITLE": "Select bosses to exclude:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Select bosses to exclude for the selected user.",
+    "UNAVAILABLE_ELITES_TITLE": "Select elites to exclude:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Select elites to exclude for the selected user.",
+    "TABLE": {
+      "NICKNAME": "Nickname",
+      "ROLE": "Role",
+      "EMAIL": "Email",
+      "GROUP": "Group",
+      "ACTIONS": "Actions",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "SEARCH_USER": "Searching for user..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "User {{nickname}} has been deleted",
+      "USER_ROLE_UPDATED": "User role for {{nickname}} has been successfully updated",
+      "USER_ACCESS_SETTINGS_UPDATED": "Accessibility settings for user {{nickname}} have been successfully updated",
+      "NOTIFICATION_CREATED": "Notification has been successfully created"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Attention",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete user {{nickname}}?</b>",
+      "NOTIFICATION_TITLE": "Notification",
+      "RUSSIAN": "Russian:",
+      "ENGLISH": "English:"
+    }
+  },
+  "TIMER_SETTINGS": {
+    "INVITE": "Invite",
+    "NOTIFICATION_SETTINGS": "Notification settings",
+    "LANGUAGE_SETTING": "Language",
+    "VOLUME_SETTING": "Notification volume",
+    "VOICE_SETTING": "Voice notification",
+    "GROUP_MANAGEMENT": "Group management",
+    "MEMBER_LIST": "Member list",
+    "ADD_MOBS": "Allow members to add mobs",
+    "LEAVE_GROUP": "Leave group",
+    "DELETE_GROUP": "Delete group",
+    "TABLE": {
+      "NICKNAME": "Nickname",
+      "STATUS": "Status",
+      "EMAIL": "Email",
+      "ACTIONS": "Actions",
+      "ASSIGN_AS_LEADER": "Assign as leader",
+      "DELETE": "Delete",
+      "SEARCH_USER": "Searching for user..."
+    },
+    "MESSAGE": {
+      "VOICE_SETTING_ACTIVATED": "Voice notifications enabled",
+      "VOICE_SETTING_DEACTIVATED": "Voice notifications disabled",
+      "MEMBERS_CAN_EDIT_MOBS": "Regular members can now add mobs",
+      "MEMBERS_CANNOT_EDIT_MOBS": "Regular members can no longer add mobs",
+      "INVITE_COPIED": "Invite successfully copied!",
+      "USER_DELETED": "User {{email}} has been removed",
+      "USER_ASSIGNED_AS_LEADER": "User {{email}} has been assigned as leader",
+      "GROUP_DELETED": "Group {{groupName}} was successfully deleted",
+      "LEFT_GROUP": "You have successfully left the group {{groupName}}"
+    },
+    "MODAL": {
+      "CONFIRM_ASSIGN_LEADER_TITLE": "Attention",
+      "CONFIRM_ASSIGN_LEADER_MESSAGE": "<b style=\"color: red;\">Are you sure you want to assign {{nickname}} as the leader?</b>",
+      "CONFIRM_DELETE_USER_TITLE": "Attention",
+      "CONFIRM_DELETE_USER_MESSAGE": "<b style=\"color: red;\">Are you sure you want to remove user {{nickname}}?</b>",
+      "CONFIRM_DELETE_GROUP_TITLE": "Attention",
+      "CONFIRM_DELETE_GROUP_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete the group {{groupName}}?</b>",
+      "CONFIRM_LEAVE_GROUP_TITLE": "Attention",
+      "CONFIRM_LEAVE_GROUP_MESSAGE": "<b style=\"color: red;\">Are you sure you want to leave the group {{groupName}}?</b>"
+    }
+  },
+  "MOB_MODAL": {
+    "SHORT_NAME": "Short name",
+    "RESPAWN_TEXT": "Respawn text",
+    "LOCATION": "Location"
+  },
+  "INTERCEPTOR": {
+    "MESSAGE": {
+      "SERVICE_ERROR": "Service access error. Please try refreshing the page",
+      "GROUP_TIMER_ADD_ERROR": "Unable to add to the group timer. Check display settings"
+    }
+  },
+  "TIMER": {
+    "GROUP_ABSENCE_NOTICE": "Dear",
+    "GROUP_ABSENCE_MESSAGE": "You are not currently part of a group, but you can create one or join an existing group.",
+    "TIMER": "Timer",
+    "SETTINGS": "Settings",
+    "REWRITE_MANUALLY": "Rewrite",
+    "REWRITE_MANUALLY_TOOLTIP": "Rewrite manually",
+    "REWRITE_NOW": "Died now",
+    "REWRITE_NOW_TOOLTIP": "Rewrite using (current time - 10 sec)",
+    "REWRITE_HISTORY": "Rewrite history of {{mobName}}",
+    "SIMULATE_NEXT_CD_RESPAWN": "Simulate next cooldown respawn",
+    "REWRITE_BY_CD": "Rewrite by cooldown",
+    "RESPAWN_LOST": "Respawn lost",
+    "DELETE": "Delete",
+    "ADD_BOSSES_ELITES": "Add bosses/elites",
+    "MODAL": {
+      "SELECT_EXACT_DEATH_TIME": "Select the exact time of death:",
+      "SELECT_EXACT_RESPAWN_TIME": "Select the exact respawn time:",
+      "ENTER_CD_COUNT": "Enter how many times based on cooldown:",
+      "COMMENT": "Comment:",
+      "EDIT_COMMENT_ONLY": "Edit comment without overwriting respawn",
+      "ADD_TO_GROUP_TIMER": "Add to group timer",
+      "SELECT_ALL": "Select all",
+      "CREATE_GROUP_TITLE": "Create group",
+      "CREATE_GROUP_PLACEHOLDER": "Enter group name",
+      "JOIN_GROUP_TITLE": "Join group",
+      "JOIN_GROUP_PLACEHOLDER": "Enter invite code",
+      "REWRITE_TITLE": "Attention",
+      "DELETE_TITLE": "Attention",
+      "DELETE_MESSAGE": "<b style=\"color: red;\">Are you sure you want to delete {{mobName}}?</b>",
+      "DEATH_TIME_OVERWRITE_1": "<b>{{mobName}}</b> respawned at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>death time</b> with <b>{{currentTime}}</b>?",
+      "DEATH_TIME_OVERWRITE_2": "<b>{{mobName}}</b> will respawn at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>death time</b> with <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_OVERWRITE_1": "<b>{{mobName}}</b> has already respawned at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_OVERWRITE_2": "<b>{{mobName}}</b> has already respawned at <b>{{respTime}}</b> and the next respawn is expected at <b>{{nestRespTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
+      "NEXT_RESPAWN_TIME_OVERWRITE": "The next respawn of <b>{{mobName}}</b> will be at <b>{{respTime}}</b>. Are you sure you want to overwrite the <b>respawn time</b> with <b>{{currentTime}}</b>?",
+      "RESPAWN_TIME_NEXT_PROTECTED": "A next respawn time is already set for <b>{{mobName}}</b> — <b>{{respTime}}</b>. Are you sure you want to overwrite it with <b>{{currentTime}}</b>?"
+    },
+    "TOUR": {
+      "TIMER_TITLE": "Hello",
+      "TIMER_MESSAGE": "<b>Zhevtie</b> here! Let me show you the main functionality of the timer!",
+      "SERVER_TITLE": "Server selection",
+      "SERVER_MESSAGE": "Here you can select a <b>server</b>. Each server has its own <b>timer</b>, so don’t mix them up.",
+      "TIMER_ITEM_TITLE": "Timer",
+      "TIMER_ITEM_MESSAGE": "Each mob is shown as a panel with many buttons. Yes, there are many buttons, but we’ll figure them out.",
+      "REWRITE_TITLE": "Rewrite",
+      "REWRITE_MESSAGE": "This <b>button</b> allows you to rewrite a mob in 3 ways:<br>1) By <b>exact time of death</b><br>2) By <b>exact respawn time</b><br>3) By <b>number of cooldowns</b>",
+      "DIE_NOW_TITLE": "Died now",
+      "DIE_NOW_MESSAGE": "This <b>button</b> lets you rewrite the mob right <b>after death</b>. I’ve also accounted for the average time to open the browser and press the button, which is about <b>~10 sec</b>.",
+      "MOB_HISTORY_TITLE": "Mob rewrite history",
+      "MOB_HISTORY_MESSAGE": "Here you can view the <b>rewrite history of a specific mob</b>: who rewrote it, how, and what the before and after times were.",
+      "PLUS_COOLDOWN_TITLE": "Cooldown simulation",
+      "PLUS_COOLDOWN_MESSAGE": "Say I <b>won’t make it</b> before the mob respawns — this <b>button</b> lets me get the <b>next cooldown respawn</b> time for planning.<br><br><b>Note:</b> This button only <b>simulates a respawn</b>, only you can see this time.",
+      "COOLDOWN_TITLE": "Rewrite by cooldown",
+      "COOLDOWN_MESSAGE": "This <b>button</b> <b>actually rewrites and displays</b> the cooldown respawn for all group members.",
+      "LOST_COOLDOWN_TITLE": "Respawn lost",
+      "LOST_COOLDOWN_MESSAGE": "Obvious one — if you <b>lost track of the respawn</b> and don’t know the time, click this to <b>reset all timers</b> for this mob.",
+      "DELETE_TITLE": "Delete",
+      "DELETE_MESSAGE": "<b>Deletes</b> the mob from the group",
+      "ADD_TITLE": "Add",
+      "ADD_MESSAGE": "This <b>button</b> does the opposite — it <b>adds</b> a mob to the group",
+      "TIMER_SETTINGS_TITLE": "Timer and its settings",
+      "TIMER_SETTINGS_MESSAGE": "Uhh, not much to say — the name says it all :D",
+      "HEADER_TITLE": "Header",
+      "HEADER_MESSAGE": "Alright, done with the timer buttons, now let’s look at <b>header functions</b>",
+      "SEARCH_TITLE": "Search",
+      "SEARCH_MESSAGE": "Performs <b>search</b> for a specific mob",
+      "RELOAD_TITLE": "Refresh",
+      "RELOAD_MESSAGE": "<b>Refreshes</b> the timer if needed",
+      "COPY_TITLE": "Copy",
+      "COPY_MESSAGE": "<b>Copies all respawns</b> from the timer, except lost ones",
+      "CONNECTION_TITLE": "Server crash",
+      "CONNECTION_MESSAGE": "If the <b>game server crashes</b>, press this button to <b>adjust for rollback</b>. It also shows <b>status</b>:<br>1) <b>Online</b> - green<br>2) <b>Offline</b> - red",
+      "HISTORY_TITLE": "Rewrite history",
+      "HISTORY_MESSAGE": "This <b>button</b> shows the <b>full rewrite history</b> of all mobs",
+      "SETTINGS_TITLE": "Personal settings",
+      "SETTINGS_MESSAGE": "Here you can <b>configure mob display</b> or <b>change your password</b>",
+      "LOGOUT_TITLE": "Logout",
+      "LOGOUT_MESSAGE": "Log out and back in properly, got it?",
+      "NOTIFICATION_TITLE": "Notifications",
+      "NOTIFICATION_MESSAGE": "Here you can see current notifications from us, the devs",
+      "TELEGRAM_BOT_TITLE": "Telegram bot",
+      "TELEGRAM_BOT_MESSAGE": "By popular demand, we added a Telegram bot that will <b>send you rewritten respawns</b>"
+    },
+    "MESSAGE": {
+      "TIME_DESYNC_WARNING": "The time on your device differs from the server time by {{seconds}} seconds. Please check your device's time settings.",
+      "MOBS_ADDED_SUCCESS": "Bosses/elites have been successfully added.",
+      "MOB_DELETED_SUCCESS": "{{mobName}} was successfully deleted.",
+      "RESP_UPDATED_BY_DEATH": "Respawn time was successfully updated by exact death time",
+      "RESP_UPDATED_BY_RESPAWN": "Respawn time was successfully updated by exact respawn time",
+      "RESP_UPDATED_BY_CD": "Respawn was successfully updated by cooldown {{cooldown}} time(s)",
+      "COMMENT_UPDATED": "Comment successfully added/edited",
+      "RESP_REWRITTEN": "Respawn was successfully rewritten",
+      "RESP_REWRITTEN_BY_CD": "Respawn was successfully rewritten by cooldown",
+      "RESP_LOST": "Respawn lost"
+    },
+    "NOTIFICATIONS": {
+      "MOB_RESPAWN_SOON": "{{mobName}} will respawn in less than {{minute}} minute(s).",
+      "MOB_ENCOURAGEMENT": "A rat is lurking, and it won't squash itself..."
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Log in",
+      "VIDEO_GUIDE": "Video guide",
+      "TELEGRAM_BOT": "Telegram-bot",
+      "CANCEL": "Cancel",
+      "CHANGE_PASSWORD": "Change password",
+      "VERIFY": "Verify",
+      "GET_NEW_OTP": "Get new OTP",
+      "NEXT": "Next",
+      "BACK": "Back",
+      "VERIFY_EMAIL": "Verify email",
+      "YES": "Yes",
+      "NO": "No",
+      "UPDATE": "Update",
+      "SEARCH": "Search",
+      "RESET": "Reset",
+      "OK": "ОK",
+      "GENERATE": "Generate",
+      "DELETE": "Delete",
+      "LEAVE": "Leave",
+      "CREATE_GROUP": "Create a group",
+      "JOIN_GROUP": "Join a group",
+      "ADD": "Add",
+      "END": "End",
+      "JOIN": "Join",
+      "CREATE": "Create",
+      "CREATE_NOTIFICATION": "Create notification"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Please enter your email or username!",
+      "PASSWORD_REQUIRED": "• Please enter your password!",
+      "EMAIL_REQUIRED": "• Please enter your email!",
+      "PASSWORD_MISMATCH": "• Passwords do not match!",
+      "PASSWORD_MIN_LENGTH": "• Minimum password length is {{value}} characters!",
+      "PASSWORD_MAX_LENGTH": "• Maximum password length is {{value}} characters!",
+      "PASSWORD_MISS_NUMBER": "• Password must contain at least one number!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Password must contain at least one uppercase Latin letter!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Password must contain at least one lowercase Latin letter!",
+      "NICKNAME_REQUIRED": "• Please enter a nickname!",
+      "NICKNAME_MIN_LENGTH": "• Minimum nickname length is {{value}} characters!",
+      "NICKNAME_MAX_LENGTH": "• Maximum nickname length is {{value}} characters!",
+      "NICKNAME_MAX_UPPER": "• Nickname can contain no more than 2 uppercase letters!",
+      "NICKNAME_NO_SPACES": "• Nickname cannot contain spaces!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Nickname must not contain special characters!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Nickname must not start or end with a hyphen!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Nickname can contain no more than one hyphen!",
+      "NICKNAME_NO_NUMBERS": "• Nickname cannot contain numbers!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Nickname cannot mix Cyrillic and Latin characters!",
+      "NEW_PASSWORD_REQUIRED": "• Enter a new password!",
+      "OLD_PASSWORD_REQUIRED": "• Enter your old password!",
+      "NEW_PASSWORD_MISMATCH": "• New password does not match!"
+    }
+  }
+}

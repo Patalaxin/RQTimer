@@ -4,10 +4,12 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Inject,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -42,10 +44,10 @@ import {
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from './user.interface';
-import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { BotSession } from '../schemas/telegram-bot.schema';
 
-@ApiTags('User API')
+@ApiTags('Users API')
 @UseGuards(RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
@@ -83,9 +85,13 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
+  @Header('Cache-Control', 'public, max-age=180')
   @Get('/list')
-  findAll(): Promise<FindAllUsersDtoResponse[]> {
-    return this.userInterface.findAll();
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<PaginatedUsersDto> {
+    return this.userInterface.findAll(page, limit);
   }
 
   @UseGuards(TokensGuard)

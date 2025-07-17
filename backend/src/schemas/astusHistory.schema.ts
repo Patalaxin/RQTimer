@@ -3,7 +3,6 @@ import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { Locations, MobName, Servers } from './mobs.enum';
-import { TokenSchema } from './refreshToken.schema';
 import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
@@ -22,6 +21,10 @@ export class AstusHistory {
     },
   })
   _id: string;
+
+  @Expose()
+  @Prop()
+  mobId: string;
 
   @Expose()
   @Prop()
@@ -84,4 +87,3 @@ export class AstusHistory {
 }
 
 export const AstusHistorySchema = SchemaFactory.createForClass(AstusHistory);
-TokenSchema.index({ expireAt: 1 }, { expireAfterSeconds: 259200 }); //  3 day live for history

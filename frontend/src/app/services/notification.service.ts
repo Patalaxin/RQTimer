@@ -19,6 +19,11 @@ export class NotificationService {
     this.notificationListSubject$.next(list);
   }
 
+  createNotification(ru: string, en: string): Observable<any> {
+    const payload = { ru, en };
+    return this.http.post(`${this.NOTIFICATION_API}`, payload);
+  }
+
   getNotifications(): Observable<any> {
     return this.http.get(`${this.NOTIFICATION_API}`);
   }
