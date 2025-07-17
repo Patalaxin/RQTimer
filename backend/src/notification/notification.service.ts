@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
-  Notification1Document,
-  Notification1Session,
-} from '../schemas/notification1.schema';
+  NotificationDocument,
+  NotificationSession,
+} from '../schemas/notification.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -12,8 +12,8 @@ import { INotification } from './notification.interface';
 @Injectable()
 export class NotificationService implements INotification {
   constructor(
-    @InjectModel(Notification1Session.name)
-    private readonly notificationModel: Model<Notification1Document>,
+    @InjectModel(NotificationSession.name)
+    private readonly notificationModel: Model<NotificationDocument>,
   ) {}
 
   async createNotification(dto: CreateNotificationDto): Promise<void> {

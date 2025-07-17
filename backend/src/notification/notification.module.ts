@@ -3,16 +3,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
 import {
-  Notification1Session,
-  Notification1SessionSchema,
-} from '../schemas/notification1.schema';
+  NotificationSession,
+  NotificationSessionSchema,
+} from '../schemas/notification.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: Notification1Session.name,
-        schema: Notification1SessionSchema,
+        name: NotificationSession.name,
+        schema: NotificationSessionSchema,
       },
     ]),
   ],
