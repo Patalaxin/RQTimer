@@ -1,4 +1,4 @@
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -35,7 +35,8 @@ import { NotificationModule } from '../notification/notification.module';
       },
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(resolve(), 'client'),
+      rootPath: join(__dirname, '..', '..', 'client'),
+      serveRoot: '/static',
     }),
     ScheduleModule.forRoot(),
     TelegrafModule.forRootAsync({
