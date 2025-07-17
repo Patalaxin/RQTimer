@@ -87,6 +87,8 @@ export class AdminComponent implements OnInit {
         next: () => {
           this.isCreateNotificationOkLoading = false;
           this.isCreateNotificationModalVisible = false;
+          this.russianText = '';
+          this.englishText = '';
           this.messageService.create(
             'success',
             this.translateService.instant('ADMIN.MESSAGE.NOTIFICATION_CREATED'),
@@ -100,6 +102,8 @@ export class AdminComponent implements OnInit {
 
   cancelCreateNotificationModal(): void {
     this.isCreateNotificationModalVisible = false;
+    this.russianText = '';
+    this.englishText = '';
   }
 
   getUserColor(role: string): any {
