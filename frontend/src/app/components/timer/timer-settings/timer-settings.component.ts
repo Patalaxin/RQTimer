@@ -39,7 +39,7 @@ export class TimerSettingsComponent implements OnInit {
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
   @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
 
-  IMAGE_SRC = environment.apiUrl + '/';
+  IMAGE_SRC = environment.url + '/static/';
   userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
@@ -116,7 +116,7 @@ export class TimerSettingsComponent implements OnInit {
       audio = new Audio('../../../assets/audio/notification.mp3');
     } else {
       audio = new Audio(
-        `${this.IMAGE_SRC}/deadVoices/673148021e738aba75ba3402.m4a`,
+        `${this.IMAGE_SRC}deadVoices/673148021e738aba75ba3402.m4a`,
       );
     }
     audio.volume = volume;
