@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  url: 'https://www.rqtimer.ru/',
+  url: 'http://localhost:3000',
   apiUrl: 'http://localhost:3000',
 };

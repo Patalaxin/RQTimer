@@ -58,7 +58,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private worker: Worker | undefined;
   permission: string = '';
 
-  IMAGE_SRC = environment.apiUrl + '/';
+  IMAGE_SRC = environment.url + '/static/';
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
@@ -530,13 +530,13 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       if (specialNotification && timeDifference === 1) {
         const audio = new Audio(
-          `${this.IMAGE_SRC}/1mDeadVoices/${item.mobData.mobId}.m4a`,
+          `${this.IMAGE_SRC}1mDeadVoices/${item.mobData.mobId}.m4a`,
         );
         audio.volume = volume;
         enqueueAudio(audio);
       } else if (specialNotification && timeDifference === 0) {
         const audio = new Audio(
-          `${this.IMAGE_SRC}/deadVoices/${item.mobData.mobId}.m4a`,
+          `${this.IMAGE_SRC}deadVoices/${item.mobData.mobId}.m4a`,
         );
         audio.volume = volume;
         enqueueAudio(audio);
@@ -554,7 +554,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     ) => {
       new Notification(title, {
         body,
-        icon: `${this.IMAGE_SRC}/${item.mob.image}`,
+        icon: `${this.IMAGE_SRC}${item.mob.image}`,
       });
       playSound(timeDifference);
     };
