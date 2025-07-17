@@ -94,30 +94,6 @@ export class UserComponent implements OnInit {
     });
   }
 
-  private checkExcludedMobs(): void {
-    let bossesCheckbox = document.querySelectorAll('.boss-input');
-    let elitesCheckbox = document.querySelectorAll('.elite-input');
-    bossesCheckbox.forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((boss: any) => {
-          if (boss === item.getAttribute('ng-reflect-nz-value')) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    elitesCheckbox.forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((elite: any) => {
-          if (elite === item.getAttribute('ng-reflect-nz-value')) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    this.cdr.detectChanges();
-  }
-
   get excludedBosses() {
     return this.excludedForm.controls['excludedBosses'] as FormArray;
   }
@@ -142,8 +118,18 @@ export class UserComponent implements OnInit {
         this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
         this.isLoading = false;
 
+        this.bossesCheckboxList.forEach((boss: any, i: number) => {
+          if (this.excludedMobs && this.excludedMobs.includes(boss._id)) {
+            this.excludedBosses.at(i).setValue(true);
+          }
+        });
+        this.elitesCheckboxList.forEach((elite: any, i: number) => {
+          if (this.excludedMobs && this.excludedMobs.includes(elite._id)) {
+            this.excludedElites.at(i).setValue(true);
+          }
+        });
+
         this.cdr.detectChanges();
-        this.checkExcludedMobs();
       },
     });
   }
