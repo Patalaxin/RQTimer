@@ -205,7 +205,9 @@
   "MOB_MODAL": {
     "SHORT_NAME": "Short name",
     "RESPAWN_TEXT": "Respawn text",
-    "LOCATION": "Location"
+    "LOCATION": "Location",
+    "BOSS": "Boss",
+    "ELITE": "Elite"
   },
   "INTERCEPTOR": {
     "MESSAGE": {

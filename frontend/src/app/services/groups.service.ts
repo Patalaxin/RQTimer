@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 export class GroupsService {
   private readonly http = inject(HttpClient);
 
-  private readonly GROUPS_API = environment.apiUrl + '/groups';
+  private readonly GROUPS_API = environment.url + '/groups';
 
   createGroup(name: string): Observable<any> {
     const payload = { name };

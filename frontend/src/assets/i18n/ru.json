@@ -202,7 +202,9 @@
   "MOB_MODAL": {
     "SHORT_NAME": "Короткое имя",
     "RESPAWN_TEXT": "Текст респауна",
-    "LOCATION": "Локация"
+    "LOCATION": "Локация",
+    "BOSS": "Босс",
+    "ELITE": "Элитка"
   },
   "INTERCEPTOR": {
     "MESSAGE": {

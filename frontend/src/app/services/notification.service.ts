@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class NotificationService {
   private readonly http = inject(HttpClient);
-  private readonly NOTIFICATION_API = environment.apiUrl + '/notifications/';
+  private readonly NOTIFICATION_API = environment.url + '/notifications/';
   private notificationListSubject$ = new BehaviorSubject<any[]>([]);
 
   get notificationList$(): Observable<any[]> {

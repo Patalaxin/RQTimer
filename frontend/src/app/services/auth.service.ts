@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 export class AuthService {
   private readonly http = inject(HttpClient);
 
-  private readonly AUTH_API = environment.apiUrl + '/auth';
+  private readonly AUTH_API = environment.url + '/auth';
 
   private get httpOptions() {
     return {

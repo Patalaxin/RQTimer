@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class ConfigurationService {
   private readonly http = inject(HttpClient);
-  private readonly CONFIGURATION_API = environment.apiUrl + '/configurations/';
+  private readonly CONFIGURATION_API = environment.url + '/configurations/';
 
   private serverListSubject$ = new BehaviorSubject<any[]>([]);
 
