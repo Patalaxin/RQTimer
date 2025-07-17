@@ -58,7 +58,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private worker: Worker | undefined;
   permission: string = '';
 
-  IMAGE_SRC = environment.url + '/static/';
+  IMAGE_SRC = environment.url + '/static/api/';
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
