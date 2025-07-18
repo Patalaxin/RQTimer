@@ -129,11 +129,11 @@ export class MobController {
   @ApiOperation({ summary: 'Find All User Mobs' })
   @Get('/server/:server/')
   findAllMobsByUser(
-    @GetEmailFromToken() email: string,
+    @GetGroupNameFromToken() groupName: string,
     @Param() getMobsDto: GetMobsDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    return this.mobInterface.findAllMobsByUser(email, getMobsDto, lang);
+    return this.mobInterface.findAllGroupMobs(getMobsDto, groupName, lang);
   }
 
   @Roles()
@@ -301,7 +301,6 @@ export class MobController {
   @Post('/:server/crash-server/')
   async crashServer(
     @GetGroupNameFromToken() groupName: string,
-    @GetEmailFromToken() email: string,
     @Req() request: Request,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
@@ -311,7 +310,6 @@ export class MobController {
     );
     const mob: GetFullMobDtoResponse[] = await this.mobInterface.crashMobServer(
       groupName,
-      email,
       parsedToken.nickname,
       parsedToken.role,
       crashServerDtoParams.server,

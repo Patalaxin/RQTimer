@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
-import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import {
   ChangeUserPassDtoRequest,
   ChangeUserPassDtoResponse,
@@ -189,47 +188,13 @@ export class UsersService implements IUser {
     return { message: 'Password successfully changed', status: 200 };
   }
 
-  async updateUnavailable(
-    updateUnavailableDto: UpdateUnavailableDto,
-  ): Promise<User> {
-    if (updateUnavailableDto.email && updateUnavailableDto.nickname) {
-      throw new BadRequestException(
-        'Email and Nickname fields should not be together',
-      );
-    } else if (!updateUnavailableDto.email && !updateUnavailableDto.nickname) {
-      throw new BadRequestException(
-        'The "Email" or "Nickname" fields must be specified',
-      );
-    }
-
-    try {
-      const query = updateUnavailableDto.email
-        ? { email: new RegExp(`^${updateUnavailableDto.email}$`, 'i') }
-        : { nickname: new RegExp(`^${updateUnavailableDto.nickname}$`, 'i') };
-
-      return await this.userModel
-        .findOneAndUpdate(
-          query,
-          {
-            unavailableMobs: updateUnavailableDto.unavailableMobs,
-          },
-          { new: true },
-        )
-        .lean()
-        .exec();
-    } catch {
-      throw new BadRequestException('Something went wrong!');
-    }
-  }
-
   async updateExcluded(
     email: string,
     updateExcludedDto: UpdateExcludedDto,
   ): Promise<User> {
-    const user: User = await this.findUser(email);
-    await this.userModel
+    return await this.userModel
       .findOneAndUpdate(
-        { email: user.email },
+        { email },
         {
           excludedMobs: updateExcludedDto.excludedMobs,
         },
@@ -237,7 +202,6 @@ export class UsersService implements IUser {
       )
       .lean()
       .exec();
-    return user;
   }
 
   async updateRole(

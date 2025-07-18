@@ -46,9 +46,9 @@ export interface IMob {
     lang: string,
   ): Promise<GetFullMobWithUnixDtoResponse>;
 
-  findAllMobsByUser(
-    email: string,
+  findAllGroupMobs(
     getMobsDto: GetMobsDtoRequest,
+    groupName: string,
     lang: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
@@ -101,7 +101,6 @@ export interface IMob {
 
   crashMobServer(
     groupName: string,
-    email: string,
     nickname: string,
     role: string,
     server: string,
