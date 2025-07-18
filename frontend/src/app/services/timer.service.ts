@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 export class TimerService {
   private readonly http = inject(HttpClient);
 
-  private readonly MOB_URL = environment.url + '/mobs';
+  private readonly MOB_URL = environment.apiUrl + '/mobs';
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
@@ -79,7 +79,7 @@ export class TimerService {
   }
 
   getUnixtime(): Observable<any> {
-    return this.http.get(`${environment.url}/unixtime`);
+    return this.http.get(`${environment.apiUrl}/unixtime`);
   }
 
   addMobGroup(server: string, mobs: string[]): Observable<any> {

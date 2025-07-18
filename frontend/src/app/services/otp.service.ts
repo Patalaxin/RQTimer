@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 export class OtpService {
   private readonly http = inject(HttpClient);
 
-  private readonly OTP_API = environment.url + '/otp';
+  private readonly OTP_API = environment.apiUrl + '/otp';
 
   private get httpOptions() {
     return {

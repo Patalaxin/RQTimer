@@ -11,7 +11,7 @@ export class HistoryService {
   private readonly http = inject(HttpClient);
   private readonly storageService = inject(StorageService);
 
-  HISTORY_API = environment.url + '/history/';
+  HISTORY_API = environment.apiUrl + '/history/';
 
   private historyListSubject$ = new BehaviorSubject<any>([]);
   private historyListDataSubject$ = new BehaviorSubject<any>([]);

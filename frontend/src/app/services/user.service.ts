@@ -11,7 +11,7 @@ export class UserService {
   private readonly http = inject(HttpClient);
   private readonly storageService = inject(StorageService);
 
-  private readonly USER_API = environment.url + '/users/';
+  private readonly USER_API = environment.apiUrl + '/users/';
 
   private currentUserSubject$ = new BehaviorSubject<any[]>([]);
 
