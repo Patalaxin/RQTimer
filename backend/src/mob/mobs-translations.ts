@@ -403,7 +403,7 @@ export const mobTranslations = {
     en: {
       mobName: 'Blind Eye',
       shortName: 'Blind',
-      location: 'Mistgun',
+      location: 'Mistgan',
       mobType: 'Elite',
     },
   },

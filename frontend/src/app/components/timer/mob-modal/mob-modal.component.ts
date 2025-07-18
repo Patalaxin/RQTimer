@@ -14,7 +14,7 @@ export class MobModalComponent implements OnInit {
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
 
-  IMAGE_SRC = environment.apiUrl + '/static/';
+  IMAGE_SRC = environment.staticUrl;
 
   @Input() item: any;
 
