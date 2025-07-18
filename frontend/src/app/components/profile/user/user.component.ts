@@ -141,11 +141,16 @@ export class UserComponent implements OnInit {
       return;
     }
 
+    const selectedBosses = this.bossesCheckboxList
+      .filter((_: any, i: number) => this.excludedBosses.at(i).value)
+      .map((boss: any) => boss._id);
+
+    const selectedElites = this.elitesCheckboxList
+      .filter((_: any, i: number) => this.excludedElites.at(i).value)
+      .map((elite: any) => elite._id);
+
     this.userService
-      .updateExcluded([
-        ...this.selectedBossesCheckbox,
-        ...this.selectedElitesCheckbox,
-      ])
+      .updateExcluded([...selectedBosses, ...selectedElites])
       .subscribe({
         next: () => {
           this.messageService.create(
