@@ -70,6 +70,10 @@ nz-segmented .ng-animating,
   }
 }
 
+.ant-badge-count {
+  z-index: 3;
+}
+
 .ant-page-header-heading-title,
 .ant-empty-description,
 .ant-tabs,
@@ -160,6 +164,11 @@ tui-dropdown {
   max-width: 1000px;
   width: 100%;
   margin: 0 auto;
+}
+
+.ant-statistic-content-value {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
 }
 
 // !border-radius start
@@ -416,6 +425,92 @@ nz-progress {
   }
 }
 
+.liquid-glass-wrapper {
+  position: relative;
+  display: flex;
+  font-weight: 600;
+  overflow: hidden;
+  color: black;
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 6px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(0, 0, 0, 0.1);
+
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+
+  .liquid-glass-effect {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+
+    backdrop-filter: blur(3px);
+    filter: url(#glass-distortion);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .liquid-glass-tint {
+    z-index: 1;
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .liquid-glass-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow:
+      inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+      inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+  }
+
+  .liquid-glass-text {
+    z-index: 3;
+    font-size: 2rem;
+    color: black;
+    display: flex;
+    width: 100%;
+    align-items: center;
+  }
+
+  &--rounded {
+    border-radius: 50px;
+
+    .liquid-glass-tint {
+      border-radius: 50px;
+    }
+  }
+
+  &--timer {
+    .liquid-glass-text {
+      justify-content: space-between;
+    }
+  }
+
+  &--header {
+    .liquid-glass-text {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 10px 20px;
+    }
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .liquid-glass-wrapper {
+    &--header {
+      .liquid-glass-text {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+}
+
 @media only screen and (max-width: 800px) {
   .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab {
     padding: 8px 8px 8px 12px;
@@ -423,6 +518,14 @@ nz-progress {
 }
 
 @media only screen and (max-width: 550px) {
+  .liquid-glass-wrapper {
+    &--header {
+      .liquid-glass-text {
+        padding: 7px;
+      }
+    }
+  }
+
   h4.ant-list-item-meta-title {
     button {
       margin: 0 2.5px;
@@ -442,11 +545,6 @@ nz-progress {
       display: none;
     }
   }
-}
-
-.ant-statistic-content-value {
-  font-family: "Manrope", sans-serif;
-  font-weight: 800;
 }
 
 @media only screen and (max-width: 450px) {

@@ -3,27 +3,31 @@
   height: calc(100vh - 54px);
 
   .orange {
-    background-color: #fcdc94;
+    // background-color: #fcdc94;
+    background-color: rgba(252, 220, 148, 0.6);
     // background-color: #b18b01;
     // background-color: rgba(177, 139, 1, 0.7);
   }
 
   .green {
-    background-color: #bacd92;
+    // background-color: #bacd92;
+    background-color: rgba(186, 205, 146, 0.6);
     // background-color: #64b101;
     // background-color: rgba(100, 177, 1, 0.7);
   }
 
-  .white {
-    background-color: rgba(255, 255, 255, 0.7);
-  }
+  // .white {
+  // background-color: rgba(255, 255, 255, 0.7);
+  // }
 
   .red {
-    background-color: #ef9595;
+    // background-color: #ef9595;
+    background-color: rgba(239, 149, 149, 0.6);
   }
 
   .blue {
-    background-color: #a2d2df;
+    // background-color: #a2d2df;
+    background-color: rgba(162, 210, 223, 0.6);
   }
 
   nz-list-item {
@@ -121,6 +125,10 @@
     }
   }
 
+  .timer-d-flex-space-between:hover {
+    padding: 15px 25px;
+  }
+
   .timer-d-flex-space-between {
     display: flex;
     justify-content: space-between;
@@ -139,6 +147,13 @@
 
       span {
         align-self: center;
+      }
+    }
+
+    .timer-center {
+      .timer-die-button:hover {
+        padding: 5px 25px;
+        height: auto;
       }
     }
 
@@ -179,14 +194,23 @@
   .timer {
     padding: 10px;
 
-    .timer-center {
-      .timer-die-button {
-        width: 32px;
-        height: 32px;
-        padding: 2.4px 0;
-        font-size: 16px;
-        border-radius: 50px;
-        vertical-align: -3px;
+    .liquid-glass-wrapper {
+      .liquid-glass-text {
+        .timer-center {
+          .timer-die-button {
+            width: 32px;
+            height: 32px;
+            padding: 2.4px 0;
+            font-size: 16px;
+            border-radius: 50px;
+            vertical-align: -3px;
+          }
+
+          .timer-die-button:hover {
+            height: 32px;
+            padding: 2.4px 0;
+          }
+        }
       }
     }
   }
@@ -213,7 +237,7 @@
     .timer-d-flex-space-between {
       .timer-right {
         .timer-action-menu-mob {
-          display: block;
+          display: flex;
         }
 
         .timer-action-menu {
@@ -238,6 +262,10 @@
     .timer-d-flex-space-between {
       padding: 5px;
       border-radius: 50px;
+    }
+
+    .timer-d-flex-space-between:hover {
+      padding: 8px;
     }
   }
 }
