@@ -55,6 +55,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly bindingService = inject(BindingService);
 
   private mobUpdateSubscription: Subscription | undefined;
+  private excludedMobsSubscription: Subscription | undefined;
   private worker: Worker | undefined;
   permission: string = '';
 
@@ -365,6 +366,13 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     );
 
+    this.excludedMobsSubscription = this.userService.excludedMobs$.subscribe({
+      next: (excludedMobs) => {
+        this.excludedMobs = excludedMobs;
+        this.getAllBosses();
+      },
+    });
+
     this.updateWorkers();
 
     this.checkScreenWidth();
@@ -379,6 +387,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.mobUpdateSubscription) {
       this.mobUpdateSubscription.unsubscribe();
+    }
+    if (this.excludedMobsSubscription) {
+      this.excludedMobsSubscription.unsubscribe();
     }
 
     if (this.worker) {
@@ -1322,8 +1333,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
+        const currentExcludedMobs = this.userService.currentExcludedMobs;
         const filteredRes = res.filter(
-          (item: any) => !this.excludedMobs.includes(item.mobData.mobId),
+          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
         );
 
         this.sortTimerList([...filteredRes]);
@@ -1354,6 +1366,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.userGroupName = res.groupName;
         this.timerService.groupName = this.userGroupName;
         this.excludedMobs = res.excludedMobs || [];
+        this.userService.excludedMobs = this.excludedMobs;
         if (res.groupName) {
           this.groupsService.getGroup().subscribe({
             next: (res) => {

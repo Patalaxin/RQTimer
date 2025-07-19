@@ -149,18 +149,19 @@ export class UserComponent implements OnInit {
       .filter((_: any, i: number) => this.excludedElites.at(i).value)
       .map((elite: any) => elite._id);
 
-    this.userService
-      .updateExcluded([...selectedBosses, ...selectedElites])
-      .subscribe({
-        next: () => {
-          this.messageService.create(
-            'success',
-            this.translateService.instant(
-              'USER.MESSAGE.DISPLAY_SETTINGS_UPDATED_SUCCESS',
-            ),
-          );
-        },
-      });
+    const newExcludedMobs = [...selectedBosses, ...selectedElites];
+
+    this.userService.updateExcluded(newExcludedMobs).subscribe({
+      next: () => {
+        this.excludedMobs = newExcludedMobs;
+        this.messageService.create(
+          'success',
+          this.translateService.instant(
+            'USER.MESSAGE.DISPLAY_SETTINGS_UPDATED_SUCCESS',
+          ),
+        );
+      },
+    });
   }
 
   onChangePassword() {

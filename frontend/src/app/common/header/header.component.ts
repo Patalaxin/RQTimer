@@ -60,6 +60,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   isOnlineSubscription: Subscription | undefined;
   groupNameSubscription: Subscription | undefined;
   timerListSubscription: Subscription | undefined;
+  excludedMobsSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
   // serverList = [
@@ -126,6 +127,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
     );
 
+    this.excludedMobsSubscription = this.userService.excludedMobs$.subscribe({
+      next: (excludedMobs) => {
+        this.excludedMobs = excludedMobs;
+      },
+    });
+
     this.router.events.subscribe(() => {
       this.updateRoute();
     });
@@ -148,6 +155,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
     if (this.timerListSubscription) {
       this.timerListSubscription.unsubscribe();
+    }
+    if (this.excludedMobsSubscription) {
+      this.excludedMobsSubscription.unsubscribe();
     }
 
     this.websocketService.disconnect();
@@ -349,6 +359,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.userService.currentUser = res;
         this.excludedMobs = res.excludedMobs || [];
+        this.userService.excludedMobs = this.excludedMobs;
         this.storageService.setLocalStorage(
           res.email,
           (accessToken = this.storageService.getLocalStorage('token')),
@@ -380,8 +391,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
+        const currentExcludedMobs = this.userService.currentExcludedMobs;
         const filteredRes = res.filter(
-          (item: any) => !this.excludedMobs.includes(item.mobData.mobId),
+          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
         );
 
         this.sortTimerList([...filteredRes]);
