@@ -57,6 +57,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private mobUpdateSubscription: Subscription | undefined;
   private excludedMobsSubscription: Subscription | undefined;
   private worker: Worker | undefined;
+  private isInitialized = false;
   permission: string = '';
 
   IMAGE_SRC = environment.staticUrl;
@@ -369,7 +370,14 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.excludedMobsSubscription = this.userService.excludedMobs$.subscribe({
       next: (excludedMobs) => {
         this.excludedMobs = excludedMobs;
-        this.getAllBosses();
+        if (this.timerList.length > 0) {
+          const currentExcludedMobs = this.userService.currentExcludedMobs;
+          const filteredRes = this.timerList.filter(
+            (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+          );
+          this.sortTimerList([...filteredRes]);
+          this.timerService.timerList = this.timerList;
+        }
       },
     });
 
@@ -397,6 +405,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
 
     this.tourService.end();
+    this.isInitialized = false;
 
     // if (this.intervalId) {
     //   clearInterval(this.intervalId);
@@ -1359,6 +1368,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
+  refreshBosses(): void {
+    this.getAllBosses();
+  }
+
   getCurrentUser() {
     this.timerService.isLoading = true;
     this.userService.getUser().subscribe({
@@ -1389,7 +1402,10 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.currentUser = res;
           },
         });
-        this.getAllBosses();
+        if (!this.isInitialized) {
+          this.getAllBosses();
+          this.isInitialized = true;
+        }
       },
     });
   }
