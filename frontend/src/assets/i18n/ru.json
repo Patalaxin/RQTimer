@@ -234,6 +234,7 @@
       "COMMENT": "Комментарий:",
       "EDIT_COMMENT_ONLY": "Редактировать комментарий без переписи респауна",
       "ADD_TO_GROUP_TIMER": "Добавить в групповой таймер",
+      "HIDDEN": "(скрыт)",
       "SELECT_ALL": "Выбрать все",
       "CREATE_GROUP_TITLE": "Создать группу",
       "CREATE_GROUP_PLACEHOLDER": "Введите название группы",

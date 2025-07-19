@@ -90,6 +90,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     '673152a61e738aba75ba34e8',
     '673152aa1e738aba75ba34ec',
   ];
+  excludedMobs: string[] = [];
 
   isScreenWidth600: boolean = false;
 
@@ -347,6 +348,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userService.currentUser = res;
+        this.excludedMobs = res.excludedMobs || [];
         this.storageService.setLocalStorage(
           res.email,
           (accessToken = this.storageService.getLocalStorage('token')),
@@ -378,7 +380,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
-        this.sortTimerList([...res]);
+        const filteredRes = res.filter(
+          (item: any) => !this.excludedMobs.includes(item.mobData.mobId),
+        );
+
+        this.sortTimerList([...filteredRes]);
 
         this.timerList.forEach((item) => {
           item.mob.plusCooldown = 0;

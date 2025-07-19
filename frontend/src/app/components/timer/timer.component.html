@@ -725,16 +725,29 @@
                 >
                   <div>
                     <div *ngFor="let mob of filteredMobList; let i = index">
-                      <label nz-checkbox [nzValue]="mob._id" class="add-mob">
+                      <label
+                        nz-checkbox
+                        [nzValue]="mob._id"
+                        class="add-mob"
+                        [nzDisabled]="mob.isExcluded"
+                      >
                         <nz-avatar
                           [nzSize]="32"
                           [nzSrc]="IMAGE_SRC + mob.image"
                           style="margin: 5px 10px"
                         ></nz-avatar>
-                        <span class="mob-name"
+                        <span
+                          class="mob-name"
+                          [ngStyle]="mob.isExcluded && { color: '#999' }"
                           ><b>{{ mob.mobName }}</b
                           >: {{ mob.location }}</span
                         >
+                        <span
+                          *ngIf="mob.isExcluded"
+                          style="color: #999; font-size: 12px; margin-left: 5px"
+                        >
+                          {{ "TIMER.MODAL.HIDDEN" | translate }}
+                        </span>
                       </label>
                     </div>
                   </div>
