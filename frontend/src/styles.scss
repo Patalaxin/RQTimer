@@ -501,6 +501,28 @@ nz-progress {
   }
 }
 
+button.liquid-glass-wrapper {
+  .liquid-glass-effect {
+    border-radius: 50px;
+  }
+
+  .liquid-glass-tint {
+    border-radius: 50px;
+  }
+
+  .liquid-glass-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    span {
+      font-size: 14px;
+      color: #000000;
+    }
+  }
+}
+
 @media only screen and (max-width: 1000px) {
   .liquid-glass-wrapper {
     &--header {

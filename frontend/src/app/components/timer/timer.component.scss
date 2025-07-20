@@ -107,6 +107,47 @@
     text-align: center;
   }
 
+  .timer-die-button.ant-btn-primary,
+  .timer-right .ant-btn-primary,
+  .timer-create-mobs-button {
+    border-color: transparent;
+    background-color: transparent;
+  }
+
+  .timer-die-button.ant-btn-primary:hover,
+  .timer-right .ant-btn-primary:hover,
+  .timer-create-mobs-button:hover {
+    border-color: rgb(64, 169, 255);
+    background: rgb(64, 169, 255);
+  }
+
+  .timer-right .ant-btn-primary.ant-btn-dangerous:hover {
+    border-color: rgb(255, 77, 79);
+    background: rgb(255, 77, 79);
+  }
+
+  // button.liquid-glass-wrapper {
+  //   .liquid-glass-effect {
+  //     border-radius: 50px;
+  //   }
+
+  //   .liquid-glass-tint {
+  //     border-radius: 50px;
+  //   }
+
+  //   .liquid-glass-text {
+  //     display: flex;
+  //     align-items: center;
+  //     justify-content: center;
+  //     gap: 5px;
+
+  //     span {
+  //       font-size: 14px;
+  //       color: #000000;
+  //     }
+  //   }
+  // }
+
   .form-container {
     padding: 20px 50px;
     text-align: center;
