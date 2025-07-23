@@ -205,7 +205,9 @@
   "MOB_MODAL": {
     "SHORT_NAME": "Short name",
     "RESPAWN_TEXT": "Respawn text",
-    "LOCATION": "Location"
+    "LOCATION": "Location",
+    "BOSS": "Boss",
+    "ELITE": "Elite"
   },
   "INTERCEPTOR": {
     "MESSAGE": {
@@ -235,6 +237,7 @@
       "COMMENT": "Comment:",
       "EDIT_COMMENT_ONLY": "Edit comment without overwriting respawn",
       "ADD_TO_GROUP_TIMER": "Add to group timer",
+      "ADDED": "(added)",
       "SELECT_ALL": "Select all",
       "CREATE_GROUP_TITLE": "Create group",
       "CREATE_GROUP_PLACEHOLDER": "Enter group name",

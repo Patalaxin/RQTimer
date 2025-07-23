@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { UserService } from './user.service';
 
 const EMAIL: string = 'email';
 const NICKNAME: string = 'nickname';

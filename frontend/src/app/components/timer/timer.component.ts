@@ -55,10 +55,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   private readonly bindingService = inject(BindingService);
 
   private mobUpdateSubscription: Subscription | undefined;
+  private excludedMobsSubscription: Subscription | undefined;
   private worker: Worker | undefined;
+  private isInitialized = false;
   permission: string = '';
 
-  IMAGE_SRC = environment.url + '/api/static/';
+  IMAGE_SRC = environment.staticUrl;
 
   timerList: TimerItem[] = [];
   availableMobList: any = [];
@@ -95,6 +97,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
   currentUser: any = [];
+  excludedMobs: string[] = [];
 
   radioValue: string = 'death';
   datePickerTime: any;
@@ -364,6 +367,20 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
     );
 
+    this.excludedMobsSubscription = this.userService.excludedMobs$.subscribe({
+      next: (excludedMobs) => {
+        this.excludedMobs = excludedMobs;
+        if (this.timerList.length > 0) {
+          const currentExcludedMobs = this.userService.currentExcludedMobs;
+          const filteredRes = this.timerList.filter(
+            (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+          );
+          this.sortTimerList([...filteredRes]);
+          this.timerService.timerList = this.timerList;
+        }
+      },
+    });
+
     this.updateWorkers();
 
     this.checkScreenWidth();
@@ -379,12 +396,16 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.mobUpdateSubscription) {
       this.mobUpdateSubscription.unsubscribe();
     }
+    if (this.excludedMobsSubscription) {
+      this.excludedMobsSubscription.unsubscribe();
+    }
 
     if (this.worker) {
       this.worker.terminate();
     }
 
     this.tourService.end();
+    this.isInitialized = false;
 
     // if (this.intervalId) {
     //   clearInterval(this.intervalId);
@@ -678,14 +699,19 @@ export class TimerComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAvailableBosses(lang).subscribe({
       next: (res) => {
-        this.availableMobList = res.filter(
-          (availableItem: any) =>
-            !this.timerList.some(
-              (timerItem) =>
-                timerItem.mobData.mobId === availableItem._id &&
-                timerItem.mob.location === availableItem.location,
-            ),
-        );
+        this.availableMobList = res
+          .map((mob: any) => ({
+            ...mob,
+            isExcluded: this.excludedMobs.includes(mob._id),
+          }))
+          .filter(
+            (availableItem: any) =>
+              !this.timerList.some(
+                (timerItem) =>
+                  timerItem.mobData.mobId === availableItem._id &&
+                  timerItem.mob.location === availableItem.location,
+              ),
+          );
         this.filteredMobList = [...this.availableMobList];
         this.isAddModalLoading = false;
       },
@@ -737,7 +763,10 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (
           !item
             .querySelector('.ant-checkbox')
-            .classList.contains('ant-checkbox-checked')
+            .classList.contains('ant-checkbox-checked') &&
+          !item
+            .querySelector('.ant-checkbox')
+            .classList.contains('ant-checkbox-disabled')
         ) {
           item.click();
         }
@@ -756,39 +785,31 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onChangeCheckbox(event: any): void {
+    const nonExcludedMobs = this.availableMobList.filter(
+      (mob: any) => !mob.isExcluded,
+    );
+
     if (
-      this.availableMobList.filter(
+      nonExcludedMobs.filter(
         (availableItem: any) =>
-          !event.some(
-            (timerItem: any) =>
-              timerItem ===
-              `${availableItem.mobName}: ${availableItem.location}`,
-          ),
+          !event.some((selectedId: any) => selectedId === availableItem._id),
       ).length
     ) {
       this.allAddChecked = false;
       this.indeterminate = false;
 
       if (
-        this.availableMobList.filter(
+        nonExcludedMobs.filter(
           (availableItem: any) =>
-            !event.some(
-              (timerItem: any) =>
-                timerItem ===
-                `${availableItem.mobName}: ${availableItem.location}`,
-            ),
-        ).length !== this.availableMobList.length
+            !event.some((selectedId: any) => selectedId === availableItem._id),
+        ).length !== nonExcludedMobs.length
       ) {
         this.indeterminate = true;
       }
     } else if (
-      !this.availableMobList.filter(
+      !nonExcludedMobs.filter(
         (availableItem: any) =>
-          !event.some(
-            (timerItem: any) =>
-              timerItem ===
-              `${availableItem.mobName}: ${availableItem.location}`,
-          ),
+          !event.some((selectedId: any) => selectedId === availableItem._id),
       ).length
     ) {
       this.allAddChecked = true;
@@ -1321,7 +1342,12 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
-        this.sortTimerList([...res]);
+        const currentExcludedMobs = this.userService.currentExcludedMobs;
+        const filteredRes = res.filter(
+          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+        );
+
+        this.sortTimerList([...filteredRes]);
 
         this.timerService.timerList = this.timerList;
 
@@ -1342,12 +1368,18 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
+  refreshBosses(): void {
+    this.getAllBosses();
+  }
+
   getCurrentUser() {
     this.timerService.isLoading = true;
     this.userService.getUser().subscribe({
       next: (res) => {
         this.userGroupName = res.groupName;
         this.timerService.groupName = this.userGroupName;
+        this.excludedMobs = res.excludedMobs || [];
+        this.userService.excludedMobs = this.excludedMobs;
         if (res.groupName) {
           this.groupsService.getGroup().subscribe({
             next: (res) => {
@@ -1370,7 +1402,10 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.currentUser = res;
           },
         });
-        this.getAllBosses();
+        if (!this.isInitialized) {
+          this.getAllBosses();
+          this.isInitialized = true;
+        }
       },
     });
   }

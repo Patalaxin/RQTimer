@@ -68,6 +68,12 @@
 @media only screen and (max-width: 550px) {
   .timer-settings {
     .form-container {
+      .volume-setting,
+      .voice-setting,
+      .add-mobs-setting {
+        justify-content: space-between;
+      }
+
       .notification-setting {
         display: block;
       }

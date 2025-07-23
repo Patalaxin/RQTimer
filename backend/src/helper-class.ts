@@ -37,7 +37,6 @@ export class HelperClass {
 
   static filterMobsForUser(
     fullMessage: string,
-    unavailableMobs: string[],
     excludedMobs: string[],
   ): string {
     return fullMessage
@@ -45,9 +44,7 @@ export class HelperClass {
       .filter((line) => {
         const [mobName] = line.split(' - ');
 
-        return (
-          !unavailableMobs.includes(mobName) && !excludedMobs.includes(mobName)
-        );
+        return !excludedMobs.includes(mobName);
       })
       .map((line) => {
         return line;

@@ -240,21 +240,12 @@ export class MobService implements IMob {
     }
   }
 
-  async findAllMobsByUser(
-    email: string,
+  async findAllGroupMobs(
     getMobsDto: GetMobsDtoRequest,
+    groupName: string,
     lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    const [userData, unixtimeResponse] = await Promise.all([
-      this.usersService.findUser(email),
-      this.unixtimeService.getCurrentUnixtime(),
-    ]);
-
-    const { excludedMobs = [], unavailableMobs = [], groupName } = userData;
-
-    const undisplayedMobIds = Array.from(
-      new Set([...excludedMobs, ...unavailableMobs]),
-    );
+    const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
     const allMobsData = await this.mobsDataModel
       .find(
@@ -264,9 +255,7 @@ export class MobService implements IMob {
       .lean()
       .exec();
 
-    const mobIds = allMobsData
-      .map((data) => data.mobId.toString())
-      .filter((id) => !undisplayedMobIds.includes(id));
+    const mobIds = allMobsData.map((data) => data.mobId.toString());
 
     if (mobIds.length === 0) return [];
 
@@ -618,7 +607,6 @@ export class MobService implements IMob {
 
   async crashMobServer(
     groupName: string,
-    email: string,
     nickname: string,
     role: RolesTypes,
     server: Servers,
@@ -658,7 +646,7 @@ export class MobService implements IMob {
 
       await this.historyService.createHistory(history);
 
-      return this.findAllMobsByUser(email, { server });
+      return this.findAllGroupMobs({ server }, groupName);
     } catch {
       throw new BadRequestException(
         'Something went wrong while crashing the server.',
@@ -700,6 +688,7 @@ export class MobService implements IMob {
         .exec();
 
       const history: History = {
+        mobId,
         location: mob.mob.location,
         mobName: mob.mob.mobName,
         nickname,

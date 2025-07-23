@@ -52,7 +52,7 @@
           disabled
           nzAutosize
           style="resize: none; border-radius: 15px"
-          *ngIf="this.itemData.mob.mobType === 'Босс'"
+          *ngIf="this.itemData.mob.mobType === ('MOB_MODAL.BOSS' | translate)"
         ></textarea>
         <input
           nz-input

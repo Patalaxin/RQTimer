@@ -8,7 +8,6 @@ import {
   ForgotUserPassDtoRequest,
   ForgotUserPassDtoResponse,
 } from './dto/forgot-user-pass.dto';
-import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
 import {
   UpdateUserRoleDtoRequest,
@@ -36,8 +35,6 @@ export interface IUser {
   forgotPassword(
     forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse>;
-
-  updateUnavailable(updateUnavailableDto: UpdateUnavailableDto): Promise<User>;
 
   updateExcluded(
     email: string,

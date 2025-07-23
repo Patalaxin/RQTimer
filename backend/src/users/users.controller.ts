@@ -26,7 +26,6 @@ import {
   UpdateUserRoleDtoRequest,
   UpdateUserRoleDtoResponse,
 } from './dto/update-user-role.dto';
-import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import {
   ChangeUserPassDtoRequest,
   ChangeUserPassDtoResponse,
@@ -115,19 +114,6 @@ export class UsersController {
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
     return this.userInterface.forgotPassword(forgotUserPassDto);
-  }
-
-  @UseGuards(TokensGuard)
-  @Roles(RolesTypes.Admin)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update User Unavailable Mobs' })
-  @Put('/unavailable')
-  async updateUnavailable(
-    @Body() updateUnavailableDto: UpdateUnavailableDto,
-  ): Promise<User> {
-    return new User(
-      await this.userInterface.updateUnavailable(updateUnavailableDto),
-    );
   }
 
   @UseGuards(TokensGuard)

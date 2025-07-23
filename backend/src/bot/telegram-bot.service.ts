@@ -18,8 +18,8 @@ export class TelegramBotService {
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
     @InjectModel(BotSession.name)
-    private sessionModel: Model<BotSessionDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly sessionModel: Model<BotSessionDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly mobService: MobService,
   ) {}
 
@@ -228,10 +228,7 @@ export class TelegramBotService {
             return;
           }
 
-          if (
-            user.unavailableMobs.includes(updatedMobName) ||
-            user.excludedMobs.includes(updatedMobName)
-          ) {
+          if (user.excludedMobs.includes(updatedMobName)) {
             return;
           }
 
@@ -246,7 +243,6 @@ export class TelegramBotService {
 
           const filteredMessage = HelperClass.filterMobsForUser(
             userMobsMessage,
-            user.unavailableMobs,
             user.excludedMobs,
           );
 
