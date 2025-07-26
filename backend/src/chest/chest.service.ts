@@ -10,7 +10,7 @@ import { ChestResponseDto } from './dto/get-chests.dto';
 export class ChestService {
   constructor(
     @InjectModel(ChestData.name)
-    private chestModel: Model<ChestDataDocument>,
+    private readonly chestModel: Model<ChestDataDocument>,
   ) {}
 
   async addChests(

@@ -102,7 +102,7 @@ export enum ShortMobName {
   Все = 'Все',
 }
 
-export enum MobsLocations {
+export enum Locations {
   Междуречье = 'Междуречье',
   Берега_битв = 'Берега битв',
   Обиталище_Воко = 'Обиталище Воко',

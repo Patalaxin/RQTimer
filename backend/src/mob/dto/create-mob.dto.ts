@@ -6,7 +6,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { MobsLocations, MobName, MobsTypes } from '../../schemas/mobs.enum';
+import { Locations, MobName, MobsTypes } from '../../schemas/mobs.enum';
 
 export class CreateMobDtoRequest {
   @ApiProperty()
@@ -24,9 +24,9 @@ export class CreateMobDtoRequest {
   @IsString()
   respawnText?: string;
 
-  @ApiProperty({ enum: MobsLocations })
-  @IsEnum(MobsLocations)
-  location: MobsLocations;
+  @ApiProperty({ enum: Locations })
+  @IsEnum(Locations)
+  location: Locations;
 
   @ApiProperty()
   @IsNumber()

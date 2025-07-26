@@ -1,4 +1,4 @@
-import { MobsLocations, MobName, Servers } from '../schemas/mobs.enum';
+import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { RolesTypes } from '../schemas/user.schema';
 
 export enum HistoryTypes {
@@ -15,7 +15,7 @@ export interface History {
   nickname: string;
   server: Servers;
   groupName?: string;
-  location?: MobsLocations;
+  location?: Locations;
   date: number;
   role: RolesTypes;
   historyTypes: HistoryTypes;
