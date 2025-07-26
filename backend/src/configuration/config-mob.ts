@@ -103,6 +103,42 @@ export const bossesArray = [
     image: 'duan.avif',
     respawnText: 'Текст респауна',
   },
+  {
+    mobName: 'Генерал Грунгнир',
+    shortName: 'Генерал',
+    mobType: 'Босс',
+    image: 'general.avif',
+    respawnText: 'Генерал Грунгнир осадил Тевтон!',
+  },
+  {
+    mobName: 'Курьер Кардигана',
+    shortName: 'Курьер',
+    mobType: 'Босс',
+    image: 'cardigan.avif',
+    respawnText: 'Курьер Кардигана нападает на путников в Эльтане!',
+  },
+  {
+    mobName: 'Огненный ирекс',
+    shortName: 'Ирекс',
+    mobType: 'Босс',
+    image: 'ireks.avif',
+    respawnText:
+      'Огненный ирекс опустошает владения барона Логарта! Остановите его!',
+  },
+  {
+    mobName: 'Тёмный Мориус',
+    shortName: 'Мориус',
+    mobType: 'Босс',
+    image: 'morius.avif',
+    respawnText: 'Тёмный мориус нарушает тишину Аркона!',
+  },
+  {
+    mobName: 'Нечистый Мятежник',
+    shortName: 'Мятежник',
+    mobType: 'Босс',
+    image: 'ghost.avif',
+    respawnText: 'Нечистый мятежник снова пробудился в Мёртвом городе!',
+  },
 ];
 
 export const elitesArray = [

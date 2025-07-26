@@ -1,6 +1,9 @@
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { RolesTypes } from './schemas/user.schema';
+import { GetFullMobWithUnixDtoResponse } from './mob/dto/get-mob.dto';
+import { Locations, MobName, Servers } from './schemas/mobs.enum';
+import { DateTime } from 'luxon';
 
 export class HelperClass {
   static counter: number = 0;
@@ -30,5 +33,80 @@ export class HelperClass {
   static extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  static filterMobsForUser(
+    fullMessage: string,
+    excludedMobs: string[],
+  ): string {
+    return fullMessage
+      .split('\n')
+      .filter((line) => {
+        const [mobName] = line.split(' - ');
+
+        return !excludedMobs.includes(mobName);
+      })
+      .map((line) => {
+        return line;
+      })
+      .join('\n');
+  }
+
+  static async transformFindAllMobsResponse(
+    mobsInfo: GetFullMobWithUnixDtoResponse[],
+    updatedMobName: MobName,
+    updatedMobLocation: Locations,
+    timezone: string,
+    server: Servers,
+  ): Promise<string> {
+    const groupedByDate: Record<string, { time: number; line: string }[]> = {};
+
+    for (const mobData of mobsInfo) {
+      const respawnTime = mobData.mobData.respawnTime;
+      if (!respawnTime) continue;
+
+      const dateTime = DateTime.fromMillis(respawnTime).setZone(timezone);
+      const date = dateTime.toFormat('dd.MM.yyyy');
+      const time = dateTime.toFormat('HH:mm:ss');
+
+      const isUpdated =
+        mobData.mob.mobName === updatedMobName &&
+        mobData.mob.location === updatedMobLocation;
+      const updatedTag = isUpdated ? ' 🔄' : '';
+
+      const { mobName, location, mobType } = mobData.mob;
+
+      const line =
+        mobType === 'Босс'
+          ? `${mobName} - ${time}${updatedTag}`
+          : `${mobName} - ${location} - ${time}${updatedTag}`;
+
+      if (!groupedByDate[date]) {
+        groupedByDate[date] = [];
+      }
+
+      groupedByDate[date].push({ time: dateTime.toMillis(), line });
+    }
+
+    const sortedDates = Object.keys(groupedByDate).sort(
+      (a, b) =>
+        DateTime.fromFormat(a, 'dd.MM.yyyy').toMillis() -
+        DateTime.fromFormat(b, 'dd.MM.yyyy').toMillis(),
+    );
+
+    let message = `Сервер: ${server} \nПо часовому поясу "${timezone}" респаун будет в:\n`;
+
+    for (const date of sortedDates) {
+      message += `\n${date}:\n`;
+      const lines = groupedByDate[date]
+        .sort((a, b) => a.time - b.time)
+        .map((entry) => entry.line);
+
+      for (const line of lines) {
+        message += `${line}\n`;
+      }
+    }
+
+    return message.trim();
   }
 }

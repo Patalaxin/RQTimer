@@ -4,13 +4,13 @@
   nzShowSizeChanger
   [nzPageSize]="pageSize"
   [nzShowTotal]="rangeTemplate"
-  (nzPageIndexChange)="changePage($event, mobName)"
-  (nzPageSizeChange)="changePageSize($event, mobName)"
+  (nzPageIndexChange)="changePage($event, mobId)"
+  (nzPageSizeChange)="changePageSize($event, mobId)"
   [nzSize]="!isScreenWidth550 ? 'default' : 'small'"
 ></nz-pagination>
 
 <ng-template #rangeTemplate let-range="range" let-total>
-  {{ range[0] }}-{{ range[1] }} из {{ total }}
+  {{ range[0] }}-{{ range[1] }} {{ "LOG.OF" | translate }} {{ total }}
 </ng-template>
 
 <div class="log container">
@@ -24,11 +24,11 @@
       <p>
         <nz-tag nzColor="gold"
           ><b>{{ item.date | date: "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
-        >Пользователь
+        >{{ "LOG.USER" | translate }}
         <nz-tag [nzColor]="getUserColor(item.role)"
           >{{ item.nickname }}
         </nz-tag>
-        переписал
+        {{ "LOG.UPDATED" | translate }}
         <nz-tag
           nzColor="blue"
           *ngIf="!(item.historyTypes == 'crashMobServer')"
@@ -37,11 +37,11 @@
         <nz-tag nzColor="cyan">{{ getInputMethod(item) }}</nz-tag>
       </p>
       <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
-        Начальный кд:
+        {{ "LOG.INITIAL_COOLDOWN" | translate }}
         <nz-tag nzColor="gold">{{ item.fromCooldown }} </nz-tag>
       </p>
       <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
-        Обновлённый кд:
+        {{ "LOG.UPDATED_COOLDOWN" | translate }}
         <nz-tag nzColor="gold">{{ item.toCooldown }} </nz-tag>
       </p>
       <p
@@ -50,7 +50,7 @@
           !(item.historyTypes == 'respawnLost')
         "
       >
-        Время возрождение:
+        {{ "LOG.RESPAWN_TIME" | translate }}
         <nz-tag nzColor="gold"
           >{{ item.toWillResurrect | date: "HH:mm:ss" }}
         </nz-tag>

@@ -1,9 +1,7 @@
-import { IsArray, IsEnum, ArrayUnique } from 'class-validator';
-import { MobName } from '../../schemas/mobs.enum';
+import { IsArray, IsMongoId } from 'class-validator';
 
 export class UpdateExcludedDto {
   @IsArray()
-  @ArrayUnique()
-  @IsEnum(MobName, { each: true })
-  excludedMobs: MobName[];
+  @IsMongoId({ each: true })
+  excludedMobs: string[];
 }

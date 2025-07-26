@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 const EMAIL: string = 'email';
 const NICKNAME: string = 'nickname';
 const ACCESS_TOKEN: string = 'token';
 const SERVER: string = 'server';
+const NOTIFICATION: string = 'notification';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,15 @@ export class StorageService {
     window.localStorage.setItem(SERVER, server);
   }
 
+  setViewedNotifications(id: string) {
+    const existing = window.localStorage.getItem(NOTIFICATION);
+    const arr: string[] = existing ? JSON.parse(existing) : [];
+    if (!arr.includes(id)) {
+      arr.push(id);
+      window.localStorage.setItem(NOTIFICATION, JSON.stringify(arr));
+    }
+  }
+
   setLocalStorage(key: string, token?: any): void {
     key.includes('@')
       ? window.localStorage.setItem(EMAIL, key)
@@ -33,7 +43,15 @@ export class StorageService {
       window.localStorage.setItem(SERVER, this.currentServer);
   }
 
-  getLocalStorage(key: 'email' | 'nickname' | 'token' | 'server'): any {
+  getLocalStorage(
+    key:
+      | 'email'
+      | 'nickname'
+      | 'token'
+      | 'server'
+      | 'timezone'
+      | 'notification',
+  ): any {
     const value = window.localStorage.getItem(key);
     return value ?? '';
   }

@@ -32,6 +32,7 @@ export class WebsocketService {
     this.socket = io(environment.url, {
       path: '/api/socket.io',
       query: { token },
+      transports: ['websocket'],
     });
 
     this.socket.on('mobUpdate', (res) => this.mobUpdateSubject$.next(res));
@@ -40,11 +41,13 @@ export class WebsocketService {
     this.socket.on('userStatusUpdate', (res) =>
       this.isOnlineSubject$.next(res)
     );
-    this.socket.on('onlineUsersList', (res) =>
-      this.onlineUserListSubject$.next(res)
-    );
+    this.socket.on('onlineUsersList', (res) => this.onlineUserListSubject$.next(res));
 
     this.startPingInterval();
+  }
+
+  emitGetOnlineUserList(): void {
+    this.socket?.emit('getOnlineUsersList');
   }
 
   private startPingInterval(): void {

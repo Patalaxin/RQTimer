@@ -2,8 +2,7 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest,
-  GetMobDtoResponse,
+  GetMobDtoRequest, GetMobDtoResponse,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
@@ -15,7 +14,6 @@ import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.d
 import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import {
   DeleteAllMobsDataDtoResponse,
-  DeleteMobDtoParamsRequest,
   DeleteMobDtoResponse,
   RemoveMobFromGroupDtoParamsRequest,
   RemoveMobFromGroupDtoResponse,
@@ -24,7 +22,6 @@ import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
 import { Mob } from '../schemas/mob.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
-import { MobsData } from '../schemas/mobsData.schema';
 import { Servers } from '../schemas/mobs.enum';
 import {
   UpdateMobCommentDtoBodyRequest,
@@ -39,28 +36,40 @@ export interface IMob {
     server: Servers,
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
-  ): Promise<MobsData[]>;
-
-  findMob(
-    getMobDto: GetMobDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobWithUnixDtoResponse>;
-
-  findAllMobsByUser(
-    email: string,
-    getMobsDto: GetMobsDtoRequest,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
-  findAllAvailableMobs(): Promise<GetMobDtoResponse[]>;
+  getMob(getMobDto: GetMobDtoRequest, lang: string): Promise<GetMobDtoResponse>;
+
+  getMobFromGroup(
+    getMobDto: GetMobDtoRequest,
+    groupName: string,
+    lang: string,
+  ): Promise<GetFullMobWithUnixDtoResponse>;
+
+  findAllGroupMobs(
+    getMobsDto: GetMobsDtoRequest,
+    groupName: string,
+    lang: string,
+  ): Promise<GetFullMobWithUnixDtoResponse[]>;
+
+  findAllMobsByGroup(
+    groupName: string,
+    getMobsDto: GetMobsDtoRequest,
+    lang: string,
+  ): Promise<GetFullMobWithUnixDtoResponse[]>;
+
+  findAllAvailableMobs(lang: string): Promise<Mob[]>;
 
   updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<GetMobDtoResponse>;
+  ): Promise<Mob>;
 
   updateMobByCooldown(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: string,
     updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse>;
@@ -68,6 +77,8 @@ export interface IMob {
   updateMobDateOfDeath(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: string,
     updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse>;
@@ -75,14 +86,13 @@ export interface IMob {
   updateMobDateOfRespawn(
     nickname: string,
     role: RolesTypes,
+    mobId: string,
+    server: string,
     updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse>;
 
-  deleteMob(
-    deleteMobDtoParams: DeleteMobDtoParamsRequest,
-    groupName: string,
-  ): Promise<DeleteMobDtoResponse>;
+  deleteMob(mobId: string): Promise<DeleteMobDtoResponse>;
 
   removeMobFromGroup(
     removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
@@ -91,7 +101,6 @@ export interface IMob {
 
   crashMobServer(
     groupName: string,
-    email: string,
     nickname: string,
     role: string,
     server: string,

@@ -4,10 +4,12 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Inject,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -24,7 +26,6 @@ import {
   UpdateUserRoleDtoRequest,
   UpdateUserRoleDtoResponse,
 } from './dto/update-user-role.dto';
-import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import {
   ChangeUserPassDtoRequest,
   ChangeUserPassDtoResponse,
@@ -42,9 +43,10 @@ import {
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { IUser } from './user.interface';
-import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { PaginatedUsersDto } from './dto/findAll-user.dto';
+import { BotSession } from '../schemas/telegram-bot.schema';
 
-@ApiTags('User API')
+@ApiTags('Users API')
 @UseGuards(RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
@@ -82,9 +84,13 @@ export class UsersController {
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
+  @Header('Cache-Control', 'public, max-age=180')
   @Get('/list')
-  findAll(): Promise<FindAllUsersDtoResponse[]> {
-    return this.userInterface.findAll();
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ): Promise<PaginatedUsersDto> {
+    return this.userInterface.findAll(page, limit);
   }
 
   @UseGuards(TokensGuard)
@@ -108,19 +114,6 @@ export class UsersController {
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
     return this.userInterface.forgotPassword(forgotUserPassDto);
-  }
-
-  @UseGuards(TokensGuard)
-  @Roles(RolesTypes.Admin)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update User Unavailable Mobs' })
-  @Put('/unavailable')
-  async updateUnavailable(
-    @Body() updateUnavailableDto: UpdateUnavailableDto,
-  ): Promise<User> {
-    return new User(
-      await this.userInterface.updateUnavailable(updateUnavailableDto),
-    );
   }
 
   @UseGuards(TokensGuard)
@@ -169,5 +162,18 @@ export class UsersController {
   @Delete()
   deleteAll(): Promise<DeleteAllUsersDtoResponse> {
     return this.userInterface.deleteAll();
+  }
+
+  @UseGuards(TokensGuard)
+  @Roles()
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update Timezone for Bot Session' })
+  @ApiOkResponse({ description: 'Success', type: BotSession })
+  @Put('/timezone')
+  updateTimezone(
+    @GetEmailFromToken() email: string,
+    @Body('timezone') timezone: string,
+  ): Promise<BotSession> {
+    return this.userInterface.updateTimezone(email, timezone);
   }
 }

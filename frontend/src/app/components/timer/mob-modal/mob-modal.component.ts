@@ -3,6 +3,7 @@ import * as moment from 'moment-timezone';
 
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-mob-modal',
@@ -12,6 +13,8 @@ import { TimerService } from 'src/app/services/timer.service';
 export class MobModalComponent implements OnInit {
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
+
+  IMAGE_SRC = environment.staticUrl;
 
   @Input() item: any;
 
@@ -33,14 +36,12 @@ export class MobModalComponent implements OnInit {
   }
 
   getMob() {
-    const server = this.storageService.getLocalStorage('server');
-    this.timerService
-      .getMob(this.item.mob.mobName, server, this.item.mob.location)
-      .subscribe({
-        next: (res) => {
-          this.itemData = res;
-          this.isLoading = false;
-        },
-      });
+    const lang = localStorage.getItem('language') || 'ru';
+    this.timerService.getMob(this.item.mobData.mobId, lang).subscribe({
+      next: (res) => {
+        this.itemData = res;
+        this.isLoading = false;
+      },
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
@@ -10,14 +10,17 @@ import { environment } from 'src/environments/environment';
 })
 export class TimerService {
   private readonly http = inject(HttpClient);
-  private readonly storageService = inject(StorageService);
 
   private readonly MOB_URL = environment.apiUrl + '/mobs';
-
   private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
-  filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
+  private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
   private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
+  private telegramBotVisibilitySubject$ = new BehaviorSubject<boolean>(false);
+  private groupNameSubject$ = new BehaviorSubject<string>('');
+  private switchVoiceSubject$ = new BehaviorSubject<boolean>(
+    JSON.parse(localStorage.getItem('specialNotification') || 'false'),
+  );
 
   get timerList$(): Observable<TimerItem[]> {
     return this.timerListSubject$.asObservable();
@@ -33,6 +36,18 @@ export class TimerService {
 
   get headerVisibility$(): Observable<boolean> {
     return this.headerVisibilitySubject$.asObservable();
+  }
+
+  get telegramBotVisibility$(): Observable<boolean> {
+    return this.telegramBotVisibilitySubject$.asObservable();
+  }
+
+  get groupName$(): Observable<string> {
+    return this.groupNameSubject$.asObservable();
+  }
+
+  get switchVoice$(): Observable<boolean> {
+    return this.switchVoiceSubject$.asObservable();
   }
 
   set timerList(list: TimerItem[]) {
@@ -51,42 +66,68 @@ export class TimerService {
     this.headerVisibilitySubject$.next(visible);
   }
 
+  set telegramBotVisibility(visible: boolean) {
+    this.telegramBotVisibilitySubject$.next(visible);
+  }
+
+  set groupName(groupName: string) {
+    this.groupNameSubject$.next(groupName);
+  }
+
+  set switchVoice(enable: boolean) {
+    this.switchVoiceSubject$.next(enable);
+  }
+
   getUnixtime(): Observable<any> {
     return this.http.get(`${environment.apiUrl}/unixtime`);
   }
 
   addMobGroup(server: string, mobs: string[]): Observable<any> {
     const payload = { mobs };
-    return this.http.post(`${this.MOB_URL}/add-in-group/${server}`, payload);
+    return this.http.post(`${this.MOB_URL}/${server}/add-in-group`, payload);
   }
 
-  deleteMobGroup(
-    server: string,
-    location: string,
-    mobName: string,
-  ): Observable<any> {
+  deleteMobGroup(server: string, mobId: string): Observable<any> {
     const payload = {};
     return this.http.delete(
-      `${this.MOB_URL}/remove-from-group/${server}/${location}/${mobName}`,
+      `${this.MOB_URL}/${server}/${mobId}/remove-from-group`,
       payload,
     );
   }
 
-  getMob(mobName: string, server: string, location: string) {
-    return this.http.get(`${this.MOB_URL}/${server}/${location}/${mobName}`);
+  getMob(mobId: string, lang?: string) {
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}/${mobId}`, {
+      params,
+    });
   }
 
-  getAllBosses(server: string): Observable<any> {
-    return this.http.get(`${this.MOB_URL}/${server}`);
+  getAllBosses(server: string, lang?: string): Observable<any> {
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}/server/${server}`, {
+      params,
+    });
   }
 
-  getAvailableBosses(): Observable<any> {
-    return this.http.get(`${this.MOB_URL}`);
+  getAvailableBosses(lang?: string): Observable<any> {
+    let params = new HttpParams();
+
+    if (lang) params = params.set('lang', lang);
+
+    return this.http.get(`${this.MOB_URL}`, {
+      params,
+    });
   }
 
   crashServerBosses(server: string): Observable<any> {
     const payload = {};
-    return this.http.post(`${this.MOB_URL}/crash-server/${server}`, payload);
+    return this.http.post(`${this.MOB_URL}/${server}/crash-server`, payload);
   }
 
   setByDeathTime(
@@ -96,13 +137,13 @@ export class TimerService {
   ): Observable<any> {
     let payload = {
       dateOfDeath,
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/date-of-death`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-death`,
+      payload,
+    );
   }
 
   setByRespawnTime(
@@ -112,13 +153,13 @@ export class TimerService {
   ): Observable<any> {
     let payload = {
       dateOfRespawn,
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/date-of-respawn`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-respawn`,
+      payload,
+    );
   }
 
   setByCooldownTime(
@@ -127,21 +168,21 @@ export class TimerService {
     comment: string,
   ): Observable<any> {
     let payload = {
-      mobName: item.mob.mobName,
-      server: item.mobData.server,
-      location: item.mob.location,
       cooldown,
       comment,
     };
 
-    return this.http.put(`${this.MOB_URL}/cooldown`, payload);
+    return this.http.put(
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/cooldown`,
+      payload,
+    );
   }
 
   respawnLost(item: TimerItem): Observable<any> {
     let payload = {};
 
     return this.http.put(
-      `${this.MOB_URL}/respawn-lost/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/respawn-lost`,
       payload,
     );
   }
@@ -150,7 +191,7 @@ export class TimerService {
     let payload = { comment };
 
     return this.http.put(
-      `${this.MOB_URL}/comment/${item.mobData.server}/${item.mob.location}/${item.mob.mobName}`,
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/comment`,
       payload,
     );
   }

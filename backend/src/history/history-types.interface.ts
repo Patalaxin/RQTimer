@@ -10,6 +10,7 @@ export enum HistoryTypes {
 }
 
 export interface History {
+  mobId?: string;
   mobName: MobName;
   nickname: string;
   server: Servers;

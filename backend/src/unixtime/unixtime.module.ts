@@ -7,9 +7,11 @@ import { HttpModule } from '@nestjs/axios';
   imports: [HttpModule],
   controllers: [UnixtimeController],
   providers: [
-    UnixtimeService,
-    { provide: 'IUnixtime', useClass: UnixtimeService },
+    {
+      provide: 'IUnixtime',
+      useClass: UnixtimeService,
+    },
   ],
-  exports: [UnixtimeService],
+  exports: ['IUnixtime'],
 })
 export class UnixtimeModule {}

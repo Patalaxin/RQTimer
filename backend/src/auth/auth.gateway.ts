@@ -20,12 +20,12 @@ interface OnlineUser {
   },
 })
 export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   @WebSocketServer()
   server: Server;
 
-  private onlineUsers = new Map<string, OnlineUser>();
+  private readonly onlineUsers = new Map<string, OnlineUser>();
 
   getOnlineUsers() {
     return this.onlineUsers;
@@ -41,7 +41,11 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.onlineUsers.set(email, { socketId: client.id, groupName });
 
       client.on('register', () => {
-        this.sendUserStatusUpdate(email, 'online');
+        this.sendUserStatusUpdate(client, email, 'online');
+        this.sendOnlineUsersList(client, groupName);
+      });
+
+      client.on('getOnlineUsersList', () => {
         this.sendOnlineUsersList(client, groupName);
       });
 
@@ -66,14 +70,18 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       setTimeout(() => {
         if (!this.onlineUsers.has(email)) {
-          this.sendUserStatusUpdate(email, 'offline');
+          this.sendUserStatusUpdate(client, email, 'offline');
         }
       }, 10000);
     }
   }
 
-  sendUserStatusUpdate(email: string, status: 'online' | 'offline') {
-    this.server.emit('userStatusUpdate', { email, status });
+  sendUserStatusUpdate(
+    client: Socket,
+    email: string,
+    status: 'online' | 'offline',
+  ) {
+    client.emit('userStatusUpdate', { email, status });
   }
 
   sendOnlineUsersList(client: Socket, groupName: string) {
@@ -82,5 +90,13 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .map(([email, user]) => ({ email, ...user }));
 
     client.emit('onlineUsersList', onlineUsers);
+  }
+
+  getClientByEmail(email: string): Socket | undefined {
+    const user = this.onlineUsers.get(email);
+    if (user) {
+      return this.server.sockets.sockets.get(user.socketId);
+    }
+    return undefined;
   }
 }

@@ -6,6 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
@@ -19,6 +20,7 @@ import Validation from 'src/app/utils/validation';
 export class UserComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly configurationService = inject(ConfigurationService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -26,6 +28,25 @@ export class UserComponent implements OnInit {
   @Input() role: string = '';
 
   isLoading: boolean = true;
+
+  duplicatedMobList: any = [
+    '673a9b38697139657bf024ad',
+    '673a9b3f697139657bf024b5',
+    '673a9b46697139657bf024b9',
+    '673a9b4e697139657bf024bd',
+    '67314c701e738aba75ba3484',
+    '67314c5f1e738aba75ba3480',
+    '67314c511e738aba75ba347c',
+    '67314d111e738aba75ba3488',
+    '67314d191e738aba75ba348c',
+    '67314d431e738aba75ba3490',
+    '67314e2d1e738aba75ba349e',
+    '67314e341e738aba75ba34a2',
+    '673151961e738aba75ba34ce',
+    '6731519c1e738aba75ba34d2',
+    '673152a61e738aba75ba34e8',
+    '673152aa1e738aba75ba34ec',
+  ];
 
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
@@ -73,30 +94,6 @@ export class UserComponent implements OnInit {
     });
   }
 
-  private checkExcludedMobs(): void {
-    let bossesCheckbox = document.querySelectorAll('.boss-input');
-    let elitesCheckbox = document.querySelectorAll('.elite-input');
-    bossesCheckbox.forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((boss: any) => {
-          if (boss === item.textContent?.trim()) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    elitesCheckbox.forEach((item) => {
-      if (this.excludedMobs) {
-        this.excludedMobs.forEach((elite: any) => {
-          if (elite === item.textContent?.trim()) {
-            (item as HTMLInputElement).click();
-          }
-        });
-      }
-    });
-    this.cdr.detectChanges();
-  }
-
   get excludedBosses() {
     return this.excludedForm.controls['excludedBosses'] as FormArray;
   }
@@ -106,7 +103,8 @@ export class UserComponent implements OnInit {
   }
 
   getMobs() {
-    this.configurationService.getMobs().subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.configurationService.getMobs(lang).subscribe({
       next: (res) => {
         res.bossesArray.forEach((boss: any) => {
           this.bossList.push(boss.mobName);
@@ -120,8 +118,18 @@ export class UserComponent implements OnInit {
         this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
         this.isLoading = false;
 
+        this.bossesCheckboxList.forEach((boss: any, i: number) => {
+          if (this.excludedMobs && this.excludedMobs.includes(boss._id)) {
+            this.excludedBosses.at(i).setValue(true);
+          }
+        });
+        this.elitesCheckboxList.forEach((elite: any, i: number) => {
+          if (this.excludedMobs && this.excludedMobs.includes(elite._id)) {
+            this.excludedElites.at(i).setValue(true);
+          }
+        });
+
         this.cdr.detectChanges();
-        this.checkExcludedMobs();
       },
     });
   }
@@ -133,19 +141,27 @@ export class UserComponent implements OnInit {
       return;
     }
 
-    this.userService
-      .updateExcluded([
-        ...this.selectedBossesCheckbox,
-        ...this.selectedElitesCheckbox,
-      ])
-      .subscribe({
-        next: () => {
-          this.messageService.create(
-            'success',
-            'Настройки отображения успешно обновлены',
-          );
-        },
-      });
+    const selectedBosses = this.bossesCheckboxList
+      .filter((_: any, i: number) => this.excludedBosses.at(i).value)
+      .map((boss: any) => boss._id);
+
+    const selectedElites = this.elitesCheckboxList
+      .filter((_: any, i: number) => this.excludedElites.at(i).value)
+      .map((elite: any) => elite._id);
+
+    const newExcludedMobs = [...selectedBosses, ...selectedElites];
+
+    this.userService.updateExcluded(newExcludedMobs).subscribe({
+      next: () => {
+        this.excludedMobs = newExcludedMobs;
+        this.messageService.create(
+          'success',
+          this.translateService.instant(
+            'USER.MESSAGE.DISPLAY_SETTINGS_UPDATED_SUCCESS',
+          ),
+        );
+      },
+    });
   }
 
   onChangePassword() {
@@ -164,19 +180,17 @@ export class UserComponent implements OnInit {
       .subscribe({
         next: () => {
           this.passwordChangeLoading = false;
-          this.messageService.create('success', 'Пароль успешно изменён');
+          this.messageService.create(
+            'success',
+            this.translateService.instant(
+              'USER.MESSAGE.PASSWORD_CHANGED_SUCCESSFULLY',
+            ),
+          );
 
           this.changePasswordForm.reset();
         },
         error: (err) => {
           this.passwordChangeLoading = false;
-          if (err.error.message) {
-            return this.messageService.create('error', err.error.message);
-          }
-          return this.messageService.create(
-            'error',
-            'Ошибка, обратитесь к создателям таймера',
-          );
         },
       });
   }

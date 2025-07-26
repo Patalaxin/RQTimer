@@ -2,7 +2,7 @@
   <div class="form-container">
     <h1>"{{ groupName }}"</h1>
     <div *ngIf="isGroupLeader">
-      <h2 tourAnchor="lost">Инвайт</h2>
+      <h2 tourAnchor="lost">{{ "TIMER_SETTINGS.INVITE" | translate }}</h2>
       <div class="generate-form">
         <nz-input-group nzPrefixIcon="number" class="br-50px">
           <input
@@ -22,18 +22,47 @@
           (click)="onGenerateInviteCode()"
           [nzLoading]="isGenerateLoading"
         >
-          Сгенерировать
+          {{ "COMMON.BUTTONS.GENERATE" | translate }}
         </button>
       </div>
     </div>
 
-    <h2>{{ isGroupLeader ? "Управление группой" : "Список участников" }}</h2>
-    <div *ngIf="isGroupLeader" style="display: flex; gap: 20px">
-      <h3>Разрешить участникам добавлять мобов</h3>
+    <h2>
+      {{ "TIMER_SETTINGS.NOTIFICATION_SETTINGS" | translate }}
+    </h2>
+    <div class="notification-setting">
+      <div class="volume-setting">
+        <h3>{{ "TIMER_SETTINGS.VOLUME_SETTING" | translate }}</h3>
+        <nz-slider
+          [ngModel]="volume"
+          [nzTipFormatter]="volumeFormatter"
+          (nzOnAfterChange)="volumeChange($event)"
+        ></nz-slider>
+      </div>
+      <div class="voice-setting" *ngIf="language !== 'en'">
+        <h3>{{ "TIMER_SETTINGS.VOICE_SETTING" | translate }}</h3>
+        <nz-switch
+          [(ngModel)]="switchVoiceValue"
+          [nzControl]="true"
+          (click)="clickVoiceSwitch()"
+        ></nz-switch>
+      </div>
+    </div>
+
+    <h2>
+      {{
+        (isGroupLeader
+          ? "TIMER_SETTINGS.GROUP_MANAGEMENT"
+          : "TIMER_SETTINGS.MEMBER_LIST"
+        ) | translate
+      }}
+    </h2>
+    <div *ngIf="isGroupLeader" class="add-mobs-setting">
+      <h3>{{ "TIMER_SETTINGS.ADD_MOBS" | translate }}</h3>
       <nz-switch
-        [(ngModel)]="switchValue"
+        [(ngModel)]="switchAddMobsValue"
         [nzControl]="true"
-        (click)="clickSwitch()"
+        (click)="clickAddMobsSwitch()"
         [nzLoading]="isSwitchLoading"
       ></nz-switch>
     </div>
@@ -53,7 +82,7 @@
           <tr>
             <th nzWidth="75px" nzAlign="center">#</th>
             <th nzCustomFilter>
-              Никнейм
+              {{ "TIMER_SETTINGS.TABLE.NICKNAME" | translate }}
               <nz-filter-trigger
                 [(nzVisible)]="isSearchVisible"
                 [nzActive]="searchValue.length > 0"
@@ -65,7 +94,7 @@
                   nzShape="circle"
                   nzSize="small"
                   nz-tooltip
-                  nzTooltipTitle="Поиск"
+                  [nzTooltipTitle]="'COMMON.BUTTONS.SEARCH' | translate"
                   [nzTooltipMouseEnterDelay]="1"
                 >
                   <span nz-icon nzType="search"></span>
@@ -79,10 +108,12 @@
               nzWidth="100px"
               nzAlign="center"
             >
-              Статус
+              {{ "TIMER_SETTINGS.TABLE.STATUS" | translate }}
             </th>
-            <th>Email</th>
-            <th class="admin-buttons" *ngIf="isGroupLeader">Действия</th>
+            <th>{{ "TIMER_SETTINGS.TABLE.EMAIL" | translate }}</th>
+            <th class="admin-buttons" *ngIf="isGroupLeader">
+              {{ "TIMER_SETTINGS.TABLE.ACTIONS" | translate }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -117,7 +148,9 @@
                 nz-button
                 nzType="primary"
                 nz-tooltip
-                nzTooltipTitle="Назначить лидером"
+                [nzTooltipTitle]="
+                  'TIMER_SETTINGS.TABLE.ASSIGN_AS_LEADER' | translate
+                "
                 [nzTooltipMouseEnterDelay]="1"
                 nzShape="circle"
                 (click)="onShowTransferModal(user.nickname, user.email)"
@@ -130,7 +163,7 @@
                 nzType="primary"
                 nzDanger
                 nz-tooltip
-                nzTooltipTitle="Удалить"
+                [nzTooltipTitle]="'TIMER_SETTINGS.TABLE.DELETE' | translate"
                 [nzTooltipMouseEnterDelay]="1"
                 (click)="onShowDeleteModal(user.nickname, user.email)"
                 nzShape="circle"
@@ -150,7 +183,7 @@
                 <input
                   type="text"
                   nz-input
-                  placeholder="Поиск юзера..."
+                  [placeholder]="'TIMER_SETTINGS.TABLE.SEARCH_USER' | translate"
                   [(ngModel)]="searchValue"
                 />
               </nz-input-group>
@@ -161,16 +194,18 @@
               (click)="onSearch()"
               class="admin-search-button"
             >
-              Поиск
+              {{ "COMMON.BUTTONS.SEARCH" | translate }}
             </button>
-            <button nz-button (click)="onReset()">Сброс</button>
+            <button nz-button (click)="onReset()">
+              {{ "COMMON.BUTTONS.RESET" | translate }}
+            </button>
           </div>
         </div>
       </nz-dropdown-menu>
     </div>
 
     <div *ngIf="!isGroupLeader">
-      <h2>Выйти из группы</h2>
+      <h2>{{ "TIMER_SETTINGS.LEAVE_GROUP" | translate }}</h2>
       <div class="group-leave">
         <button
           nz-button
@@ -180,13 +215,13 @@
           (click)="onShowLeaveGroupModal()"
           [nzLoading]="isLeaveGroupLoading"
         >
-          Выйти
+          {{ "COMMON.BUTTONS.LEAVE" | translate }}
         </button>
       </div>
     </div>
 
     <div *ngIf="isGroupLeader">
-      <h2>Удалить группу</h2>
+      <h2>{{ "TIMER_SETTINGS.DELETE_GROUP" | translate }}</h2>
       <div class="group-delete">
         <button
           nz-button
@@ -196,7 +231,7 @@
           (click)="onShowDeleteGroupModal()"
           [nzLoading]="isDeleteGroupLoading"
         >
-          Удалить
+          {{ "COMMON.BUTTONS.DELETE" | translate }}
         </button>
       </div>
     </div>

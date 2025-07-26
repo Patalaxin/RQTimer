@@ -11,6 +11,10 @@
 
     h1 {
       text-align: center;
+    }
+
+    h1,
+    h2 {
       margin-top: 10px;
     }
 
@@ -20,6 +24,25 @@
       color: #000000;
       font-weight: 700;
       margin-bottom: 20px;
+    }
+
+    // .language-setting,
+    .volume-setting,
+    .voice-setting,
+    .add-mobs-setting {
+      display: flex;
+      gap: 20px;
+    }
+
+    .notification-setting {
+      display: flex;
+      gap: 50px;
+    }
+
+    .volume-setting {
+      nz-slider {
+        width: 100px;
+      }
     }
 
     .generate-form {
@@ -44,6 +67,18 @@
 
 @media only screen and (max-width: 550px) {
   .timer-settings {
+    .form-container {
+      .volume-setting,
+      .voice-setting,
+      .add-mobs-setting {
+        justify-content: space-between;
+      }
+
+      .notification-setting {
+        display: block;
+      }
+    }
+
     .admin-buttons {
       button {
         margin: 0 2.5px;

@@ -1,6 +1,6 @@
 import { IsEnum, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { MobsLocations, MobName, Servers } from '../../schemas/mobs.enum';
+import { Servers } from '../../schemas/mobs.enum';
 
 export class DeleteMobDtoResponse {
   @ApiProperty({
@@ -26,21 +26,10 @@ export class DeleteAllMobsDataDtoResponse {
   message: string;
 }
 
-export class DeleteMobDtoParamsRequest {
-  @IsEnum(MobName)
-  mobName: MobName;
-
-  @IsEnum(MobsLocations)
-  location: MobsLocations;
-}
-
 export class RemoveMobFromGroupDtoParamsRequest {
-  @IsEnum(MobName)
-  mobName: MobName;
-
   @IsEnum(Servers)
   server: Servers;
 
-  @IsEnum(MobsLocations)
-  location: MobsLocations;
+  @IsString()
+  mobId: string;
 }

@@ -26,6 +26,7 @@ import {
   OrtosHistory,
   OrtosHistorySchema,
 } from '../schemas/ortosHistory.schema';
+import { Mob, MobSchema } from '../schemas/mob.schema';
 
 @Module({
   providers: [
@@ -41,6 +42,7 @@ import {
       { name: PyrosHistory.name, schema: PyrosHistorySchema },
       { name: AztecHistory.name, schema: AztecHistorySchema },
       { name: OrtosHistory.name, schema: OrtosHistorySchema },
+      { name: Mob.name, schema: MobSchema },
     ]),
   ],
   controllers: [HistoryController],

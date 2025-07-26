@@ -7,8 +7,14 @@
         class="register-stepper"
         nzProgressDot
       >
-        <nz-step nzTitle="Шаг 1:" nzDescription="Основной"></nz-step>
-        <nz-step nzTitle="Шаг 2:" nzDescription="Отображение"></nz-step>
+        <nz-step
+          [nzTitle]="'REGISTER.STEP_1' | translate"
+          [nzDescription]="'REGISTER.GENERAL' | translate"
+        ></nz-step>
+        <nz-step
+          [nzTitle]="'REGISTER.STEP_2' | translate"
+          [nzDescription]="'REGISTER.DISPLAY' | translate"
+        ></nz-step>
       </nz-steps>
 
       <form
@@ -16,6 +22,7 @@
         class="register-form"
         [formGroup]="form"
         (ngSubmit)="onVerifyOTP()"
+        autocomplete="off"
       >
         <div class="steps-content" *ngIf="currentStep === 0">
           <div class="register-form-info">
@@ -25,25 +32,36 @@
                   <input
                     nz-input
                     formControlName="nickname"
-                    placeholder="Никнейм"
+                    [placeholder]="'REGISTER.NICKNAME' | translate"
                     name="mix"
                     minlength="4"
                     required
                     appCapitalize
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
               <ng-template #nicknameErrorTpl let-control>
-                <div *ngIf="control.errors?.required">• Введите никнейм!</div>
+                <div *ngIf="control.errors?.required">
+                  {{ "COMMON.VALIDATIONS.NICKNAME_REQUIRED" | translate }}
+                </div>
                 <div
                   *ngIf="!control.errors?.required && control.errors?.minlength"
                 >
-                  • Минимальная длина никнейма 4 символа!
+                  {{
+                    "COMMON.VALIDATIONS.NICKNAME_MIN_LENGTH"
+                      | translate: { value: 4 }
+                  }}
                 </div>
                 <div
                   *ngIf="!control.errors?.required && control.errors?.maxlength"
                 >
-                  • Максимальная длина никнейма 16 символов!
+                  {{
+                    "COMMON.VALIDATIONS.NICKNAME_MAX_LENGTH"
+                      | translate: { value: 16 }
+                  }}
                 </div>
                 <div
                   *ngIf="
@@ -51,7 +69,24 @@
                     control.errors?.tooManyUppercase
                   "
                 >
-                  • Никнейм может содержать не более 2 заглавных букв!
+                  {{ "COMMON.VALIDATIONS.NICKNAME_MAX_UPPER" | translate }}
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required && control.errors?.containsSpaces
+                  "
+                >
+                  {{ "COMMON.VALIDATIONS.NICKNAME_NO_SPACES" | translate }}
+                </div>
+                <div
+                  *ngIf="
+                    !control.errors?.required &&
+                    control.errors?.containsSpecialCharacters
+                  "
+                >
+                  {{
+                    "COMMON.VALIDATIONS.NICKNAME_NO_SPECIAL_CHARS" | translate
+                  }}
                 </div>
                 <div
                   *ngIf="
@@ -59,21 +94,24 @@
                     control.errors?.invalidHyphenPosition
                   "
                 >
-                  • Никнейм не должен начинаться или заканчиваться на дефис!
+                  {{
+                    "COMMON.VALIDATIONS.NICKNAME_NO_HYPHEN_START_END"
+                      | translate
+                  }}
                 </div>
                 <div
                   *ngIf="
                     !control.errors?.required && control.errors?.tooManyHyphens
                   "
                 >
-                  • Никнейм может содержать не более одного дефиса!
+                  {{ "COMMON.VALIDATIONS.NICKNAME_MAX_ONE_HYPHEN" | translate }}
                 </div>
                 <div
                   *ngIf="
                     !control.errors?.required && control.errors?.containsNumbers
                   "
                 >
-                  • Никнейм не может содержать цифры!
+                  {{ "COMMON.VALIDATIONS.NICKNAME_NO_NUMBERS" | translate }}
                 </div>
                 <div
                   *ngIf="
@@ -81,20 +119,27 @@
                     control.errors?.mixedCyrillicAndLatin
                   "
                 >
-                  • Никнейм не может содержать смешение кириллицы и латиницы!
+                  {{
+                    "COMMON.VALIDATIONS.NICKNAME_NO_MIXED_SCRIPTS" | translate
+                  }}
                 </div>
               </ng-template>
             </nz-form-item>
             <nz-form-item>
-              <nz-form-control nzErrorTip="• Введите почту!">
+              <nz-form-control
+                [nzErrorTip]="'COMMON.VALIDATIONS.EMAIL_REQUIRED' | translate"
+              >
                 <nz-input-group nzPrefixIcon="mail" class="br-50px">
                   <input
                     nz-input
                     formControlName="email"
-                    placeholder="Почта"
+                    [placeholder]="'REGISTER.EMAIL' | translate"
                     name="mix"
                     email
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -110,31 +155,42 @@
                     nz-input
                     [type]="passwordVisible ? 'text' : 'password'"
                     formControlName="password"
-                    placeholder="Пароль"
+                    [placeholder]="'REGISTER.PASSWORD' | translate"
                     name="mix"
                     minlength="6"
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
               <ng-template #passwordErrorTpl let-control>
-                <div *ngIf="control.errors?.required">• Введите пароль!</div>
+                <div *ngIf="control.errors?.required">
+                  {{ "COMMON.VALIDATIONS.PASSWORD_REQUIRED" | translate }}
+                </div>
                 <div
                   *ngIf="!control.errors?.required && control.errors?.minlength"
                 >
-                  • Минимальная длина пароля 6 символов!
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
+                      | translate: { value: 6 }
+                  }}
                 </div>
                 <div
                   *ngIf="!control.errors?.required && control.errors?.maxlength"
                 >
-                  • Максимальная длина пароля 64 символа!
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
+                      | translate: { value: 64 }
+                  }}
                 </div>
                 <div
                   *ngIf="
                     !control.errors?.required && control.errors?.missingNumber
                   "
                 >
-                  • Пароль должен содержать хотя бы одну цифру!
+                  {{ "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate }}
                 </div>
                 <div
                   *ngIf="
@@ -142,8 +198,9 @@
                     control.errors?.missingUpperCase
                   "
                 >
-                  • Пароль должен содержать хотя бы одну заглавную латинскую
-                  букву!
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN" | translate
+                  }}
                 </div>
                 <div
                   *ngIf="
@@ -151,13 +208,18 @@
                     control.errors?.missingLowerCase
                   "
                 >
-                  • Пароль должен содержать хотя бы одну строчную латинскую
-                  букву!
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN" | translate
+                  }}
                 </div>
               </ng-template>
             </nz-form-item>
             <nz-form-item>
-              <nz-form-control nzErrorTip="• Пароль не совпадает!">
+              <nz-form-control
+                [nzErrorTip]="
+                  'COMMON.VALIDATIONS.PASSWORD_MISMATCH' | translate
+                "
+              >
                 <nz-input-group
                   nzPrefixIcon="lock"
                   [nzSuffix]="suffixTemplate"
@@ -167,10 +229,13 @@
                     nz-input
                     [type]="passwordVisible ? 'text' : 'password'"
                     formControlName="confirmPassword"
-                    placeholder="Подтвердите пароль"
+                    [placeholder]="'REGISTER.CONFIRM_PASSWORD' | translate"
                     name="mix"
                     matching
                     required
+                    autocomplete="off"
+                    readonly
+                    onfocus="this.removeAttribute('readonly')"
                   />
                 </nz-input-group>
               </nz-form-control>
@@ -183,7 +248,9 @@
               ></span>
             </ng-template>
             <div class="register-form-center">
-              <a [routerLink]="['/login']">У меня уже есть аккаунт</a>
+              <a [routerLink]="['/login']">{{
+                "REGISTER.HAVE_ACCOUNT" | translate
+              }}</a>
             </div>
           </div>
         </div>
@@ -201,11 +268,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выбранные боссы не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                        [nzTooltipTitle]="
+                          'REGISTER.EXCLUDE_BOSSES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите боссов для исключения:
+                      {{ "REGISTER.EXCLUDE_BOSSES_TITLE" | translate }}
                     </h4>
                     <div
                       formArrayName="excludedBosses"
@@ -217,10 +286,14 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="bossesCheckboxList[i].mobName"
+                        [nzValue]="bossesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          bossesCheckboxList[i].mobName
+                          !duplicatedMobList.includes(bossesCheckboxList[i]._id)
+                            ? bossesCheckboxList[i].mobName
+                            : bossesCheckboxList[i].mobName +
+                              ": " +
+                              bossesCheckboxList[i].location
                         }}</span>
                       </label>
                     </div>
@@ -240,11 +313,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выбранные элитки не будут отображаться в общем списке таймера. Но вы всегда сможете добавить их позднее, если передумаете."
+                        [nzTooltipTitle]="
+                          'REGISTER.EXCLUDE_ELITES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите элиток для исключения:
+                      {{ "REGISTER.EXCLUDE_ELITES_TITLE" | translate }}
                     </h4>
                     <div
                       formArrayName="excludedElites"
@@ -256,10 +331,14 @@
                       <label
                         nz-checkbox
                         [formControlName]="i"
-                        [nzValue]="elitesCheckboxList[i].mobName"
+                        [nzValue]="elitesCheckboxList[i]._id"
                       >
                         <span class="mob-name">{{
-                          elitesCheckboxList[i].mobName
+                          !duplicatedMobList.includes(elitesCheckboxList[i]._id)
+                            ? elitesCheckboxList[i].mobName
+                            : elitesCheckboxList[i].mobName +
+                              ": " +
+                              elitesCheckboxList[i].location
                         }}</span>
                       </label>
                     </div>
@@ -278,7 +357,7 @@
           *ngIf="currentStep > 0"
           nzShape="round"
         >
-          <span>Назад</span>
+          <span>{{ "COMMON.BUTTONS.BACK" | translate }}</span>
         </button>
         <button
           nz-button
@@ -288,7 +367,7 @@
           [disabled]="form.invalid"
           nzShape="round"
         >
-          <span>Вперёд</span>
+          <span>{{ "COMMON.BUTTONS.NEXT" | translate }}</span>
         </button>
         <button
           nz-button
@@ -298,7 +377,7 @@
           nzShape="round"
           [nzLoading]="registerLoading"
         >
-          <span>Подтвердить почту</span>
+          <span>{{ "COMMON.BUTTONS.VERIFY_EMAIL" | translate }}</span>
         </button>
         <nz-modal
           [(nzVisible)]="isModalVisible"
@@ -307,29 +386,30 @@
           nzCentered
         >
           <p *nzModalContent class="modal-center">
-            <span class="otp-modal-name">Подтверждение почты</span>
+            <span class="otp-modal-name">{{
+              "REGISTER.MODAL.CONFIRM_EMAIL" | translate
+            }}</span>
             <ngx-otp-input
               [options]="otpOptions"
               (otpComplete)="onCompleteOTP($event)"
               (otpChange)="onChangeOTP($event)"
               class="otp-modal-input"
             ></ngx-otp-input>
-            <span class="otp-modal-timer" *ngIf="otpTimer"
-              >Код был отправлен на почту и действителен в течение
-              {{ otpTimer }} сек.</span
-            >
+            <span class="otp-modal-timer" *ngIf="otpTimer">{{
+              "REGISTER.MODAL.OTP_TIMER" | translate: { seconds: otpTimer }
+            }}</span>
 
             <span class="otp-modal-timer" *ngIf="!otpTimer"
-              >OTP недействителен.
+              >{{ "REGISTER.MODAL.OTP_INVALID" | translate }}
               <button (click)="onSendOTP()" class="new-otp">
-                Получить новый OTP
+                {{ "COMMON.BUTTONS.GET_NEW_OTP" | translate }}
               </button></span
             >
           </p>
 
           <ng-template #otpFooter>
             <button nz-button nzType="default" (click)="cancelModal()">
-              Отмена
+              {{ "COMMON.BUTTONS.CANCEL" | translate }}
             </button>
             <button
               nz-button
@@ -338,7 +418,7 @@
               (click)="onVerifyOTP()"
               [nzLoading]="isModalLoading"
             >
-              Подтвердить
+              {{ "COMMON.BUTTONS.VERIFY" | translate }}
             </button>
           </ng-template>
         </nz-modal>

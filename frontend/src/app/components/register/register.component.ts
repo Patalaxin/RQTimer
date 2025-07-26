@@ -7,6 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
 import { ConfigurationService } from 'src/app/services/configuration.service';
@@ -23,6 +24,7 @@ export class RegisterComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
   private readonly otpService = inject(OtpService);
+  private readonly translateService = inject(TranslateService);
   private readonly configurationService = inject(ConfigurationService);
   private readonly messageService = inject(NzMessageService);
 
@@ -30,6 +32,25 @@ export class RegisterComponent implements OnInit {
   isModalLoading: boolean = false;
 
   currentStep: number = 0;
+
+  duplicatedMobList: any = [
+    '673a9b38697139657bf024ad',
+    '673a9b3f697139657bf024b5',
+    '673a9b46697139657bf024b9',
+    '673a9b4e697139657bf024bd',
+    '67314c701e738aba75ba3484',
+    '67314c5f1e738aba75ba3480',
+    '67314c511e738aba75ba347c',
+    '67314d111e738aba75ba3488',
+    '67314d191e738aba75ba348c',
+    '67314d431e738aba75ba3490',
+    '67314e2d1e738aba75ba349e',
+    '67314e341e738aba75ba34a2',
+    '673151961e738aba75ba34ce',
+    '6731519c1e738aba75ba34d2',
+    '673152a61e738aba75ba34e8',
+    '673152aa1e738aba75ba34ec',
+  ];
 
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
@@ -113,7 +134,8 @@ export class RegisterComponent implements OnInit {
   }
 
   getMobs() {
-    this.configurationService.getMobs().subscribe({
+    const lang = localStorage.getItem('language') || 'ru';
+    this.configurationService.getMobs(lang).subscribe({
       next: (res) => {
         this.bossesCheckboxList = res.bossesArray;
         this.elitesCheckboxList = res.elitesArray;
@@ -205,7 +227,12 @@ export class RegisterComponent implements OnInit {
           this.registerLoading = false;
           this.isModalLoading = false;
           this.isModalVisible = false;
-          this.messageService.create('success', 'Пользователь успешно создан');
+          this.messageService.create(
+            'success',
+            this.translateService.instant(
+              'REGISTER.MESSAGE.USER_CREATED_SUCCESSFULLY',
+            ),
+          );
           this.router.navigate(['/login']);
         },
         error: (err) => {
@@ -217,12 +244,14 @@ export class RegisterComponent implements OnInit {
           ) {
             return this.messageService.create(
               'error',
-              'Пользователь с данным никнеймом или почтой уже существует',
+              this.translateService.instant(
+                'REGISTER.MESSAGE.USER_ALREADY_EXISTS',
+              ),
             );
           }
           return this.messageService.create(
             'error',
-            'Ошибка, обратитесь к создателям таймера',
+            this.translateService.instant('REGISTER.MESSAGE.UNKNOWN_ERROR'),
           );
         },
       });

@@ -11,10 +11,14 @@ import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
 import * as process from 'process';
+import { TelegramBotModule } from '../bot/telegram-bot.module';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { NotificationModule } from '../notification/notification.module';
 import { ChestModule } from '../chest/chest.module';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
@@ -22,19 +26,28 @@ import { ChestModule } from '../chest/chest.module';
     GroupModule,
     ConfigurationModule,
     UnixtimeModule,
+    NotificationModule,
     ChestModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => {
         return {
-          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@185.65.105.220:27017/admin`,
+          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@91.225.219.94:27017/admin`,
         };
       },
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(resolve(), 'client'),
+      rootPath: join(__dirname, '..', '..', 'client'),
+      serveRoot: '/static',
     }),
     ScheduleModule.forRoot(),
+    TelegrafModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async () => ({
+        token: process.env.TELEGRAM_BOT_TOKEN,
+      }),
+    }),
+    TelegramBotModule,
   ],
   controllers: [],
   providers: [],

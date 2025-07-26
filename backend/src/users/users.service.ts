@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
-import { UpdateUnavailableDto } from './dto/update-unavailable.dto';
 import {
   ChangeUserPassDtoRequest,
   ChangeUserPassDtoResponse,
@@ -24,14 +23,18 @@ import {
 } from './dto/delete-user.dto';
 import { IUser } from './user.interface';
 import { Token, TokenDocument } from '../schemas/refreshToken.schema';
-import { FindAllUsersDtoResponse } from './dto/findAll-user.dto';
+import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { OtpService } from '../OTP/otp.service';
+import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 
 export class UsersService implements IUser {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
-    @Inject(forwardRef(() => OtpService)) private otpService: OtpService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
+    @InjectModel(BotSession.name)
+    private readonly sessionModel: Model<BotSessionDocument>,
+    @Inject(forwardRef(() => OtpService))
+    private readonly otpService: OtpService,
   ) {}
 
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
@@ -69,7 +72,7 @@ export class UsersService implements IUser {
 
       this.otpService.removeVerifiedEmail(createUserDto.email);
       return newUser.toObject();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong!');
     }
   }
@@ -91,14 +94,30 @@ export class UsersService implements IUser {
     return user;
   }
 
-  async findAll(): Promise<FindAllUsersDtoResponse[]> {
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedUsersDto> {
     try {
-      return this.userModel
+      const skip = (page - 1) * limit;
+      const total = await this.userModel.countDocuments().exec();
+      const pages = Math.ceil(total / limit);
+
+      const data = await this.userModel
         .find()
         .select({ email: 1, _id: 1, nickname: 1, role: 1, groupName: 1 })
+        .skip(skip)
+        .limit(limit)
         .lean()
         .exec();
-    } catch (err) {
+
+      return {
+        data,
+        total,
+        page,
+        pages,
+      };
+    } catch {
       throw new BadRequestException('Something went wrong');
     }
   }
@@ -169,47 +188,13 @@ export class UsersService implements IUser {
     return { message: 'Password successfully changed', status: 200 };
   }
 
-  async updateUnavailable(
-    updateUnavailableDto: UpdateUnavailableDto,
-  ): Promise<User> {
-    if (updateUnavailableDto.email && updateUnavailableDto.nickname) {
-      throw new BadRequestException(
-        'Email and Nickname fields should not be together',
-      );
-    } else if (!updateUnavailableDto.email && !updateUnavailableDto.nickname) {
-      throw new BadRequestException(
-        'The "Email" or "Nickname" fields must be specified',
-      );
-    }
-
-    try {
-      const query = updateUnavailableDto.email
-        ? { email: new RegExp(`^${updateUnavailableDto.email}$`, 'i') }
-        : { nickname: new RegExp(`^${updateUnavailableDto.nickname}$`, 'i') };
-
-      return await this.userModel
-        .findOneAndUpdate(
-          query,
-          {
-            unavailableMobs: updateUnavailableDto.unavailableMobs,
-          },
-          { new: true },
-        )
-        .lean()
-        .exec();
-    } catch (err) {
-      throw new BadRequestException('Something went wrong!');
-    }
-  }
-
   async updateExcluded(
     email: string,
     updateExcludedDto: UpdateExcludedDto,
   ): Promise<User> {
-    const user: User = await this.findUser(email);
-    await this.userModel
-      .updateOne(
-        { email: user.email },
+    return await this.userModel
+      .findOneAndUpdate(
+        { email },
         {
           excludedMobs: updateExcludedDto.excludedMobs,
         },
@@ -217,7 +202,6 @@ export class UsersService implements IUser {
       )
       .lean()
       .exec();
-    return user;
   }
 
   async updateRole(
@@ -245,7 +229,7 @@ export class UsersService implements IUser {
         )
         .lean()
         .exec();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong!');
     }
     return { message: 'Role has been updated successfully', status: 200 };
@@ -268,7 +252,7 @@ export class UsersService implements IUser {
     try {
       await this.userModel.deleteOne(deleteQuery);
       await this.tokenModel.findOneAndDelete(deleteQuery);
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong');
     }
     return { message: 'User deleted', status: 200 };
@@ -278,9 +262,16 @@ export class UsersService implements IUser {
     try {
       await this.userModel.deleteMany();
       await this.tokenModel.deleteMany();
-    } catch (err) {
+    } catch {
       throw new BadRequestException('Something went wrong ');
     }
     return { message: 'All users deleted', status: 200 };
+  }
+
+  async updateTimezone(email: string, timezone: string): Promise<BotSession> {
+    return this.sessionModel
+      .findOneAndUpdate({ email }, { timezone }, { new: true, upsert: true })
+      .lean()
+      .exec();
   }
 }

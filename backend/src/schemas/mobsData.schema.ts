@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
-import { Exclude, Expose } from 'class-transformer';
+import { HydratedDocument } from 'mongoose';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { MobsTypes, Servers } from './mobs.enum';
 
@@ -16,6 +16,7 @@ export class MobsData {
   mobId: string;
 
   @ApiProperty()
+  @Expose()
   @Prop()
   groupName: string;
 
@@ -49,7 +50,6 @@ export class MobsData {
   @Prop({ required: true })
   server: Servers;
 
-  @ApiProperty()
   @Exclude()
   @Prop()
   __v: number;
@@ -59,9 +59,9 @@ export class MobsData {
   @Prop({ required: true })
   mobTypeAdditionalTime: MobsTypes;
 
-  @ApiProperty()
   @Exclude()
-  _id: mongoose.Types.ObjectId;
+  @Transform((value) => value.obj._id.toString())
+  _id: string;
 
   constructor(partial: Partial<MobsData>) {
     Object.assign(this, partial);

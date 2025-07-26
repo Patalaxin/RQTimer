@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  url: 'https://www.rqtimer.ru/',
-  apiUrl: 'https://www.rqtimer.ru/api',
-  // apiUrl: 'http://localhost:3000',
+  url: 'http://localhost:3000',
+  apiUrl: 'http://localhost:3000',
+  staticUrl: 'http://localhost:3000/static/',
 };

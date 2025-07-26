@@ -1,9 +1,7 @@
-import { IsArray, IsNotEmpty } from 'class-validator';
-import { IsMobLocationFormat } from '../../decorators/IsMobLocationFormat.decorator';
+import { IsArray, IsMongoId } from 'class-validator';
 
 export class AddMobInGroupDtoRequest {
   @IsArray()
-  @IsNotEmpty()
-  @IsMobLocationFormat({ each: true })
+  @IsMongoId({ each: true })
   mobs: string[];
 }

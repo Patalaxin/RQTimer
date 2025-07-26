@@ -1,7 +1,7 @@
 <div class="not-found background">
   <div class="form-container">
     <h1>404</h1>
-    <p>Ты потерялся...</p>
+    <p>{{ "NOT_FOUND.LOST" | translate }}</p>
     <button
       nz-button
       class="login-form-button login-form-mb-16px"
@@ -9,7 +9,7 @@
       (click)="onTimer()"
       nzShape="round"
     >
-      Вернуться
+      {{ "COMMON.BUTTONS.BACK" | translate }}
     </button>
   </div>
 </div>

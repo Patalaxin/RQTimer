@@ -20,9 +20,9 @@ import { IAuth } from './auth.interface';
 @Injectable()
 export class AuthService implements IAuth {
   constructor(
-    @InjectModel(Token.name) private tokenModel: Model<TokenDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtService: JwtService,
+    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly jwtService: JwtService,
     private readonly authGateway: AuthGateway,
   ) {}
 
@@ -50,7 +50,11 @@ export class AuthService implements IAuth {
       },
       { upsert: true },
     );
-    this.authGateway.sendUserStatusUpdate(user.email, 'online');
+    const client = this.authGateway.getClientByEmail(user.email);
+    if (client) {
+      this.authGateway.sendUserStatusUpdate(client, user.email, 'online');
+    }
+
     return { accessToken, refreshToken };
   }
 
@@ -118,7 +122,7 @@ export class AuthService implements IAuth {
       const tokenRecord = await this.tokenModel.findOne(query);
 
       refreshToken = tokenRecord.refreshToken;
-    } catch (err) {
+    } catch {
       throw new UnauthorizedException(
         'There is no valid refresh token for this user',
       );
@@ -147,7 +151,11 @@ export class AuthService implements IAuth {
 
   async signOut(res: Response, email: string): Promise<SignOutsDtoResponse> {
     await this.tokenModel.findOneAndDelete({ email: email });
-    this.authGateway.sendUserStatusUpdate(email, 'offline');
+
+    const client = this.authGateway.getClientByEmail(email);
+    if (client) {
+      this.authGateway.sendUserStatusUpdate(client, email, 'offline');
+    }
 
     res.cookie('refreshToken', '', {
       httpOnly: true,

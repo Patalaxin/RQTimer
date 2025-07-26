@@ -6,7 +6,7 @@
 // }
 
 body[data-tui-theme] {
-  background: #2c3a55 !important;
+  background: #1d273b !important;
 }
 
 .ant-segmented-item-label {
@@ -14,20 +14,34 @@ body[data-tui-theme] {
   font-weight: 700;
 }
 
+.ant-slider-rail {
+  background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    linear-gradient(to right, #fff, #fff);
+}
+
 .ant-segmented-item-selected,
-nz-segmented .ng-animating {
+nz-segmented .ng-animating,
+.ant-slider-track {
   background-color: #1890ff;
+}
+
+.ant-slider-handle {
+  border: solid 2px #1890ff;
 }
 
 .ant-table,
 .ant-modal-body,
 .ant-modal-footer {
-  background: #2c3a55;
+  background: #1d273b;
 }
 
 .t-wrapper {
   .t-item {
-    background: #2c3a55 !important;
+    background: #1d273b !important;
 
     .t-svg {
       fill: #ffffff !important;
@@ -57,6 +71,7 @@ nz-segmented .ng-animating {
 }
 
 .ant-page-header-heading-title,
+.ant-empty-description,
 .ant-tabs,
 .ant-checkbox-wrapper,
 .ant-table,
@@ -118,6 +133,18 @@ tui-dropdown {
   }
 }
 
+.notification-template-content {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    border: none;
+  }
+}
+
 .ant-modal-body {
   border-top-left-radius: 9px;
   border-top-right-radius: 9px;
@@ -152,7 +179,8 @@ nz-segmented .ng-animating {
   border-radius: 50px;
 }
 
-.nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu {
+.nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu,
+.ant-notification-notice {
   border-radius: 15px;
 }
 
@@ -171,7 +199,7 @@ nz-segmented .ng-animating {
 
 .background {
   position: fixed;
-  background-image: url('/assets/img/bg-halloween.avif');
+  background-image: url("/assets/img/bgImg.avif");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

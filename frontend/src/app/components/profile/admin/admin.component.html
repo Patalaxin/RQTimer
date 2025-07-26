@@ -1,11 +1,80 @@
 <div class="admin">
-  <h2>Список пользователей</h2>
+  <div style="display: flex; gap: 10px; align-items: baseline">
+    <h2>{{ "ADMIN.USER_LIST" | translate }}</h2>
+    <button
+      nz-button
+      nzType="primary"
+      nzShape="circle"
+      nzSize="small"
+      nz-tooltip
+      [nzTooltipTitle]="'COMMON.BUTTONS.CREATE_NOTIFICATION' | translate"
+      [nzTooltipMouseEnterDelay]="1"
+      (click)="showCreateNotificationModal()"
+    >
+      <span nz-icon nzType="notification"></span>
+    </button>
+    <nz-modal
+      [(nzVisible)]="isCreateNotificationModalVisible"
+      (nzOnCancel)="cancelCreateNotificationModal()"
+      [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
+      [nzFooter]="notificationFooter"
+    >
+      <p *nzModalContent>
+        <span
+          class="timer-add"
+          style="text-align: center; margin-bottom: 20px"
+          >{{ "ADMIN.MODAL.NOTIFICATION_TITLE" | translate }}</span
+        >
+
+        <span style="margin: 20px 0 11px; display: block; color: #fff">{{
+          "ADMIN.MODAL.RUSSIAN" | translate
+        }}</span>
+        <textarea
+          rows="4"
+          nz-input
+          [(ngModel)]="russianText"
+          style="resize: none; border-radius: 15px"
+        ></textarea>
+        <span style="margin: 20px 0 11px; display: block; color: #fff">{{
+          "ADMIN.MODAL.ENGLISH" | translate
+        }}</span>
+        <textarea
+          rows="4"
+          nz-input
+          [(ngModel)]="englishText"
+          style="resize: none; border-radius: 15px"
+        ></textarea>
+      </p>
+
+      <ng-template #notificationFooter>
+        <button
+          nz-button
+          nzType="default"
+          (click)="cancelCreateNotificationModal()"
+        >
+          {{ "COMMON.BUTTONS.CANCEL" | translate }}
+        </button>
+        <button
+          nz-button
+          nzType="primary"
+          (click)="confirmCreateNotificationModal()"
+          [nzLoading]="isCreateNotificationOkLoading"
+          [disabled]="!russianText || !englishText"
+        >
+          {{ "COMMON.BUTTONS.CREATE" | translate }}
+        </button>
+      </ng-template>
+    </nz-modal>
+  </div>
   <nz-table
     #adminTable
     [nzScroll]="{ x: '787px', y: '350px' }"
-    [nzData]="userList"
+    [nzData]="userList.data"
     nzShowPagination
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+    [nzFrontPagination]="false"
+    [nzTotal]="userList.total"
+    [nzPageSize]="pageSize"
+    [nzPageIndex]="userList.page"
     (nzPageIndexChange)="onPageIndexChange($event)"
     [nzLoading]="isTableLoading"
     [nzPaginationType]="!isScreenWidth550 ? 'default' : 'small'"
@@ -15,7 +84,7 @@
       <tr>
         <th nzWidth="75px" nzAlign="center">#</th>
         <th nzCustomFilter>
-          Никнейм
+          {{ "ADMIN.TABLE.NICKNAME" | translate }}
           <nz-filter-trigger
             [(nzVisible)]="isSearchVisible"
             [nzActive]="searchValue.length > 0"
@@ -27,7 +96,7 @@
               nzShape="circle"
               nzSize="small"
               nz-tooltip
-              nzTooltipTitle="Поиск"
+              [nzTooltipTitle]="'COMMON.BUTTONS.SEARCH' | translate"
               [nzTooltipMouseEnterDelay]="1"
             >
               <span nz-icon nzType="search"></span>
@@ -41,22 +110,22 @@
           nzWidth="100px"
           nzAlign="center"
         >
-          Роль
+          {{ "ADMIN.TABLE.ROLE" | translate }}
         </th>
-        <th>Email</th>
+        <th>{{ "ADMIN.TABLE.EMAIL" | translate }}</th>
         <th
           [nzSortOrder]="null"
           [nzSortFn]="sortGroupName"
           [nzSortDirections]="['ascend', 'descend', null]"
         >
-          Группа
+          {{ "ADMIN.TABLE.GROUP" | translate }}
         </th>
-        <th class="admin-buttons">Действия</th>
+        <th class="admin-buttons">{{ "ADMIN.TABLE.ACTIONS" | translate }}</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let user of adminTable.data; let i = index">
-        <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
+        <td nzAlign="center">{{ i + pageSize * (userList.page - 1) + 1 }}</td>
         <td nzCustomFilter>
           {{ user.nickname }}
         </td>
@@ -72,7 +141,7 @@
             nz-button
             nzType="primary"
             nz-tooltip
-            nzTooltipTitle="Редактировать"
+            [nzTooltipTitle]="'ADMIN.TABLE.EDIT' | translate"
             [nzTooltipMouseEnterDelay]="1"
             (click)="onShowUserModal(user)"
             nzShape="circle"
@@ -84,7 +153,7 @@
             nzType="primary"
             nzDanger
             nz-tooltip
-            nzTooltipTitle="Удалить"
+            [nzTooltipTitle]="'ADMIN.TABLE.DELETE' | translate"
             [nzTooltipMouseEnterDelay]="1"
             (click)="onShowDeleteModal(user.nickname)"
             nzShape="circle"
@@ -112,7 +181,7 @@
                   *ngIf="!isUserDataLoading"
                 >
                   <nz-tag [nzColor]="getUserColor(user.role)"
-                    >Пользователь: {{ user.nickname }}
+                    >{{ "ADMIN.USER" | translate }} {{ user.nickname }}
                   </nz-tag>
                   <div
                     class="admin-user-modal-role"
@@ -123,13 +192,15 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Обновить роль для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UPDATE_ROLE_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Обновить роль:
+                      {{ "ADMIN.UPDATE_ROLE_TITLE" | translate }}
                     </h4>
-                    <span class="role">Роль: </span>
+                    <span class="role">{{ "ADMIN.ROLE" | translate }} </span>
                     <nz-select
                       [ngModel]="user.role"
                       style="width: 30%"
@@ -148,11 +219,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выберите боссов для исключения для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UNAVAILABLE_BOSSES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите боссов для исключения:
+                      {{ "ADMIN.UNAVAILABLE_BOSSES_TITLE" | translate }}
                     </h4>
                     <tui-reorder
                       class="list"
@@ -164,11 +237,13 @@
                         nz-icon
                         nzType="question-circle"
                         nzTheme="outline"
-                        nzTooltipTitle="Выберите элиток для исключения для выбранного пользователя."
+                        [nzTooltipTitle]="
+                          'ADMIN.UNAVAILABLE_ELITES_DESCRIPTION' | translate
+                        "
                         nzTooltipPlacement="bottom"
                         nz-tooltip
                       ></span>
-                      Выберите элиток для исключения:
+                      {{ "ADMIN.UNAVAILABLE_ELITES_TITLE" | translate }}
                     </h4>
                     <tui-reorder
                       class="list"
@@ -193,7 +268,7 @@
             <input
               type="text"
               nz-input
-              placeholder="Поиск юзера..."
+              [placeholder]="'ADMIN.TABLE.SEARCH_USER' | translate"
               [(ngModel)]="searchValue"
             />
           </nz-input-group>
@@ -204,9 +279,11 @@
           (click)="onSearch()"
           class="admin-search-button"
         >
-          Поиск
+          {{ "COMMON.BUTTONS.SEARCH" | translate }}
         </button>
-        <button nz-button (click)="onReset()">Сброс</button>
+        <button nz-button (click)="onReset()">
+          {{ "COMMON.BUTTONS.RESET" | translate }}
+        </button>
       </div>
     </div>
   </nz-dropdown-menu>

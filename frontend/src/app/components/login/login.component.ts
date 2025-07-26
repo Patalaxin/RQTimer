@@ -9,7 +9,11 @@ import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { AuthService } from 'src/app/services/auth.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { StorageService } from 'src/app/services/storage.service';
+import * as moment from 'moment';
+import { UserService } from 'src/app/services/user.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +23,10 @@ import { StorageService } from 'src/app/services/storage.service';
 export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
+  private readonly timerService = inject(TimerService);
+  private readonly userService = inject(UserService);
   private readonly storageService = inject(StorageService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
   form: FormGroup = new FormGroup({
@@ -33,6 +40,8 @@ export class LoginComponent implements OnInit {
 
   isGuideLoading: boolean = false;
   isGuideVisible: boolean = false;
+
+  isVisible: boolean = false;
 
   images: any[] = [
     {
@@ -54,6 +63,11 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // this.getServers();
+    this.timerService.telegramBotVisibility$.subscribe({
+      next: (res) => {
+        this.isVisible = res;
+      },
+    });
   }
 
   get formControls(): { [key: string]: AbstractControl } {
@@ -78,12 +92,31 @@ export class LoginComponent implements OnInit {
             res.accessToken,
           );
           if (res.accessToken) {
+            let userTimezone = moment.tz.guess();
+
+            if (window.localStorage.getItem('timezone')) {
+              if (window.localStorage.getItem('timezone') !== userTimezone) {
+                window.localStorage.setItem('timezone', userTimezone);
+                this.userService.setUserTimezone(userTimezone).subscribe();
+              }
+            }
+
+            if (!window.localStorage.getItem('timezone')) {
+              window.localStorage.setItem('timezone', userTimezone);
+              this.userService.setUserTimezone(userTimezone).subscribe();
+            }
+
             this.router.navigate(['/timer']);
           }
         },
         error: () => {
           this.isLoginLoading = false;
-          this.messageService.create('error', 'Неверный логин или пароль');
+          this.messageService.create(
+            'error',
+            this.translateService.instant(
+              'LOGIN.MESSAGE.INVALID_LOGIN_OR_PASSWORD',
+            ),
+          );
         },
       });
   }

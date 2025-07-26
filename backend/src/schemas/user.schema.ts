@@ -34,16 +34,6 @@ export class User {
   nickname: string;
 
   @ApiProperty({
-    description: 'Мобы которые не доступны пользователю',
-    enum: MobName,
-    isArray: true,
-    example: [MobName.Архон, MobName.Эдвард],
-  })
-  @Expose()
-  @Prop({ default: [] })
-  unavailableMobs: string[];
-
-  @ApiProperty({
     description: 'Мобы которых пользователь не хочет видеть',
     enum: MobName,
     isArray: true,

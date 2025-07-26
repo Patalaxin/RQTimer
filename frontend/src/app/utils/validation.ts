@@ -59,6 +59,10 @@ export default class Validation {
         'Никнейм не должен начинаться или заканчиваться на дефис.';
     }
 
+    if (/\s/.test(value)) {
+      errors.containsSpaces = 'Никнейм не должен содержать пробелы.';
+    }
+
     const hyphenCount = (value.match(/-/g) || []).length;
     if (hyphenCount > 1) {
       errors.tooManyHyphens = 'Никнейм может содержать не более одного дефиса.';
@@ -73,6 +77,11 @@ export default class Validation {
 
     if (/[0-9]/.test(value)) {
       errors.containsNumbers = 'Никнейм не должен содержать цифры.';
+    }
+
+    if (/[^A-Za-zА-Яа-я-]/.test(value)) {
+      errors.containsSpecialCharacters =
+        'Никнейм не должен содержать специальные символы.';
     }
 
     return Object.keys(errors).length > 0 ? errors : null;

@@ -1,0 +1,166 @@
+{
+  "HEADER": {
+    "UPDATE": "Aktualizuj",
+    "COPY_RESP": "Kopiuj respawny",
+    "SERVER_CRASH": "Uwzględnij awarię serwera",
+    "SEARCH": "Szukaj...",
+    "HISTORY": "Historia",
+    "TIMER": "Timer",
+    "PROFILE": "Profil",
+    "LOGOUT": "Wyloguj",
+    "MODAL": {
+      "SERVER_CRASH_TITLE": "Uwaga",
+      "SERVER_CRASH_MESSAGE": "<b>Czy na pewno chcesz nadpisać wszystkie respawny z uwzględnieniem awarii serwera?<br>- Respawny bossów zostaną cofnięte o 5 minut<br>- Respawny elit zostaną cofnięte o 18 sekund</b>",
+      "LOGOUT_TITLE": "Uwaga",
+      "LOGOUT_MESSAGE": "<b>Czy na pewno chcesz się wylogować?</b>"
+    }
+  },
+  "LOGIN": {
+    "LOGIN": "Email lub nick",
+    "PASSWORD": "Hasło",
+    "FORGOT_PASSWORD": "Zapomniałeś hasła?",
+    "NO_ACCOUNT": "Nie masz konta?",
+    "REGISTER": "Zarejestruj się",
+    "ALL_QUESTION": "Wszystkie pytania:",
+    "INFORMATION": "Informacje:"
+  },
+  "CHANGE_PASSWORD": {
+    "LOGIN": "Email",
+    "PASSWORD": "Hasło",
+    "CONFIRM_PASSWORD": "Potwierdź hasło",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Potwierdź email",
+      "OTP_TIMER": "Kod został wysłany na email i jest ważny przez {{seconds}} sekund.",
+      "OTP_INVALID": "OTP jest nieprawidłowy."
+    }
+  },
+  "REGISTER": {
+    "STEP_1": "Krok 1:",
+    "STEP_2": "Krok 2:",
+    "GENERAL": "Ogólne",
+    "DISPLAY": "Wyświetlanie",
+    "NICKNAME": "Nick",
+    "EMAIL": "Email",
+    "PASSWORD": "Hasło",
+    "CONFIRM_PASSWORD": "Potwierdź hasło",
+    "HAVE_ACCOUNT": "Mam już konto",
+    "EXCLUDE_BOSSES_TITLE": "Wybierz bossów do wykluczenia:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Wybrani bossowie nie będą wyświetlani w ogólnej liście timera. Ale zawsze możesz dodać ich później, jeśli zmienisz zdanie.",
+    "EXCLUDE_ELITES_TITLE": "Wybierz elity do wykluczenia:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Wybrane elity nie będą wyświetlane w ogólnej liście timera. Ale zawsze możesz dodać je później, jeśli zmienisz zdanie.",
+    "MODAL": {
+      "CONFIRM_EMAIL": "Potwierdź email",
+      "OTP_TIMER": "Kod został wysłany na email i jest ważny przez {{seconds}} sekund.",
+      "OTP_INVALID": "OTP jest nieprawidłowy."
+    }
+  },
+  "INFO": {
+    "NICKNAME": "Nick:",
+    "EMAIL": "Email:"
+  },
+  "HISTORY": {
+    "HEADER_TITLE": "Timer"
+  },
+  "PROFILE": {
+    "HEADER_TITLE": "Timer"
+  },
+  "LOG": {
+    "OF": "z",
+    "USER": "Użytkownik",
+    "UPDATED": "zaktualizował",
+    "COOLDOWN_COUNT": "według cooldownu {{count}} razy",
+    "EXACT_DEATH_TIME": "według dokładnego czasu śmierci",
+    "EXACT_RESPAWN_TIME": "według dokładnego czasu respawnu",
+    "SERVER_CRASH": "wszystkich bossów/elit z powodu awarii serwera",
+    "LOST_RESPAWN": "jako utracony respawn",
+    "DUMB_METHOD": "głupią metodą",
+    "INITIAL_COOLDOWN": "Początkowy cooldown:",
+    "UPDATED_COOLDOWN": "Zaktualizowany cooldown:",
+    "RESPAWN_TIME": "Czas respawnu:"
+  },
+  "USER": {
+    "DISPLAY_SETTINGS": "Ustawienia wyświetlania",
+    "CHANGE_PASSWORD": "Zmień hasło",
+    "ADMIN": "Admin",
+    "EXCLUDE_BOSSES_TITLE": "Wybierz bossów do wykluczenia:",
+    "EXCLUDE_BOSSES_DESCRIPTION": "Wybrani bossowie nie będą wyświetlani w ogólnej liście timera. Ale zawsze możesz dodać ich później, jeśli zmienisz zdanie.",
+    "EXCLUDE_ELITES_TITLE": "Wybierz elity do wykluczenia:",
+    "EXCLUDE_ELITES_DESCRIPTION": "Wybrane elity nie będą wyświetlane w ogólnej liście timera. Ale zawsze możesz dodać je później, jeśli zmienisz zdanie.",
+    "OLD_PASSWORD": "Stare hasło",
+    "NEW_PASSWORD": "Nowe hasło",
+    "CONFIRM_NEW_PASSWORD": "Potwierdź nowe hasło"
+  },
+  "ADMIN": {
+    "USER_LIST": "Lista użytkowników",
+    "USER": "Użytkownik:",
+    "UPDATE_ROLE_TITLE": "Aktualizuj rolę:",
+    "UPDATE_ROLE_DESCRIPTION": "Aktualizuj rolę dla wybranego użytkownika.",
+    "ROLE": "Rola:",
+    "UNAVAILABLE_BOSSES_TITLE": "Wybierz bossów do wykluczenia:",
+    "UNAVAILABLE_BOSSES_DESCRIPTION": "Wybierz bossów do wykluczenia dla wybranego użytkownika.",
+    "UNAVAILABLE_ELITES_TITLE": "Wybierz elity do wykluczenia:",
+    "UNAVAILABLE_ELITES_DESCRIPTION": "Wybierz elity do wykluczenia dla wybranego użytkownika.",
+    "TABLE": {
+      "NICKNAME": "Nick",
+      "ROLE": "Rola",
+      "EMAIL": "Email",
+      "GROUP": "Grupa",
+      "ACTIONS": "Akcje",
+      "EDIT": "Edytuj",
+      "DELETE": "Usuń",
+      "SEARCH_USER": "Szukaj użytkownika..."
+    },
+    "MESSAGE": {
+      "USER_DELETED": "Użytkownik {{nickname}} został usunięty",
+      "USER_ROLE_UPDATED": "Rola użytkownika {{nickname}} została pomyślnie zaktualizowana",
+      "USER_ACCESS_SETTINGS_UPDATED": "Ustawienia dostępu dla użytkownika {{nickname}} zostały pomyślnie zaktualizowane"
+    },
+    "MODAL": {
+      "USER_DELETION_TITLE": "Uwaga",
+      "USER_DELETION_MESSAGE": "<b style=\"color: red;\">Czy na pewno chcesz usunąć użytkownika {{nickname}}?</b>"
+    }
+  },
+  "COMMON": {
+    "BUTTONS": {
+      "LOG_IN": "Zaloguj się",
+      "VIDEO_GUIDE": "Przewodnik wideo",
+      "CANCEL": "Anuluj",
+      "CHANGE_PASSWORD": "Zmień hasło",
+      "VERIFY": "Weryfikuj",
+      "GET_NEW_OTP": "Pobierz nowy OTP",
+      "NEXT": "Dalej",
+      "BACK": "Wstecz",
+      "VERIFY_EMAIL": "Weryfikuj email",
+      "YES": "Tak",
+      "NO": "Nie",
+      "UPDATE": "Aktualizuj",
+      "SEARCH": "Szukaj",
+      "RESET": "Resetuj",
+      "OK": "OK"
+    },
+    "VALIDATIONS": {
+      "EMAIL_OR_NICKNAME_REQUIRED": "• Wprowadź email lub nick!",
+      "PASSWORD_REQUIRED": "• Wprowadź hasło!",
+      "EMAIL_REQUIRED": "• Wprowadź email!",
+      "PASSWORD_MISMATCH": "• Hasła nie są zgodne!",
+      "PASSWORD_MIN_LENGTH": "• Hasło musi mieć co najmniej {{value}} znaków!",
+      "PASSWORD_MAX_LENGTH": "• Hasło nie może przekraczać {{value}} znaków!",
+      "PASSWORD_MISS_NUMBER": "• Hasło musi zawierać co najmniej jedną cyfrę!",
+      "PASSWORD_MISS_UPPER_LATIN": "• Hasło musi zawierać co najmniej jedną wielką literę łacińską!",
+      "PASSWORD_MISS_LOWER_LATIN": "• Hasło musi zawierać co najmniej jedną małą literę łacińską!",
+      "NICKNAME_REQUIRED": "• Wprowadź nick!",
+      "NICKNAME_MIN_LENGTH": "• Nick musi mieć co najmniej {{value}} znaków!",
+      "NICKNAME_MAX_LENGTH": "• Nick nie może przekraczać {{value}} znaków!",
+      "NICKNAME_MAX_UPPER": "• Nick może zawierać maksymalnie 2 wielkie litery!",
+      "NICKNAME_NO_SPACES": "• Nick nie może zawierać spacji!",
+      "NICKNAME_NO_SPECIAL_CHARS": "• Nick nie może zawierać znaków specjalnych!",
+      "NICKNAME_NO_HYPHEN_START_END": "• Nick nie może zaczynać się ani kończyć myślnikiem!",
+      "NICKNAME_MAX_ONE_HYPHEN": "• Nick może zawierać maksymalnie jeden myślnik!",
+      "NICKNAME_NO_NUMBERS": "• Nick nie może zawierać cyfr!",
+      "NICKNAME_NO_MIXED_SCRIPTS": "• Nick nie może zawierać mieszanki cyrylicy i łaciny!",
+      "NEW_PASSWORD_REQUIRED": "• Wprowadź nowe hasło!",
+      "OLD_PASSWORD_REQUIRED": "• Wprowadź stare hasło!",
+      "NEW_PASSWORD_MISMATCH": "• Nowe hasła nie są zgodne!"
+    }
+  }
+}

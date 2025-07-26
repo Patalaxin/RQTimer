@@ -12,6 +12,7 @@ import { GroupModule } from '../group/group.module';
 import { User, UserSchema } from '../schemas/user.schema';
 import { RolesGuard } from '../guards/roles.guard';
 import { AuthModule } from '../auth/auth.module';
+import { TelegramBotModule } from '../bot/telegram-bot.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from '../auth/auth.module';
       { name: MobsData.name, schema: MobsDataSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    TelegramBotModule,
   ],
   providers: [
     MobGateway,

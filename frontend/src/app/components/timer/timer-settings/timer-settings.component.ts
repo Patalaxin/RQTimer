@@ -10,6 +10,10 @@ import {
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { GroupsService } from 'src/app/services/groups.service';
+import { WebsocketService } from '../../../services/websocket.service';
+import { TranslateService } from '@ngx-translate/core';
+import { TimerService } from 'src/app/services/timer.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-timer-settings',
@@ -18,8 +22,11 @@ import { GroupsService } from 'src/app/services/groups.service';
 })
 export class TimerSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);
+  private readonly timerService = inject(TimerService);
   private readonly modalService = inject(NzModalService);
+  private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
+  private readonly websocketService = inject(WebsocketService);
 
   @Input() isGroupLeader: boolean = false;
   @Input() groupName: any;
@@ -32,6 +39,7 @@ export class TimerSettingsComponent implements OnInit {
   @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
   @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
 
+  IMAGE_SRC = environment.staticUrl;
   userGroupList: any = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
@@ -49,16 +57,36 @@ export class TimerSettingsComponent implements OnInit {
 
   isScreenWidth550: boolean = false;
 
-  switchValue = false;
+  switchVoiceValue = false;
+  switchAddMobsValue = false;
   isSwitchLoading = false;
+
+  private currentAudio: HTMLAudioElement | null = null;
+  volume: string = localStorage.getItem('volume') || '50';
+  language: string = 'ru';
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
     this.checkScreenWidth();
   }
 
+  constructor() {
+    this.websocketService.emitGetOnlineUserList();
+  }
+
   ngOnInit(): void {
-    this.switchValue = this.canMembersAddMobs;
+    this.language = localStorage.getItem('language') || 'ru';
+
+    this.timerService.switchVoice$.subscribe({
+      next: (res) => {
+        this.switchVoiceValue = res;
+      },
+    });
+
+    this.switchAddMobsValue = this.canMembersAddMobs;
+    // this.switchVoiceValue = JSON.parse(
+    //   localStorage.getItem('specialNotification') || 'false',
+    // );
     this.checkScreenWidth();
     this.getGroupUsers();
   }
@@ -67,17 +95,59 @@ export class TimerSettingsComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
-  clickSwitch(): void {
+  volumeFormatter(value: number): string {
+    return `${value}%`;
+  }
+
+  volumeChange(event: any): any {
+    let audio: HTMLAudioElement;
+    const specialNotification = JSON.parse(
+      localStorage.getItem('specialNotification') || 'false',
+    );
+    localStorage.setItem('volume', event);
+    const volume = Number(localStorage.getItem('volume') || '50') / 100;
+
+    if (this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio.currentTime = 0;
+    }
+
+    if (!specialNotification) {
+      audio = new Audio('../../../assets/audio/notification.mp3');
+    } else {
+      audio = new Audio(
+        `${this.IMAGE_SRC}deadVoices/673148021e738aba75ba3402.m4a`,
+      );
+    }
+    audio.volume = volume;
+    audio.play();
+
+    this.currentAudio = audio;
+  }
+
+  clickVoiceSwitch(): void {
+    this.switchVoiceValue = !this.switchVoiceValue;
+    localStorage.setItem(
+      'specialNotification',
+      JSON.stringify(this.switchVoiceValue),
+    );
+    this.messageService.create(
+      'success',
+      `${this.switchVoiceValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.VOICE_SETTING_ACTIVATED') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.VOICE_SETTING_DEACTIVATED')}`,
+    );
+  }
+
+  clickAddMobsSwitch(): void {
     if (!this.isSwitchLoading) {
       this.isSwitchLoading = true;
 
-      this.groupsService.updateGroup(!this.switchValue).subscribe({
+      this.groupsService.updateGroup(!this.switchAddMobsValue).subscribe({
         next: () => {
-          this.switchValue = !this.switchValue;
-          this.updateGroup.emit(this.switchValue);
+          this.switchAddMobsValue = !this.switchAddMobsValue;
+          this.updateGroup.emit(this.switchAddMobsValue);
           this.messageService.create(
             'success',
-            `${this.switchValue ? 'Обычные участники теперь могут добавлять/удалять мобов' : 'Обычные участники теперь не могут добавлять/удалять мобов'}`,
+            `${this.switchAddMobsValue ? this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CAN_EDIT_MOBS') : this.translateService.instant('TIMER_SETTINGS.MESSAGE.MEMBERS_CANNOT_EDIT_MOBS')}`,
           );
           this.isSwitchLoading = false;
         },
@@ -89,7 +159,10 @@ export class TimerSettingsComponent implements OnInit {
   }
 
   onInviteCodeClick(inviteCode: string) {
-    this.messageService.create('success', `Инвайт успешно скопирован!`);
+    this.messageService.create(
+      'success',
+      this.translateService.instant('TIMER_SETTINGS.MESSAGE.INVITE_COPIED'),
+    );
     navigator.clipboard.writeText(inviteCode);
   }
 
@@ -145,13 +218,22 @@ export class TimerSettingsComponent implements OnInit {
         this.isTableLoading = false;
 
         if (mode === 'delete') {
-          this.messageService.create('success', `Пользователь ${email} удалён`);
+          this.messageService.create(
+            'success',
+            this.translateService.instant(
+              'TIMER_SETTINGS.MESSAGE.USER_DELETED',
+              { email: email },
+            ),
+          );
         }
 
         if (mode === 'transfer') {
           this.messageService.create(
             'success',
-            `Пользователь ${email} назначен лидером`,
+            this.translateService.instant(
+              'TIMER_SETTINGS.MESSAGE.USER_ASSIGNED_AS_LEADER',
+              { email: email },
+            ),
           );
 
           this.exchangeRefresh.emit();
@@ -162,13 +244,18 @@ export class TimerSettingsComponent implements OnInit {
 
   onShowTransferModal(nickname: string, email: string): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите назначить пользователя ${nickname} лидером?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_ASSIGN_LEADER_TITLE',
+      ),
+      nzContent: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_ASSIGN_LEADER_MESSAGE',
+        { nickname: nickname },
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onTransfer(email),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -186,13 +273,18 @@ export class TimerSettingsComponent implements OnInit {
 
   onShowDeleteModal(nickname: string, email: string): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите удалить пользователя ${nickname}?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_DELETE_USER_TITLE',
+      ),
+      nzContent: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_DELETE_USER_MESSAGE',
+        { nickname: nickname },
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onDelete(email),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -210,13 +302,18 @@ export class TimerSettingsComponent implements OnInit {
 
   onShowDeleteGroupModal(): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите удалить группу ${this.groupName}?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_DELETE_GROUP_TITLE',
+      ),
+      nzContent: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_DELETE_GROUP_MESSAGE',
+        { groupName: this.groupName },
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onDeleteGroup(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -226,7 +323,12 @@ export class TimerSettingsComponent implements OnInit {
       next: () => {
         this.messageService.create(
           'success',
-          `Группа ${this.groupName} была успешно удалена`,
+          this.translateService.instant(
+            'TIMER_SETTINGS.MESSAGE.GROUP_DELETED',
+            {
+              groupName: this.groupName,
+            },
+          ),
         );
         this.exchangeRefresh.emit();
       },
@@ -238,13 +340,18 @@ export class TimerSettingsComponent implements OnInit {
 
   onShowLeaveGroupModal(): void {
     this.modalService.confirm({
-      nzTitle: 'Внимание',
-      nzContent: `<b style="color: red;">Вы точно хотите покинуть группу ${this.groupName}?</b>`,
-      nzOkText: 'Да',
+      nzTitle: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_LEAVE_GROUP_TITLE',
+      ),
+      nzContent: this.translateService.instant(
+        'TIMER_SETTINGS.MODAL.CONFIRM_LEAVE_GROUP_MESSAGE',
+        { groupName: this.groupName },
+      ),
+      nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => this.onLeaveGroup(),
-      nzCancelText: 'Нет',
+      nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
     });
   }
 
@@ -254,7 +361,9 @@ export class TimerSettingsComponent implements OnInit {
       next: () => {
         this.messageService.create(
           'success',
-          `Вы успешно вышли из группы ${this.groupName}`,
+          this.translateService.instant('TIMER_SETTINGS.MESSAGE.LEFT_GROUP', {
+            groupName: this.groupName,
+          }),
         );
         this.exchangeRefresh.emit();
       },
