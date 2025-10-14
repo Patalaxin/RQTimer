@@ -47,7 +47,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly translateService = inject(TranslateService);
   private readonly bindingService = inject(BindingService);
 
-  currentServer: string = 'Гелиос';
+  currentServer: string = 'Helios';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
   historyListData: any = [];
@@ -202,7 +202,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           value: item,
         }));
         this.currentServer =
-          this.storageService.getLocalStorage('server') || 'Гелиос';
+          this.storageService.getLocalStorage('server') || 'Helios';
       },
     });
   }
