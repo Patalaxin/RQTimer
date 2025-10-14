@@ -63,14 +63,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   excludedMobsSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
 
-  // serverList = [
-  //   { label: 'Гелиос', value: 'Гелиос' },
-  //   { label: 'Игнис', value: 'Игнис' },
-  //   { label: 'Astus', value: 'Astus' },
-  //   { label: 'Pyros', value: 'Pyros' },
-  //   { label: 'Aztec', value: 'Aztec' },
-  //   { label: 'Ortos', value: 'Ortos' },
-  // ];
   serverList: any[] = [];
 
   duplicatedMobList: any = [

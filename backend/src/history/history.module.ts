@@ -6,27 +6,16 @@ import {
 } from '../schemas/heliosHistory.schema';
 import { HistoryService } from './history.service';
 import { HistoryController } from './history.controller';
-import {
-  IgnisHistory,
-  IgnisHistorySchema,
-} from '../schemas/ignisHistory.schema';
-import {
-  AstusHistory,
-  AstusHistorySchema,
-} from '../schemas/astusHistory.schema';
-import {
-  PyrosHistory,
-  PyrosHistorySchema,
-} from '../schemas/pyrosHistory.schema';
-import {
-  AztecHistory,
-  AztecHistorySchema,
-} from '../schemas/aztecHistory.schema';
-import {
-  OrtosHistory,
-  OrtosHistorySchema,
-} from '../schemas/ortosHistory.schema';
+
 import { Mob, MobSchema } from '../schemas/mob.schema';
+import {
+  FenixHistory,
+  FenixHistorySchema,
+} from '../schemas/fenixHistory.schema';
+import {
+  SolusHistory,
+  SolusHistorySchema,
+} from '../schemas/solusHistory.schema';
 
 @Module({
   providers: [
@@ -37,11 +26,8 @@ import { Mob, MobSchema } from '../schemas/mob.schema';
   imports: [
     MongooseModule.forFeature([
       { name: HeliosHistory.name, schema: HeliosHistorySchema },
-      { name: IgnisHistory.name, schema: IgnisHistorySchema },
-      { name: AstusHistory.name, schema: AstusHistorySchema },
-      { name: PyrosHistory.name, schema: PyrosHistorySchema },
-      { name: AztecHistory.name, schema: AztecHistorySchema },
-      { name: OrtosHistory.name, schema: OrtosHistorySchema },
+      { name: FenixHistory.name, schema: FenixHistorySchema },
+      { name: SolusHistory.name, schema: SolusHistorySchema },
       { name: Mob.name, schema: MobSchema },
     ]),
   ],

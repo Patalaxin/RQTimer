@@ -15,25 +15,13 @@ import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
 import { History } from './history-types.interface';
 import {
-  IgnisHistory,
-  IgnisHistoryDocument,
-} from '../schemas/ignisHistory.schema';
+  FenixHistory,
+  FenixHistoryDocument,
+} from '../schemas/fenixHistory.schema';
 import {
-  AstusHistory,
-  AstusHistoryDocument,
-} from '../schemas/astusHistory.schema';
-import {
-  PyrosHistory,
-  PyrosHistoryDocument,
-} from '../schemas/pyrosHistory.schema';
-import {
-  AztecHistory,
-  AztecHistoryDocument,
-} from '../schemas/aztecHistory.schema';
-import {
-  OrtosHistory,
-  OrtosHistoryDocument,
-} from '../schemas/ortosHistory.schema';
+  SolusHistory,
+  SolusHistoryDocument,
+} from '../schemas/solusHistory.schema';
 import { Mob, MobDocument } from '../schemas/mob.schema';
 import { translateMob } from '../utils/translate-mob';
 
@@ -44,26 +32,17 @@ export class HistoryService implements IHistory {
   constructor(
     @InjectModel(HeliosHistory.name)
     private readonly heliosHistoryModel: Model<HeliosHistoryDocument>,
-    @InjectModel(IgnisHistory.name)
-    private readonly ignisHistoryModel: Model<IgnisHistoryDocument>,
-    @InjectModel(AstusHistory.name)
-    private readonly astusHistoryModel: Model<AstusHistoryDocument>,
-    @InjectModel(PyrosHistory.name)
-    private readonly pyrosHistoryModel: Model<PyrosHistoryDocument>,
-    @InjectModel(AztecHistory.name)
-    private readonly aztecHistoryModel: Model<AztecHistoryDocument>,
-    @InjectModel(OrtosHistory.name)
-    private readonly ortosHistoryModel: Model<OrtosHistoryDocument>,
+    @InjectModel(FenixHistory.name)
+    private readonly fenixHistoryModel: Model<FenixHistoryDocument>,
+    @InjectModel(SolusHistory.name)
+    private readonly solusHistoryModel: Model<SolusHistoryDocument>,
     @InjectModel(Mob.name)
     private readonly mobModel: Model<MobDocument>, // добавляем модель мобов
   ) {
     this.historyModels = [
-      { server: 'Гелиос', model: this.heliosHistoryModel },
-      { server: 'Игнис', model: this.ignisHistoryModel },
-      { server: 'Astus', model: this.astusHistoryModel },
-      { server: 'Pyros', model: this.pyrosHistoryModel },
-      { server: 'Aztec', model: this.aztecHistoryModel },
-      { server: 'Ortos', model: this.ortosHistoryModel },
+      { server: 'Helios', model: this.heliosHistoryModel },
+      { server: 'Fenix', model: this.fenixHistoryModel },
+      { server: 'Solus', model: this.solusHistoryModel },
     ];
   }
 

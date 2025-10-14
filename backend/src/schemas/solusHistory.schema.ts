@@ -7,12 +7,12 @@ import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
-export type IgnisHistoryDocument = HydratedDocument<IgnisHistory>;
+export type SolusHistoryDocument = HydratedDocument<SolusHistory>;
 
 @Schema({
   autoIndex: true,
 })
-export class IgnisHistory {
+export class SolusHistory {
   @Expose()
   @Prop({
     type: String,
@@ -81,9 +81,9 @@ export class IgnisHistory {
   @Prop()
   __v: number;
 
-  constructor(partial: Partial<IgnisHistory>) {
+  constructor(partial: Partial<SolusHistory>) {
     Object.assign(this, partial);
   }
 }
 
-export const IgnisHistorySchema = SchemaFactory.createForClass(IgnisHistory);
+export const SolusHistorySchema = SchemaFactory.createForClass(SolusHistory);

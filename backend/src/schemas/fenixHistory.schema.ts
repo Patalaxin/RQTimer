@@ -7,12 +7,12 @@ import { RolesTypes } from './user.schema';
 import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
-export type AztecHistoryDocument = HydratedDocument<AztecHistory>;
+export type FenixHistoryDocument = HydratedDocument<FenixHistory>;
 
 @Schema({
   autoIndex: true,
 })
-export class AztecHistory {
+export class FenixHistory {
   @Expose()
   @Prop({
     type: String,
@@ -81,9 +81,9 @@ export class AztecHistory {
   @Prop()
   __v: number;
 
-  constructor(partial: Partial<AztecHistory>) {
+  constructor(partial: Partial<FenixHistory>) {
     Object.assign(this, partial);
   }
 }
 
-export const AztecHistorySchema = SchemaFactory.createForClass(AztecHistory);
+export const FenixHistorySchema = SchemaFactory.createForClass(FenixHistory);
