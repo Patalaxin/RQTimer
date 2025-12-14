@@ -12,6 +12,7 @@ export interface IHistory {
     page: number,
     limit: number,
     language?: string,
+    historyType?: string,
   ): Promise<PaginatedHistoryDto>;
 
   getMobHistory(
