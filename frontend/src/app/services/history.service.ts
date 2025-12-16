@@ -41,7 +41,13 @@ export class HistoryService {
     this.isLoadingSubject$.next(value);
   }
 
-  getHistory(server: string, page?: number, limit?: number, lang?: string) {
+  getHistory(
+    server: string,
+    page?: number,
+    limit?: number,
+    lang?: string,
+    historyType?: string,
+  ) {
     let params = new HttpParams();
 
     if (page) params = params.set('page', page);
@@ -49,6 +55,8 @@ export class HistoryService {
     if (limit) params = params.set('limit', limit);
 
     if (lang) params = params.set('lang', lang);
+
+    if (historyType) params = params.set('historyType', historyType);
 
     return this.http.get(`${this.HISTORY_API}list/${server}`, {
       params,

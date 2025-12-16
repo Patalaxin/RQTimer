@@ -23,6 +23,8 @@
     "MODAL": {
       "SERVER_CRASH_TITLE": "Внимание",
       "SERVER_CRASH_MESSAGE": "<b>Вы точно хотите переписать все респы с учётом падения сервера?<br>- Респы боссов будут откатаны на 5 минут назад<br>- Респы элиток будут откатаны на 18 секунд назад</b>",
+      "SERVER_CRASH_INFO": "Была нажата пользователем <b>{{nickname}}</b> в {{date}}",
+      "SERVER_CRASH_NO_DATA": "Нет сведений о переписи",
       "LOGOUT_TITLE": "Внимание",
       "LOGOUT_MESSAGE": "<b>Вы точно хотите выйти?</b>"
     },
@@ -63,7 +65,7 @@
     "GENERAL": "Основной",
     "DISPLAY": "Отображение",
     "NICKNAME": "Никнейм",
-    "EMAIL": "Почти",
+    "EMAIL": "Почта",
     "PASSWORD": "Пароль",
     "CONFIRM_PASSWORD": "Подтвердите пароль",
     "HAVE_ACCOUNT": "У меня уже есть аккаунт",
@@ -342,6 +344,7 @@
       "CREATE": "Создать",
       "CREATE_NOTIFICATION": "Создать уведомление"
     },
+    "LOADING": "Загрузка...",
     "VALIDATIONS": {
       "EMAIL_OR_NICKNAME_REQUIRED": "• Введите почту или никнейм!",
       "PASSWORD_REQUIRED": "• Введите пароль!",

@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
@@ -412,15 +412,116 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   showCrashServerModal() {
-    this.modalService.confirm({
-      nzTitle: this.translateService.instant('HEADER.MODAL.SERVER_CRASH_TITLE'),
-      nzContent: this.translateService.instant(
-        'HEADER.MODAL.SERVER_CRASH_MESSAGE',
-      ),
+    const lang = localStorage.getItem('language') || 'ru';
+    const title = this.translateService.instant(
+      'HEADER.MODAL.SERVER_CRASH_TITLE',
+    );
+    const mainMessage = this.translateService.instant(
+      'HEADER.MODAL.SERVER_CRASH_MESSAGE',
+    );
+    const loadingText = this.translateService.instant('COMMON.LOADING');
+
+    const titleHtml = `
+      <h3>${title}</h3>
+    `;
+
+    const loadingHtml = `
+      <div class="server-crash-info">
+        <div class="server-crash-loader">
+          <span class="loader-spinner"></span>
+          <span>${loadingText}</span>
+        </div>
+      </div>
+    `;
+
+    const mainHtml = `
+      <span class="server-crash-main">${mainMessage}</span>
+    `;
+
+    const modalRef: NzModalRef = this.modalService.create({
+      nzContent: `${titleHtml}${loadingHtml}${mainHtml}`,
       nzOkText: this.translateService.instant('COMMON.BUTTONS.YES'),
+      nzOkType: 'primary',
       nzOnOk: () => this.onCrashServer(),
       nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
+      nzClosable: true,
+      nzMaskClosable: false,
+      nzCentered: true,
+      nzWidth: 520,
     });
+
+    setTimeout(() => {
+      const modalElement = document.querySelector(
+        '.ant-modal-wrap:last-child .ant-modal',
+      );
+      if (modalElement) {
+        modalElement.classList.add('ant-modal-confirm');
+      }
+    }, 0);
+
+    this.historyService
+      .getHistory(
+        this.currentServer,
+        undefined,
+        undefined,
+        lang,
+        'crashMobServer',
+      )
+      .subscribe({
+        next: (res: any) => {
+          let crashInfoHtml = '';
+
+          if (
+            res.data &&
+            res.data[0] &&
+            Date.now() - res.data[0].date < 1800000
+          ) {
+            const crashData = res.data[0];
+            const formattedDate = moment(crashData.date).format(
+              'DD/MM/YYYY - HH:mm:ss',
+            );
+            const crashInfoText = this.translateService.instant(
+              'HEADER.MODAL.SERVER_CRASH_INFO',
+              {
+                nickname: crashData.nickname,
+                date: formattedDate,
+              },
+            );
+
+            crashInfoHtml = `
+              <div class="server-crash-info">
+                ${crashInfoText}
+              </div>
+            `;
+          } else {
+            const noDataText = this.translateService.instant(
+              'HEADER.MODAL.SERVER_CRASH_NO_DATA',
+            );
+            crashInfoHtml = `
+              <div class="server-crash-info server-crash-info-no-data">
+                ${noDataText}
+              </div>
+            `;
+          }
+
+          modalRef.updateConfig({
+            nzContent: `${titleHtml}${crashInfoHtml}${mainHtml}`,
+          });
+        },
+        error: () => {
+          const noDataText = this.translateService.instant(
+            'HEADER.MODAL.SERVER_CRASH_NO_DATA',
+          );
+          const crashInfoHtml = `
+            <div class="server-crash-info server-crash-info-no-data">
+              ${noDataText}
+            </div>
+          `;
+          modalRef.updateConfig({
+            nzContent: `${titleHtml}${crashInfoHtml}${mainHtml}`,
+          });
+        },
+      });
   }
 
   onCrashServer() {

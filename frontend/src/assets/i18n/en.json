@@ -23,6 +23,8 @@
     "MODAL": {
       "SERVER_CRASH_TITLE": "Attention",
       "SERVER_CRASH_MESSAGE": "<b>Are you sure you want to reset all respawns due to the server crash?<br>- Boss respawns will be rolled back by 5 minutes<br>- Elite respawns will be rolled back by 18 seconds</b>",
+      "SERVER_CRASH_INFO": "Was pressed by user <b>{{nickname}}</b> at {{date}}",
+      "SERVER_CRASH_NO_DATA": "No information about the last server rewrite",
       "LOGOUT_TITLE": "Attention",
       "LOGOUT_MESSAGE": "<b>Are you sure you want to log out?</b>"
     },
@@ -345,6 +347,7 @@
       "CREATE": "Create",
       "CREATE_NOTIFICATION": "Create notification"
     },
+    "LOADING": "Loading...",
     "VALIDATIONS": {
       "EMAIL_OR_NICKNAME_REQUIRED": "• Please enter your email or username!",
       "PASSWORD_REQUIRED": "• Please enter your password!",

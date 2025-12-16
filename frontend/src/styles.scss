@@ -156,6 +156,50 @@ tui-dropdown {
   border-bottom-right-radius: 9px;
 }
 
+.server-crash-info {
+  text-align: center;
+  // background-color: #ff4d4f !important;
+  background-color: #ef9595 !important;
+  color: #000 !important;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 16px 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  &.server-crash-info-no-data {
+    // background-color: #52c41a !important;
+    background-color: #bbcd92 !important;
+  }
+
+  .server-crash-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    .loader-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.server-crash-main {
+  color: #fff;
+}
+
 .container {
   max-width: 1000px;
   width: 100%;
