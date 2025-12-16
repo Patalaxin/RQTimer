@@ -448,6 +448,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       nzMaskClosable: false,
       nzCentered: true,
       nzWidth: 520,
+      nzOkDisabled: true,
     });
 
     setTimeout(() => {
@@ -477,9 +478,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             Date.now() - res.data[0].date < 1800000
           ) {
             const crashData = res.data[0];
-            const formattedDate = moment(crashData.date).format(
-              'DD/MM/YYYY - HH:mm:ss',
-            );
+            const formattedDate = moment(crashData.date).format('HH:mm:ss');
             const crashInfoText = this.translateService.instant(
               'HEADER.MODAL.SERVER_CRASH_INFO',
               {
@@ -489,7 +488,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
             );
 
             crashInfoHtml = `
-              <div class="server-crash-info">
+              <div class="server-crash-info server-crash-info-data">
                 ${crashInfoText}
               </div>
             `;
@@ -506,6 +505,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
           modalRef.updateConfig({
             nzContent: `${titleHtml}${crashInfoHtml}${mainHtml}`,
+            nzOkDisabled: false,
           });
         },
         error: () => {
