@@ -30,7 +30,8 @@
     },
     "MESSAGE": {
       "RESPAWNS_COPIED_SUCCESSFULLY": "Респауны были успешно скопированы",
-      "RESPAWNS_WITH_SERVER_CRASH": "Респауны теперь с учётом падения сервера"
+      "RESPAWNS_WITH_SERVER_CRASH": "Респауны теперь с учётом падения сервера",
+      "REQUEST_FAILED_CHECK_CONNECTION": "Не удалось выполнить запрос - проверьте сетевое соединение"
     }
   },
   "LOGIN": {

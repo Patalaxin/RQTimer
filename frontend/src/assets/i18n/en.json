@@ -30,7 +30,8 @@
     },
     "MESSAGE": {
       "RESPAWNS_COPIED_SUCCESSFULLY": "Respawns were copied successfully",
-      "RESPAWNS_WITH_SERVER_CRASH": "Respawns now account for server crash"
+      "RESPAWNS_WITH_SERVER_CRASH": "Respawns now account for server crash",
+      "REQUEST_FAILED_CHECK_CONNECTION": "Request failed — check your network connection"
     }
   },
   "LOGIN": {

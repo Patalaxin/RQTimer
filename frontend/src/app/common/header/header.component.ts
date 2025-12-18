@@ -445,8 +445,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       nzOnOk: () => this.onCrashServer(),
       nzCancelText: this.translateService.instant('COMMON.BUTTONS.NO'),
       nzClosable: true,
-      nzMaskClosable: false,
-      nzCentered: true,
       nzWidth: 520,
       nzOkDisabled: true,
     });
@@ -510,15 +508,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
         },
         error: () => {
           const noDataText = this.translateService.instant(
-            'HEADER.MODAL.SERVER_CRASH_NO_DATA',
+            'HEADER.MESSAGE.REQUEST_FAILED_CHECK_CONNECTION',
           );
           const crashInfoHtml = `
-            <div class="server-crash-info server-crash-info-no-data">
+            <div class="server-crash-info">
               ${noDataText}
             </div>
           `;
           modalRef.updateConfig({
             nzContent: `${titleHtml}${crashInfoHtml}${mainHtml}`,
+            nzOkDisabled: false,
           });
         },
       });
