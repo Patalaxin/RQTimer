@@ -13,7 +13,7 @@ import { Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
-import { History } from './history-types.interface';
+import { History, HistoryTypes } from './history-types.interface';
 import {
   FenixHistory,
   FenixHistoryDocument,
@@ -60,6 +60,7 @@ export class HistoryService implements IHistory {
     page: number = 1,
     limit: number = 10,
     lang?: string,
+    historyType?: HistoryTypes,
   ): Promise<PaginatedHistoryDto> {
     try {
       if (!groupName) {
@@ -71,6 +72,10 @@ export class HistoryService implements IHistory {
       ).model;
 
       const query: any = { groupName };
+
+      if (historyType) {
+        query.historyTypes = historyType;
+      }
 
       const total = await historyModel.countDocuments(query).exec();
       const pages = Math.ceil(total / limit);
