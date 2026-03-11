@@ -4,70 +4,64 @@
 // import { AppModule } from '../app/app.module';
 // import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
 //
-// async function migrateMobsDataServers() {
+// async function mergeSolusIntoFenix() {
 //   const isDryRun = process.argv.includes('--dry-run');
+//
 //   const app = await NestFactory.createApplicationContext(AppModule);
 //   const mobsDataModel = app.get<Model<MobsDataDocument>>(
 //     getModelToken(MobsData.name),
 //   );
 //
-//   const serverMap: Record<string, string> = {
-//     Игнис: 'Fenix',
-//     Pyros: 'Fenix',
-//     Ortos: 'Solus',
-//     Aztec: 'Solus',
-//     Astus: 'Solus',
-//     Гелиос: 'Helios',
-//   };
-//
 //   console.log(
-//     `🚀 Начинаем миграцию MobsData серверов... (${isDryRun ? 'DRY-RUN' : 'РЕЖИМ ЗАПИСИ'})\n`,
+//     `🚀 Начинаем merge серверов solus → fenix (${isDryRun ? 'DRY-RUN' : 'РЕЖИМ ЗАПИСИ'})\n`,
 //   );
 //
-//   for (const [oldServer, newServer] of Object.entries(serverMap)) {
-//     const records = await mobsDataModel.find({ server: oldServer });
-//     if (!records.length) {
-//       console.log(`⚪ Нет записей для сервера ${oldServer}, пропускаем`);
+//   const records = await mobsDataModel.find({ server: 'Solus' });
+//
+//   if (!records.length) {
+//     console.log('⚪ Нет записей для сервера solus');
+//     await app.close();
+//     return;
+//   }
+//
+//   let updated = 0;
+//   let skipped = 0;
+//
+//   for (const record of records) {
+//     const exists = await mobsDataModel.exists({
+//       mobId: record.mobId,
+//       groupName: record.groupName,
+//       server: 'Fenix',
+//     });
+//
+//     if (exists) {
+//       skipped++;
 //       continue;
 //     }
 //
-//     let updated = 0;
-//     let skipped = 0;
-//
-//     for (const record of records) {
-//       const exists = await mobsDataModel.exists({
-//         mobId: record.mobId,
-//         groupName: record.groupName,
-//         server: newServer,
-//       });
-//
-//       if (exists) {
-//         skipped++;
-//         continue;
-//       }
-//
-//       if (!isDryRun) {
-//         await mobsDataModel.updateOne(
-//           { _id: record._id },
-//           { $set: { server: newServer } },
-//         );
-//       }
-//       updated++;
+//     if (!isDryRun) {
+//       await mobsDataModel.updateOne(
+//         { _id: record._id },
+//         { $set: { server: 'Fenix' } },
+//       );
 //     }
 //
-//     console.log(
-//       `${isDryRun ? '🧩 [DRY-RUN]' : '✅'} ${oldServer} → ${newServer}: ` +
-//         `обновлено ${updated}, пропущено ${skipped}, всего ${records.length}`,
-//     );
+//     updated++;
 //   }
 //
 //   console.log(
-//     `\n🎉 Миграция MobsData завершена (${isDryRun ? 'тестовый запуск' : 'реальный запуск'})`,
+//     `${isDryRun ? '🧩 [DRY-RUN]' : '✅'} solus → fenix: ` +
+//       `обновлено ${updated}, пропущено ${skipped}, всего ${records.length}`,
 //   );
+//
+//   console.log(
+//     `\n🎉 Merge завершён (${isDryRun ? 'тестовый запуск' : 'реальный запуск'})`,
+//   );
+//
 //   await app.close();
 // }
 //
-// migrateMobsDataServers().catch((err) => {
+// mergeSolusIntoFenix().catch((err) => {
 //   console.error('❌ Ошибка миграции:', err);
 //   process.exit(1);
 // });
