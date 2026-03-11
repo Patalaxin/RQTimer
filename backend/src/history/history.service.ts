@@ -18,10 +18,7 @@ import {
   FenixHistory,
   FenixHistoryDocument,
 } from '../schemas/fenixHistory.schema';
-import {
-  SolusHistory,
-  SolusHistoryDocument,
-} from '../schemas/solusHistory.schema';
+
 import { Mob, MobDocument } from '../schemas/mob.schema';
 import { translateMob } from '../utils/translate-mob';
 
@@ -34,15 +31,12 @@ export class HistoryService implements IHistory {
     private readonly heliosHistoryModel: Model<HeliosHistoryDocument>,
     @InjectModel(FenixHistory.name)
     private readonly fenixHistoryModel: Model<FenixHistoryDocument>,
-    @InjectModel(SolusHistory.name)
-    private readonly solusHistoryModel: Model<SolusHistoryDocument>,
     @InjectModel(Mob.name)
     private readonly mobModel: Model<MobDocument>, // добавляем модель мобов
   ) {
     this.historyModels = [
       { server: 'Helios', model: this.heliosHistoryModel },
       { server: 'Fenix', model: this.fenixHistoryModel },
-      { server: 'Solus', model: this.solusHistoryModel },
     ];
   }
 

@@ -10,7 +10,7 @@ const NOTIFICATION: string = 'notification';
   providedIn: 'root',
 })
 export class StorageService {
-  currentServer: 'Helios' | 'Fenix' | 'Solus' =
+  currentServer: 'Helios' | 'Fenix' =
     'Helios';
 
   clean(): void {

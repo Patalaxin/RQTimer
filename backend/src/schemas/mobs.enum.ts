@@ -1,7 +1,6 @@
 export enum Servers {
   Helios = 'Helios',
   Fenix = 'Fenix',
-  Solus = 'Solus',
 }
 
 export enum MobsTypes {

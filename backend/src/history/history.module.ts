@@ -12,10 +12,6 @@ import {
   FenixHistory,
   FenixHistorySchema,
 } from '../schemas/fenixHistory.schema';
-import {
-  SolusHistory,
-  SolusHistorySchema,
-} from '../schemas/solusHistory.schema';
 
 @Module({
   providers: [
@@ -27,7 +23,6 @@ import {
     MongooseModule.forFeature([
       { name: HeliosHistory.name, schema: HeliosHistorySchema },
       { name: FenixHistory.name, schema: FenixHistorySchema },
-      { name: SolusHistory.name, schema: SolusHistorySchema },
       { name: Mob.name, schema: MobSchema },
     ]),
   ],
