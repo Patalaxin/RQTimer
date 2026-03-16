@@ -1,164 +1,189 @@
 <div class="login background">
   <div class="form-container">
-    <div class="form-logo">
-      <img src="../../../assets/img/logo.avif" alt="" />
-    </div>
-    <form nz-form class="login-form" [formGroup]="form" (ngSubmit)="onLogin()">
-      <nz-form-item>
-        <nz-form-control
-          [nzErrorTip]="
-            'COMMON.VALIDATIONS.EMAIL_OR_NICKNAME_REQUIRED' | translate
-          "
+    <nz-ribbon
+      [nzText]="statistic"
+      [ngStyle]="
+        usersCount ? { visibility: 'visible' } : { visibility: 'hidden' }
+      "
+    >
+      <div style="visibility: visible">
+        <div class="form-logo">
+          <img src="../../../assets/img/logo.avif" alt="" />
+        </div>
+        <form
+          nz-form
+          class="login-form"
+          [formGroup]="form"
+          (ngSubmit)="onLogin()"
         >
-          <nz-input-group nzPrefixIcon="user" class="br-50px">
-            <input
-              nz-input
-              formControlName="key"
-              [placeholder]="'LOGIN.LOGIN' | translate"
-              name="required"
-              required
-            />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-control
-          [nzErrorTip]="'COMMON.VALIDATIONS.PASSWORD_REQUIRED' | translate"
-        >
-          <nz-input-group
-            nzPrefixIcon="lock"
-            [nzSuffix]="suffixTemplate"
-            class="br-50px"
+          <nz-form-item>
+            <nz-form-control
+              [nzErrorTip]="
+                'COMMON.VALIDATIONS.EMAIL_OR_NICKNAME_REQUIRED' | translate
+              "
+            >
+              <nz-input-group nzPrefixIcon="user" class="br-50px">
+                <input
+                  nz-input
+                  formControlName="key"
+                  [placeholder]="'LOGIN.LOGIN' | translate"
+                  name="required"
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control
+              [nzErrorTip]="'COMMON.VALIDATIONS.PASSWORD_REQUIRED' | translate"
+            >
+              <nz-input-group
+                nzPrefixIcon="lock"
+                [nzSuffix]="suffixTemplate"
+                class="br-50px"
+              >
+                <input
+                  nz-input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="password"
+                  [placeholder]="'LOGIN.PASSWORD' | translate"
+                  name="mix"
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <ng-template #suffixTemplate>
+            <span
+              nz-icon
+              [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+              (click)="passwordVisible = !passwordVisible"
+            ></span>
+          </ng-template>
+          <div class="login-form-mb-16px">
+            <a [routerLink]="['/change-password']">{{
+              "LOGIN.FORGOT_PASSWORD" | translate
+            }}</a>
+          </div>
+          <button
+            nz-button
+            class="login-form-button login-form-mb-16px"
+            [nzType]="'primary'"
+            type="submit"
+            [disabled]="form.invalid"
+            [nzLoading]="isLoginLoading"
+            nzShape="round"
           >
-            <input
-              nz-input
-              [type]="passwordVisible ? 'text' : 'password'"
-              formControlName="password"
-              [placeholder]="'LOGIN.PASSWORD' | translate"
-              name="mix"
-              required
-            />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
-      <ng-template #suffixTemplate>
-        <span
-          nz-icon
-          [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
-          (click)="passwordVisible = !passwordVisible"
-        ></span>
-      </ng-template>
-      <div class="login-form-mb-16px">
-        <a [routerLink]="['/change-password']">{{
-          "LOGIN.FORGOT_PASSWORD" | translate
-        }}</a>
-      </div>
-      <button
-        nz-button
-        class="login-form-button login-form-mb-16px"
-        [nzType]="'primary'"
-        type="submit"
-        [disabled]="form.invalid"
-        [nzLoading]="isLoginLoading"
-        nzShape="round"
-      >
-        {{ "COMMON.BUTTONS.LOG_IN" | translate }}
-      </button>
-      <div class="login-form-center">
-        <span>{{ "LOGIN.NO_ACCOUNT" | translate }} </span>
-        <a [routerLink]="['/register']">{{ "LOGIN.REGISTER" | translate }}</a>
-      </div>
-    </form>
-    <!-- <div class="login-link">
-      <a target="_blank" *ngFor="let image of images" [href]="image.link">
-        <img [src]="image.src" [alt]="image.name" />
-      </a>
-    </div> -->
-    <div class="login-support login-form-center">
-      <span>{{ "LOGIN.ALL_QUESTION" | translate }}</span>
-      <div class="login-support-buttons">
-        <a
-          href="https://t.me/FlamingoJouhatsu"
-          target="_blank"
-          nz-button
-          nzType="primary"
-          nzShape="round"
-        >
-          <span>
-            <img src="../../../assets/img/tg.svg" alt="" />
-            Деструктор</span
-          >
-        </a>
-        <a
-          href="https://t.me/JalaPenio"
-          target="_blank"
-          nz-button
-          nzType="primary"
-          nzShape="round"
-        >
-          <span>
-            <img src="../../../assets/img/tg.svg" alt="" />
-            Жевти</span
-          >
-        </a>
-      </div>
-    </div>
-
-    <div class="login-info login-form-center">
-      <span>{{ "LOGIN.INFORMATION" | translate }}</span>
-      <div class="login-info-buttons">
-        <button
-          nz-button
-          nzType="primary"
-          nzDanger=""
-          nzShape="round"
-          [nzLoading]="isGuideLoading"
-          (click)="showGuideModal()"
-        >
-          <span nz-icon nzType="youtube"></span>
-          {{ "COMMON.BUTTONS.VIDEO_GUIDE" | translate }}
-        </button>
-
-        <a
-          *ngIf="isVisible"
-          href="https://t.me/rqtimerbot"
-          target="_blank"
-          nz-button
-          nzType="primary"
-          nzShape="round"
-        >
-          <span>
-            <img src="../../../assets/img/tg.svg" alt="" />
-            {{ "COMMON.BUTTONS.TELEGRAM_BOT" | translate }}</span
-          >
-        </a>
-      </div>
-
-      <nz-modal
-        [(nzVisible)]="isGuideVisible"
-        [nzFooter]="guideFooter"
-        (nzOnCancel)="cancelGuideModal()"
-        nzCentered
-      >
-        <p *nzModalContent class="modal-center">
-          <iframe
-            width="100%"
-            height="315"
-            src="https://www.youtube.com/embed/KhcfLDxCCiw?si=IOuA_WE6WHvQe_LO"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          ></iframe>
-        </p>
-
-        <ng-template #guideFooter>
-          <button nz-button nzType="default" (click)="cancelGuideModal()">
-            {{ "COMMON.BUTTONS.CANCEL" | translate }}
+            {{ "COMMON.BUTTONS.LOG_IN" | translate }}
           </button>
-        </ng-template>
-      </nz-modal>
-    </div>
+          <div class="login-form-center">
+            <span>{{ "LOGIN.NO_ACCOUNT" | translate }} </span>
+            <a [routerLink]="['/register']">{{
+              "LOGIN.REGISTER" | translate
+            }}</a>
+          </div>
+        </form>
+        <!-- <div class="login-link">
+        <a target="_blank" *ngFor="let image of images" [href]="image.link">
+          <img [src]="image.src" [alt]="image.name" />
+        </a>
+      </div> -->
+        <div class="login-support login-form-center">
+          <span>{{ "LOGIN.ALL_QUESTION" | translate }}</span>
+          <div class="login-support-buttons">
+            <a
+              href="https://t.me/FlamingoJouhatsu"
+              target="_blank"
+              nz-button
+              nzType="primary"
+              nzShape="round"
+            >
+              <span>
+                <img src="../../../assets/img/tg.svg" alt="" />
+                Деструктор</span
+              >
+            </a>
+            <a
+              href="https://t.me/JalaPenio"
+              target="_blank"
+              nz-button
+              nzType="primary"
+              nzShape="round"
+            >
+              <span>
+                <img src="../../../assets/img/tg.svg" alt="" />
+                Жевти</span
+              >
+            </a>
+          </div>
+        </div>
+
+        <div class="login-info login-form-center">
+          <span>{{ "LOGIN.INFORMATION" | translate }}</span>
+          <div class="login-info-buttons">
+            <button
+              nz-button
+              nzType="primary"
+              nzDanger=""
+              nzShape="round"
+              [nzLoading]="isGuideLoading"
+              (click)="showGuideModal()"
+            >
+              <span nz-icon nzType="youtube"></span>
+              {{ "COMMON.BUTTONS.VIDEO_GUIDE" | translate }}
+            </button>
+
+            <a
+              *ngIf="isVisible"
+              href="https://t.me/rqtimerbot"
+              target="_blank"
+              nz-button
+              nzType="primary"
+              nzShape="round"
+            >
+              <span>
+                <img src="../../../assets/img/tg.svg" alt="" />
+                {{ "COMMON.BUTTONS.TELEGRAM_BOT" | translate }}</span
+              >
+            </a>
+          </div>
+
+          <nz-modal
+            [(nzVisible)]="isGuideVisible"
+            [nzFooter]="guideFooter"
+            (nzOnCancel)="cancelGuideModal()"
+            nzCentered
+          >
+            <p *nzModalContent class="modal-center">
+              <iframe
+                width="100%"
+                height="315"
+                src="https://www.youtube.com/embed/KhcfLDxCCiw?si=IOuA_WE6WHvQe_LO"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              ></iframe>
+            </p>
+
+            <ng-template #guideFooter>
+              <button nz-button nzType="default" (click)="cancelGuideModal()">
+                {{ "COMMON.BUTTONS.CANCEL" | translate }}
+              </button>
+            </ng-template>
+          </nz-modal>
+        </div>
+      </div>
+    </nz-ribbon>
+
+    <ng-template #statistic>
+      <nz-statistic
+        class="login-users"
+        [nzValue]="usersCount ? (usersCount | number)! : '0,000'"
+        [nzPrefix]="prefixTpl"
+      ></nz-statistic>
+      <ng-template #prefixTpl><span nz-icon nzType="user"></span></ng-template>
+    </ng-template>
   </div>
 </div>

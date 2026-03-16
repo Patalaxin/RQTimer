@@ -37,6 +37,10 @@ export class UserService {
     this.excludedMobsSubject$.next(mobs);
   }
 
+  getUsersCount(): Observable<any> {
+    return this.http.get(`${this.USER_API}stats/count`);
+  }
+
   getUser(): Observable<any> {
     return this.http.get(this.USER_API);
   }

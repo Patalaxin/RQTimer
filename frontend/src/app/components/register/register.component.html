@@ -88,7 +88,7 @@
                     "COMMON.VALIDATIONS.NICKNAME_NO_SPECIAL_CHARS" | translate
                   }}
                 </div>
-                <div
+                <!-- <div
                   *ngIf="
                     !control.errors?.required &&
                     control.errors?.invalidHyphenPosition
@@ -98,14 +98,14 @@
                     "COMMON.VALIDATIONS.NICKNAME_NO_HYPHEN_START_END"
                       | translate
                   }}
-                </div>
-                <div
+                </div> -->
+                <!-- <div
                   *ngIf="
                     !control.errors?.required && control.errors?.tooManyHyphens
                   "
                 >
                   {{ "COMMON.VALIDATIONS.NICKNAME_MAX_ONE_HYPHEN" | translate }}
-                </div>
+                </div> -->
                 <div
                   *ngIf="
                     !control.errors?.required && control.errors?.containsNumbers

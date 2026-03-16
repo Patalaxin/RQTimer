@@ -498,6 +498,37 @@ nz-progress {
   font-weight: 800;
 }
 
+.active-users {
+  .ant-statistic-content {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 0 11px;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 14px;
+  }
+}
+
+.login-users {
+  .ant-statistic-content {
+    color: #fff;
+    font-size: 14px;
+  }
+}
+
+.ant-ribbon {
+  padding: 4px 16px;
+  height: auto;
+}
+
+.ant-ribbon.ant-ribbon-placement-end {
+  box-shadow: -4px 4px 15px 1px rgba(0, 0, 0, 0.5);
+  right: -58px;
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 20px;
+}
+
 @media only screen and (max-width: 450px) {
   .form-container {
     padding: 40px;

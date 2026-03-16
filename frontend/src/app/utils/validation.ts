@@ -54,19 +54,19 @@ export default class Validation {
         'Никнейм может содержать не более 2 заглавных букв.';
     }
 
-    if (value.startsWith('-') || value.endsWith('-')) {
-      errors.invalidHyphenPosition =
-        'Никнейм не должен начинаться или заканчиваться на дефис.';
-    }
+    // if (value.startsWith('-') || value.endsWith('-')) {
+    //   errors.invalidHyphenPosition =
+    //     'Никнейм не должен начинаться или заканчиваться на дефис.';
+    // }
 
     if (/\s/.test(value)) {
       errors.containsSpaces = 'Никнейм не должен содержать пробелы.';
     }
 
-    const hyphenCount = (value.match(/-/g) || []).length;
-    if (hyphenCount > 1) {
-      errors.tooManyHyphens = 'Никнейм может содержать не более одного дефиса.';
-    }
+    // const hyphenCount = (value.match(/-/g) || []).length;
+    // if (hyphenCount > 1) {
+    //   errors.tooManyHyphens = 'Никнейм может содержать не более одного дефиса.';
+    // }
 
     const hasLatin = /[A-Za-z]/.test(value);
     const hasCyrillic = /[А-Яа-я]/.test(value);
@@ -79,7 +79,13 @@ export default class Validation {
       errors.containsNumbers = 'Никнейм не должен содержать цифры.';
     }
 
-    if (/[^A-Za-zА-Яа-я-]/.test(value)) {
+    // Дефис разрешен
+    // if (/[^A-Za-zА-Яа-я-]/.test(value)) {
+    //   errors.containsSpecialCharacters =
+    //     'Никнейм не должен содержать специальные символы.';
+    // }
+
+    if (/[^A-Za-zА-Яа-я]/.test(value)) {
       errors.containsSpecialCharacters =
         'Никнейм не должен содержать специальные символы.';
     }

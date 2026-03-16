@@ -47,6 +47,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly translateService = inject(TranslateService);
   private readonly bindingService = inject(BindingService);
 
+  usersCount: number | null = null;
+
   currentServer: string = 'Helios';
   currentRoute: string = '';
   timerList: TimerItem[] = [];
@@ -85,7 +87,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
   excludedMobs: string[] = [];
 
-  isScreenWidth600: boolean = false;
+  isScreenWidth700: boolean = false;
 
   @HostListener('window:resize', ['$event'])
   onResize(): void {
@@ -102,6 +104,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.checkScreenWidth();
     this.getCurrentUser();
     this.bindingHotkey();
+    this.getUsersCount();
 
     this.timerListSubscription = this.timerService.timerList$.subscribe({
       next: (res) => {
@@ -157,11 +160,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private checkScreenWidth(): void {
-    this.isScreenWidth600 = window.innerWidth <= 600;
+    this.isScreenWidth700 = window.innerWidth <= 700;
     const left = document.querySelector('.header-left');
     const right = document.querySelector('.header-right');
 
-    if (!this.isScreenWidth600) {
+    if (!this.isScreenWidth700) {
       left?.classList.remove('header-d-none');
       right?.classList.remove('header-d-none');
     }
@@ -235,6 +238,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (err.status === 401) {
           this.onLogout();
         }
+      },
+    });
+  }
+
+  private getUsersCount(): void {
+    this.userService.getUsersCount().subscribe({
+      next: (res) => {
+        this.usersCount = res.count;
       },
     });
   }
