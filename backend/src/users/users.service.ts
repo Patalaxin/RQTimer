@@ -274,4 +274,9 @@ export class UsersService implements IUser {
       .lean()
       .exec();
   }
+
+  async getUsersCount(): Promise<{ count: number }> {
+    const count = await this.userModel.countDocuments().exec();
+    return { count };
+  }
 }

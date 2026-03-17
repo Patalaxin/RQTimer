@@ -29,6 +29,8 @@ export class LoginComponent implements OnInit {
   private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
+  usersCount: number | null = null;
+
   form: FormGroup = new FormGroup({
     key: new FormControl('', [Validators.required, Validators.minLength(3)]),
     password: new FormControl('', [Validators.required]),
@@ -63,6 +65,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // this.getServers();
+    this.getUsersCount();
     this.timerService.telegramBotVisibility$.subscribe({
       next: (res) => {
         this.isVisible = res;
@@ -72,6 +75,14 @@ export class LoginComponent implements OnInit {
 
   get formControls(): { [key: string]: AbstractControl } {
     return this.form.controls;
+  }
+
+  private getUsersCount(): void {
+    this.userService.getUsersCount().subscribe({
+      next: (res) => {
+        this.usersCount = res.count;
+      },
+    });
   }
 
   onLogin(): void {

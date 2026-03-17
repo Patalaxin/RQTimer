@@ -50,4 +50,6 @@ export interface IUser {
   deleteAll(): Promise<DeleteAllUsersDtoResponse>;
 
   updateTimezone(email: string, timezone: string): Promise<BotSession>;
+
+  getUsersCount(): Promise<{ count: number }>;
 }

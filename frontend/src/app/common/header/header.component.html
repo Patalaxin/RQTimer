@@ -2,7 +2,7 @@
   <div
     class="header-left"
     [ngClass]="{
-      'header-d-inline': isScreenWidth600,
+      'header-d-inline': isScreenWidth700,
     }"
   >
     <nz-select
@@ -58,8 +58,8 @@
     [nzSuffix]="suffixSearch"
     class="br-50px header-search"
     [ngClass]="{
-      'header-d-none': isScreenWidth600,
-      'header-d-flex': !isScreenWidth600,
+      'header-d-none': isScreenWidth700,
+      'header-d-flex': !isScreenWidth700,
     }"
     *ngIf="currentRoute == '/timer'"
     tourAnchor="search"
@@ -77,15 +77,22 @@
       nz-icon
       (click)="onSearchClose()"
       nzType="close-circle"
-      *ngIf="isScreenWidth600"
+      *ngIf="isScreenWidth700"
     ></span>
   </ng-template>
   <div
     class="header-right"
     [ngClass]="{
-      'header-d-inline': isScreenWidth600,
+      'header-d-inline': isScreenWidth700,
     }"
   >
+    <nz-statistic
+      class="active-users"
+      *ngIf="usersCount"
+      [nzValue]="usersCount ? (usersCount | number)! : '0,000'"
+      [nzPrefix]="prefixTpl"
+    ></nz-statistic>
+    <ng-template #prefixTpl><span nz-icon nzType="user"></span></ng-template>
     <app-language-switcher></app-language-switcher>
     <button
       nz-button

@@ -176,4 +176,12 @@ export class UsersController {
   ): Promise<BotSession> {
     return this.userInterface.updateTimezone(email, timezone);
   }
+
+  @Roles()
+  @ApiOperation({ summary: 'Get Users Count' })
+  @ApiOkResponse({ description: 'Success', schema: { example: { count: 42 } } })
+  @Get('/stats/count')
+  getUsersCount(): Promise<{ count: number }> {
+    return this.userInterface.getUsersCount();
+  }
 }

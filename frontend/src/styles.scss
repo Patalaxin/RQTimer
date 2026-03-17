@@ -248,7 +248,7 @@ nz-segmented .ng-animating {
 
 .background {
   position: fixed;
-  background-image: url("/assets/img/mart.avif");
+  background-image: url("/assets/img/mart2.avif");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -496,6 +496,37 @@ nz-progress {
 .ant-statistic-content-value {
   font-family: "Manrope", sans-serif;
   font-weight: 800;
+}
+
+.active-users {
+  .ant-statistic-content {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 0 11px;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 14px;
+  }
+}
+
+.login-users {
+  .ant-statistic-content {
+    color: #fff;
+    font-size: 14px;
+  }
+}
+
+.ant-ribbon {
+  padding: 4px 16px;
+  height: auto;
+}
+
+.ant-ribbon.ant-ribbon-placement-end {
+  box-shadow: -4px 4px 15px 1px rgba(0, 0, 0, 0.5);
+  right: -58px;
+  border-bottom-left-radius: 20px;
+  border-top-left-radius: 20px;
 }
 
 @media only screen and (max-width: 450px) {

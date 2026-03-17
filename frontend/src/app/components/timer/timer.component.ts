@@ -1470,6 +1470,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onExchangeRefresh(event: any): void {
     this.exchangeRefresh(() => {
+      this.isInitialized = false;
       this.getCurrentUser();
     });
   }
@@ -1537,6 +1538,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: () => {
         this.exchangeRefresh(() => {
           this.isCreateGroupLoading = false;
+          this.isInitialized = false;
           this.getCurrentUser();
         });
       },
@@ -1552,6 +1554,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: () => {
         this.exchangeRefresh(() => {
           this.isJoinGroupLoading = false;
+          this.isInitialized = false;
           this.getCurrentUser();
         });
       },
