@@ -9,6 +9,10 @@ body[data-tui-theme] {
   background: #1d273b !important;
 }
 
+body.electron[data-tui-theme] {
+  background: transparent !important;
+}
+
 .ant-segmented-item-label {
   color: #fff;
   font-weight: 700;
@@ -246,15 +250,30 @@ nz-segmented .ng-animating {
 }
 // !border-radius end
 
+.drag-area {
+  -webkit-app-region: drag;
+}
+
+button,
+nz-select,
+span.close-search,
+nz-dropdown-menu {
+  -webkit-app-region: no-drag;
+}
+
 .background {
   position: fixed;
-  background-image: url("/assets/img/mart2.avif");
+  background-image: url("assets/img/mart2.avif");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   width: 100vw;
   height: 100vh;
   z-index: 0;
+}
+
+body.electron .background {
+  background: transparent !important;
 }
 
 .box-shadow {

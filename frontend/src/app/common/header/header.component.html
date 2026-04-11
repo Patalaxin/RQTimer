@@ -1,4 +1,4 @@
-<div class="header" *ngIf="isLoggedIn()" tourAnchor="header">
+<div class="drag-area header" *ngIf="isLoggedIn()" tourAnchor="header">
   <div
     class="header-left"
     [ngClass]="{
@@ -74,6 +74,7 @@
   </nz-input-group>
   <ng-template #suffixSearch>
     <span
+      class="close-search"
       nz-icon
       (click)="onSearchClose()"
       nzType="close-circle"

@@ -1,13 +1,38 @@
 {
   "name": "rq-timer-fe",
   "version": "0.0.0",
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.rqtimer.app",
+    "productName": "RQTimer",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "src/assets/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/assets/img/icon.icns"
+    },
+    "win": {
+      "target": "portable"
+    }
+  },
   "scripts": {
     "ng": "ng",
     "start:dev": "ng serve",
     "start:prod": "ng serve --configuration=production",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "electron": "electron .",
+    "electron:build": "npm run build && electron-builder",
+    "electron:win": "npm run build && electron-builder --win",
+    "electron:mac": "npm run build && electron-builder --mac"
   },
   "private": true,
   "dependencies": {
@@ -49,6 +74,8 @@
     "@angular/compiler-cli": "^16.2.0",
     "@types/dompurify": "3.0.5",
     "@types/jasmine": "~4.3.0",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
