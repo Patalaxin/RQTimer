@@ -65,6 +65,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   timerList: TimerItem[] = [];
   availableMobList: any = [];
   filteredMobList: any = [];
+  addedMobList: any = [];
   duplicatedMobList: any = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
@@ -472,11 +473,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         } else {
           console.log('Web Workers не поддерживаются');
         }
-
-        // this.intervalId = setInterval(() => {
-        //   this.currentProgressTime += 1000;
-        //   this.timerList.forEach((item) => this.checkAndNotify(item, 1));
-        // }, 1000);
       },
     });
   }
@@ -702,7 +698,9 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.availableMobList = res
           .map((mob: any) => ({
             ...mob,
-            isExcluded: this.excludedMobs.includes(mob._id),
+            isExcluded:
+              this.addedMobList.includes(mob._id) &&
+              this.excludedMobs.includes(mob._id),
           }))
           .filter(
             (availableItem: any) =>
@@ -1340,6 +1338,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.currentServer = this.storageService.getLocalStorage('server');
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
+        this.addedMobList = res.map((item: any) => item.mob._id);
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
         const currentExcludedMobs = this.userService.currentExcludedMobs;
