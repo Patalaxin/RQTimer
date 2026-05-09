@@ -297,6 +297,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateCurrentServer() {
     this.timerSearchValue = '';
+    this.timerSearch(this.timerSearchValue);
     this.historyService.isLoading = true;
     this.timerService.isLoading = true;
     this.storageService.setCurrentServer(this.currentServer);
@@ -307,7 +308,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
-        this.sortTimerList([...res]);
+        const currentExcludedMobs = this.userService.currentExcludedMobs;
+        const filteredRes = res.filter(
+          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+        );
+        this.sortTimerList([...filteredRes]);
 
         this.timerService.timerList = this.timerList;
         this.timerService.filteredTimerList = this.timerList;
@@ -323,7 +328,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         this.groupNameSubscription = this.timerService.groupName$.subscribe({
           next: (res) => {
-            console.log(res);
             if (res) {
               this.updateHistory();
             }
