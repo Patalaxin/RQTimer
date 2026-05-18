@@ -30,7 +30,7 @@ import { NotificationModule } from '../notification/notification.module';
       imports: [ConfigModule],
       useFactory: async () => {
         return {
-          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@91.225.219.94:27017/admin`,
+          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@localhost:27017/admin`,
         };
       },
     }),
