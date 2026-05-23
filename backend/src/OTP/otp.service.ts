@@ -1,4 +1,4 @@
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { BadRequestException } from '@nestjs/common';
 import * as process from 'process';
 import { otp_template } from './otp-template';
@@ -13,7 +13,7 @@ export const otpStore: Record<string, OtpRecord> = {};
 export const verifiedUsers: Set<string> = new Set();
 
 export class OtpService implements IOtp {
-  constructor() {}
+  private readonly resend = new Resend(process.env.RESEND_API_KEY);
 
   generateOtp(): string {
     return Math.floor(10000 + Math.random() * 90000).toString();
@@ -55,26 +55,19 @@ export class OtpService implements IOtp {
     }
 
     const otp: string = this.generateOtp();
-    await this.storeOtp(email, otp);
-
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.OTP_USER,
-        pass: process.env.OTP_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: `RQTimer ${process.env.OTP_USER}`,
-      to: email,
-      subject: 'Код подтверждения',
-      html: otp_template(otp),
-    };
 
     try {
-      await transporter.sendMail(mailOptions);
+      const result = await this.resend.emails.send({
+        from: process.env.OTP_FROM,
+        to: email,
+        subject: 'Код подтверждения',
+        html: otp_template(otp),
+      });
+      console.log('Resend! result:', result);
+      await this.storeOtp(email, otp);
     } catch (error) {
+      console.error('Resend error:', error);
+
       throw new BadRequestException('Error sending OTP to email');
     }
   }

@@ -66,7 +66,10 @@ jobs:
             echo "OTP_PASS=${{ secrets.OTP_PASS }}" >> .env
             echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
             echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env 
+            echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env
+            echo "OTP_FROM=${{ secrets.OTP_FROM }}" >> .env
+            echo "IP_DB=${{ secrets.IP_DB }}" >> .env
 
             npm ci
             npm run build
