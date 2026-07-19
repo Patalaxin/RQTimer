@@ -1,4 +1,13 @@
 export const mobTranslations = {
+  '6a5d0bda682ea4717f616c1a': {
+    en: {
+      mobName: 'Zibo ±1 h',
+      shortName: "Zibo ±1 h'",
+      respawnText: 'Zibo may have respawned somewhere in one of the locations.',
+      location: 'North Kabuk',
+      mobType: 'Boss',
+    },
+  },
   '673148021e738aba75ba3402': {
     en: {
       mobName: 'Archon',
