@@ -139,6 +139,14 @@ export const bossesArray = [
     image: 'ghost.avif',
     respawnText: 'Нечистый мятежник снова пробудился в Мёртвом городе!',
   },
+  {
+    mobName: 'Зибо ±1 ч',
+    shortName: 'Зибо',
+    mobType: 'Босс',
+    image: 'zibo.avif',
+    respawnText:
+      'Зибо, возможно, реснулся где-то в Северный кабук, Пустошь ветров, Алатика, Хабул, Морозная длань',
+  },
 ];
 
 export const elitesArray = [
