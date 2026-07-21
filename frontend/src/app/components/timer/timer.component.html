@@ -181,7 +181,9 @@
                     ? 'red'
                     : pvpMobList.includes(item.mobData.mobId)
                       ? 'blue'
-                      : 'green'
+                      : randomTimeMobList.includes(item.mobData.mobId)
+                        ? 'violet'
+                        : 'green'
                 : 'white'
             "
             (click)="onClickTimerItem(item)"

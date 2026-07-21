@@ -91,6 +91,9 @@ export class TimerComponent implements OnInit, OnDestroy {
     '673a4636925dabf6e082f03f',
     '67314b311e738aba75ba3475',
   ];
+
+  randomTimeMobList: any = ['6a5d0bda682ea4717f616c1a'];
+
   addMobList: any = [];
   historyList: any = [];
   historyListData: any = [];
