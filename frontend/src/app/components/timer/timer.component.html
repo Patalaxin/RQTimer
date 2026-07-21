@@ -199,17 +199,24 @@
               >
               </nz-list-item-meta>
               <nz-list-item-meta-title>
-                <nz-countdown
-                  *ngIf="item.mobData.respawnTime"
-                  [nzValue]="item.mobData.respawnTime"
-                  [nzFormat]="'HH:mm:ss'"
-                  [nzValueStyle]="
-                    item.mobData.respawnTime - this.currentProgressTime <=
-                    300000
-                      ? { color: '#ff4d4f' }
-                      : {}
-                  "
-                ></nz-countdown>
+                <div class="timer-countdown" *ngIf="item.mobData.respawnTime">
+                  <p
+                    class="timer-countdown-text"
+                    *ngIf="randomTimeMobList.includes(item.mobData.mobId)"
+                  >
+                    ±1 {{ "TIMER.HOUR" | translate }}
+                  </p>
+                  <nz-countdown
+                    [nzValue]="item.mobData.respawnTime"
+                    [nzFormat]="'HH:mm:ss'"
+                    [nzValueStyle]="
+                      item.mobData.respawnTime - this.currentProgressTime <=
+                      300000
+                        ? { color: '#ff4d4f' }
+                        : {}
+                    "
+                  ></nz-countdown>
+                </div>
                 <nz-countdown
                   *ngIf="!item.mobData.respawnTime"
                   [nzValue]="undefined"

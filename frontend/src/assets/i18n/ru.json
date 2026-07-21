@@ -222,6 +222,7 @@
     "SETTINGS": "Настройки",
     "REWRITE_MANUALLY": "Переписать",
     "REWRITE_MANUALLY_TOOLTIP": "Переписать вручную",
+    "HOUR": "час",
     "REWRITE_NOW": "Упал сейчас",
     "REWRITE_NOW_TOOLTIP": "Переписать по (текущему времени - 10 сек)",
     "REWRITE_HISTORY": "История переписи {{mobName}}",

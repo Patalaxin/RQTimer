@@ -147,6 +147,24 @@
       }
     }
 
+    .timer-countdown {
+      position: relative;
+
+      .timer-countdown-text {
+        padding: 0 6px;
+        color: white;
+        border-radius: 50px;
+        background-color: #8D66C2;
+        width: fit-content;
+        font-size: 8px;
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: bold;
+      }
+    }
+
     .timer-right {
       .timer-action-menu-mob {
         display: none;
@@ -245,6 +263,12 @@
     .timer-d-flex-space-between {
       padding: 5px;
       border-radius: 50px;
+
+      .timer-countdown {
+        .timer-countdown-text {
+          top: -4px;
+        }
+      }
     }
   }
 }

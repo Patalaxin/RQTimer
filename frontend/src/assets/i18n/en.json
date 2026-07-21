@@ -225,6 +225,7 @@
     "SETTINGS": "Settings",
     "REWRITE_MANUALLY": "Rewrite",
     "REWRITE_MANUALLY_TOOLTIP": "Rewrite manually",
+    "HOUR": "hour",
     "REWRITE_NOW": "Died now",
     "REWRITE_NOW_TOOLTIP": "Rewrite using (current time - 10 sec)",
     "REWRITE_HISTORY": "Rewrite history of {{mobName}}",
