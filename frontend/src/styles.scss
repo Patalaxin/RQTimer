@@ -15,11 +15,9 @@ body[data-tui-theme] {
 }
 
 .ant-slider-rail {
-  background-image: linear-gradient(
-      to right,
+  background-image: linear-gradient(to right,
       rgba(0, 0, 0, 0.25),
-      rgba(0, 0, 0, 0.25)
-    ),
+      rgba(0, 0, 0, 0.25)),
     linear-gradient(to right, #fff, #fff);
 }
 
@@ -53,7 +51,7 @@ nz-segmented .ng-animating,
 //   color: hsl(220, 32%, 25%);
 // }
 
-.ant-table-tbody > tr.ant-table-row:hover > td {
+.ant-table-tbody>tr.ant-table-row:hover>td {
   background-color: #32569e;
 }
 
@@ -62,6 +60,7 @@ nz-segmented .ng-animating,
 }
 
 .ant-modal-body {
+
   textarea::placeholder,
   input::placeholder,
   nz-select-placeholder {
@@ -125,6 +124,7 @@ tui-dropdown {
 }
 
 .header {
+
   .green,
   .red {
     svg {
@@ -212,7 +212,7 @@ tui-dropdown {
 }
 
 // !border-radius start
-.ant-input-group > .ant-input:first-child,
+.ant-input-group>.ant-input:first-child,
 .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination-next .ant-pagination-item-link,
 .ant-pagination-item,
@@ -229,7 +229,8 @@ nz-segmented .ng-animating {
 }
 
 .nz-tabs-dropdown.ant-dropdown .ant-dropdown-menu,
-.ant-notification-notice {
+.ant-notification-notice,
+.ant-message-notice-content {
   border-radius: 15px;
 }
 
@@ -244,6 +245,7 @@ nz-segmented .ng-animating {
 .ant-input-number-handler-down {
   border-bottom-right-radius: 50px;
 }
+
 // !border-radius end
 
 .background {
@@ -386,7 +388,7 @@ h4.ant-list-item-meta-title {
   }
 }
 
-span.ant-radio + * {
+span.ant-radio+* {
   margin-top: 20px;
   width: 100%;
 }
@@ -430,6 +432,7 @@ nz-progress {
 
     button {
       width: 90px;
+
       .admin-search-button {
         margin-right: 8px;
       }
@@ -437,8 +440,8 @@ nz-progress {
   }
 }
 
-.ant-tabs > .ant-tabs-nav .ant-tabs-nav-more,
-.ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-more {
+.ant-tabs>.ant-tabs-nav .ant-tabs-nav-more,
+.ant-tabs>div>.ant-tabs-nav .ant-tabs-nav-more {
   display: none;
 }
 
@@ -466,7 +469,7 @@ nz-progress {
 }
 
 @media only screen and (max-width: 800px) {
-  .ant-tabs-left > .ant-tabs-nav .ant-tabs-tab {
+  .ant-tabs-left>.ant-tabs-nav .ant-tabs-tab {
     padding: 8px 8px 8px 12px;
   }
 }
