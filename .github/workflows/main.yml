@@ -83,6 +83,7 @@ jobs:
 
             sudo tar -xzf /root/frontend.tar.gz -C /var/www/rqtimer_new
 
+            sudo rm -rf /var/www/rqtimer_backup
             sudo mv /var/www/rqtimer /var/www/rqtimer_backup || true
             sudo mv /var/www/rqtimer_new /var/www/rqtimer
 
