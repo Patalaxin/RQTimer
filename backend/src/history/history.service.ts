@@ -1,51 +1,136 @@
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import {
-  HeliosHistory,
-  HeliosHistoryDocument,
-} from '../schemas/heliosHistory.schema';
-import { Servers } from '../schemas/mobs.enum';
+  History as PrismaHistory,
+  HistoryType,
+  Prisma,
+  Role,
+  Server,
+} from '@prisma/client';
+import { Locations, MobName, Servers } from '../schemas/mobs.enum';
+import { RolesTypes } from '../schemas/user.schema';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';
 import { History, HistoryTypes } from './history-types.interface';
-import {
-  FenixHistory,
-  FenixHistoryDocument,
-} from '../schemas/fenixHistory.schema';
-
-import { Mob, MobDocument } from '../schemas/mob.schema';
 import { translateMob } from '../utils/translate-mob';
+import { PrismaService } from '../prisma/prisma.service';
+import { CleanupRegistryService } from '../cleanup/cleanup-registry.service';
+
+const HISTORY_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
 @Injectable()
-export class HistoryService implements IHistory {
-  private readonly historyModels: any;
-
+export class HistoryService implements IHistory, OnModuleInit {
   constructor(
-    @InjectModel(HeliosHistory.name)
-    private readonly heliosHistoryModel: Model<HeliosHistoryDocument>,
-    @InjectModel(FenixHistory.name)
-    private readonly fenixHistoryModel: Model<FenixHistoryDocument>,
-    @InjectModel(Mob.name)
-    private readonly mobModel: Model<MobDocument>, // добавляем модель мобов
-  ) {
-    this.historyModels = [
-      { server: 'Helios', model: this.heliosHistoryModel },
-      { server: 'Fenix', model: this.fenixHistoryModel },
-    ];
+    private readonly prisma: PrismaService,
+    private readonly cleanupRegistry: CleanupRegistryService,
+  ) {}
+
+  onModuleInit(): void {
+    this.cleanupRegistry.register('history', async () => {
+      const { count } = await this.prisma.history.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
+      });
+      return count;
+    });
+  }
+
+  private toHistory(row: PrismaHistory): History {
+    return {
+      mobId: row.mobId ?? undefined,
+      mobName: row.mobName as MobName,
+      nickname: row.nickname,
+      server: row.server as unknown as Servers,
+      groupName: row.groupName ?? undefined,
+      location: (row.location as Locations) ?? undefined,
+      date: row.date,
+      role: row.role as unknown as RolesTypes,
+      historyTypes: row.historyTypes as unknown as HistoryTypes,
+      toWillResurrect: row.toWillResurrect ?? undefined,
+      fromCooldown: row.fromCooldown ?? undefined,
+      toCooldown: row.toCooldown ?? undefined,
+      crashServer: row.crashServer,
+    };
   }
 
   async createHistory(history: History): Promise<History> {
-    const historyModel = this.historyModels.find(
-      (obj) => obj.server === history.server,
-    ).model;
+    const row = await this.prisma.history.create({
+      data: {
+        mobId: history.mobId ?? null,
+        mobName: history.mobName,
+        location: history.location ?? null,
+        nickname: history.nickname,
+        role: history.role as unknown as Role,
+        server: history.server as unknown as Server,
+        groupName: history.groupName ?? null,
+        historyTypes: history.historyTypes as unknown as HistoryType,
+        date: history.date,
+        toWillResurrect: history.toWillResurrect ?? null,
+        fromCooldown: history.fromCooldown ?? null,
+        toCooldown: history.toCooldown ?? null,
+        crashServer: history.crashServer ?? false,
+        expiresAt: new Date(Date.now() + HISTORY_TTL_MS),
+      },
+    });
 
-    return historyModel.create(history);
+    return this.toHistory(row);
+  }
+
+  /**
+   * Подменяет название моба и локацию на переведённые. Записи журнала хранят
+   * русские значения на момент действия, перевод накладывается на выдаче.
+   */
+  private async translateRows(
+    rows: PrismaHistory[],
+    lang?: string,
+  ): Promise<PaginatedHistoryDto['data']> {
+    const mobIds = [...new Set(rows.map((row) => row.mobId).filter(Boolean))];
+
+    const mobs = mobIds.length
+      ? await this.prisma.mob.findMany({ where: { id: { in: mobIds } } })
+      : [];
+
+    const translatedByMobId = new Map(
+      mobs.map((mob) => {
+        const translated = translateMob({ ...mob, _id: mob.id }, lang);
+        return [
+          mob.id,
+          { mobName: translated.mobName, location: translated.location },
+        ];
+      }),
+    );
+
+    return rows.map((row) => {
+      const translated = translatedByMobId.get(row.mobId);
+      return {
+        ...this.toHistory(row),
+        mobName: (translated?.mobName ?? row.mobName) as MobName,
+        location: (translated?.location ?? row.location) as Locations,
+      };
+    });
+  }
+
+  private async paginate(
+    where: Prisma.HistoryWhereInput,
+    page: number,
+    limit: number,
+    lang?: string,
+  ): Promise<PaginatedHistoryDto> {
+    const [total, rows] = await Promise.all([
+      this.prisma.history.count({ where }),
+      this.prisma.history.findMany({
+        where,
+        orderBy: { date: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
+
+    return {
+      data: await this.translateRows(rows, lang),
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    };
   }
 
   async getAllHistory(
@@ -56,66 +141,22 @@ export class HistoryService implements IHistory {
     lang?: string,
     historyType?: HistoryTypes,
   ): Promise<PaginatedHistoryDto> {
-    try {
-      if (!groupName) {
-        throw new NotFoundException('History not found');
-      }
-
-      const historyModel = this.historyModels.find(
-        (obj) => obj.server === server,
-      ).model;
-
-      const query: any = { groupName };
-
-      if (historyType) {
-        query.historyTypes = historyType;
-      }
-
-      const total = await historyModel.countDocuments(query).exec();
-      const pages = Math.ceil(total / limit);
-
-      const data = await historyModel
-        .find(query, { __v: 0 })
-        .sort({ date: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean()
-        .exec();
-
-      const uniqueMobIds = [...new Set(data.map((item) => item.mobId))];
-
-      const mobs = await this.mobModel
-        .find({ _id: { $in: uniqueMobIds } })
-        .lean()
-        .exec();
-
-      const mobsMap = mobs.reduce((acc, mob) => {
-        const translated = translateMob(mob, lang);
-        acc[mob._id.toString()] = {
-          mobName: translated.mobName,
-          location: translated.location,
-        };
-        return acc;
-      }, {});
-
-      const dataWithTranslatedFields = data.map((item) => {
-        const translated = mobsMap[item.mobId] || {};
-        return {
-          ...item,
-          mobName: translated.mobName ?? item.mobName,
-          location: translated.location ?? item.location,
-        };
-      });
-
-      return {
-        data: dataWithTranslatedFields,
-        total,
-        page,
-        pages,
-      };
-    } catch {
-      throw new NotFoundException('History not found!');
+    if (!groupName) {
+      throw new NotFoundException('History not found');
     }
+
+    return this.paginate(
+      {
+        server: server as unknown as Server,
+        groupName,
+        ...(historyType
+          ? { historyTypes: historyType as unknown as HistoryType }
+          : {}),
+      },
+      page,
+      limit,
+      lang,
+    );
   }
 
   async getMobHistory(
@@ -126,63 +167,26 @@ export class HistoryService implements IHistory {
     limit: number = 10,
     lang?: string,
   ): Promise<PaginatedHistoryDto> {
-    try {
-      if (!groupName || !mobId) {
-        throw new NotFoundException('History not found');
-      }
-
-      const historyModel = this.historyModels.find(
-        (obj) => obj.server === server,
-      ).model;
-
-      const query: any = { groupName, mobId };
-
-      const total = await historyModel.countDocuments(query).exec();
-      const pages = Math.ceil(total / limit);
-
-      const data = await historyModel
-        .find(query, { __v: 0 })
-        .sort({ date: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean()
-        .exec();
-
-      const mob = await this.mobModel.findOne({ _id: mobId }).lean().exec();
-
-      const translated = mob ? translateMob(mob, lang) : {};
-
-      const dataWithTranslatedFields = data.map((item) => ({
-        ...item,
-        mobName: translated.mobName ?? item.mobName,
-        location: translated.location ?? item.location,
-      }));
-
-      return {
-        data: dataWithTranslatedFields,
-        total,
-        page,
-        pages,
-      };
-    } catch {
-      throw new NotFoundException('History not found!');
+    if (!groupName || !mobId) {
+      throw new NotFoundException('History not found');
     }
+
+    return this.paginate(
+      { server: server as unknown as Server, groupName, mobId },
+      page,
+      limit,
+      lang,
+    );
   }
 
   async deleteAll(
     server: Servers,
     groupName: string,
   ): Promise<DeleteAllHistoryDtoResponse> {
-    try {
-      const historyModel = this.historyModels.find(
-        (obj) => obj.server === server,
-      ).model;
-      await historyModel.deleteMany({
-        groupName: groupName,
-      });
-    } catch {
-      throw new BadRequestException('Something went wrong ');
-    }
+    await this.prisma.history.deleteMany({
+      where: { server: server as unknown as Server, groupName },
+    });
+
     return { message: 'All history deleted', status: 200 };
   }
 }

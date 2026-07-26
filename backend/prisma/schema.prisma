@@ -130,6 +130,51 @@ model Group {
   @@map("groups")
 }
 
+enum HistoryType {
+  updateMobByCooldown
+  updateMobDateOfDeath
+  updateMobDateOfRespawn
+  crashMobServer
+  respawnLost
+}
+
+/// Журнал действий по мобам. В Mongo под это было две коллекции —
+/// heliosHistory и fenixHistory, отличавшиеся только именем; здесь это одна
+/// таблица с колонкой server.
+model History {
+  id String @id @default(uuid())
+
+  // Ссылка на справочник намеренно без внешнего ключа: журнал переживает
+  // удаление моба, а у записи о краше сервера моба нет вовсе.
+  mobId    String?
+  mobName  String
+  location String?
+
+  nickname     String
+  role         Role
+  server       Server
+  groupName    String?
+  historyTypes HistoryType
+
+  // Unix-время в миллисекундах — как и в mobs_data, это double, а не int.
+  date            Float
+  toWillResurrect Float?
+
+  // Счётчики кулдауна, а не время.
+  fromCooldown Int?
+  toCooldown   Int?
+
+  crashServer Boolean @default(false)
+
+  // Замена Mongo TTL-индексу на 3 дня, чистится CleanupRegistryService.
+  expiresAt DateTime
+
+  @@index([server, groupName, date])
+  @@index([server, groupName, mobId, date])
+  @@index([expiresAt])
+  @@map("history")
+}
+
 model Notification {
   id String @id @default(uuid())
   // {"ru": "...", "en": "..."} — набор языков задаёт LanguageEnum, так что
