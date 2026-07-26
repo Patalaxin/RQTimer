@@ -5,7 +5,6 @@ import {
   Delete,
   Get,
   Header,
-  Inject,
   Param,
   Post,
   Put,
@@ -36,51 +35,49 @@ import {
 } from './dto/forgot-user-pass.dto';
 import { RolesGuard } from '../guards/roles.guard';
 import { TokensGuard } from '../guards/tokens.guard';
-import { GetEmailFromToken } from '../decorators/getEmail.decorator';
+import { GetUser } from '../decorators/get-user.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
-import { IUser } from './user.interface';
 import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { BotSession } from '../schemas/telegram-bot.schema';
+import { UsersService } from './users.service';
 
 @ApiTags('Users API')
-@UseGuards(RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(@Inject('IUser') private readonly userInterface: IUser) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @Roles()
   @ApiOperation({ summary: 'Create User' })
   @Post()
-  async create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
-    return new User(await this.userInterface.createUser(createUserDto));
+  create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
+    return this.usersService.createUser(createUserDto);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User' })
   @Get()
-  async getOne(@GetEmailFromToken() email: string): Promise<User> {
-    return new User(await this.userInterface.findUser(email));
+  getOne(@GetUser('email') email: string): Promise<User> {
+    return this.usersService.findUser(email);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a Specific User By Email or Nickname' })
   @Get('specific-user/:identifier')
-  async getUserByEmailOrNickname(
+  getUserByEmailOrNickname(
     @Param('identifier') identifier: string,
   ): Promise<User> {
-    return new User(await this.userInterface.findUser(identifier));
+    return this.usersService.findUser(identifier);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
@@ -90,47 +87,44 @@ export class UsersController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ): Promise<PaginatedUsersDto> {
-    return this.userInterface.findAll(page, limit);
+    return this.usersService.findAll(page, limit);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change User Password' })
   @ApiOkResponse({ description: 'Success', type: ChangeUserPassDtoResponse })
   @Put('/change-password')
   changePassword(
-    @GetEmailFromToken() email: string,
+    @GetUser('email') email: string,
     @Body() updateUserPassDto: ChangeUserPassDtoRequest,
   ): Promise<ChangeUserPassDtoResponse> {
-    return this.userInterface.changePassword(email, updateUserPassDto);
+    return this.usersService.changePassword(email, updateUserPassDto);
   }
 
-  @Roles()
   @ApiOperation({ summary: 'Forgot User Password' })
   @ApiOkResponse({ description: 'Success', type: ForgotUserPassDtoResponse })
   @Put('/forgot-password')
   forgotPassword(
     @Body() forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
-    return this.userInterface.forgotPassword(forgotUserPassDto);
+    return this.usersService.forgotPassword(forgotUserPassDto);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Excluded Mobs' })
   @Put('/excluded')
-  async updateExcluded(
-    @GetEmailFromToken() email: string,
+  updateExcluded(
+    @GetUser('email') email: string,
     @Body() updateExcludedDto: UpdateExcludedDto,
   ): Promise<User> {
-    return new User(
-      await this.userInterface.updateExcluded(email, updateExcludedDto),
-    );
+    return this.usersService.updateExcluded(email, updateExcludedDto);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update The User Role' })
@@ -139,10 +133,10 @@ export class UsersController {
   updateRole(
     @Body() updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
-    return this.userInterface.updateRole(updateUserRoleDto);
+    return this.usersService.updateRole(updateUserRoleDto);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete User By Email or Nickname' })
@@ -151,37 +145,36 @@ export class UsersController {
   deleteOne(
     @Param('identifier') identifier: string,
   ): Promise<DeleteUserDtoResponse> {
-    return this.userInterface.deleteOne(identifier);
+    return this.usersService.deleteOne(identifier);
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete All Users' })
   @ApiOkResponse({ description: 'Success', type: DeleteAllUsersDtoResponse })
   @Delete()
   deleteAll(): Promise<DeleteAllUsersDtoResponse> {
-    return this.userInterface.deleteAll();
+    return this.usersService.deleteAll();
   }
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update Timezone for Bot Session' })
   @ApiOkResponse({ description: 'Success', type: BotSession })
   @Put('/timezone')
   updateTimezone(
-    @GetEmailFromToken() email: string,
+    @GetUser('email') email: string,
     @Body('timezone') timezone: string,
   ): Promise<BotSession> {
-    return this.userInterface.updateTimezone(email, timezone);
+    return this.usersService.updateTimezone(email, timezone);
   }
 
-  @Roles()
   @ApiOperation({ summary: 'Get Users Count' })
   @ApiOkResponse({ description: 'Success', schema: { example: { count: 42 } } })
   @Get('/stats/count')
   getUsersCount(): Promise<{ count: number }> {
-    return this.userInterface.getUsersCount();
+    return this.usersService.getUsersCount();
   }
 }

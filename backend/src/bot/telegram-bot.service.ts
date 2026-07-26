@@ -3,13 +3,13 @@ import { Context, Markup, Telegraf } from 'telegraf';
 import { InjectModel } from '@nestjs/mongoose';
 import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { MobService } from '../mob/mob.service';
 import { HelperClass } from '../helper-class';
 import { MESSAGES } from './messages';
 import { GetFullMobWithUnixDtoResponse } from '../mob/dto/get-mob.dto';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Update()
 export class TelegramBotService {
@@ -19,7 +19,7 @@ export class TelegramBotService {
     @InjectBot() private readonly bot: Telegraf<Context>,
     @InjectModel(BotSession.name)
     private readonly sessionModel: Model<BotSessionDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly prisma: PrismaService,
     private readonly mobService: MobService,
   ) {}
 
@@ -133,13 +133,18 @@ export class TelegramBotService {
       return;
     }
 
-    const user: User = await this.userModel.findOne({
-      email: new RegExp(`^${email}$`, 'i'),
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
     });
 
-    const isValidUser: Promise<boolean> = bcrypt.compare(
+    if (!user) {
+      await ctx.reply(MESSAGES.AUTH_ERROR);
+      return;
+    }
+
+    const isValidUser: boolean = await bcrypt.compare(
       password,
-      user.password,
+      user.passwordHash,
     );
 
     if (!isValidUser) {
@@ -219,8 +224,8 @@ export class TelegramBotService {
     await Promise.allSettled(
       sessions.map(async (session: BotSession) => {
         try {
-          const user = await this.userModel.findOne({
-            email: new RegExp(`^${session.email}$`, 'i'),
+          const user = await this.prisma.user.findFirst({
+            where: { email: { equals: session.email, mode: 'insensitive' } },
           });
 
           if (!user) {

@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from '../users/users.module';
@@ -14,11 +15,17 @@ import * as process from 'process';
 import { TelegramBotModule } from '../bot/telegram-bot.module';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { NotificationModule } from '../notification/notification.module';
+import { validate } from '../config/env.validation';
+import { AllExceptionsFilter } from '../filters/all-exceptions.filter';
+import { CleanupModule } from '../cleanup/cleanup.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate }),
+    PrismaModule,
+    CleanupModule,
     AuthModule,
     UsersModule,
     MobModule,
@@ -38,7 +45,6 @@ import { NotificationModule } from '../notification/notification.module';
       rootPath: join(__dirname, '..', '..', 'client'),
       serveRoot: '/static',
     }),
-    ScheduleModule.forRoot(),
     TelegrafModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
@@ -48,6 +54,6 @@ import { NotificationModule } from '../notification/notification.module';
     TelegramBotModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
 export class AppModule {}

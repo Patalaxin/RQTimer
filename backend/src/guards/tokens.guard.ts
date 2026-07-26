@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { HelperClass } from '../helper-class';
+import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 
 @Injectable()
 export class TokensGuard implements CanActivate {
@@ -18,9 +19,10 @@ export class TokensGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      request['user'] = await this.jwtService.verifyAsync(token, {
-        secret: process.env.SECRET_CONSTANT,
-      });
+      request['user'] = await this.jwtService.verifyAsync<AuthenticatedUser>(
+        token,
+        { secret: process.env.SECRET_CONSTANT },
+      );
     } catch {
       throw new UnauthorizedException();
     }

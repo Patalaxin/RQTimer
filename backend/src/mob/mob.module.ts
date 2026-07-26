@@ -9,7 +9,6 @@ import { MobsData, MobsDataSchema } from '../schemas/mobsData.schema';
 import { MobGateway } from './mob.gateway';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
-import { User, UserSchema } from '../schemas/user.schema';
 import { RolesGuard } from '../guards/roles.guard';
 import { AuthModule } from '../auth/auth.module';
 import { TelegramBotModule } from '../bot/telegram-bot.module';
@@ -24,7 +23,6 @@ import { TelegramBotModule } from '../bot/telegram-bot.module';
     MongooseModule.forFeature([
       { name: Mob.name, schema: MobSchema },
       { name: MobsData.name, schema: MobsDataSchema },
-      { name: User.name, schema: UserSchema },
     ]),
     TelegramBotModule,
   ],

@@ -9,7 +9,6 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Group, GroupDocument } from '../schemas/group.schema';
-import { User, UserDocument } from '../schemas/user.schema';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
@@ -19,12 +18,13 @@ import { MobService } from '../mob/mob.service';
 import { IGroup } from './group.interface';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class GroupService implements IGroup {
   constructor(
     @InjectModel(Group.name) private readonly groupModel: Model<GroupDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => MobService))
     private readonly mobService: MobService,
@@ -36,7 +36,7 @@ export class GroupService implements IGroup {
     email: string,
     createGroupDto: CreateGroupDto,
   ): Promise<Group> {
-    const user: User = await this.usersService.findUser(email);
+    const user = await this.usersService.findUser(email);
 
     if (user.groupName) {
       throw new BadRequestException('User is already in a group');
@@ -49,14 +49,10 @@ export class GroupService implements IGroup {
         members: [`${user.nickname}: ${user.email}`],
       });
 
-      await this.userModel
-        .findOneAndUpdate(
-          { email },
-          { groupName: createGroupDto.name, isGroupLeader: true },
-          { new: true },
-        )
-        .lean()
-        .exec();
+      await this.prisma.user.update({
+        where: { email },
+        data: { groupName: createGroupDto.name, isGroupLeader: true },
+      });
 
       await this.sessionModel.updateOne(
         { email },
@@ -118,19 +114,24 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Invite code is expired');
     }
 
-    const user = await this.userModel.findOne({ email });
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
     if (user.groupName) {
       throw new BadRequestException('User is already in a group');
     }
 
     const memberEntry = `${user.nickname}: ${user.email}`;
     group.members.push(memberEntry);
-
-    user.groupName = group.name;
     group.inviteCode = null;
 
-    await user.save();
     await group.save();
+
+    await this.prisma.user.update({
+      where: { email },
+      data: { groupName: group.name },
+    });
 
     await this.sessionModel.updateOne(
       { email: new RegExp(`^${email}$`, 'i') },
@@ -145,7 +146,10 @@ export class GroupService implements IGroup {
     email: string,
     groupName: string,
   ): Promise<Group> {
-    const user = await this.userModel.findOne({ email });
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     const { newLeaderEmail } = transferLeaderDto;
     const group = await this.groupModel.findOne({ name: groupName });
@@ -153,8 +157,8 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Group not found');
     }
 
-    const newLeader = await this.userModel.findOne({
-      email: new RegExp(`^${newLeaderEmail}$`, 'i'),
+    const newLeader = await this.prisma.user.findFirst({
+      where: { email: { equals: newLeaderEmail, mode: 'insensitive' } },
     });
     if (!newLeader) {
       throw new NotFoundException('New leader not found');
@@ -170,21 +174,25 @@ export class GroupService implements IGroup {
     }
 
     group.groupLeader = newLeaderEmail;
-    newLeader.isGroupLeader = true;
-    user.isGroupLeader = false;
-
-    await user.save();
-    await newLeader.save();
     await group.save();
+
+    await this.prisma.user.update({
+      where: { id: newLeader.id },
+      data: { isGroupLeader: true },
+    });
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { isGroupLeader: false },
+    });
 
     return group.toObject();
   }
 
   async leaveGroup(email: string): Promise<void> {
-    const user = await this.userModel.findOne({
-      email: new RegExp(`^${email}$`, 'i'),
+    const user = await this.prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
     });
-    if (!user.groupName) {
+    if (!user?.groupName) {
       throw new BadRequestException('User is not in a group');
     }
 
@@ -212,9 +220,10 @@ export class GroupService implements IGroup {
       { $set: { groupName: null } },
     );
 
-    user.groupName = null;
-    user.isGroupLeader = false;
-    await user.save();
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { groupName: null, isGroupLeader: false },
+    });
   }
 
   async deleteGroup(groupName: string): Promise<void> {
@@ -224,10 +233,10 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Group not found');
     }
 
-    await this.userModel.updateMany(
-      { groupName: groupName },
-      { $set: { groupName: null, isGroupLeader: false } },
-    );
+    await this.prisma.user.updateMany({
+      where: { groupName },
+      data: { groupName: null, isGroupLeader: false },
+    });
 
     await this.sessionModel.updateMany(
       { groupName },

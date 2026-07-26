@@ -4,29 +4,34 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import { Model } from 'mongoose';
-import { User, UserDocument } from '../schemas/user.schema';
-import { Token, TokenDocument } from '../schemas/refreshToken.schema';
+import { Response } from 'express';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
-import { Response } from 'express';
 import { AuthGateway } from './auth.gateway';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
-import { IAuth } from './auth.interface';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+
+const REFRESH_TOKEN_TTL_MS = 31 * 24 * 60 * 60 * 1000;
 
 @Injectable()
-export class AuthService implements IAuth {
+export class AuthService {
   constructor(
-    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly authGateway: AuthGateway,
   ) {}
 
-  private async addTokens(user: User): Promise<SignInDtoResponse> {
+  private async addTokens(user: {
+    id: string;
+    email: string;
+    nickname: string;
+    role: string;
+    groupName: string | null;
+    isGroupLeader: boolean;
+  }): Promise<SignInDtoResponse> {
     const payload = {
       email: user.email,
       nickname: user.nickname,
@@ -39,17 +44,21 @@ export class AuthService implements IAuth {
       secret: process.env.SECRET_CONSTANT,
     });
     const refreshToken: string = randomUUID();
-    const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
-    await this.tokenModel.findOneAndUpdate(
-      { email: user.email, nickname: user.nickname },
-      {
-        $set: {
-          refreshToken: hashedRefreshToken,
-          expireAt: new Date(Date.now() + 2678400000),
-        },
+    const tokenHash: string = await bcrypt.hash(refreshToken, 10);
+
+    await this.prisma.refreshToken.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       },
-      { upsert: true },
-    );
+      update: {
+        tokenHash,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+      },
+    });
+
     const client = this.authGateway.getClientByEmail(user.email);
     if (client) {
       this.authGateway.sendUserStatusUpdate(client, user.email, 'online');
@@ -68,18 +77,18 @@ export class AuthService implements IAuth {
       );
     }
 
-    const query = signInDto.email
-      ? { email: new RegExp(`^${signInDto.email}$`, 'i') }
-      : { nickname: new RegExp(`^${signInDto.nickname}$`, 'i') };
+    const where: Prisma.UserWhereInput = signInDto.email
+      ? { email: { equals: signInDto.email, mode: 'insensitive' } }
+      : { nickname: { equals: signInDto.nickname, mode: 'insensitive' } };
 
-    const user: User = await this.userModel.findOne(query);
+    const user = await this.prisma.user.findFirst({ where });
     if (!user) {
       throw new BadRequestException('Login or password invalid');
     }
 
     const isPasswordMatch: boolean = await bcrypt.compare(
       signInDto.password,
-      user.password,
+      user.passwordHash,
     );
     if (!isPasswordMatch) {
       throw new UnauthorizedException('Login or password invalid');
@@ -88,7 +97,7 @@ export class AuthService implements IAuth {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
+      maxAge: REFRESH_TOKEN_TTL_MS,
       sameSite: 'none',
     });
 
@@ -111,18 +120,16 @@ export class AuthService implements IAuth {
       );
     }
 
-    let user: User;
-    let refreshToken: string;
+    const where: Prisma.UserWhereInput = exchangeRefreshDto.email
+      ? { email: { equals: exchangeRefreshDto.email, mode: 'insensitive' } }
+      : { nickname: { equals: exchangeRefreshDto.nickname, mode: 'insensitive' } };
 
-    try {
-      const query = exchangeRefreshDto.email
-        ? { email: new RegExp(`^${exchangeRefreshDto.email}$`, 'i') }
-        : { nickname: new RegExp(`^${exchangeRefreshDto.nickname}$`, 'i') };
-      user = await this.userModel.findOne(query).lean().exec();
-      const tokenRecord = await this.tokenModel.findOne(query);
+    const user = await this.prisma.user.findFirst({
+      where,
+      include: { refreshToken: true },
+    });
 
-      refreshToken = tokenRecord.refreshToken;
-    } catch {
+    if (!user || !user.refreshToken) {
       throw new UnauthorizedException(
         'There is no valid refresh token for this user',
       );
@@ -130,7 +137,7 @@ export class AuthService implements IAuth {
 
     const isRefreshTokenCorrect: boolean = await bcrypt.compare(
       userRefreshToken,
-      refreshToken,
+      user.refreshToken.tokenHash,
     );
 
     if (!isRefreshTokenCorrect) {
@@ -142,7 +149,7 @@ export class AuthService implements IAuth {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 2678400000, // 2,678,400,000 = 31 day in milliseconds
+      maxAge: REFRESH_TOKEN_TTL_MS,
       sameSite: 'none',
     });
 
@@ -150,7 +157,10 @@ export class AuthService implements IAuth {
   }
 
   async signOut(res: Response, email: string): Promise<SignOutsDtoResponse> {
-    await this.tokenModel.findOneAndDelete({ email: email });
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (user) {
+      await this.prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+    }
 
     const client = this.authGateway.getClientByEmail(email);
     if (client) {

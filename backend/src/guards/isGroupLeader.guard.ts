@@ -4,27 +4,22 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from '../schemas/user.schema';
+import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 
+/**
+ * Trusts the isGroupLeader claim from the JWT (via request.user, set by TokensGuard)
+ * rather than re-checking the DB. Accepted trade-off: after a leadership transfer,
+ * the old leader's still-valid access token stays "leader" for up to its remaining
+ * TTL (15 min) — write operations are still safe because the group service itself
+ * re-validates leadership against current DB state.
+ */
 @Injectable()
 export class IsGroupLeaderGuard implements CanActivate {
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
-  ) {}
-
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
+    const user = request.user as AuthenticatedUser | undefined;
 
-    const userEmail = request.user?.email;
-
-    if (!userEmail) {
-      throw new ForbiddenException('Access Denied: No user email found');
-    }
-
-    const user = await this.userModel.findOne({ email: userEmail });
-    if (!user || !user.isGroupLeader) {
+    if (!user?.isGroupLeader) {
       throw new ForbiddenException('Access Denied: User is not a group leader');
     }
 

@@ -4,7 +4,7 @@ import { AuthGateway } from '../auth/auth.gateway';
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:4200',
+    origin: process.env.CORS_ORIGIN,
     methods: ['GET', 'POST'],
     credentials: true,
   },

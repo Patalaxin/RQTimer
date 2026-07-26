@@ -10,7 +10,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,8 +19,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
-import { GetEmailFromToken } from '../decorators/getEmail.decorator';
+import { GetUser } from '../decorators/get-user.decorator';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
 import { TokensGuard } from '../guards/tokens.guard';
@@ -47,13 +45,10 @@ import {
   RemoveMobFromGroupDtoParamsRequest,
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
-import { HelperClass } from '../helper-class';
-import { JwtService } from '@nestjs/jwt';
 import { MobGateway } from './mob.gateway';
 import { Mob } from '../schemas/mob.schema';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { MobsData } from '../schemas/mobsData.schema';
-import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { Servers } from '../schemas/mobs.enum';
@@ -73,7 +68,6 @@ import {
 export class MobController {
   constructor(
     @Inject('IMob') private readonly mobInterface: IMob,
-    private readonly jwtService: JwtService,
     private readonly mobGateway: MobGateway,
     private readonly telegramBotService: TelegramBotService,
   ) {}
@@ -88,10 +82,10 @@ export class MobController {
   @ApiOperation({ summary: 'Add Mob In Group' })
   @Post('/:server/add-in-group/')
   addMobInGroup(
-    @GetEmailFromToken() email: string,
+    @GetUser('email') email: string,
     @Param('server') server: Servers,
     @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     return this.mobInterface.addMobInGroup(
       email,
@@ -118,7 +112,7 @@ export class MobController {
   @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob From Group' })
   getMobFromGroup(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() getMobDto: GetMobInGroupDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
@@ -129,7 +123,7 @@ export class MobController {
   @ApiOperation({ summary: 'Find All User Mobs' })
   @Get('/server/:server/')
   findAllMobsByUser(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() getMobsDto: GetMobsDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
@@ -158,21 +152,17 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
   @Put('/:server/:mobId/cooldown')
   async updateMobByCooldown(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param('mobId') mobId: string,
     @Param('server') server: Servers,
     @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
-
     const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobByCooldown(
-        parsedToken.nickname,
-        parsedToken.role,
+        nickname,
+        role,
         mobId,
         server,
         updateMobByCooldownDto,
@@ -200,20 +190,17 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
   @Put('/:server/:mobId/date-of-death')
   async updateMobDateOfDeath(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param('mobId') mobId: string,
     @Param('server') server: Servers,
     @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
     const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobDateOfDeath(
-        parsedToken.nickname,
-        parsedToken.role,
+        nickname,
+        role,
         mobId,
         server,
         updateMobDateOfDeathDto,
@@ -241,21 +228,17 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
   @Put('/:server/:mobId/date-of-respawn')
   async updateMobDateOfRespawn(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param('mobId') mobId: string,
     @Param('server') server: Servers,
     @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
-
     const mob: GetFullMobDtoResponse =
       await this.mobInterface.updateMobDateOfRespawn(
-        parsedToken.nickname,
-        parsedToken.role,
+        nickname,
+        role,
         mobId,
         server,
         updateMobDateOfRespawnDto,
@@ -290,7 +273,7 @@ export class MobController {
   @ApiOperation({ summary: 'Remove Mob From Group' })
   @Delete('/:server/:mobId/remove-from-group/')
   removeOneFromGroup(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
   ): Promise<RemoveMobFromGroupDtoResponse> {
     return this.mobInterface.removeMobFromGroup(removeMobDtoParams, groupName);
@@ -300,18 +283,15 @@ export class MobController {
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/:server/crash-server/')
   async crashServer(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
     const mob: GetFullMobDtoResponse[] = await this.mobInterface.crashMobServer(
       groupName,
-      parsedToken.nickname,
-      parsedToken.role,
+      nickname,
+      role,
       crashServerDtoParams.server,
     );
 
@@ -328,18 +308,15 @@ export class MobController {
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('/:server/:mobId/respawn-lost/')
   async respawnLost(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
     const mob: GetFullMobDtoResponse = await this.mobInterface.respawnLost(
       respawnLostDtoParams,
-      parsedToken.nickname,
-      parsedToken.role,
+      nickname,
+      role,
       groupName,
     );
 
@@ -357,7 +334,7 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Comment Data' })
   @Put('/:server/:mobId/comment/')
   updateMobComment(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Body() updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     @Param() updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse> {

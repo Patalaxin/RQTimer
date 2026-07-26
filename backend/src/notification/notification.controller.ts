@@ -12,6 +12,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { INotification } from './notification.interface';
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
 import { TokensGuard } from '../guards/tokens.guard';
+import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesTypes } from '../schemas/user.schema';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -25,7 +26,7 @@ export class NotificationController {
     private readonly notificationInterface: INotification,
   ) {}
 
-  @UseGuards(TokensGuard)
+  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @Post()
