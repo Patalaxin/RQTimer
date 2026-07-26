@@ -14,6 +14,7 @@ import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
@@ -584,14 +585,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.authService.signOut().subscribe({
-      next: () => {
+    this.authService.signOut().pipe(
+      finalize(() => {
         this.timerService.headerVisibility = false;
         this.websocketService.disconnect();
         this.storageService.clean();
         this.onLogin();
-      },
-    });
+      }),
+    ).subscribe();
   }
 
   onHistory(): void {

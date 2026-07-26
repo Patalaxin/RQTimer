@@ -18,6 +18,7 @@ import {
 } from 'ng-zorro-antd/notification';
 import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
@@ -1584,13 +1585,13 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onLogout(): void {
-    this.authService.signOut().subscribe({
-      next: () => {
+    this.authService.signOut().pipe(
+      finalize(() => {
         this.timerService.headerVisibility = false;
         this.websocketService.disconnect();
         this.storageService.clean();
         this.router.navigate(['/login']);
-      },
-    });
+      }),
+    ).subscribe();
   }
 }

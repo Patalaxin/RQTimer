@@ -8,13 +8,15 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 import { TimerService } from './services/timer.service';
+import { WebsocketService } from './services/websocket.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { environment } from 'src/environments/environment';
 // import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
@@ -23,6 +25,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
   private readonly timerService = inject(TimerService);
+  private readonly websocketService = inject(WebsocketService);
   private readonly tokenService = inject(TokenService);
   // private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
@@ -75,7 +78,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
 
   private addAuthorizationHeader(req: HttpRequest<any>): HttpRequest<any> {
     const accessToken = this.storageService.getLocalStorage('token');
-    if (accessToken) {
+    const isOwnApi = req.url.startsWith(environment.apiUrl);
+    if (accessToken && isOwnApi) {
       return req.clone({
         withCredentials: true,
         headers: req.headers.set('Authorization', `Bearer ${accessToken}`),
@@ -104,13 +108,14 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   private onLogout() {
-    this.authService.signOut().subscribe({
-      next: () => {
+    this.authService.signOut().pipe(
+      finalize(() => {
         this.timerService.headerVisibility = false;
+        this.websocketService.disconnect();
         this.storageService.clean();
         this.router.navigate(['/login']);
-      },
-    });
+      }),
+    ).subscribe();
   }
 }
 
