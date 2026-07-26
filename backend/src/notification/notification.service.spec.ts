@@ -44,18 +44,23 @@ describe('NotificationService (smoke)', () => {
   });
 
   it('stores both languages and a 7-day expiry', async () => {
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     const before = Date.now();
     await service.createNotification({
       [LanguageEnum.Русский]: 'Текст',
       [LanguageEnum.English]: 'Text',
     });
+    const after = Date.now();
 
     const { data } = prisma.notification.create.mock.calls[0][0];
     expect(data.text).toEqual({ ru: 'Текст', en: 'Text' });
 
-    const ttlMs = data.expiresAt.getTime() - before;
-    expect(ttlMs).toBeGreaterThan(6.9 * 24 * 60 * 60 * 1000);
-    expect(ttlMs).toBeLessThanOrEqual(7 * 24 * 60 * 60 * 1000);
+    // Отсчёт идёт от момента внутри вызова, поэтому границы — окно вызова,
+    // а не одна точка: иначе тест ловит пару лишних миллисекунд под нагрузкой.
+    expect(data.expiresAt.getTime()).toBeGreaterThanOrEqual(
+      before + sevenDaysMs,
+    );
+    expect(data.expiresAt.getTime()).toBeLessThanOrEqual(after + sevenDaysMs);
   });
 
   it('returns newest first and hides rows the cleanup has not swept yet', async () => {

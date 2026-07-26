@@ -53,6 +53,27 @@ model OtpVerification {
   @@map("otp_verifications")
 }
 
+/// Справочник мобов — редактируется только админом, читается всеми.
+model Mob {
+  // ObjectId из Mongo переносится как есть и НЕ генерируется заново: на эти
+  // идентификаторы завязаны переводы (mob/mobs-translations.ts), MobsData.mobId,
+  // History.mobId и фронт.
+  id String @id
+  // mobName/location/mobType — значения enum'ов MobName/Locations/MobsTypes,
+  // но в БД это обычные строки: enum'ы кириллические, а состав справочника
+  // меняется чаще, чем хочется гонять миграции. Валидация — в CreateMobDtoRequest.
+  mobName      String
+  shortName    String
+  respawnText  String?
+  location     String
+  cooldownTime Int
+  image        String?
+  mobType      String
+
+  @@unique([location, mobName])
+  @@map("mobs")
+}
+
 model Group {
   // Имя — естественный ключ: User.groupName ссылается на группу по имени,
   // и это тот же контракт, что был в Mongo (name unique).
