@@ -1,5 +1,6 @@
+import { Logger } from '@nestjs/common';
 import { Action, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
-import { Context, Markup, Telegraf } from 'telegraf';
+import { Context, Markup, Telegraf, TelegramError } from 'telegraf';
 import { BotSession, Server } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
@@ -8,16 +9,19 @@ import { HelperClass } from '../helper-class';
 import { MESSAGES } from './messages';
 import { GetFullMobWithUnixDtoResponse } from '../mob/dto/get-mob.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { TelegramConnectionService } from './telegram-connection.service';
 
 /** Всё, что нужно главному меню — чтобы не собирать ради него полную сессию. */
 type MenuState = Pick<BotSession, 'server' | 'paused'>;
 
 @Update()
 export class TelegramBotService {
+  private readonly logger = new Logger(TelegramBotService.name);
   tempUserServers: Map<number, string> = new Map<number, string>();
 
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
+    private readonly connection: TelegramConnectionService,
     private readonly prisma: PrismaService,
     private readonly mobService: MobService,
   ) {}
@@ -193,12 +197,24 @@ export class TelegramBotService {
     );
   }
 
+  /**
+   * Рассылка — побочный эффект обновления моба, а не его часть: метод никогда
+   * не бросает наружу и молча пропускает работу, пока Telegram недоступен.
+   * Основной сценарий (таймер, сокеты, история) от этого не страдает.
+   */
   async notifyGroupUsers(
     groupName: string,
     server: Servers,
     updatedMobName: MobName,
     updatedMobLocation: Locations,
   ): Promise<void> {
+    if (!this.connection.isAvailable) {
+      this.logger.debug(
+        `Telegram недоступен — уведомление по ${updatedMobName} не отправлено`,
+      );
+      return;
+    }
+
     try {
       const sessions = await this.prisma.botSession.findMany({
         where: {
@@ -216,6 +232,12 @@ export class TelegramBotService {
         await this.mobService.findAllMobsByGroup(groupName, { server });
 
       for (const chunk of this.chunkArray(sessions, 28)) {
+        // Обрыв связи посреди рассылки — не повод добивать остальные пачки.
+        if (!this.connection.isAvailable) {
+          this.logger.warn('Telegram отвалился — рассылка прервана');
+          return;
+        }
+
         await this.sendBatchMessages(
           chunk,
           allMobs,
@@ -225,7 +247,10 @@ export class TelegramBotService {
         );
       }
     } catch (error) {
-      console.error('Ошибка при отправке обновлений пользователям:', error);
+      this.logger.error(
+        'Ошибка при отправке обновлений пользователям',
+        error instanceof Error ? error.stack : String(error),
+      );
     }
   }
 
@@ -244,7 +269,7 @@ export class TelegramBotService {
           });
 
           if (!user) {
-            console.warn(`Пользователь с email ${session.email} не найден`);
+            this.logger.warn(`Пользователь с email ${session.email} не найден`);
             return;
           }
 
@@ -273,15 +298,35 @@ export class TelegramBotService {
             );
           }
         } catch (error) {
-          console.error(
-            `Ошибка при отправке сообщения пользователю ${session.userId}:`,
-            error,
-          );
+          this.logSendFailure(session.userId, error);
         }
       }),
     );
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  /**
+   * 403/400 — это про конкретного получателя (заблокировал бота, удалил чат),
+   * а не про доступность Telegram: такие ошибки шумят в логах каждой рассылкой,
+   * поэтому пишем их предупреждением, а не ошибкой.
+   */
+  private logSendFailure(userId: number, error: unknown): void {
+    const isRecipientIssue =
+      error instanceof TelegramError &&
+      (error.code === 400 || error.code === 403);
+
+    if (isRecipientIssue) {
+      this.logger.warn(
+        `Пользователь ${userId} недоступен: ${(error as TelegramError).description}`,
+      );
+      return;
+    }
+
+    this.logger.error(
+      `Ошибка при отправке сообщения пользователю ${userId}`,
+      error instanceof Error ? error.stack : String(error),
+    );
   }
 
   @Action('leave')

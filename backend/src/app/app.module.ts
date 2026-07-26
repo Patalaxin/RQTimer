@@ -10,9 +10,7 @@ import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
-import * as process from 'process';
 import { TelegramBotModule } from '../bot/telegram-bot.module';
-import { TelegrafModule } from 'nestjs-telegraf';
 import { NotificationModule } from '../notification/notification.module';
 import { validate } from '../config/env.validation';
 import { AllExceptionsFilter } from '../filters/all-exceptions.filter';
@@ -35,12 +33,6 @@ import { PrismaModule } from '../prisma/prisma.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'client'),
       serveRoot: '/static',
-    }),
-    TelegrafModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => ({
-        token: process.env.TELEGRAM_BOT_TOKEN,
-      }),
     }),
     TelegramBotModule,
   ],

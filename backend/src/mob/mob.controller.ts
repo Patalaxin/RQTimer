@@ -176,7 +176,7 @@ export class MobController {
       groupName,
     });
 
-    this.telegramBotService.notifyGroupUsers(
+    void this.telegramBotService.notifyGroupUsers(
       groupName,
       server,
       mob.mob.mobName,
@@ -214,7 +214,7 @@ export class MobController {
       groupName,
     });
 
-    this.telegramBotService.notifyGroupUsers(
+    void this.telegramBotService.notifyGroupUsers(
       groupName,
       server,
       mob.mob.mobName,
@@ -252,7 +252,7 @@ export class MobController {
       groupName,
     });
 
-    this.telegramBotService.notifyGroupUsers(
+    void this.telegramBotService.notifyGroupUsers(
       groupName,
       server,
       mob.mob.mobName,

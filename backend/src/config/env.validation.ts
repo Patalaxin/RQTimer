@@ -1,5 +1,10 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, validateSync } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  validateSync,
+} from 'class-validator';
 
 class EnvironmentVariables {
   @IsString()
@@ -28,9 +33,11 @@ class EnvironmentVariables {
   @IsNotEmpty()
   DATABASE_URL: string;
 
+  // Не обязателен: без токена приложение поднимается целиком, просто без
+  // Telegram-уведомлений (см. TelegramConnectionService).
   @IsString()
-  @IsNotEmpty()
-  TELEGRAM_BOT_TOKEN: string;
+  @IsOptional()
+  TELEGRAM_BOT_TOKEN?: string;
 
   @IsString()
   @IsNotEmpty()
