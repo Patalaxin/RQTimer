@@ -6,8 +6,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { Group, Prisma } from '@prisma/client';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
@@ -17,7 +15,6 @@ import { MobService } from '../mob/mob.service';
 import { IGroup } from './group.interface';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { GroupResponseDto } from './dto/group-response.dto';
-import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { PrismaService } from '../prisma/prisma.service';
 
 const INVITE_CODE_TTL_MS = 60 * 60 * 1000;
@@ -29,10 +26,21 @@ export class GroupService implements IGroup {
     private readonly usersService: UsersService,
     @Inject(forwardRef(() => MobService))
     private readonly mobService: MobService,
-    // TODO: переедет на Prisma вместе с телеграм-ботом.
-    @InjectModel(BotSession.name)
-    private readonly sessionModel: Model<BotSessionDocument>,
   ) {}
+
+  /**
+   * Сессия телеграм-бота есть не у каждого пользователя, поэтому везде
+   * updateMany: на пустой выборке он просто ничего не делает.
+   */
+  private async setBotSessionGroup(
+    email: string,
+    groupName: string | null,
+  ): Promise<void> {
+    await this.prisma.botSession.updateMany({
+      where: { email: { equals: email, mode: 'insensitive' } },
+      data: { groupName },
+    });
+  }
 
   private toResponse(group: Group): GroupResponseDto {
     return {
@@ -67,10 +75,7 @@ export class GroupService implements IGroup {
         data: { groupName: createGroupDto.name, isGroupLeader: true },
       });
 
-      await this.sessionModel.updateOne(
-        { email },
-        { $set: { groupName: createGroupDto.name } },
-      );
+      await this.setBotSessionGroup(email, createGroupDto.name);
 
       return this.toResponse(newGroup);
     } catch (error) {
@@ -154,10 +159,7 @@ export class GroupService implements IGroup {
       data: { groupName: group.name },
     });
 
-    await this.sessionModel.updateOne(
-      { email: new RegExp(`^${email}$`, 'i') },
-      { $set: { groupName: group.name } },
-    );
+    await this.setBotSessionGroup(email, group.name);
 
     return this.toResponse(updatedGroup);
   }
@@ -252,10 +254,7 @@ export class GroupService implements IGroup {
       }),
     ]);
 
-    await this.sessionModel.updateOne(
-      { email: new RegExp(`^${email}$`, 'i') },
-      { $set: { groupName: null } },
-    );
+    await this.setBotSessionGroup(email, null);
   }
 
   async deleteGroup(groupName: string): Promise<void> {
@@ -275,10 +274,10 @@ export class GroupService implements IGroup {
       this.prisma.group.delete({ where: { name: groupName } }),
     ]);
 
-    await this.sessionModel.updateMany(
-      { groupName },
-      { $set: { groupName: null } },
-    );
+    await this.prisma.botSession.updateMany({
+      where: { groupName },
+      data: { groupName: null },
+    });
 
     await this.mobService.deleteAllMobData(groupName);
   }

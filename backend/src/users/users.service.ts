@@ -1,6 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
@@ -23,9 +21,8 @@ import {
 } from './dto/delete-user.dto';
 import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { OtpService } from '../OTP/otp.service';
-import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, Role } from '@prisma/client';
+import { BotSession, Prisma, Role } from '@prisma/client';
 
 type PrismaUser = Prisma.UserGetPayload<Record<string, never>>;
 
@@ -33,8 +30,6 @@ type PrismaUser = Prisma.UserGetPayload<Record<string, never>>;
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectModel(BotSession.name)
-    private readonly sessionModel: Model<BotSessionDocument>,
     private readonly otpService: OtpService,
   ) {}
 
@@ -258,10 +253,11 @@ export class UsersService {
   }
 
   async updateTimezone(email: string, timezone: string): Promise<BotSession> {
-    return this.sessionModel
-      .findOneAndUpdate({ email }, { timezone }, { new: true, upsert: true })
-      .lean()
-      .exec();
+    return this.prisma.botSession.upsert({
+      where: { email },
+      create: { email, timezone },
+      update: { timezone },
+    });
   }
 
   async getUsersCount(): Promise<{ count: number }> {

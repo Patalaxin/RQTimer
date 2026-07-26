@@ -130,6 +130,29 @@ model Group {
   @@map("groups")
 }
 
+/// Привязка телеграм-аккаунта к пользователю таймера.
+model BotSession {
+  id String @id @default(uuid())
+
+  // Идентификатор чата в Telegram. Float, а не Int: идентификаторы давно
+  // перевалили за 2^31, при этом гарантированно влезают в 52 бита, где double
+  // точен, и остаются обычным number — таким его ждут и telegraf, и фронт.
+  //
+  // Оба ключа опциональны и оба уникальны: сессия заводится либо ботом (есть
+  // userId, почты ещё нет), либо настройкой таймзоны из веба (есть email,
+  // userId появится после /start).
+  userId Float?  @unique
+  email  String? @unique
+
+  groupName  String?
+  server     Server?
+  paused     Boolean @default(false)
+  isVerified Boolean @default(false)
+  timezone   String?
+
+  @@map("bot_sessions")
+}
+
 enum HistoryType {
   updateMobByCooldown
   updateMobDateOfDeath

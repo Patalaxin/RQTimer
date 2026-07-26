@@ -4,13 +4,11 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { getModelToken } from '@nestjs/mongoose';
 import { Prisma } from '@prisma/client';
 import { GroupService } from './group.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { MobService } from '../mob/mob.service';
-import { BotSession } from '../schemas/telegram-bot.schema';
 
 const LEADER = 'leader@example.com';
 const MEMBER = 'member@example.com';
@@ -41,7 +39,6 @@ describe('GroupService (smoke)', () => {
   let prisma: any;
   let usersService: { findUser: jest.Mock };
   let mobService: { deleteAllMobData: jest.Mock };
-  let sessionModel: { updateOne: jest.Mock; updateMany: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -57,16 +54,15 @@ describe('GroupService (smoke)', () => {
         update: jest.fn(),
         updateMany: jest.fn(),
       },
+      botSession: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
       // $transaction получает массив уже подготовленных промисов и возвращает
       // их результаты в том же порядке.
       $transaction: jest.fn((ops: unknown[]) => Promise.all(ops)),
     };
     usersService = { findUser: jest.fn() };
     mobService = { deleteAllMobData: jest.fn().mockResolvedValue(undefined) };
-    sessionModel = {
-      updateOne: jest.fn().mockResolvedValue(undefined),
-      updateMany: jest.fn().mockResolvedValue(undefined),
-    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -74,7 +70,6 @@ describe('GroupService (smoke)', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: UsersService, useValue: usersService },
         { provide: MobService, useValue: mobService },
-        { provide: getModelToken(BotSession.name), useValue: sessionModel },
       ],
     }).compile();
 
@@ -296,7 +291,11 @@ describe('GroupService (smoke)', () => {
         where: { name: 'MyGroup' },
       });
       expect(mobService.deleteAllMobData).toHaveBeenCalledWith('MyGroup');
-      expect(sessionModel.updateMany).toHaveBeenCalled();
+      // Сессии бота отвязываются от исчезнувшей группы.
+      expect(prisma.botSession.updateMany).toHaveBeenCalledWith({
+        where: { groupName: 'MyGroup' },
+        data: { groupName: null },
+      });
     });
 
     it('does not touch anything when the group is missing', async () => {

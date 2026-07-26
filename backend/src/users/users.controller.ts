@@ -42,7 +42,7 @@ import {
   DeleteUserDtoResponse,
 } from './dto/delete-user.dto';
 import { PaginatedUsersDto } from './dto/findAll-user.dto';
-import { BotSession } from '../schemas/telegram-bot.schema';
+import { BotSession } from '@prisma/client';
 import { UsersService } from './users.service';
 
 @ApiTags('Users API')
@@ -162,7 +162,7 @@ export class UsersController {
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update Timezone for Bot Session' })
-  @ApiOkResponse({ description: 'Success', type: BotSession })
+  @ApiOkResponse({ description: 'Success' })
   @Put('/timezone')
   updateTimezone(
     @GetUser('email') email: string,

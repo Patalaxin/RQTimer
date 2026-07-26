@@ -1,8 +1,6 @@
 import { Action, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup, Telegraf } from 'telegraf';
-import { InjectModel } from '@nestjs/mongoose';
-import { BotSession, BotSessionDocument } from '../schemas/telegram-bot.schema';
-import { Model } from 'mongoose';
+import { BotSession, Server } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { MobService } from '../mob/mob.service';
@@ -11,14 +9,15 @@ import { MESSAGES } from './messages';
 import { GetFullMobWithUnixDtoResponse } from '../mob/dto/get-mob.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** Всё, что нужно главному меню — чтобы не собирать ради него полную сессию. */
+type MenuState = Pick<BotSession, 'server' | 'paused'>;
+
 @Update()
 export class TelegramBotService {
   tempUserServers: Map<number, string> = new Map<number, string>();
 
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
-    @InjectModel(BotSession.name)
-    private readonly sessionModel: Model<BotSessionDocument>,
     private readonly prisma: PrismaService,
     private readonly mobService: MobService,
   ) {}
@@ -26,7 +25,9 @@ export class TelegramBotService {
   @Start()
   async handleStart(@Ctx() ctx: Context): Promise<void> {
     const userId = ctx.from.id;
-    const session = await this.sessionModel.findOne({ userId });
+    const session = await this.prisma.botSession.findUnique({
+      where: { userId },
+    });
 
     if (!session || !session.isVerified) {
       await this.sendServerSelection(ctx);
@@ -46,7 +47,7 @@ export class TelegramBotService {
     );
   }
 
-  private async sendMainMenu(ctx: Context, session: BotSession): Promise<void> {
+  private async sendMainMenu(ctx: Context, session: MenuState): Promise<void> {
     await ctx.reply(
       MESSAGES.SUCCESS_CONNECT(session.server),
       Markup.keyboard([
@@ -57,20 +58,24 @@ export class TelegramBotService {
   }
 
   private async togglePause(userId: number, ctx: Context): Promise<void> {
-    const session = await this.sessionModel.findOne({ userId });
+    const session = await this.prisma.botSession.findUnique({
+      where: { userId },
+    });
 
     if (!session) {
       await ctx.reply(MESSAGES.NOT_CONNECTED);
       return;
     }
 
-    session.paused = !session.paused;
-    await session.save();
+    const updated = await this.prisma.botSession.update({
+      where: { userId },
+      data: { paused: !session.paused },
+    });
 
     await ctx.reply(
-      session.paused ? MESSAGES.PAUSED : MESSAGES.RESUMED,
+      updated.paused ? MESSAGES.PAUSED : MESSAGES.RESUMED,
       Markup.keyboard([
-        [session.paused ? MESSAGES.RESUME : MESSAGES.PAUSE],
+        [updated.paused ? MESSAGES.RESUME : MESSAGES.PAUSE],
         [MESSAGES.SWITCH_SERVER],
       ]).resize(),
     );
@@ -87,16 +92,19 @@ export class TelegramBotService {
       return;
     }
 
-    const session = await this.sessionModel.findOne({ userId });
+    const session = await this.prisma.botSession.findUnique({
+      where: { userId },
+    });
     if (!session) {
+      // Сервер держим в памяти до ввода логина: строку заводим только после
+      // успешной проверки пароля.
       this.tempUserServers.set(userId, server);
       await ctx.reply(MESSAGES.ENTER_EMAIL_PASSWORD);
     } else {
-      await this.sessionModel.updateOne(
-        { userId },
-        { $set: { server } },
-        { upsert: true },
-      );
+      await this.prisma.botSession.update({
+        where: { userId },
+        data: { server: server as Server },
+      });
       await ctx.reply(MESSAGES.SUCCESS_CONNECT(server));
     }
   }
@@ -152,26 +160,31 @@ export class TelegramBotService {
       return;
     }
 
-    await this.sessionModel.updateOne(
-      { email },
-      {
-        $set: {
-          server,
-          isVerified: true,
-          email,
-          userId,
-          groupName: user.groupName,
-        },
+    // Ключ — почта: телеграм-аккаунт у пользователя может смениться, сессия
+    // при этом должна остаться одна.
+    await this.prisma.botSession.upsert({
+      where: { email },
+      create: {
+        email,
+        userId,
+        server: server as Server,
+        isVerified: true,
+        groupName: user.groupName,
       },
-      { upsert: true },
-    );
+      update: {
+        userId,
+        server: server as Server,
+        isVerified: true,
+        groupName: user.groupName,
+      },
+    });
+
     this.tempUserServers.delete(userId);
     await ctx.deleteMessage();
     await this.sendMainMenu(ctx, {
-      userId,
-      server,
+      server: server as Server,
       paused: false,
-    } as BotSession);
+    });
   }
 
   private chunkArray<T>(array: T[], size: number): T[][] {
@@ -187,11 +200,13 @@ export class TelegramBotService {
     updatedMobLocation: Locations,
   ): Promise<void> {
     try {
-      const sessions: BotSession[] = await this.sessionModel.find({
-        paused: false,
-        isVerified: true,
-        server: server,
-        groupName: groupName,
+      const sessions = await this.prisma.botSession.findMany({
+        where: {
+          paused: false,
+          isVerified: true,
+          server: server as unknown as Server,
+          groupName,
+        },
       });
       if (!sessions.length) {
         return;
@@ -272,11 +287,12 @@ export class TelegramBotService {
   @Action('leave')
   async onLeave(@Ctx() ctx: Context): Promise<void> {
     const userId = ctx.from.id;
-    await this.sessionModel.updateOne(
-      { userId },
-      { $set: { server: null } },
-      { upsert: true },
-    );
+    // Строки может не быть: пользователь мог нажать «сменить сервер», ни разу
+    // не залогинившись, — updateMany на пустой выборке просто ничего не делает.
+    await this.prisma.botSession.updateMany({
+      where: { userId },
+      data: { server: null },
+    });
     await this.sendServerSelection(ctx);
   }
 }
