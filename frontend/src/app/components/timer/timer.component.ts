@@ -17,8 +17,8 @@ import {
   NzNotificationService,
 } from 'ng-zorro-antd/notification';
 import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
-import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
@@ -57,6 +57,8 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   private mobUpdateSubscription: Subscription | undefined;
   private excludedMobsSubscription: Subscription | undefined;
+  private notificationsSubscription: Subscription | undefined;
+  private readonly destroy$ = new Subject<void>();
   private worker: Worker | undefined;
   private isInitialized = false;
   permission: string = '';
@@ -334,17 +336,21 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     this.setTimerOptions();
 
-    this.translateService.onLangChange.subscribe(() => {
-      this.setTimerOptions();
-    });
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.setTimerOptions();
+      });
 
     this.currentNotificationIndex = 0;
 
-    this.timerService.telegramBotVisibility$.subscribe({
-      next: (res) => {
-        this.isVisible = res;
-      },
-    });
+    this.timerService.telegramBotVisibility$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.isVisible = res;
+        },
+      });
 
     this.tourService.initialize(this.steps, {
       enableBackdrop: true,
@@ -409,8 +415,15 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.worker.terminate();
     }
 
+    if (this.notificationsSubscription) {
+      this.notificationsSubscription.unsubscribe();
+    }
+
     this.tourService.end();
     this.isInitialized = false;
+
+    this.destroy$.next();
+    this.destroy$.complete();
 
     // if (this.intervalId) {
     //   clearInterval(this.intervalId);
@@ -433,23 +446,27 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private getOnlineUserList(): void {
-    this.websocketService.onlineUserList$.subscribe((res: any) => {
-      if (res) {
-        this.onlineUserList = res.map((item: any) => item.email);
-      }
-    });
+    this.websocketService.onlineUserList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        if (res) {
+          this.onlineUserList = res.map((item: any) => item.email);
+        }
+      });
   }
 
   private getTimerList(): void {
-    this.timerService.filteredTimerList$.subscribe({
-      next: (res) => {
-        this.timerList = res;
-      },
-    });
+    this.timerService.filteredTimerList$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.timerList = res;
+        },
+      });
   }
 
   private updateWorkers(): void {
-    this.timerService.getUnixtime().subscribe({
+    this.timerService.getUnixtime().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.currentProgressTime = res.unixtime;
 
@@ -488,16 +505,14 @@ export class TimerComponent implements OnInit, OnDestroy {
         item.mobData.server === res.mobData.server
       ) {
         item.mobData = res.mobData;
-        timerList.forEach((item) => {
-          item.mob.plusCooldown = 0;
-          item.mob.isDeathModalVisible = false;
-          item.mob.isDeathOkLoading = false;
-          item.mob.isHistoryModalVisible = false;
-          item.mob.isHistoryOkLoading = false;
-          item.mob.isInfoModalVisible = false;
-          item.mob.isInfoOkLoading = false;
-          item.mob.isOnDieNow = false;
-        });
+        item.mob.plusCooldown = 0;
+        item.mob.isDeathModalVisible = false;
+        item.mob.isDeathOkLoading = false;
+        item.mob.isHistoryModalVisible = false;
+        item.mob.isHistoryOkLoading = false;
+        item.mob.isInfoModalVisible = false;
+        item.mob.isInfoOkLoading = false;
+        item.mob.isOnDieNow = false;
 
         this.sortTimerList(timerList);
       }
@@ -1483,20 +1498,25 @@ export class TimerComponent implements OnInit, OnDestroy {
     //   next: (res) => {
     //     this.notificationService.notificationList = res.reverse();
 
-    this.notificationService.notificationList$.subscribe({
-      next: (res) => {
-        this.notifications = res;
+    if (this.notificationsSubscription) {
+      this.notificationsSubscription.unsubscribe();
+    }
 
-        if (this.notifications[index]) {
-          this.nzNotificationService.template(this.template!, {
-            nzKey: 'key',
-            nzData: { ...this.notifications[index], index },
-            nzPlacement: this.position,
-            nzDuration: 0,
-          });
-        }
-      },
-    });
+    this.notificationsSubscription =
+      this.notificationService.notificationList$.subscribe({
+        next: (res) => {
+          this.notifications = res;
+
+          if (this.notifications[index]) {
+            this.nzNotificationService.template(this.template!, {
+              nzKey: 'key',
+              nzData: { ...this.notifications[index], index },
+              nzPlacement: this.position,
+              nzDuration: 0,
+            });
+          }
+        },
+      });
     // },
     // });
   }

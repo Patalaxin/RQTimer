@@ -13,8 +13,8 @@ import { jwtDecode } from 'jwt-decode';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
-import { Subscription } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { TimerItem } from 'src/app/interfaces/timer-item';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
@@ -65,6 +65,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   timerListSubscription: Subscription | undefined;
   excludedMobsSubscription: Subscription | undefined;
   isOnline: 'online' | 'offline' = 'offline';
+
+  private readonly destroy$ = new Subject<void>();
+  private readonly onVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      clearTimeout(this.tokenRefreshTimeout);
+      this.checkAndRefreshToken();
+    }
+  };
 
   serverList: any[] = [];
 
@@ -129,17 +137,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.router.events.subscribe(() => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateRoute();
     });
     this.updateRoute();
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        clearTimeout(this.tokenRefreshTimeout);
-        this.checkAndRefreshToken();
-      }
-    });
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   ngOnDestroy(): void {
@@ -155,6 +158,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.excludedMobsSubscription) {
       this.excludedMobsSubscription.unsubscribe();
     }
+
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    this.destroy$.next();
+    this.destroy$.complete();
 
     this.websocketService.disconnect();
     clearTimeout(this.tokenRefreshTimeout);
@@ -252,17 +259,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   bindingHotkey(): void {
-    this.bindingService.clickReloadButton$.subscribe(() => {
-      this.updateCurrentServer();
-    });
+    this.bindingService.clickReloadButton$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateCurrentServer();
+      });
 
-    this.bindingService.clickCopyButton$.subscribe(() => {
-      this.copyRespText();
-    });
+    this.bindingService.clickCopyButton$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.copyRespText();
+      });
 
-    this.bindingService.focusSearchInput$.subscribe(() => {
-      this.searchInput.nativeElement.focus();
-    });
+    this.bindingService.focusSearchInput$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.searchInput.nativeElement.focus();
+      });
   }
 
   onSearchOpen(): void {

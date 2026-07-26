@@ -15,6 +15,7 @@ export class WebsocketService {
   );
   private pingInterval: any;
   private responseTimeout: any;
+  private currentEmail: string | undefined;
 
   get mobUpdate$(): Observable<any> {
     return this.mobUpdateSubject$.asObservable();
@@ -29,6 +30,8 @@ export class WebsocketService {
   }
 
   connect(token: string, email: string): void {
+    this.currentEmail = email;
+
     this.socket = io(environment.url, {
       path: '/api/socket.io',
       query: { token },
@@ -36,8 +39,15 @@ export class WebsocketService {
     });
 
     this.socket.on('mobUpdate', (res) => this.mobUpdateSubject$.next(res));
-    this.socket.on('connect', () => this.socket?.emit('register', email));
-    this.socket.on('pong', () => this.resetResponseTimeout());
+    this.socket.on('connect', () => {
+      this.socket?.emit('register', email);
+      this.resetResponseTimeout();
+      this.isOnlineSubject$.next({ email, status: 'online' });
+    });
+    this.socket.on('pong', () => {
+      this.resetResponseTimeout();
+      this.isOnlineSubject$.next({ email, status: 'online' });
+    });
     this.socket.on('userStatusUpdate', (res) =>
       this.isOnlineSubject$.next(res)
     );
@@ -52,18 +62,33 @@ export class WebsocketService {
 
   private startPingInterval(): void {
     this.pingInterval = setInterval(() => {
-      if (this.socket) {
+      if (!this.socket) return;
+
+      if (this.socket.connected) {
         this.socket.emit('ping');
         this.startResponseTimeout();
+      } else {
+        this.socket.connect();
       }
     }, 10000);
   }
 
   private startResponseTimeout(): void {
     this.responseTimeout = setTimeout(() => {
-      this.isOnlineSubject$.next('offline');
-      this.disconnect();
+      if (this.currentEmail) {
+        this.isOnlineSubject$.next({ email: this.currentEmail, status: 'offline' });
+      }
+      this.reconnectSocket();
     }, 3000);
+  }
+
+  private reconnectSocket(): void {
+    if (!this.socket) return;
+    // Форсим переоткрытие транспорта: соединение может быть "наполовину живым"
+    // (прокси держит TCP, а трафик уже не проходит) — .connect() без явного
+    // .disconnect() в этом случае будет no-op, т.к. socket.connected ещё true.
+    this.socket.disconnect();
+    this.socket.connect();
   }
 
   private resetResponseTimeout(): void {
@@ -74,9 +99,13 @@ export class WebsocketService {
     if (this.pingInterval) {
       clearInterval(this.pingInterval);
     }
+    if (this.responseTimeout) {
+      clearTimeout(this.responseTimeout);
+    }
     if (this.socket) {
       this.socket.disconnect();
       this.socket = undefined;
     }
+    this.currentEmail = undefined;
   }
 }
