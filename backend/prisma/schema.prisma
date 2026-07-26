@@ -53,6 +53,23 @@ model OtpVerification {
   @@map("otp_verifications")
 }
 
+model Group {
+  // Имя — естественный ключ: User.groupName ссылается на группу по имени,
+  // и это тот же контракт, что был в Mongo (name unique).
+  name        String @id
+  groupLeader String
+  // Строки формата "nickname: email" — исторический формат из Mongo. Станет
+  // связью на User, когда фронт перестанет полагаться на плоский список.
+  members             String[]  @default([])
+  canMembersAddMobs   Boolean   @default(false)
+  inviteCode          String?   @unique
+  inviteCodeCreatedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("groups")
+}
+
 model Notification {
   id String @id @default(uuid())
   // {"ru": "...", "en": "..."} — набор языков задаёт LanguageEnum, так что

@@ -17,7 +17,7 @@ import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TokensGuard } from '../guards/tokens.guard';
-import { Group } from '../schemas/group.schema';
+import { GroupResponseDto } from './dto/group-response.dto';
 import { RolesGuard } from '../guards/roles.guard';
 import { IGroup } from './group.interface';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -36,7 +36,7 @@ export class GroupController {
   async createGroup(
     @Body() createGroupDto: CreateGroupDto,
     @GetUser('email') email: string,
-  ): Promise<Group> {
+  ): Promise<GroupResponseDto> {
     return this.groupInterface.createGroup(email, createGroupDto);
   }
 
@@ -44,7 +44,7 @@ export class GroupController {
   @Get()
   async getGroupByName(
     @GetUser('groupName') groupName: string,
-  ): Promise<Group> {
+  ): Promise<GroupResponseDto> {
     return this.groupInterface.getGroupByName(groupName);
   }
 
@@ -62,7 +62,7 @@ export class GroupController {
   async joinGroup(
     @Body() joinGroupDto: JoinGroupDto,
     @GetUser('email') email: string,
-  ): Promise<Group> {
+  ): Promise<GroupResponseDto> {
     return this.groupInterface.joinGroup(joinGroupDto, email);
   }
 
@@ -73,7 +73,7 @@ export class GroupController {
     @Body() transferLeaderDto: TransferLeaderDto,
     @GetUser('email') email: string,
     @GetUser('groupName') groupName: string,
-  ): Promise<Group> {
+  ): Promise<GroupResponseDto> {
     return this.groupInterface.transferGroupLeadership(
       transferLeaderDto,
       email,
@@ -107,7 +107,7 @@ export class GroupController {
   async updateGroup(
     @GetUser('groupName') groupName: string,
     @Body() updateGroupDto: UpdateGroupDto,
-  ): Promise<Group> {
+  ): Promise<GroupResponseDto> {
     return this.groupInterface.updateGroup(groupName, updateGroupDto);
   }
 }

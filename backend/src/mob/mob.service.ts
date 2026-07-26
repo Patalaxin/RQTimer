@@ -36,7 +36,7 @@ import {
 } from './dto/delete-mob.dto';
 import { RolesTypes, User } from '../schemas/user.schema';
 import { GroupService } from '../group/group.service';
-import { Group } from '../schemas/group.schema';
+import { GroupResponseDto } from '../group/dto/group-response.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { plainToInstance } from 'class-transformer';
 import { History, HistoryTypes } from '../history/history-types.interface';
@@ -83,7 +83,8 @@ export class MobService implements IMob {
     addMobInGroupDto: AddMobInGroupDtoRequest,
     groupName: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    const group: Group = await this.groupService.getGroupByName(groupName);
+    const group: GroupResponseDto =
+      await this.groupService.getGroupByName(groupName);
     if (!group) {
       throw new NotFoundException('Group not found');
     }
