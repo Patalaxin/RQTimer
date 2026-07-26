@@ -64,7 +64,10 @@ export class OtpService implements OnModuleInit {
 
     await this.prisma.otpVerification.update({
       where: { email },
-      data: { verified: true, expiresAt: new Date(Date.now() + VERIFIED_TTL_MS) },
+      data: {
+        verified: true,
+        expiresAt: new Date(Date.now() + VERIFIED_TTL_MS),
+      },
     });
 
     return true;

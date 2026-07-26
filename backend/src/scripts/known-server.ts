@@ -18,7 +18,8 @@ export class SkippedServers {
   private readonly counts = new Map<string, number>();
 
   add(server: unknown): void {
-    const key = server === null || server === undefined ? '(пусто)' : String(server);
+    const key =
+      server === null || server === undefined ? '(пусто)' : String(server);
     this.counts.set(key, (this.counts.get(key) ?? 0) + 1);
   }
 

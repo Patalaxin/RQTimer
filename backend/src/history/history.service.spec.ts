@@ -93,9 +93,7 @@ describe('HistoryService (smoke)', () => {
       expect(data.expiresAt.getTime()).toBeGreaterThanOrEqual(
         before + threeDaysMs,
       );
-      expect(data.expiresAt.getTime()).toBeLessThanOrEqual(
-        after + threeDaysMs,
-      );
+      expect(data.expiresAt.getTime()).toBeLessThanOrEqual(after + threeDaysMs);
     });
 
     it('keeps a server-crash entry that has no mob', async () => {

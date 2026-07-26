@@ -75,7 +75,9 @@ async function main() {
     }
   }
 
-  console.log(`Перенесено: ${migrated}, пропущено (протухшие/ошибки): ${skipped}`);
+  console.log(
+    `Перенесено: ${migrated}, пропущено (протухшие/ошибки): ${skipped}`,
+  );
   console.log(
     `Сверка после переноса: Postgres notifications=${await prisma.notification.count()}`,
   );

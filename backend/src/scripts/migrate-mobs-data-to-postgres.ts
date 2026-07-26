@@ -28,11 +28,7 @@ async function main() {
     `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.IP_DB}:27017/admin`;
 
   await mongoose.connect(mongoUri);
-  const MobsDataModel = mongoose.model(
-    'MobsData',
-    MobsDataSchema,
-    'mobsdatas',
-  );
+  const MobsDataModel = mongoose.model('MobsData', MobsDataSchema, 'mobsdatas');
 
   const prisma = new PrismaClient({
     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),

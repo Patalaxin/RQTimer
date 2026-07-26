@@ -14,7 +14,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 async function bootstrap() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { AppModule } = require('./app/app.module');
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);

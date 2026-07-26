@@ -32,7 +32,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
-    response.status(httpException.getStatus()).json(httpException.getResponse());
+    response
+      .status(httpException.getStatus())
+      .json(httpException.getResponse());
   }
 
   private toHttpException(exception: unknown): HttpException {

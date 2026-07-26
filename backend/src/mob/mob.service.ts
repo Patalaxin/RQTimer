@@ -5,7 +5,12 @@ import {
   Inject,
   NotFoundException,
 } from '@nestjs/common';
-import { Mob as PrismaMob, MobsData as PrismaMobsData, Prisma, Server } from '@prisma/client';
+import {
+  Mob as PrismaMob,
+  MobsData as PrismaMobsData,
+  Prisma,
+  Server,
+} from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
@@ -173,9 +178,7 @@ export class MobService implements IMob {
     });
 
     if (!mob) {
-      throw new BadRequestException(
-        'Mob or Mob data not found for this group',
-      );
+      throw new BadRequestException('Mob or Mob data not found for this group');
     }
 
     return { mob: translateMob(this.toMobDto(mob), lang) };
@@ -195,9 +198,7 @@ export class MobService implements IMob {
     const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
     if (!mob || !mobData) {
-      throw new BadRequestException(
-        'Mob or Mob data not found for this group',
-      );
+      throw new BadRequestException('Mob or Mob data not found for this group');
     }
 
     return {
@@ -540,7 +541,10 @@ export class MobService implements IMob {
   ): Promise<GetFullMobDtoResponse> {
     const { mobId, server } = updateMobCommentParams;
 
-    const mobFromGroup = await this.getMobFromGroup({ mobId, server }, groupName);
+    const mobFromGroup = await this.getMobFromGroup(
+      { mobId, server },
+      groupName,
+    );
 
     try {
       const mobData = await this.prisma.mobsData.update({

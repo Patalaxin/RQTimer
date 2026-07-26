@@ -122,7 +122,12 @@ export class AuthService {
 
     const where: Prisma.UserWhereInput = exchangeRefreshDto.email
       ? { email: { equals: exchangeRefreshDto.email, mode: 'insensitive' } }
-      : { nickname: { equals: exchangeRefreshDto.nickname, mode: 'insensitive' } };
+      : {
+          nickname: {
+            equals: exchangeRefreshDto.nickname,
+            mode: 'insensitive',
+          },
+        };
 
     const user = await this.prisma.user.findFirst({
       where,

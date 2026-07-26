@@ -46,7 +46,9 @@ export class UsersService {
     };
   }
 
-  async createUser(createUserDto: CreateUserDtoRequest): Promise<UserResponseDto> {
+  async createUser(
+    createUserDto: CreateUserDtoRequest,
+  ): Promise<UserResponseDto> {
     const { email, nickname, password, excludedMobs } = createUserDto;
 
     if (!(await this.otpService.isEmailVerified(email))) {
@@ -101,7 +103,13 @@ export class UsersService {
     const [total, data] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.findMany({
-        select: { id: true, email: true, nickname: true, role: true, groupName: true },
+        select: {
+          id: true,
+          email: true,
+          nickname: true,
+          role: true,
+          groupName: true,
+        },
         skip,
         take: limit,
       }),
@@ -166,7 +174,9 @@ export class UsersService {
 
     const where: Prisma.UserWhereInput = forgotUserPassDto.email
       ? { email: { equals: forgotUserPassDto.email, mode: 'insensitive' } }
-      : { nickname: { equals: forgotUserPassDto.nickname, mode: 'insensitive' } };
+      : {
+          nickname: { equals: forgotUserPassDto.nickname, mode: 'insensitive' },
+        };
 
     const user = await this.prisma.user.findFirst({ where });
     if (!user) {
@@ -214,7 +224,9 @@ export class UsersService {
 
     const where: Prisma.UserWhereInput = updateUserRoleDto.email
       ? { email: { equals: updateUserRoleDto.email, mode: 'insensitive' } }
-      : { nickname: { equals: updateUserRoleDto.nickname, mode: 'insensitive' } };
+      : {
+          nickname: { equals: updateUserRoleDto.nickname, mode: 'insensitive' },
+        };
 
     const user = await this.prisma.user.findFirst({ where });
     if (!user) {

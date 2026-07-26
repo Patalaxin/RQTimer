@@ -67,7 +67,9 @@ async function main() {
     }
   }
 
-  console.log(`Перенесено пользователей: ${usersMigrated}, пропущено: ${usersSkipped}`);
+  console.log(
+    `Перенесено пользователей: ${usersMigrated}, пропущено: ${usersSkipped}`,
+  );
 
   let tokensMigrated = 0;
   let tokensSkipped = 0;
@@ -102,7 +104,9 @@ async function main() {
     }
   }
 
-  console.log(`Перенесено токенов: ${tokensMigrated}, пропущено: ${tokensSkipped}`);
+  console.log(
+    `Перенесено токенов: ${tokensMigrated}, пропущено: ${tokensSkipped}`,
+  );
 
   const postgresUserCount = await prisma.user.count();
   const postgresTokenCount = await prisma.refreshToken.count();

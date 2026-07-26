@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Locations, MobName, MobsTypes, ShortMobName } from '../../schemas/mobs.enum';
+import {
+  Locations,
+  MobName,
+  MobsTypes,
+  ShortMobName,
+} from '../../schemas/mobs.enum';
 
 export class MobCatalogItemDto {
   @ApiProperty({ description: 'Идентификатор моба в справочнике' })

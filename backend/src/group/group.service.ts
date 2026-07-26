@@ -130,8 +130,7 @@ export class GroupService implements IGroup {
       throw new NotFoundException('Invalid or expired invite code');
     }
 
-    const codeAgeMs =
-      Date.now() - (group.inviteCodeCreatedAt?.getTime() ?? 0);
+    const codeAgeMs = Date.now() - (group.inviteCodeCreatedAt?.getTime() ?? 0);
     if (codeAgeMs > INVITE_CODE_TTL_MS) {
       throw new NotFoundException('Invite code is expired');
     }

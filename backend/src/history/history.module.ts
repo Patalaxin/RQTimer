@@ -3,7 +3,10 @@ import { HistoryService } from './history.service';
 import { HistoryController } from './history.controller';
 
 @Module({
-  providers: [HistoryService, { provide: 'IHistory', useClass: HistoryService }],
+  providers: [
+    HistoryService,
+    { provide: 'IHistory', useClass: HistoryService },
+  ],
   exports: [HistoryService],
   controllers: [HistoryController],
 })
