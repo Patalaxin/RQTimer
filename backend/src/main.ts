@@ -7,13 +7,16 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: resolve(__dirname, '../.env') });
 
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 async function bootstrap() {
+  // Ленивый require намеренно: статический import подняли бы к началу файла,
+  // выше dotenv.config() (см. комментарий там же).
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { AppModule } = require('./app/app.module');
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
@@ -51,4 +54,12 @@ async function bootstrap() {
   await app.listen(configService.get<number>('PORT') ?? 3000);
 }
 
-bootstrap();
+// Упасть на старте — нормально (порт занят, БД недоступна, конфиг невалиден),
+// но с внятной строчкой в логе, а не дампом unhandled rejection.
+bootstrap().catch((error) => {
+  new Logger('Bootstrap').error(
+    'Не удалось запустить приложение',
+    error instanceof Error ? error.stack : String(error),
+  );
+  process.exit(1);
+});

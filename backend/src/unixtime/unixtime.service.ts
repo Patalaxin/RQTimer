@@ -27,7 +27,8 @@ export class UnixtimeService
     await this.syncUnixtimeFromApi();
 
     this.syncInterval = setInterval(() => {
-      this.syncUnixtimeFromApi();
+      // Метод гасит свои ошибки сам и откатывается на локальное время.
+      void this.syncUnixtimeFromApi();
     }, 60_000);
   }
 

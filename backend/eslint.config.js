@@ -28,6 +28,17 @@ module.exports = [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+
+      // Промис, брошенный без await/catch, — это необработанный reject, то есть
+      // упавший процесс. Ровно так падало приложение из-за телеграма.
+      // Осознанный fire-and-forget помечается `void`.
+      '@typescript-eslint/no-floating-promises': 'error',
+      // Пойманная и ни разу не использованная ошибка — проглоченная причина.
+      // Если ошибка действительно не нужна, пишется `catch {}` без параметра.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { caughtErrors: 'all', argsIgnorePattern: '^_' },
+      ],
     },
   },
   eslintPluginPrettierRecommended,

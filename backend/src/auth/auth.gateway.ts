@@ -4,6 +4,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 
@@ -20,6 +21,8 @@ interface OnlineUser {
   },
 })
 export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger(AuthGateway.name);
+
   constructor(private readonly jwtService: JwtService) {}
 
   @WebSocketServer()
@@ -55,6 +58,10 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       this.sendOnlineUsersList(client, groupName);
     } catch (error) {
+      // Токен в лог не пишем — только причину отказа.
+      this.logger.warn(
+        `Сокет ${client.id} отклонён: ${error instanceof Error ? error.message : String(error)}`,
+      );
       client.disconnect();
     }
   }
