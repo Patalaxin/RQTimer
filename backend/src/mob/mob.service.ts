@@ -5,12 +5,9 @@ import {
   Inject,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { isValidObjectId, Model, Types } from 'mongoose';
+import { Mob as PrismaMob, MobsData as PrismaMobsData, Prisma, Server } from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
-import { Mob, MobDocument } from '../schemas/mob.schema';
-import { MobsData, MobsDataDocument } from '../schemas/mobsData.schema';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
@@ -18,6 +15,7 @@ import {
   GetMobDtoResponse,
   GetMobInGroupDtoRequest,
 } from './dto/get-mob.dto';
+import { MobDto, MobsDataDto } from './dto/mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
   UpdateMobDtoBodyRequest,
@@ -38,7 +36,6 @@ import { RolesTypes, User } from '../schemas/user.schema';
 import { GroupService } from '../group/group.service';
 import { GroupResponseDto } from '../group/dto/group-response.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
-import { plainToInstance } from 'class-transformer';
 import { History, HistoryTypes } from '../history/history-types.interface';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import {
@@ -48,13 +45,17 @@ import {
 import { IMob } from './mob.interface';
 import { translateMob } from '../utils/translate-mob';
 import { IUnixtime } from '../unixtime/unixtime.interface';
+import { PrismaService } from '../prisma/prisma.service';
+
+/** На сколько сдвигается респаун при краше сервера. */
+const CRASH_SHIFT_MS: Record<string, number> = {
+  [MobsTypes.Босс]: 300_000,
+  [MobsTypes.Элитка]: 18_000,
+};
 
 export class MobService implements IMob {
   constructor(
-    @InjectModel(Mob.name)
-    private readonly mobModel: Model<MobDocument>,
-    @InjectModel(MobsData.name)
-    private readonly mobsDataModel: Model<MobsDataDocument>,
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly historyService: HistoryService,
     @Inject('IUnixtime') private readonly unixtimeService: IUnixtime,
@@ -62,18 +63,47 @@ export class MobService implements IMob {
     private readonly groupService: GroupService,
   ) {}
 
-  async createMob(createMobDto: CreateMobDtoRequest): Promise<Mob> {
+  /**
+   * В БД mobName/location/mobType — обычные строки (см. комментарий в
+   * schema.prisma), наружу же они уходят как значения соответствующих enum'ов.
+   * Каст живёт здесь, чтобы не расползаться по вызовам.
+   */
+  private toMobDto(mob: PrismaMob): MobDto {
+    const { id, ...rest } = mob;
+    return { _id: id, ...rest } as MobDto;
+  }
+
+  private toMobsDataDto(mobsData: PrismaMobsData | null): MobsDataDto | null {
+    if (!mobsData) {
+      return null;
+    }
+    return { ...mobsData } as unknown as MobsDataDto;
+  }
+
+  private mobDataKey(mobId: string, groupName: string, server: Servers) {
+    return {
+      mobId_groupName_server: {
+        mobId,
+        groupName,
+        server: server as unknown as Server,
+      },
+    };
+  }
+
+  async createMob(createMobDto: CreateMobDtoRequest): Promise<MobDto> {
     try {
-      const mob = await this.mobModel.create(createMobDto);
-      await mob.save();
-      return plainToInstance(Mob, mob.toObject());
-    } catch (err) {
-      if (err.code === 11000) {
+      const mob = await this.prisma.mob.create({ data: createMobDto });
+      return this.toMobDto(mob);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new ConflictException(
           'A mob with the same name already exists in this location on this server.',
         );
       }
-      throw new BadRequestException(err);
+      throw new BadRequestException(error);
     }
   }
 
@@ -96,97 +126,58 @@ export class MobService implements IMob {
       );
     }
 
-    const mobs = await this.mobModel
-      .find({ _id: { $in: addMobInGroupDto.mobs } }, { __v: 0 })
-      .lean()
-      .exec();
+    const mobs = await this.prisma.mob.findMany({
+      where: { id: { in: addMobInGroupDto.mobs } },
+    });
 
     if (mobs.length !== addMobInGroupDto.mobs.length) {
       throw new BadRequestException('One or more mobs not found');
     }
 
-    const mobDataArray = mobs.map((mob) => ({
-      mobId: mob._id,
-      server,
-      groupName,
-      mobTypeAdditionalTime: mob.mobType,
-    }));
-
-    try {
-      await this.mobsDataModel.insertMany(mobDataArray, { ordered: false });
-    } catch (error) {
-      if (error.code !== 11000) {
-        throw error;
-      }
-      // Если дубликаты — игнорируем ошибку, тк документы уже есть
-    }
-
-    // Загружаем все документы mobData для заданных mobs и группы
-    const mobDataDocs = await this.mobsDataModel
-      .find({
-        mobId: { $in: addMobInGroupDto.mobs },
+    // Уже добавленные мобы пропускаем — повторный вызов не должен падать.
+    await this.prisma.mobsData.createMany({
+      data: mobs.map((mob) => ({
+        mobId: mob.id,
+        server: server as unknown as Server,
         groupName,
-        server,
-      })
-      .exec();
+        mobTypeAdditionalTime: mob.mobType,
+      })),
+      skipDuplicates: true,
+    });
+
+    const mobDataRows = await this.prisma.mobsData.findMany({
+      where: {
+        mobId: { in: addMobInGroupDto.mobs },
+        groupName,
+        server: server as unknown as Server,
+      },
+    });
+    const mobDataByMobId = new Map(mobDataRows.map((row) => [row.mobId, row]));
 
     const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
-    return mobs.map((mob) => {
-      const translatedMob = translateMob(mob);
-      const mobInstance = plainToInstance(Mob, translatedMob, {
-        excludeExtraneousValues: true,
-      });
-
-      // Ищем соответствующий mobData документ
-      const mobData = mobDataDocs.find(
-        (md) => md.mobId.toString() === mob._id.toString(),
-      );
-
-      const mobDataInstance = mobData
-        ? plainToInstance(MobsData, mobData.toObject(), {
-            excludeExtraneousValues: true,
-          })
-        : null;
-
-      return {
-        mob: mobInstance,
-        mobData: mobDataInstance,
-        unixtime: unixtimeResponse.unixtime,
-      };
-    });
+    return mobs.map((mob) => ({
+      mob: translateMob(this.toMobDto(mob)),
+      mobData: this.toMobsDataDto(mobDataByMobId.get(mob.id) ?? null),
+      unixtime: unixtimeResponse.unixtime,
+    }));
   }
 
   async getMob(
     getMobDto: GetMobDtoRequest,
     lang: string = 'ru',
   ): Promise<GetMobDtoResponse> {
-    try {
-      const mob = await this.mobModel
-        .findById(getMobDto.mobId, { __v: 0 })
-        .lean();
+    const mob = await this.prisma.mob.findUnique({
+      where: { id: getMobDto.mobId },
+    });
 
-      if (!mob) {
-        throw new Error();
-      }
-
-      const translatedMob = translateMob(mob, lang);
-      const mobInstance = plainToInstance(Mob, translatedMob, {
-        excludeExtraneousValues: true,
-      });
-
-      return {
-        mob: mobInstance,
-      };
-    } catch {
-      if (!isValidObjectId(getMobDto.mobId)) {
-        throw new BadRequestException(`Invalid ObjectId: ${getMobDto.mobId}`);
-      } else {
-        throw new BadRequestException(
-          'Mob or Mob data not found for this group',
-        );
-      }
+    if (!mob) {
+      throw new BadRequestException(
+        'Mob or Mob data not found for this group',
+      );
     }
+
+    return { mob: translateMob(this.toMobDto(mob), lang) };
   }
 
   async getMobFromGroup(
@@ -194,51 +185,25 @@ export class MobService implements IMob {
     groupName: string,
     lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
-    try {
-      const [mob, mobData, unixtimeResponse] = await Promise.all([
-        this.mobModel.findById(getMobDto.mobId, { __v: 0 }).lean().exec(),
+    const [mob, mobData] = await Promise.all([
+      this.prisma.mob.findUnique({ where: { id: getMobDto.mobId } }),
+      this.prisma.mobsData.findUnique({
+        where: this.mobDataKey(getMobDto.mobId, groupName, getMobDto.server),
+      }),
+    ]);
+    const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
-        this.mobsDataModel
-          .findOne(
-            {
-              mobId: getMobDto.mobId,
-              server: getMobDto.server,
-              groupName: groupName,
-            },
-            { __v: 0, _id: 0 },
-          )
-          .lean()
-          .exec(),
-
-        this.unixtimeService.getCurrentUnixtime(),
-      ]);
-
-      if (!mob || !mobData) {
-        throw new Error();
-      }
-
-      const translatedMob = translateMob(mob, lang);
-      const mobInstance = plainToInstance(Mob, translatedMob, {
-        excludeExtraneousValues: true,
-      });
-      const mobDataInstance = plainToInstance(MobsData, mobData, {
-        excludeExtraneousValues: true,
-      });
-
-      return {
-        mob: mobInstance,
-        mobData: mobDataInstance,
-        unixtime: unixtimeResponse.unixtime,
-      };
-    } catch {
-      if (!isValidObjectId(getMobDto.mobId)) {
-        throw new BadRequestException(`Invalid ObjectId: ${getMobDto.mobId}`);
-      } else {
-        throw new BadRequestException(
-          'Mob or Mob data not found for this group',
-        );
-      }
+    if (!mob || !mobData) {
+      throw new BadRequestException(
+        'Mob or Mob data not found for this group',
+      );
     }
+
+    return {
+      mob: translateMob(this.toMobDto(mob), lang),
+      mobData: this.toMobsDataDto(mobData),
+      unixtime: unixtimeResponse.unixtime,
+    };
   }
 
   async findAllGroupMobs(
@@ -248,47 +213,16 @@ export class MobService implements IMob {
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
-    const allMobsData = await this.mobsDataModel
-      .find(
-        { groupName: groupName, server: getMobsDto.server },
-        { __v: 0, _id: 0 },
-      )
-      .lean()
-      .exec();
-
-    const mobIds = allMobsData.map((data) => data.mobId.toString());
-
-    if (mobIds.length === 0) return [];
-
-    const allMobs = await this.mobModel
-      .find(
-        { _id: { $in: mobIds.map((id) => new mongoose.Types.ObjectId(id)) } },
-        { __v: 0 },
-      )
-      .lean()
-      .exec();
-
-    const allMobsDataMap = new Map<string, MobsData>();
-    allMobsData.forEach((data) => {
-      allMobsDataMap.set(data.mobId.toString(), data);
+    const allMobsData = await this.prisma.mobsData.findMany({
+      where: { groupName, server: getMobsDto.server as unknown as Server },
+      include: { mob: true },
     });
 
-    return allMobs.map((mob) => {
-      const translatedMob = translateMob(mob, lang);
-      const mobInstance = plainToInstance(Mob, translatedMob, {
-        excludeExtraneousValues: true,
-      });
-
-      const mobDataRaw = allMobsDataMap.get(mob._id.toString());
-      const mobDataInstance = mobDataRaw
-        ? plainToInstance(MobsData, mobDataRaw, {
-            excludeExtraneousValues: true,
-          })
-        : null;
-
+    return allMobsData.map((mobData) => {
+      const { mob, ...rest } = mobData;
       return {
-        mob: mobInstance,
-        mobData: mobDataInstance,
+        mob: translateMob(this.toMobDto(mob), lang),
+        mobData: this.toMobsDataDto(rest as PrismaMobsData),
         unixtime: unixtimeResponse.unixtime,
       };
     });
@@ -299,68 +233,35 @@ export class MobService implements IMob {
     getMobsDto: GetMobsDtoRequest,
     lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
-    const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
-
-    const allMobsData = await this.mobsDataModel
-      .find({ groupName: groupName, server: getMobsDto.server }, { __v: 0 })
-      .lean()
-      .exec();
-
-    const mobIds = allMobsData.map(
-      (data) => new mongoose.Types.ObjectId(data.mobId),
-    );
-
-    const allMobs = await this.mobModel
-      .find(
-        {
-          _id: { $in: mobIds },
-        },
-        { __v: 0 },
-      )
-      .lean()
-      .exec();
-
-    const allMobsDataMap = new Map<string, MobsData>();
-    allMobsData.forEach((data) => {
-      allMobsDataMap.set(data.mobId.toString(), data);
-    });
-
-    return allMobs.map((mob) => {
-      const mobData = allMobsDataMap.get(mob._id.toString()) || null;
-
-      return {
-        mob: translateMob(mob, lang),
-        mobData,
-        unixtime: unixtimeResponse.unixtime,
-      };
-    });
+    return this.findAllGroupMobs(getMobsDto, groupName, lang);
   }
 
-  async findAllAvailableMobs(lang: string = 'ru'): Promise<Mob[]> {
-    const mobs = await this.mobModel.find().select('-__v').lean();
+  async findAllAvailableMobs(lang: string = 'ru'): Promise<MobDto[]> {
+    const mobs = await this.prisma.mob.findMany();
 
-    const translated = mobs.map((mob) => translateMob(mob, lang));
-
-    return plainToInstance(Mob, translated, { excludeExtraneousValues: true });
+    return mobs.map((mob) => translateMob(this.toMobDto(mob), lang));
   }
 
   async updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<Mob> {
-    const mob: Mob = await this.mobModel
-      .findOneAndUpdate(
-        {
-          _id: new Types.ObjectId(updateMobDtoParams.mobId),
-        },
-        { $set: updateMobDtoBody },
-        { new: true },
-      )
-      .select('-__v')
-      .lean()
-      .exec();
+  ): Promise<MobDto> {
+    try {
+      const mob = await this.prisma.mob.update({
+        where: { id: updateMobDtoParams.mobId },
+        data: updateMobDtoBody,
+      });
 
-    return plainToInstance(Mob, mob, { excludeExtraneousValues: true });
+      return this.toMobDto(mob);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Mob not found');
+      }
+      throw error;
+    }
   }
 
   async updateMobByCooldown(
@@ -372,18 +273,9 @@ export class MobService implements IMob {
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
     const { cooldown } = updateMobByCooldownDto;
-    let { comment } = updateMobByCooldownDto;
+    const comment = updateMobByCooldownDto.comment ?? '';
 
-    if (!comment) {
-      comment = '';
-    }
-
-    const getMobDto = { mobId, server };
-
-    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
-      getMobDto,
-      groupName,
-    );
+    const mob = await this.getMobFromGroup({ mobId, server }, groupName);
 
     if (mob.mobData.respawnTime === null) {
       throw new BadRequestException(
@@ -409,28 +301,19 @@ export class MobService implements IMob {
       toCooldown: mob.mobData.cooldown + cooldown,
     };
 
-    const updatedMobData: MobsData = await this.mobsDataModel
-      .findOneAndUpdate(
-        { mobId: mobId, groupName: groupName, server: server },
-        {
-          $inc: { cooldown },
-          respawnTime: nextResurrectTime,
-          comment: comment,
-          respawnLost: false,
-        },
-        { new: true },
-      )
-      .select('-__v -_id')
-      .lean()
-      .exec();
-
-    if (!updatedMobData) {
-      throw new Error('Failed to update mob data.');
-    }
+    const updatedMobData = await this.prisma.mobsData.update({
+      where: this.mobDataKey(mobId, groupName, server),
+      data: {
+        cooldown: { increment: cooldown },
+        respawnTime: nextResurrectTime,
+        comment,
+        respawnLost: false,
+      },
+    });
 
     await this.historyService.createHistory(history);
 
-    return { mob: mob.mob, mobData: updatedMobData };
+    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
   }
 
   async updateMobDateOfDeath(
@@ -442,23 +325,14 @@ export class MobService implements IMob {
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
     const { dateOfDeath } = updateMobDateOfDeathDto;
-    let { comment } = updateMobDateOfDeathDto;
+    const comment = updateMobDateOfDeathDto.comment ?? '';
 
-    if (!comment) {
-      comment = '';
-    }
-
-    const getMobDto = { mobId, server };
-
-    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
-      getMobDto,
-      groupName,
-    );
+    const mob = await this.getMobFromGroup({ mobId, server }, groupName);
 
     const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
 
     const history: History = {
-      mobId: mobId,
+      mobId,
       location: mob.mob.location,
       mobName: mob.mob.mobName,
       nickname,
@@ -470,29 +344,20 @@ export class MobService implements IMob {
       toWillResurrect: nextResurrectTime,
     };
 
-    const updatedMobData: MobsData = await this.mobsDataModel
-      .findOneAndUpdate(
-        { mobId: mobId, groupName: groupName, server: server },
-        {
-          respawnTime: nextResurrectTime,
-          cooldown: 0,
-          deathTime: dateOfDeath,
-          comment: comment,
-          respawnLost: false,
-        },
-        { new: true },
-      )
-      .select('-_id -__v')
-      .lean()
-      .exec();
-
-    if (!updatedMobData) {
-      throw new Error('Failed to update mob data.');
-    }
+    const updatedMobData = await this.prisma.mobsData.update({
+      where: this.mobDataKey(mobId, groupName, server),
+      data: {
+        respawnTime: nextResurrectTime,
+        cooldown: 0,
+        deathTime: dateOfDeath,
+        comment,
+        respawnLost: false,
+      },
+    });
 
     await this.historyService.createHistory(history);
 
-    return { mob: mob.mob, mobData: updatedMobData };
+    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
   }
 
   async updateMobDateOfRespawn(
@@ -504,18 +369,9 @@ export class MobService implements IMob {
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
     const { dateOfRespawn } = updateMobDateOfRespawnDto;
-    let { comment } = updateMobDateOfRespawnDto;
+    const comment = updateMobDateOfRespawnDto.comment ?? '';
 
-    if (!comment) {
-      comment = '';
-    }
-
-    const getMobDto = { mobId, server };
-
-    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
-      getMobDto,
-      groupName,
-    );
+    const mob = await this.getMobFromGroup({ mobId, server }, groupName);
 
     const nextResurrectTime: number = dateOfRespawn;
     const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
@@ -534,48 +390,35 @@ export class MobService implements IMob {
       toWillResurrect: nextResurrectTime,
     };
 
-    const updatedMobData: MobsData = await this.mobsDataModel
-      .findOneAndUpdate(
-        { mobId: mobId, groupName: groupName, server: server },
-        {
-          respawnTime: nextResurrectTime,
-          cooldown: 0,
-          deathTime: adjustedDeathTime,
-          comment: comment,
-          respawnLost: false,
-        },
-        { new: true },
-      )
-      .select('-_id -__v')
-      .lean()
-      .exec();
-
-    if (!updatedMobData) {
-      throw new BadRequestException('Failed to update mob data.');
-    }
+    const updatedMobData = await this.prisma.mobsData.update({
+      where: this.mobDataKey(mobId, groupName, server),
+      data: {
+        respawnTime: nextResurrectTime,
+        cooldown: 0,
+        deathTime: adjustedDeathTime,
+        comment,
+        respawnLost: false,
+      },
+    });
 
     await this.historyService.createHistory(history);
 
-    return { mob: mob.mob, mobData: updatedMobData };
+    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
   }
 
   async deleteMob(mobId: string): Promise<DeleteMobDtoResponse> {
-    const mob: Mob = await this.mobModel
-      .findOneAndDelete(
-        {
-          _id: mobId,
-        },
-        { __v: 0 },
-      )
-      .exec();
-
-    if (!mob) {
-      throw new NotFoundException('Mob not found');
+    try {
+      // Строки mobs_data уезжают следом по ON DELETE CASCADE.
+      await this.prisma.mob.delete({ where: { id: mobId } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Mob not found');
+      }
+      throw error;
     }
-
-    await this.mobsDataModel.deleteMany({
-      mobId: mobId,
-    });
 
     return { message: 'Mob deleted' };
   }
@@ -586,21 +429,11 @@ export class MobService implements IMob {
   ): Promise<RemoveMobFromGroupDtoResponse> {
     const { mobId, server } = removeMobDtoParams;
 
-    const getMobDto: GetMobInGroupDtoRequest = { mobId, server };
+    // Бросит 400, если моба нет в группе.
+    await this.getMobFromGroup({ mobId, server }, groupName);
 
-    const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
-      getMobDto,
-      groupName,
-    );
-
-    if (!mob) {
-      throw new NotFoundException('Mob not found');
-    }
-
-    await this.mobsDataModel.deleteOne({
-      mobId: mobId,
-      groupName: groupName,
-      server: server,
+    await this.prisma.mobsData.delete({
+      where: this.mobDataKey(mobId, groupName, server),
     });
 
     return { message: 'Mob deleted from group' };
@@ -620,30 +453,25 @@ export class MobService implements IMob {
       role,
       historyTypes: HistoryTypes.crashMobServer,
       crashServer: true,
-      groupName: groupName,
+      groupName,
     };
 
     try {
-      await Promise.all([
-        this.mobsDataModel.updateMany(
-          {
-            respawnTime: { $gte: Date.now() },
-            mobTypeAdditionalTime: MobsTypes.Босс,
-            server: server,
-            groupName: groupName,
-          },
-          { $inc: { respawnTime: -300000 } },
+      const now = Date.now();
+      // Боссам и элиткам краш сдвигает респаун на разное время.
+      await this.prisma.$transaction(
+        Object.entries(CRASH_SHIFT_MS).map(([mobType, shiftMs]) =>
+          this.prisma.mobsData.updateMany({
+            where: {
+              respawnTime: { gte: now },
+              mobTypeAdditionalTime: mobType,
+              server: server as unknown as Server,
+              groupName,
+            },
+            data: { respawnTime: { decrement: shiftMs } },
+          }),
         ),
-        this.mobsDataModel.updateMany(
-          {
-            respawnTime: { $gte: Date.now() },
-            mobTypeAdditionalTime: MobsTypes.Элитка,
-            server: server,
-            groupName: groupName,
-          },
-          { $inc: { respawnTime: -18000 } },
-        ),
-      ]);
+      );
 
       await this.historyService.createHistory(history);
 
@@ -664,29 +492,17 @@ export class MobService implements IMob {
     const { server, mobId } = respawnLostDtoParams;
 
     try {
-      const mob: GetFullMobDtoResponse = await this.getMobFromGroup(
-        respawnLostDtoParams,
-        groupName,
-      );
+      const mob = await this.getMobFromGroup(respawnLostDtoParams, groupName);
 
-      const mobData: MobsData = await this.mobsDataModel
-        .findOneAndUpdate(
-          {
-            mobId: mobId,
-            groupName: groupName,
-            server: server,
-          },
-          {
-            cooldown: 0,
-            respawnTime: null,
-            deathTime: null,
-            respawnLost: true,
-          },
-          { new: true },
-        )
-        .select('-_id -__v')
-        .lean()
-        .exec();
+      const mobData = await this.prisma.mobsData.update({
+        where: this.mobDataKey(mobId, groupName, server),
+        data: {
+          cooldown: 0,
+          respawnTime: null,
+          deathTime: null,
+          respawnLost: true,
+        },
+      });
 
       const history: History = {
         mobId,
@@ -702,7 +518,7 @@ export class MobService implements IMob {
 
       await this.historyService.createHistory(history);
 
-      return { mob: mob.mob, mobData };
+      return { mob: mob.mob, mobData: this.toMobsDataDto(mobData) };
     } catch {
       throw new BadRequestException('Failed to process respawn lost.');
     }
@@ -711,9 +527,7 @@ export class MobService implements IMob {
   async deleteAllMobData(
     groupName: string,
   ): Promise<DeleteAllMobsDataDtoResponse> {
-    await this.mobsDataModel.deleteMany({
-      groupName: groupName,
-    });
+    await this.prisma.mobsData.deleteMany({ where: { groupName } });
 
     return { message: 'All Mobs Data deleted' };
   }
@@ -725,34 +539,26 @@ export class MobService implements IMob {
   ): Promise<GetFullMobDtoResponse> {
     const { mobId, server } = updateMobCommentParams;
 
-    const mobFromGroup = await this.getMobFromGroup(
-      { mobId, server },
-      groupName,
-    );
+    const mobFromGroup = await this.getMobFromGroup({ mobId, server }, groupName);
 
-    const mobData = await this.mobsDataModel
-      .findOneAndUpdate(
-        {
-          mobId: mobId,
-          server: server,
-          groupName: groupName,
-        },
-        { $set: updateMobCommentBody },
-        { new: true },
-      )
-      .select('-_id -__v')
-      .lean()
-      .exec();
+    try {
+      const mobData = await this.prisma.mobsData.update({
+        where: this.mobDataKey(mobId, groupName, server),
+        data: updateMobCommentBody,
+      });
 
-    if (!mobData) {
-      throw new NotFoundException('Mob data not found');
+      return {
+        mob: mobFromGroup.mob,
+        mobData: this.toMobsDataDto(mobData),
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Mob data not found');
+      }
+      throw error;
     }
-
-    return {
-      mob: mobFromGroup.mob,
-      mobData: plainToInstance(MobsData, mobData, {
-        excludeExtraneousValues: true,
-      }),
-    };
   }
 }

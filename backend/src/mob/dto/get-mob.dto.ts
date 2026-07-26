@@ -1,9 +1,7 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { Servers } from '../../schemas/mobs.enum';
-import { Expose, Type } from 'class-transformer';
-import { Mob } from '../../schemas/mob.schema';
-import { MobsData } from '../../schemas/mobsData.schema';
 import { ApiProperty } from '@nestjs/swagger';
+import { MobDto, MobsDataDto } from './mob.dto';
 
 export class GetMobInGroupDtoRequest {
   @IsEnum(Servers)
@@ -22,36 +20,25 @@ export class GetMobDtoRequest {
 }
 
 export class GetMobDtoResponse {
-  @ApiProperty()
-  @Expose()
-  @Type(() => Mob)
-  mob: Mob;
+  @ApiProperty({ type: MobDto })
+  mob: MobDto;
 }
 
 export class GetFullMobDtoResponse {
-  @ApiProperty()
-  @Expose()
-  @Type(() => Mob)
-  mob: Mob;
+  @ApiProperty({ type: MobDto })
+  mob: MobDto;
 
-  @ApiProperty()
-  @Expose()
-  @Type(() => MobsData)
-  mobData: MobsData;
+  @ApiProperty({ type: MobsDataDto, nullable: true })
+  mobData: MobsDataDto;
 }
 
 export class GetFullMobWithUnixDtoResponse {
-  @ApiProperty()
-  @Expose()
-  @Type(() => Mob)
-  mob: Mob;
+  @ApiProperty({ type: MobDto })
+  mob: MobDto;
 
-  @ApiProperty()
-  @Expose()
-  @Type(() => MobsData)
-  mobData: MobsData;
+  @ApiProperty({ type: MobsDataDto, nullable: true })
+  mobData: MobsDataDto;
 
   @ApiProperty({ description: 'Unix time at the time of response generation' })
-  @Expose()
   unixtime: number;
 }

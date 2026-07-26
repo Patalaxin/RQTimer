@@ -15,6 +15,13 @@ enum Role {
   User
 }
 
+/// Игровой сервер. В отличие от названий мобов и локаций, значения латинские
+/// и стабильные, поэтому здесь настоящий enum, а не строка.
+enum Server {
+  Helios
+  Fenix
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -57,8 +64,9 @@ model OtpVerification {
 model Mob {
   // ObjectId из Mongo переносится как есть и НЕ генерируется заново: на эти
   // идентификаторы завязаны переводы (mob/mobs-translations.ts), MobsData.mobId,
-  // History.mobId и фронт.
-  id String @id
+  // History.mobId и фронт. Новые мобы получают uuid — формат идентификатора
+  // нигде не проверяется, важна только его неизменность.
+  id String @id @default(uuid())
   // mobName/location/mobType — значения enum'ов MobName/Locations/MobsTypes,
   // но в БД это обычные строки: enum'ы кириллические, а состав справочника
   // меняется чаще, чем хочется гонять миграции. Валидация — в CreateMobDtoRequest.
@@ -69,9 +77,40 @@ model Mob {
   cooldownTime Int
   image        String?
   mobType      String
+  mobsData     MobsData[]
 
   @@unique([location, mobName])
   @@map("mobs")
+}
+
+/// Состояние моба внутри конкретной группы на конкретном сервере:
+/// когда убит, когда встанет, сколько раз прокрутили кулдаун.
+model MobsData {
+  mobId String
+  mob   Mob    @relation(fields: [mobId], references: [id], onDelete: Cascade)
+  // Остаётся простым полем, как и User.groupName: станет FK, когда все
+  // ссылки на группы по имени переедут на связь.
+  groupName String
+  server    Server
+
+  // Абсолютные метки времени в миллисекундах Unix, поэтому Float, а не Int:
+  // 32-битный integer переполняется на любой сегодняшней дате (~1.7e12),
+  // а double точно представляет целые до 2^53 и остаётся обычным number в JSON.
+  respawnTime Float?
+  deathTime   Float?
+
+  // Сколько раз к респауну прибавляли кулдаун моба — счётчик, не время.
+  cooldown Int @default(0)
+  // Длину ограничивает UpdateMobCommentDtoBodyRequest (@MaxLength(50)):
+  // на уровне БД лимита нет, иначе перелив превращался бы в 500.
+  comment     String?
+  respawnLost Boolean @default(false)
+  // Тип моба на момент добавления в группу: от него зависит, на сколько
+  // сдвигать респаун при краше сервера.
+  mobTypeAdditionalTime String
+
+  @@id([mobId, groupName, server])
+  @@map("mobs_data")
 }
 
 model Group {

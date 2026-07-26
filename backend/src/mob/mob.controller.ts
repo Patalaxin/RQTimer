@@ -46,9 +46,9 @@ import {
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { MobGateway } from './mob.gateway';
-import { Mob } from '../schemas/mob.schema';
+import { MobDto } from './dto/mob.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
-import { MobsData } from '../schemas/mobsData.schema';
+import { MobsDataDto } from './dto/mob.dto';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { Servers } from '../schemas/mobs.enum';
@@ -75,7 +75,7 @@ export class MobController {
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Create Mob' })
   @Post()
-  create(@Body() createMobDto: CreateMobDtoRequest): Promise<Mob> {
+  create(@Body() createMobDto: CreateMobDtoRequest): Promise<MobDto> {
     return this.mobInterface.createMob(createMobDto);
   }
 
@@ -97,7 +97,7 @@ export class MobController {
 
   @Roles()
   @Get('/:mobId/')
-  @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
+  @ApiExtraModels(MobDto, MobsDataDto, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob' })
   @Header('Cache-Control', 'public, max-age=86400, immutable')
   getMob(
@@ -109,7 +109,7 @@ export class MobController {
 
   @Roles()
   @Get('/group/:server/:mobId/')
-  @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
+  @ApiExtraModels(MobDto, MobsDataDto, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob From Group' })
   getMobFromGroup(
     @GetUser('groupName') groupName: string,
@@ -134,7 +134,7 @@ export class MobController {
   @ApiOperation({ summary: 'Find All Available Mobs' })
   @Header('Cache-Control', 'public, max-age=3600')
   @Get()
-  findAllAvailableMobs(@Query('lang') lang: string = 'ru'): Promise<Mob[]> {
+  findAllAvailableMobs(@Query('lang') lang: string = 'ru'): Promise<MobDto[]> {
     return this.mobInterface.findAllAvailableMobs(lang);
   }
 
@@ -144,7 +144,7 @@ export class MobController {
   updateMob(
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<Mob> {
+  ): Promise<MobDto> {
     return this.mobInterface.updateMob(updateMobDtoBody, updateMobDtoParams);
   }
 

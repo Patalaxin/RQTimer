@@ -20,7 +20,7 @@ import {
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
 import { RolesTypes } from '../schemas/user.schema';
-import { Mob } from '../schemas/mob.schema';
+import { MobDto } from './dto/mob.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { Servers } from '../schemas/mobs.enum';
 import {
@@ -29,7 +29,7 @@ import {
 } from './dto/update-mob-comment.dto';
 
 export interface IMob {
-  createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
+  createMob(createMobDto: CreateMobDtoRequest): Promise<MobDto>;
 
   addMobInGroup(
     email: string,
@@ -58,12 +58,12 @@ export interface IMob {
     lang: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
-  findAllAvailableMobs(lang: string): Promise<Mob[]>;
+  findAllAvailableMobs(lang: string): Promise<MobDto[]>;
 
   updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<Mob>;
+  ): Promise<MobDto>;
 
   updateMobByCooldown(
     nickname: string,
