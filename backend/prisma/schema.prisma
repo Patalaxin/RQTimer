@@ -52,3 +52,16 @@ model OtpVerification {
 
   @@map("otp_verifications")
 }
+
+model Notification {
+  id String @id @default(uuid())
+  // {"ru": "...", "en": "..."} — набор языков задаёт LanguageEnum, так что
+  // добавление языка не требует миграции. Форму валидирует CreateNotificationDto.
+  text      Json
+  createdAt DateTime @default(now())
+  // Замена Mongo TTL-индексу на 7 дней, чистится CleanupRegistryService.
+  expiresAt DateTime
+
+  @@index([createdAt])
+  @@map("notifications")
+}
