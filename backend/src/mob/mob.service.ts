@@ -32,7 +32,8 @@ import {
   RemoveMobFromGroupDtoParamsRequest,
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
-import { RolesTypes, User } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
+import { UserResponseDto } from '../users/dto/user-response.dto';
 import { GroupService } from '../group/group.service';
 import { GroupResponseDto } from '../group/dto/group-response.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
@@ -119,7 +120,7 @@ export class MobService implements IMob {
       throw new NotFoundException('Group not found');
     }
 
-    const user: User = await this.usersService.findUser(email);
+    const user: UserResponseDto = await this.usersService.findUser(email);
     if (!user.isGroupLeader && !group.canMembersAddMobs) {
       throw new NotFoundException(
         'In this group, default members cannot add mobs',

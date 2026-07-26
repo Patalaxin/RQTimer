@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsNotEmpty, IsString, validateSync } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
   @IsString()
@@ -10,17 +10,19 @@ class EnvironmentVariables {
   @IsNotEmpty()
   UNIXTIME_KEY: string;
 
+  // Доступы к Mongo нужны только одноразовым скриптам переноса (src/scripts),
+  // само приложение к Mongo больше не подключается.
   @IsString()
-  @IsNotEmpty()
-  DATABASE_USER: string;
+  @IsOptional()
+  DATABASE_USER?: string;
 
   @IsString()
-  @IsNotEmpty()
-  DATABASE_PASSWORD: string;
+  @IsOptional()
+  DATABASE_PASSWORD?: string;
 
   @IsString()
-  @IsNotEmpty()
-  IP_DB: string;
+  @IsOptional()
+  IP_DB?: string;
 
   @IsString()
   @IsNotEmpty()

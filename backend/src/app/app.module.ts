@@ -1,7 +1,6 @@
 import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
@@ -33,14 +32,6 @@ import { PrismaModule } from '../prisma/prisma.module';
     ConfigurationModule,
     UnixtimeModule,
     NotificationModule,
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => {
-        return {
-          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.IP_DB}:27017/admin`,
-        };
-      },
-    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'client'),
       serveRoot: '/static',

@@ -14,7 +14,7 @@ import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
 import { TokensGuard } from '../guards/tokens.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @ApiTags('Notifications API')

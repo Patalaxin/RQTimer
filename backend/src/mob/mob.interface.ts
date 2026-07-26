@@ -19,7 +19,7 @@ import {
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { MobDto } from './dto/mob.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { Servers } from '../schemas/mobs.enum';

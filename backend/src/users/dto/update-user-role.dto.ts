@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { RolesTypes } from '../../schemas/user.schema';
+import { RolesTypes } from '../../schemas/roles.enum';
 import { IsNickname } from '../../decorators/isNickname.decorator';
 
 export class UpdateUserRoleDtoRequest {

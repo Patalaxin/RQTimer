@@ -7,7 +7,7 @@ import {
   Server,
 } from '@prisma/client';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { IHistory } from './history.interface';

@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 import { HistoryService } from '../history/history.service';
 import { GroupService } from '../group/group.service';
 import { Locations, MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { HistoryTypes } from '../history/history-types.interface';
 
 const MOB_ID = '673148021e738aba75ba3402';

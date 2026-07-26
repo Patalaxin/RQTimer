@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get-user.decorator';
 import { Roles } from '../decorators/roles.decorator';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { TokensGuard } from '../guards/tokens.guard';
 import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';

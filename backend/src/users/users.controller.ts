@@ -18,7 +18,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { RolesTypes, User } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
 import {
@@ -53,7 +54,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Create User' })
   @Post()
-  create(@Body() createUserDto: CreateUserDtoRequest): Promise<User> {
+  create(@Body() createUserDto: CreateUserDtoRequest): Promise<UserResponseDto> {
     return this.usersService.createUser(createUserDto);
   }
 
@@ -62,7 +63,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User' })
   @Get()
-  getOne(@GetUser('email') email: string): Promise<User> {
+  getOne(@GetUser('email') email: string): Promise<UserResponseDto> {
     return this.usersService.findUser(email);
   }
 
@@ -73,7 +74,7 @@ export class UsersController {
   @Get('specific-user/:identifier')
   getUserByEmailOrNickname(
     @Param('identifier') identifier: string,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     return this.usersService.findUser(identifier);
   }
 
@@ -120,7 +121,7 @@ export class UsersController {
   updateExcluded(
     @GetUser('email') email: string,
     @Body() updateExcludedDto: UpdateExcludedDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     return this.usersService.updateExcluded(email, updateExcludedDto);
   }
 

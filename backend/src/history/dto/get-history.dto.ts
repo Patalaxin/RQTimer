@@ -1,5 +1,5 @@
 import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
-import { RolesTypes } from '../../schemas/user.schema';
+import { RolesTypes } from '../../schemas/roles.enum';
 import { HistoryTypes } from '../history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 

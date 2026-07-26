@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 import { IHistory } from './history.interface';

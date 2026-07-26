@@ -1,4 +1,4 @@
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 
 export interface AuthenticatedUser {
   email: string;

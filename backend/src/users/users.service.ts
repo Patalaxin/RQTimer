@@ -14,7 +14,8 @@ import {
   UpdateUserRoleDtoRequest,
   UpdateUserRoleDtoResponse,
 } from './dto/update-user-role.dto';
-import { RolesTypes, User } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
+import { UserResponseDto } from './dto/user-response.dto';
 import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
@@ -33,8 +34,8 @@ export class UsersService {
     private readonly otpService: OtpService,
   ) {}
 
-  private toResponse(user: PrismaUser): User {
-    return new User({
+  private toResponse(user: PrismaUser): UserResponseDto {
+    return {
       _id: user.id,
       email: user.email,
       nickname: user.nickname,
@@ -42,10 +43,10 @@ export class UsersService {
       isGroupLeader: user.isGroupLeader,
       groupName: user.groupName,
       excludedMobs: user.excludedMobs,
-    });
+    };
   }
 
-  async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
+  async createUser(createUserDto: CreateUserDtoRequest): Promise<UserResponseDto> {
     const { email, nickname, password, excludedMobs } = createUserDto;
 
     if (!(await this.otpService.isEmailVerified(email))) {
@@ -76,7 +77,7 @@ export class UsersService {
     return this.toResponse(newUser);
   }
 
-  async findUser(nicknameOrEmail: string): Promise<User> {
+  async findUser(nicknameOrEmail: string): Promise<UserResponseDto> {
     const user = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -189,7 +190,7 @@ export class UsersService {
   async updateExcluded(
     email: string,
     updateExcludedDto: UpdateExcludedDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     const user = await this.prisma.user.update({
       where: { email },
       data: { excludedMobs: updateExcludedDto.excludedMobs },
