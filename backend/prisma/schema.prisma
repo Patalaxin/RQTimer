@@ -43,3 +43,12 @@ model RefreshToken {
 
   @@map("refresh_tokens")
 }
+
+model OtpVerification {
+  email     String   @id
+  otpHash   String
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+
+  @@map("otp_verifications")
+}

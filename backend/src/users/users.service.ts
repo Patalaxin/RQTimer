@@ -53,7 +53,7 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDtoRequest): Promise<User> {
     const { email, nickname, password, excludedMobs } = createUserDto;
 
-    if (!this.otpService.isEmailVerified(email)) {
+    if (!(await this.otpService.isEmailVerified(email))) {
       throw new BadRequestException('Email has not been verified through OTP!');
     }
 
@@ -77,7 +77,7 @@ export class UsersService {
       data: { email, nickname, passwordHash, excludedMobs: excludedMobs ?? [] },
     });
 
-    this.otpService.removeVerifiedEmail(email);
+    await this.otpService.removeVerifiedEmail(email);
     return this.toResponse(newUser);
   }
 
@@ -164,7 +164,7 @@ export class UsersService {
       );
     }
 
-    if (!this.otpService.isEmailVerified(forgotUserPassDto.email)) {
+    if (!(await this.otpService.isEmailVerified(forgotUserPassDto.email))) {
       throw new BadRequestException('Email has not been verified through OTP!');
     }
 
@@ -186,7 +186,7 @@ export class UsersService {
       data: { passwordHash: hashedNewPassword },
     });
 
-    this.otpService.removeVerifiedEmail(forgotUserPassDto.email);
+    await this.otpService.removeVerifiedEmail(forgotUserPassDto.email);
 
     return { message: 'Password successfully changed', status: 200 };
   }

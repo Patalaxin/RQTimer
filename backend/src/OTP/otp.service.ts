@@ -1,54 +1,91 @@
 import { Resend } from 'resend';
-import { BadRequestException } from '@nestjs/common';
-import * as process from 'process';
+import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { otp_template } from './otp-template';
-import { IOtp } from './otp.interface';
+import { PrismaService } from '../prisma/prisma.service';
+import { CleanupRegistryService } from '../cleanup/cleanup-registry.service';
 
-interface OtpRecord {
-  otp: string;
-  expiresAt: number;
-}
+const OTP_TTL_MS = 60_000; // время жизни неподтверждённого кода
+const VERIFIED_TTL_MS = 10 * 60_000; // окно на завершение signup/forgot-password после подтверждения
 
-export const otpStore: Record<string, OtpRecord> = {};
-export const verifiedUsers: Set<string> = new Set();
-
-export class OtpService implements IOtp {
+@Injectable()
+export class OtpService implements OnModuleInit {
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cleanupRegistry: CleanupRegistryService,
+  ) {}
+
+  onModuleInit(): void {
+    this.cleanupRegistry.register('otp_verifications', async () => {
+      const { count } = await this.prisma.otpVerification.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
+      });
+      return count;
+    });
+  }
 
   generateOtp(): string {
     return Math.floor(10000 + Math.random() * 90000).toString();
   }
 
   async storeOtp(email: string, otp: string): Promise<void> {
-    const expiresAt: number = Date.now() + 60000;
-    otpStore[email] = { otp, expiresAt };
-
-    setTimeout((): void => {
-      delete otpStore[email];
-    }, 60000);
+    const otpHash = await bcrypt.hash(otp, 10);
+    await this.prisma.otpVerification.upsert({
+      where: { email },
+      create: {
+        email,
+        otpHash,
+        verified: false,
+        expiresAt: new Date(Date.now() + OTP_TTL_MS),
+      },
+      update: {
+        otpHash,
+        verified: false,
+        expiresAt: new Date(Date.now() + OTP_TTL_MS),
+      },
+    });
   }
 
-  validateOtp(email: string, otp: string): boolean {
-    const record: OtpRecord = otpStore[email];
-    if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
+  async validateOtp(email: string, otp: string): Promise<boolean> {
+    const record = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+
+    if (!record || record.expiresAt < new Date()) {
       return false;
     }
 
-    delete otpStore[email];
-    verifiedUsers.add(email);
+    const isMatch = await bcrypt.compare(otp, record.otpHash);
+    if (!isMatch) {
+      return false;
+    }
+
+    await this.prisma.otpVerification.update({
+      where: { email },
+      data: { verified: true, expiresAt: new Date(Date.now() + VERIFIED_TTL_MS) },
+    });
+
     return true;
   }
 
-  isEmailVerified(email: string): boolean {
-    return verifiedUsers.has(email);
+  async isEmailVerified(email: string): Promise<boolean> {
+    const record = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+    return !!record?.verified && record.expiresAt >= new Date();
   }
 
-  removeVerifiedEmail(email: string): void {
-    verifiedUsers.delete(email);
+  async removeVerifiedEmail(email: string): Promise<void> {
+    await this.prisma.otpVerification.deleteMany({ where: { email } });
   }
 
   async sendOtp(email: string): Promise<void> {
-    if (otpStore[email]) {
+    const existing = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+    if (existing && !existing.verified && existing.expiresAt > new Date()) {
       throw new BadRequestException(
         'OTP has already been sent. If you did not receive the code, please request again in one minute.',
       );
