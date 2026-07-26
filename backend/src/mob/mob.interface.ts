@@ -2,7 +2,8 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest, GetMobDtoResponse,
+  GetMobDtoRequest,
+  GetMobDtoResponse,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
