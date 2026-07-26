@@ -4,6 +4,10 @@
 // (уникальным был только userId). Дубликаты по почте склеиваются в одну
 // строку: выигрывает самая «полная» — с userId и подтверждением.
 //
+// Сессии закрытых и переименованных серверов (см. known-server.ts) переносятся
+// с server: null — сама привязка к пользователю остаётся живой, а сервер
+// человек выберет заново при следующем /start.
+//
 // Как использовать:
 //   MONGO_URI=mongodb://user:pass@localhost:27017/admin npx ts-node src/scripts/migrate-bot-sessions-to-postgres.ts
 
@@ -13,9 +17,10 @@ import { resolve } from 'path';
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 
 import mongoose from 'mongoose';
-import { PrismaClient, Server } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { BotSessionSchema } from '../schemas/telegram-bot.schema';
+import { isKnownServer, SkippedServers } from './known-server';
 
 async function main() {
   const mongoUri =
@@ -69,15 +74,25 @@ async function main() {
 
   let migrated = 0;
   let failed = 0;
+  const skippedServers = new SkippedServers();
 
   for (const session of [...byEmail.values(), ...withoutEmail]) {
+    // Сервер может быть пустым и в норме — человек ещё не выбрал его. Гасим
+    // только несуществующие: сама привязка к телеграму остаётся рабочей,
+    // ровно как после кнопки «сменить сервер».
+    let server = session.server ?? null;
+    if (server !== null && !isKnownServer(server)) {
+      skippedServers.add(server);
+      server = null;
+    }
+
     try {
       await prisma.botSession.create({
         data: {
           userId: session.userId ?? null,
           email: session.email ?? null,
           groupName: session.groupName ?? null,
-          server: (session.server as unknown as Server) ?? null,
+          server,
           paused: session.paused ?? false,
           isVerified: session.isVerified ?? false,
           timezone: session.timezone ?? null,
@@ -93,6 +108,9 @@ async function main() {
     }
   }
 
+  skippedServers.report(
+    'Сессий с несуществующим сервером сброшено на «сервер не выбран»',
+  );
   console.log(`Перенесено сессий: ${migrated}, с ошибкой: ${failed}`);
   console.log(
     `Сверка после переноса: Postgres bot_sessions=${await prisma.botSession.count()}`,

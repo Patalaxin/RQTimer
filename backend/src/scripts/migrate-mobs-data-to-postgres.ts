@@ -5,6 +5,9 @@
 // на справочник. Строки, ссылающиеся на исчезнувшего моба, пропускаются с
 // отчётом — в Mongo такие висели незамеченными.
 //
+// Так же пропускаются строки закрытых и переименованных серверов (см.
+// known-server.ts): приложение их всё равно не читает.
+//
 // Как использовать:
 //   MONGO_URI=mongodb://user:pass@localhost:27017/admin npx ts-node src/scripts/migrate-mobs-data-to-postgres.ts
 
@@ -14,9 +17,10 @@ import { resolve } from 'path';
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 
 import mongoose from 'mongoose';
-import { PrismaClient, Server } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { MobsDataSchema } from '../schemas/mobsData.schema';
+import { isKnownServer, SkippedServers } from './known-server';
 
 async function main() {
   const mongoUri =
@@ -49,9 +53,15 @@ async function main() {
   let migrated = 0;
   let orphaned = 0;
   let failed = 0;
+  const skippedServers = new SkippedServers();
 
   for (const row of mongoMobsData) {
     const mobId = String(row.mobId);
+
+    if (!isKnownServer(row.server)) {
+      skippedServers.add(row.server);
+      continue;
+    }
 
     if (!knownMobIds.has(mobId)) {
       orphaned++;
@@ -66,7 +76,7 @@ async function main() {
         data: {
           mobId,
           groupName: row.groupName,
-          server: row.server as unknown as Server,
+          server: row.server,
           respawnTime: row.respawnTime ?? null,
           deathTime: row.deathTime ?? null,
           cooldown: row.cooldown ?? 0,
@@ -85,6 +95,7 @@ async function main() {
     }
   }
 
+  skippedServers.report('Пропущено записей с несуществующими серверами');
   console.log(
     `Перенесено: ${migrated}, без моба в справочнике: ${orphaned}, с ошибкой: ${failed}`,
   );
