@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { GroupService } from './group.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -132,7 +128,7 @@ describe('GroupService (smoke)', () => {
 
       await expect(
         service.createGroup(LEADER, { name: 'MyGroup' }),
-      ).rejects.toBeInstanceOf(ConflictException);
+      ).rejects.toMatchObject({ status: 409, code: 'GROUP_NAME_TAKEN' });
     });
   });
 
@@ -331,7 +327,7 @@ describe('GroupService (smoke)', () => {
 
       await expect(
         service.updateGroup('Ghost', { canMembersAddMobs: true }),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toMatchObject({ status: 404, code: 'GROUP_NOT_FOUND' });
     });
   });
 });

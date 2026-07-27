@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   forwardRef,
   Inject,
   NotFoundException,
@@ -8,9 +7,10 @@ import {
 import {
   Mob as PrismaMob,
   MobsData as PrismaMobsData,
-  Prisma,
   Server,
 } from '@prisma/client';
+import { ConflictError, NotFoundError } from '../errors/app.error';
+import { mapPrismaError } from '../errors/map-prisma-error';
 import { UsersService } from '../users/users.service';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
@@ -101,15 +101,16 @@ export class MobService implements IMob {
       const mob = await this.prisma.mob.create({ data: createMobDto });
       return this.toMobDto(mob);
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException(
-          'A mob with the same name already exists in this location on this server.',
-        );
-      }
-      throw new BadRequestException(error);
+      // Всё, кроме занятого имени, уходит наверх как есть: раньше здесь любая
+      // ошибка становилась 400 с сырым объектом Prisma в теле ответа, который
+      // фронт показывал пользователю тостом.
+      throw mapPrismaError(error, {
+        P2002: () =>
+          new ConflictError(
+            'MOB_ALREADY_EXISTS',
+            'A mob with the same name already exists in this location on this server.',
+          ),
+      });
     }
   }
 
@@ -256,13 +257,9 @@ export class MobService implements IMob {
 
       return this.toMobDto(mob);
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Mob not found');
-      }
-      throw error;
+      throw mapPrismaError(error, {
+        P2025: () => new NotFoundError('MOB_NOT_FOUND', 'Mob not found'),
+      });
     }
   }
 
@@ -413,13 +410,9 @@ export class MobService implements IMob {
       // Строки mobs_data уезжают следом по ON DELETE CASCADE.
       await this.prisma.mob.delete({ where: { id: mobId } });
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Mob not found');
-      }
-      throw error;
+      throw mapPrismaError(error, {
+        P2025: () => new NotFoundError('MOB_NOT_FOUND', 'Mob not found'),
+      });
     }
 
     return { message: 'Mob deleted' };
@@ -458,31 +451,25 @@ export class MobService implements IMob {
       groupName,
     };
 
-    try {
-      const now = Date.now();
-      // Боссам и элиткам краш сдвигает респаун на разное время.
-      await this.prisma.$transaction(
-        Object.entries(CRASH_SHIFT_MS).map(([mobType, shiftMs]) =>
-          this.prisma.mobsData.updateMany({
-            where: {
-              respawnTime: { gte: now },
-              mobTypeAdditionalTime: mobType,
-              server: server as unknown as Server,
-              groupName,
-            },
-            data: { respawnTime: { decrement: shiftMs } },
-          }),
-        ),
-      );
+    const now = Date.now();
+    // Боссам и элиткам краш сдвигает респаун на разное время.
+    await this.prisma.$transaction(
+      Object.entries(CRASH_SHIFT_MS).map(([mobType, shiftMs]) =>
+        this.prisma.mobsData.updateMany({
+          where: {
+            respawnTime: { gte: now },
+            mobTypeAdditionalTime: mobType,
+            server: server as unknown as Server,
+            groupName,
+          },
+          data: { respawnTime: { decrement: shiftMs } },
+        }),
+      ),
+    );
 
-      await this.historyService.createHistory(history);
+    await this.historyService.createHistory(history);
 
-      return this.findAllGroupMobs({ server }, groupName);
-    } catch {
-      throw new BadRequestException(
-        'Something went wrong while crashing the server.',
-      );
-    }
+    return this.findAllGroupMobs({ server }, groupName);
   }
 
   async respawnLost(
@@ -493,37 +480,33 @@ export class MobService implements IMob {
   ): Promise<GetFullMobDtoResponse> {
     const { server, mobId } = respawnLostDtoParams;
 
-    try {
-      const mob = await this.getMobFromGroup(respawnLostDtoParams, groupName);
+    const mob = await this.getMobFromGroup(respawnLostDtoParams, groupName);
 
-      const mobData = await this.prisma.mobsData.update({
-        where: this.mobDataKey(mobId, groupName, server),
-        data: {
-          cooldown: 0,
-          respawnTime: null,
-          deathTime: null,
-          respawnLost: true,
-        },
-      });
+    const mobData = await this.prisma.mobsData.update({
+      where: this.mobDataKey(mobId, groupName, server),
+      data: {
+        cooldown: 0,
+        respawnTime: null,
+        deathTime: null,
+        respawnLost: true,
+      },
+    });
 
-      const history: History = {
-        mobId,
-        location: mob.mob.location,
-        mobName: mob.mob.mobName,
-        nickname,
-        server,
-        groupName,
-        date: Date.now(),
-        role,
-        historyTypes: HistoryTypes.respawnLost,
-      };
+    const history: History = {
+      mobId,
+      location: mob.mob.location,
+      mobName: mob.mob.mobName,
+      nickname,
+      server,
+      groupName,
+      date: Date.now(),
+      role,
+      historyTypes: HistoryTypes.respawnLost,
+    };
 
-      await this.historyService.createHistory(history);
+    await this.historyService.createHistory(history);
 
-      return { mob: mob.mob, mobData: this.toMobsDataDto(mobData) };
-    } catch {
-      throw new BadRequestException('Failed to process respawn lost.');
-    }
+    return { mob: mob.mob, mobData: this.toMobsDataDto(mobData) };
   }
 
   async deleteAllMobData(
@@ -557,13 +540,10 @@ export class MobService implements IMob {
         mobData: this.toMobsDataDto(mobData),
       };
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Mob data not found');
-      }
-      throw error;
+      throw mapPrismaError(error, {
+        P2025: () =>
+          new NotFoundError('MOB_DATA_NOT_FOUND', 'Mob data not found'),
+      });
     }
   }
 }

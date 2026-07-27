@@ -309,6 +309,19 @@ describe('MobService (smoke)', () => {
       expect(history.historyTypes).toBe(HistoryTypes.crashMobServer);
       expect(history.crashServer).toBe(true);
     });
+
+    // Раньше здесь стоял `catch {}`, превращавший любой сбой — упавшую
+    // транзакцию, недоступную БД — в 400 «Something went wrong» без единой
+    // строчки в логе. Причина должна доходить до фильтра нетронутой.
+    it('lets a failing transaction surface instead of flattening it to 400', async () => {
+      const dbFailure = new Error('connection terminated');
+      prisma.$transaction.mockRejectedValue(dbFailure);
+
+      await expect(
+        service.crashMobServer(GROUP, 'Nick', RolesTypes.User, Servers.Helios),
+      ).rejects.toBe(dbFailure);
+      expect(historyService.createHistory).not.toHaveBeenCalled();
+    });
   });
 
   describe('respawnLost', () => {
@@ -334,6 +347,25 @@ describe('MobService (smoke)', () => {
       });
       expect(result.mobData.respawnLost).toBe(true);
     });
+
+    // Прежний `catch {}` съедал и осмысленную ошибку «моба нет в группе»,
+    // подменяя её невнятным «Failed to process respawn lost».
+    it('keeps the "mob is not in this group" error instead of masking it', async () => {
+      prisma.mob.findUnique.mockResolvedValue(mobRow());
+      prisma.mobsData.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.respawnLost(
+          { mobId: MOB_ID, server: Servers.Helios },
+          'Nick',
+          RolesTypes.User,
+          GROUP,
+        ),
+      ).rejects.toMatchObject({
+        message: 'Mob or Mob data not found for this group',
+      });
+      expect(prisma.mobsData.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('findAllGroupMobs', () => {
@@ -358,6 +390,32 @@ describe('MobService (smoke)', () => {
     });
   });
 
+  describe('createMob', () => {
+    it('maps a duplicate mob to 409', async () => {
+      prisma.mob.create.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('duplicate', {
+          code: 'P2002',
+          clientVersion: 'test',
+        }),
+      );
+
+      await expect(service.createMob(mobRow() as any)).rejects.toMatchObject({
+        status: 409,
+        code: 'MOB_ALREADY_EXISTS',
+      });
+    });
+
+    // Раньше любая другая ошибка становилась `BadRequestException(error)`,
+    // то есть сырой объект Prisma в теле ответа — а его интерцептор фронта
+    // показывает пользователю тостом.
+    it('does not wrap an unrelated failure into a 400 with the raw error', async () => {
+      const dbFailure = new Error('connection terminated');
+      prisma.mob.create.mockRejectedValue(dbFailure);
+
+      await expect(service.createMob(mobRow() as any)).rejects.toBe(dbFailure);
+    });
+  });
+
   describe('deleteMob', () => {
     it('removes the catalog entry and lets the FK cascade clear group data', async () => {
       await expect(service.deleteMob(MOB_ID)).resolves.toEqual({
@@ -375,9 +433,10 @@ describe('MobService (smoke)', () => {
         }),
       );
 
-      await expect(service.deleteMob(MOB_ID)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(service.deleteMob(MOB_ID)).rejects.toMatchObject({
+        status: 404,
+        code: 'MOB_NOT_FOUND',
+      });
     });
   });
 

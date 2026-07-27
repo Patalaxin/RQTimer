@@ -1,12 +1,13 @@
 import {
   BadRequestException,
-  ConflictException,
   forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Group, Prisma } from '@prisma/client';
+import { Group } from '@prisma/client';
+import { ConflictError, NotFoundError } from '../errors/app.error';
+import { mapPrismaError } from '../errors/map-prisma-error';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
@@ -79,15 +80,13 @@ export class GroupService implements IGroup {
 
       return this.toResponse(newGroup);
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException(
-          `Group with name '${createGroupDto.name}' already exists`,
-        );
-      }
-      throw error;
+      throw mapPrismaError(error, {
+        P2002: () =>
+          new ConflictError(
+            'GROUP_NAME_TAKEN',
+            `Group with name '${createGroupDto.name}' already exists`,
+          ),
+      });
     }
   }
 
@@ -293,13 +292,9 @@ export class GroupService implements IGroup {
 
       return this.toResponse(group);
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Group not found');
-      }
-      throw error;
+      throw mapPrismaError(error, {
+        P2025: () => new NotFoundError('GROUP_NOT_FOUND', 'Group not found'),
+      });
     }
   }
 }
