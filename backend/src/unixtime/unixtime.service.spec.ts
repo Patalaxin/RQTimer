@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Logger } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import { UnixtimeService } from './unixtime.service';
+import { configProvider } from '../config/config.testing';
 
 const API_KEY = 'SUPERSECRET';
 
@@ -12,7 +13,6 @@ describe('UnixtimeService (smoke)', () => {
   let logged: string[];
 
   beforeEach(async () => {
-    process.env.UNIXTIME_KEY = API_KEY;
     logged = [];
 
     httpService = {
@@ -34,6 +34,7 @@ describe('UnixtimeService (smoke)', () => {
       providers: [
         UnixtimeService,
         { provide: HttpService, useValue: httpService },
+        configProvider({ UNIXTIME_KEY: API_KEY }),
       ],
     }).compile();
 

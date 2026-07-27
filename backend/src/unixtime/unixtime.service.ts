@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-import * as process from 'node:process';
+import { ConfigService } from '@nestjs/config';
 import { IUnixtime } from './unixtime.interface';
+import { EnvironmentVariables } from '../config/env.validation';
 import { redactSecrets } from '../utils/redact';
 
 @Injectable()
@@ -22,7 +23,10 @@ export class UnixtimeService
 
   private readonly REQUEST_TIMEOUT = 5000; // 5 секунд
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly config: ConfigService<EnvironmentVariables, true>,
+  ) {}
 
   async onModuleInit() {
     await this.syncUnixtimeFromApi();
@@ -48,7 +52,7 @@ export class UnixtimeService
             // Ключ параметром, а не внутри строки URL: иначе он оседает в
             // config.url и уезжает в лог с каждым стектрейсом axios.
             params: {
-              key: process.env.UNIXTIME_KEY,
+              key: this.config.get('UNIXTIME_KEY', { infer: true }),
               format: 'json',
               by: 'zone',
               zone: 'UTC',

@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CleanupRegistryService } from '../cleanup/cleanup-registry.service';
+import { configProvider } from '../config/config.testing';
 
 const mockSend = jest.fn();
 
@@ -69,6 +70,10 @@ describe('OtpService (smoke)', () => {
             register: jest.fn((name, task) => cleanupTasks.set(name, task)),
           },
         },
+        configProvider({
+          RESEND_API_KEY: 'test-key',
+          OTP_FROM: 'noreply@example.com',
+        }),
       ],
     }).compile();
 

@@ -2,6 +2,10 @@ import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { AuthGateway } from '../auth/auth.gateway';
 
+// Единственное место, где остаётся прямой process.env: аргумент декоратора
+// вычисляется при загрузке модуля, когда контейнера Nest, а значит и
+// ConfigService, ещё нет. Ради этого main.ts и вызывает dotenv.config() до
+// импорта AppModule — см. комментарий там же.
 @WebSocketGateway({
   cors: {
     origin: process.env.CORS_ORIGIN,

@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UpstreamError, ValidationError } from '../errors/app.error';
+import { EnvironmentVariables } from '../config/env.validation';
 import * as bcrypt from 'bcrypt';
 import { otp_template } from './otp-template';
 import { PrismaService } from '../prisma/prisma.service';
@@ -13,12 +15,15 @@ const VERIFIED_TTL_MS = 10 * 60_000; // окно на завершение signu
 export class OtpService implements OnModuleInit {
   private readonly logger = new Logger(OtpService.name);
 
-  private readonly resend = new Resend(process.env.RESEND_API_KEY);
+  private readonly resend: Resend;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly cleanupRegistry: CleanupRegistryService,
-  ) {}
+    private readonly config: ConfigService<EnvironmentVariables, true>,
+  ) {
+    this.resend = new Resend(config.get('RESEND_API_KEY', { infer: true }));
+  }
 
   onModuleInit(): void {
     this.cleanupRegistry.register('otp_verifications', async () => {
@@ -103,7 +108,7 @@ export class OtpService implements OnModuleInit {
     let sent: Awaited<ReturnType<typeof this.resend.emails.send>>;
     try {
       sent = await this.resend.emails.send({
-        from: process.env.OTP_FROM,
+        from: this.config.get('OTP_FROM', { infer: true }),
         to: email,
         subject: 'Код подтверждения',
         html: otp_template(otp),

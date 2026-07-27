@@ -12,6 +12,8 @@ import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+// Только тип: этот импорт не должен ничего исполнять до dotenv.config() выше.
+import type { EnvironmentVariables } from './config/env.validation';
 
 async function bootstrap() {
   // Ленивый require намеренно: статический import подняли бы к началу файла,
@@ -19,14 +21,15 @@ async function bootstrap() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { AppModule } = require('./app/app.module');
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
+  const configService: ConfigService<EnvironmentVariables, true> =
+    app.get(ConfigService);
 
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
 
   const corsOptions: CorsOptions = {
-    origin: configService.get<string>('CORS_ORIGIN'),
+    origin: configService.get('CORS_ORIGIN', { infer: true }),
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   };
@@ -42,7 +45,7 @@ async function bootstrap() {
 
   document.servers = [
     {
-      url: configService.get<string>('SWAGGER_SERVER_URL'),
+      url: configService.get('SWAGGER_SERVER_URL', { infer: true }),
       description: 'API server',
     },
   ];
@@ -51,7 +54,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors(corsOptions);
-  await app.listen(configService.get<number>('PORT') ?? 3000);
+  await app.listen(configService.get('PORT', { infer: true }));
 }
 
 // Упасть на старте — нормально (порт занят, БД недоступна, конфиг невалиден),

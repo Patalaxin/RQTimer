@@ -44,9 +44,8 @@ export class AuthService {
       isGroupLeader: user.isGroupLeader,
     };
 
-    const accessToken: string = await this.jwtService.signAsync(payload, {
-      secret: process.env.SECRET_CONSTANT,
-    });
+    // Секрет и срок жизни берутся из JwtModule (см. auth.module.ts).
+    const accessToken: string = await this.jwtService.signAsync(payload);
     const refreshToken: string = randomUUID();
     const tokenHash: string = await bcrypt.hash(refreshToken, 10);
 

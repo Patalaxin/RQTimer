@@ -6,7 +6,14 @@ import {
   validateSync,
 } from 'class-validator';
 
-class EnvironmentVariables {
+/**
+ * Схема окружения. Она же — тип для ConfigService: сервисы объявляют
+ * `ConfigService<EnvironmentVariables, true>`, и тогда `config.get('PORT',
+ * { infer: true })` проверяется компилятором. Опечатка в имени переменной
+ * становится ошибкой сборки, а не `undefined` в рантайме, и обязательные
+ * ключи приходят как `string`, а не `string | undefined`.
+ */
+export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   SECRET_CONSTANT: string;

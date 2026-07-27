@@ -13,6 +13,8 @@ interface OnlineUser {
   groupName: string;
 }
 
+// process.env здесь намеренно: аргумент декоратора вычисляется на загрузке
+// модуля, до создания контейнера Nest и ConfigService (см. mob.gateway.ts).
 @WebSocketGateway({
   cors: {
     origin: process.env.CORS_ORIGIN,
@@ -37,9 +39,7 @@ export class AuthGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     const token = client.handshake.query.token as string;
     try {
-      const { email, groupName } = await this.jwtService.verifyAsync(token, {
-        secret: process.env.SECRET_CONSTANT,
-      });
+      const { email, groupName } = await this.jwtService.verifyAsync(token);
 
       this.onlineUsers.set(email, { socketId: client.id, groupName });
 
