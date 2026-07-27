@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
@@ -102,22 +101,39 @@ describe('UsersService (smoke)', () => {
     it('refuses an email that has not passed OTP', async () => {
       otpService.isEmailVerified.mockResolvedValue(false);
 
-      await expect(service.createUser(dto)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.createUser(dto)).rejects.toMatchObject({
+        status: 400,
+        code: 'EMAIL_NOT_VERIFIED',
+      });
       expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
-    // TODO(этап 3): занятые email/nickname — это конфликт, 409, а не 400.
-    // Плюс сама проверка идёт отдельным SELECT перед INSERT: между ними можно
-    // вклиниться. Заменяется на уникальный индекс + P2002.
-    it('refuses a taken email or nickname with 400', async () => {
+    it('refuses a taken email or nickname with 409', async () => {
       prisma.user.findFirst.mockResolvedValue(user());
 
-      await expect(service.createUser(dto)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.createUser(dto)).rejects.toMatchObject({
+        status: 409,
+        code: 'USER_ALREADY_EXISTS',
+      });
       expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    // Предпроверка регистронезависимая, а уникальный индекс — нет, поэтому
+    // остались обе. Гонка между SELECT и INSERT доходит до индекса и обязана
+    // выглядеть для клиента так же, как обычный дубль, а не пятисоткой.
+    it('answers the same 409 when the race reaches the unique index', async () => {
+      prisma.user.create.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('duplicate', {
+          code: 'P2002',
+          clientVersion: 'test',
+        }),
+      );
+
+      await expect(service.createUser(dto)).rejects.toMatchObject({
+        status: 409,
+        code: 'USER_ALREADY_EXISTS',
+      });
+      expect(otpService.removeVerifiedEmail).not.toHaveBeenCalled();
     });
 
     it('checks both email and nickname case-insensitively', async () => {
@@ -146,13 +162,13 @@ describe('UsersService (smoke)', () => {
       expect(result).not.toHaveProperty('passwordHash');
     });
 
-    // TODO(этап 3): отсутствующий пользователь — это 404, а не 400.
-    it('reports a missing user with 400', async () => {
+    it('reports a missing user with 404', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
 
-      await expect(service.findUser(EMAIL)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.findUser(EMAIL)).rejects.toMatchObject({
+        status: 404,
+        code: 'USER_NOT_FOUND',
+      });
     });
   });
 
@@ -189,8 +205,7 @@ describe('UsersService (smoke)', () => {
       ).resolves.toBe(true);
     });
 
-    // TODO(этап 3): неверный текущий пароль — это 401, а не 400.
-    it('refuses a wrong current password with 400', async () => {
+    it('refuses a wrong current password with 401', async () => {
       const oldHash = await bcrypt.hash(PASSWORD, 10);
       prisma.user.findUniqueOrThrow.mockResolvedValue(
         user({ passwordHash: oldHash }),
@@ -201,13 +216,11 @@ describe('UsersService (smoke)', () => {
           oldPassword: 'NotTheOne1',
           newPassword: 'NewPassw0rd',
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 401, code: 'INVALID_PASSWORD' });
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
 
-    // TODO(этап 3): здесь наружу летит сырая ошибка Prisma, и глобальный фильтр
-    // переводит её в невнятное 404 "Resource not found" вместо доменного текста.
-    it('lets the raw Prisma error escape when the user is gone', async () => {
+    it('turns a vanished user into a domain 404, not a raw Prisma error', async () => {
       prisma.user.findUniqueOrThrow.mockRejectedValue(
         new Prisma.PrismaClientKnownRequestError('not found', {
           code: 'P2025',
@@ -220,7 +233,7 @@ describe('UsersService (smoke)', () => {
           oldPassword: PASSWORD,
           newPassword: 'NewPassw0rd',
         } as any),
-      ).rejects.toBeInstanceOf(Prisma.PrismaClientKnownRequestError);
+      ).rejects.toMatchObject({ status: 404, code: 'USER_NOT_FOUND' });
     });
   });
 
@@ -247,13 +260,13 @@ describe('UsersService (smoke)', () => {
           nickname: NICKNAME,
           newPassword: 'NewPassw0rd',
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'AMBIGUOUS_IDENTIFIER' });
     });
 
     it('refuses neither email nor nickname', async () => {
       await expect(
         service.forgotPassword({ newPassword: 'NewPassw0rd' } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'IDENTIFIER_REQUIRED' });
     });
 
     it('refuses an email that has not passed OTP', async () => {
@@ -264,12 +277,11 @@ describe('UsersService (smoke)', () => {
           email: EMAIL,
           newPassword: 'NewPassw0rd',
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'EMAIL_NOT_VERIFIED' });
       expect(prisma.user.update).not.toHaveBeenCalled();
     });
 
-    // TODO(этап 3): отсутствующий пользователь — это 404, а не 400.
-    it('reports a missing user with 400', async () => {
+    it('reports a missing user with 404', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
 
       await expect(
@@ -277,7 +289,7 @@ describe('UsersService (smoke)', () => {
           email: EMAIL,
           newPassword: 'NewPassw0rd',
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 404, code: 'USER_NOT_FOUND' });
     });
   });
 
@@ -300,22 +312,21 @@ describe('UsersService (smoke)', () => {
           nickname: NICKNAME,
           role: 'Admin',
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'AMBIGUOUS_IDENTIFIER' });
     });
 
     it('refuses neither email nor nickname', async () => {
       await expect(
         service.updateRole({ role: 'Admin' } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'IDENTIFIER_REQUIRED' });
     });
 
-    // TODO(этап 3): отсутствующий пользователь — это 404, а не 400.
-    it('reports a missing user with 400', async () => {
+    it('reports a missing user with 404', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
 
       await expect(
         service.updateRole({ email: EMAIL, role: 'Admin' } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 404, code: 'USER_NOT_FOUND' });
     });
   });
 
@@ -334,9 +345,10 @@ describe('UsersService (smoke)', () => {
     });
 
     it('refuses an empty identifier', async () => {
-      await expect(service.deleteOne('')).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.deleteOne('')).rejects.toMatchObject({
+        status: 400,
+        code: 'IDENTIFIER_REQUIRED',
+      });
       expect(prisma.user.deleteMany).not.toHaveBeenCalled();
     });
 

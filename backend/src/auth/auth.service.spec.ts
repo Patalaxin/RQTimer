@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
@@ -155,7 +154,7 @@ describe('AuthService (smoke)', () => {
           nickname: NICKNAME,
           password: PASSWORD,
         } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 400, code: 'AMBIGUOUS_IDENTIFIER' });
       expect(prisma.user.findFirst).not.toHaveBeenCalled();
     });
 
@@ -164,22 +163,21 @@ describe('AuthService (smoke)', () => {
 
       await expect(
         service.signIn(res, { email: EMAIL, password: 'WrongPass1' } as any),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject({ status: 401, code: 'INVALID_CREDENTIALS' });
       expect(res.cookie).not.toHaveBeenCalled();
     });
 
-    // TODO(этап 3): унифицировать с веткой выше — сейчас несуществующий
-    // пользователь отвечает 400, а неверный пароль 401, хотя текст одинаковый,
-    // и по коду ответа перебираются существующие аккаунты.
-    it('rejects an unknown user with 400 (differs from the 401 above)', async () => {
+    it('rejects an unknown user with 401 as well', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
 
       await expect(
         service.signIn(res, { email: EMAIL, password: PASSWORD } as any),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 401, code: 'INVALID_CREDENTIALS' });
     });
 
-    it('gives the same message for an unknown user and a wrong password', async () => {
+    // Обе ветки обязаны быть неотличимы целиком: раньше совпадал только текст,
+    // а код ответа (400 против 401) выдавал, существует ли аккаунт.
+    it('is indistinguishable between an unknown user and a wrong password', async () => {
       prisma.user.findFirst.mockResolvedValue(null);
       const unknownUser = await service
         .signIn(res, { email: EMAIL, password: PASSWORD } as any)
@@ -191,6 +189,21 @@ describe('AuthService (smoke)', () => {
         .catch((error) => error);
 
       expect(unknownUser.message).toBe(wrongPassword.message);
+      expect(unknownUser.getStatus()).toBe(wrongPassword.getStatus());
+      expect(unknownUser.code).toBe(wrongPassword.code);
+    });
+
+    // Без сверки с фиктивным хэшем ветка «пользователя нет» возвращалась почти
+    // мгновенно, и аккаунты перебирались по времени ответа.
+    it('hashes even when the user is absent, so timing does not leak', async () => {
+      prisma.user.findFirst.mockResolvedValue(null);
+      const compare = jest.spyOn(bcrypt, 'compare');
+
+      await service
+        .signIn(res, { email: EMAIL, password: PASSWORD } as any)
+        .catch(() => undefined);
+
+      expect(compare).toHaveBeenCalledTimes(1);
     });
 
     it('marks the user online when a socket is connected', async () => {
@@ -231,10 +244,12 @@ describe('AuthService (smoke)', () => {
       ).resolves.toBe(true);
     });
 
+    // Все отказы здесь обязаны оставаться 401: интерцептор фронта именно по
+    // 401 от exchange-refresh разлогинивает пользователя.
     it('rejects a missing refresh token', async () => {
       await expect(
         service.exchangeRefresh(res, { email: EMAIL } as any, ''),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject({ status: 401, code: 'REFRESH_TOKEN_MISSING' });
     });
 
     it('rejects a user with no stored refresh token', async () => {
@@ -245,7 +260,7 @@ describe('AuthService (smoke)', () => {
 
       await expect(
         service.exchangeRefresh(res, { email: EMAIL } as any, 'whatever'),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject({ status: 401, code: 'REFRESH_TOKEN_UNKNOWN' });
     });
 
     it('rejects a refresh token that does not match the stored hash', async () => {
@@ -253,7 +268,7 @@ describe('AuthService (smoke)', () => {
 
       await expect(
         service.exchangeRefresh(res, { email: EMAIL } as any, 'a-forged-one'),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject({ status: 401, code: 'REFRESH_TOKEN_INVALID' });
       expect(res.cookie).not.toHaveBeenCalled();
     });
 
@@ -264,7 +279,7 @@ describe('AuthService (smoke)', () => {
           { email: EMAIL, nickname: NICKNAME } as any,
           'token',
         ),
-      ).rejects.toBeInstanceOf(UnauthorizedException);
+      ).rejects.toMatchObject({ status: 401, code: 'AMBIGUOUS_IDENTIFIER' });
     });
   });
 

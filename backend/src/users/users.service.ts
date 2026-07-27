@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDtoRequest } from './dto/create-user.dto';
 import { UpdateExcludedDto } from './dto/update-excluded.dto';
@@ -24,6 +24,9 @@ import { PaginatedUsersDto } from './dto/findAll-user.dto';
 import { OtpService } from '../OTP/otp.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BotSession, Prisma, Role } from '@prisma/client';
+import { UnauthorizedError, ValidationError } from '../errors/app.error';
+import { mapPrismaError } from '../errors/map-prisma-error';
+import { UserAlreadyExists, UserNotFound } from './users.errors';
 
 type PrismaUser = Prisma.UserGetPayload<Record<string, never>>;
 
@@ -52,9 +55,16 @@ export class UsersService {
     const { email, nickname, password, excludedMobs } = createUserDto;
 
     if (!(await this.otpService.isEmailVerified(email))) {
-      throw new BadRequestException('Email has not been verified through OTP!');
+      throw new ValidationError(
+        'EMAIL_NOT_VERIFIED',
+        'Email has not been verified through OTP!',
+      );
     }
 
+    // Проверка регистронезависимая, а уникальный индекс в Postgres — нет,
+    // поэтому она остаётся: без неё Smoke@ и smoke@ завелись бы как два
+    // аккаунта. Ловушка на P2002 ниже прикрывает гонку между этим SELECT и
+    // INSERT — раньше она вылезала пятисоткой.
     const existingUser = await this.prisma.user.findFirst({
       where: {
         OR: [
@@ -65,15 +75,24 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException(
-        'A user with this email or nickname already exists!',
-      );
+      throw new UserAlreadyExists();
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = await this.prisma.user.create({
-      data: { email, nickname, passwordHash, excludedMobs: excludedMobs ?? [] },
-    });
+
+    let newUser: PrismaUser;
+    try {
+      newUser = await this.prisma.user.create({
+        data: {
+          email,
+          nickname,
+          passwordHash,
+          excludedMobs: excludedMobs ?? [],
+        },
+      });
+    } catch (error) {
+      throw mapPrismaError(error, { P2002: () => new UserAlreadyExists() });
+    }
 
     await this.otpService.removeVerifiedEmail(email);
     return this.toResponse(newUser);
@@ -90,7 +109,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException('User does not exist!');
+      throw new UserNotFound('User does not exist!');
     }
     return this.toResponse(user);
   }
@@ -133,14 +152,21 @@ export class UsersService {
     email: string,
     updateUserPassDto: ChangeUserPassDtoRequest,
   ): Promise<ChangeUserPassDtoResponse> {
-    const user = await this.prisma.user.findUniqueOrThrow({ where: { email } });
+    let user: PrismaUser;
+    try {
+      user = await this.prisma.user.findUniqueOrThrow({ where: { email } });
+    } catch (error) {
+      // Иначе наружу летела сырая ошибка Prisma и превращалась фильтром в
+      // невнятное «Resource not found».
+      throw mapPrismaError(error, { P2025: () => new UserNotFound() });
+    }
 
     const isPasswordMatch = await bcrypt.compare(
       updateUserPassDto.oldPassword,
       user.passwordHash,
     );
     if (!isPasswordMatch) {
-      throw new BadRequestException('Password did not match!!!');
+      throw new UnauthorizedError('INVALID_PASSWORD', 'Password did not match');
     }
 
     const hashedNewPassword = await bcrypt.hash(
@@ -159,17 +185,22 @@ export class UsersService {
     forgotUserPassDto: ForgotUserPassDtoRequest,
   ): Promise<ForgotUserPassDtoResponse> {
     if (forgotUserPassDto.email && forgotUserPassDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     } else if (!forgotUserPassDto.email && !forgotUserPassDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'IDENTIFIER_REQUIRED',
         'The "Email" or "Nickname" fields must be specified',
       );
     }
 
     if (!(await this.otpService.isEmailVerified(forgotUserPassDto.email))) {
-      throw new BadRequestException('Email has not been verified through OTP!');
+      throw new ValidationError(
+        'EMAIL_NOT_VERIFIED',
+        'Email has not been verified through OTP!',
+      );
     }
 
     const where: Prisma.UserWhereInput = forgotUserPassDto.email
@@ -180,7 +211,7 @@ export class UsersService {
 
     const user = await this.prisma.user.findFirst({ where });
     if (!user) {
-      throw new BadRequestException('User not found!');
+      throw new UserNotFound();
     }
 
     const hashedNewPassword = await bcrypt.hash(
@@ -213,11 +244,13 @@ export class UsersService {
     updateUserRoleDto: UpdateUserRoleDtoRequest,
   ): Promise<UpdateUserRoleDtoResponse> {
     if (updateUserRoleDto.email && updateUserRoleDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     } else if (!updateUserRoleDto.email && !updateUserRoleDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'IDENTIFIER_REQUIRED',
         'The "Email" or "Nickname" fields must be specified',
       );
     }
@@ -230,7 +263,7 @@ export class UsersService {
 
     const user = await this.prisma.user.findFirst({ where });
     if (!user) {
-      throw new BadRequestException('User not found!');
+      throw new UserNotFound();
     }
 
     await this.prisma.user.update({
@@ -243,7 +276,8 @@ export class UsersService {
 
   async deleteOne(identifier: string): Promise<DeleteUserDtoResponse> {
     if (!identifier) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'IDENTIFIER_REQUIRED',
         'The "identifier" header must be specified',
       );
     }

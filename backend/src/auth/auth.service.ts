@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
@@ -13,8 +9,16 @@ import { AuthGateway } from './auth.gateway';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { UnauthorizedError, ValidationError } from '../errors/app.error';
 
 const REFRESH_TOKEN_TTL_MS = 31 * 24 * 60 * 60 * 1000;
+
+/**
+ * Хэш, с которым сверяется пароль, когда пользователя нет. Нужен только ради
+ * постоянного времени ответа — совпасть с ним нельзя, исходная строка нигде не
+ * хранится.
+ */
+const ABSENT_USER_HASH = bcrypt.hashSync(randomUUID(), 10);
 
 @Injectable()
 export class AuthService {
@@ -72,7 +76,8 @@ export class AuthService {
     signInDto: SignInDtoRequest,
   ): Promise<SignInDtoResponse> {
     if (signInDto.email && signInDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     }
@@ -82,16 +87,22 @@ export class AuthService {
       : { nickname: { equals: signInDto.nickname, mode: 'insensitive' } };
 
     const user = await this.prisma.user.findFirst({ where });
-    if (!user) {
-      throw new BadRequestException('Login or password invalid');
-    }
 
+    // Несуществующий пользователь и неверный пароль обязаны быть неотличимы.
+    // Текст совпадал и раньше, а вот коды ответа — нет (400 против 401), и по
+    // ним перебирались существующие аккаунты. Сравнение по фиктивному хэшу
+    // нужно, чтобы не осталось и разницы во времени ответа: без него ветка
+    // «пользователя нет» отвечала заметно быстрее.
     const isPasswordMatch: boolean = await bcrypt.compare(
       signInDto.password,
-      user.passwordHash,
+      user?.passwordHash ?? ABSENT_USER_HASH,
     );
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('Login or password invalid');
+
+    if (!user || !isPasswordMatch) {
+      throw new UnauthorizedError(
+        'INVALID_CREDENTIALS',
+        'Login or password invalid',
+      );
     }
     const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
@@ -110,12 +121,17 @@ export class AuthService {
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
     if (exchangeRefreshDto.email && exchangeRefreshDto.nickname) {
-      throw new UnauthorizedException(
+      // Статус здесь и ниже остаётся 401 намеренно: интерцептор фронта по 401
+      // от exchange-refresh разлогинивает пользователя, и любой другой код
+      // оставил бы его с протухшей сессией.
+      throw new UnauthorizedError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     }
     if (!userRefreshToken) {
-      throw new UnauthorizedException(
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_MISSING',
         'Refresh token is missing from the request',
       );
     }
@@ -135,7 +151,8 @@ export class AuthService {
     });
 
     if (!user || !user.refreshToken) {
-      throw new UnauthorizedException(
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_UNKNOWN',
         'There is no valid refresh token for this user',
       );
     }
@@ -146,7 +163,10 @@ export class AuthService {
     );
 
     if (!isRefreshTokenCorrect) {
-      throw new UnauthorizedException('Incorrect refresh token');
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_INVALID',
+        'Incorrect refresh token',
+      );
     }
 
     const tokens = await this.addTokens(user);
