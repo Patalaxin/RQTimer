@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -45,6 +46,10 @@ describe('OtpService (smoke)', () => {
     mockSend.mockReset().mockResolvedValue({ data: { id: 'mail-id' } });
     cleanupTasks = new Map();
 
+    // Отказы провайдера — часть проверок, их стектрейсы в выводе тестов не нужны.
+    jest.spyOn(Logger.prototype, 'error').mockImplementation();
+    jest.spyOn(Logger.prototype, 'debug').mockImplementation();
+
     prisma = {
       otpVerification: {
         upsert: jest.fn().mockResolvedValue(undefined),
@@ -69,6 +74,10 @@ describe('OtpService (smoke)', () => {
 
     service = module.get(OtpService);
     service.onModuleInit();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('generates a five-digit code', () => {
@@ -117,10 +126,25 @@ describe('OtpService (smoke)', () => {
       expect(prisma.otpVerification.upsert).toHaveBeenCalledTimes(1);
     });
 
-    it('does not store a code when the mail provider fails', async () => {
+    it('does not store a code when the mail provider is unreachable', async () => {
       mockSend.mockRejectedValue(new Error('resend down'));
 
       // Лёг провайдер почты — это 502, а не «исправь запрос».
+      await expect(service.sendOtp(EMAIL)).rejects.toMatchObject({
+        status: 502,
+        code: 'OTP_SEND_FAILED',
+      });
+      expect(prisma.otpVerification.upsert).not.toHaveBeenCalled();
+    });
+
+    it('does not store a code when the mail provider rejects the letter', async () => {
+      // Resend отказ не бросает, а кладёт в поле error — и раньше отказ
+      // проезжал как успех: код сохранялся, ручка отвечала 200, письма не было.
+      mockSend.mockResolvedValue({
+        data: null,
+        error: { name: 'invalid_api_key', message: 'API key is invalid' },
+      });
+
       await expect(service.sendOtp(EMAIL)).rejects.toMatchObject({
         status: 502,
         code: 'OTP_SEND_FAILED',

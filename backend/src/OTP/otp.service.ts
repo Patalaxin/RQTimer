@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { UpstreamError, ValidationError } from '../errors/app.error';
 import * as bcrypt from 'bcrypt';
 import { otp_template } from './otp-template';
@@ -11,6 +11,8 @@ const VERIFIED_TTL_MS = 10 * 60_000; // окно на завершение signu
 
 @Injectable()
 export class OtpService implements OnModuleInit {
+  private readonly logger = new Logger(OtpService.name);
+
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
 
   constructor(
@@ -98,21 +100,38 @@ export class OtpService implements OnModuleInit {
 
     const otp: string = this.generateOtp();
 
+    let sent: Awaited<ReturnType<typeof this.resend.emails.send>>;
     try {
-      const result = await this.resend.emails.send({
+      sent = await this.resend.emails.send({
         from: process.env.OTP_FROM,
         to: email,
         subject: 'Код подтверждения',
         html: otp_template(otp),
       });
-      console.log('Resend! result:', result);
-      await this.storeOtp(email, otp);
     } catch (error) {
-      console.error('Resend error:', error);
+      // Сюда попадает только сеть: сам Resend отказы отдаёт полем error.
+      this.logger.error(
+        'Resend не ответил',
+        error instanceof Error ? error.stack : String(error),
+      );
 
       // Лёг почтовый провайдер — виноват не клиент. 400 говорил «исправь
       // запрос», хотя исправлять нечего и повтор имеет смысл.
       throw new UpstreamError('OTP_SEND_FAILED', 'Error sending OTP to email');
     }
+
+    // resend.emails.send отказ не бросает, а возвращает `{ data: null, error }`
+    // — просроченный ключ или выбранная квота молча доезжали до storeOtp.
+    // Пользователь получал 200, ждал письмо, которого нет, и ещё минуту не мог
+    // запросить код заново: строка-то создана.
+    if (sent.error) {
+      this.logger.error(
+        `Resend отклонил письмо: ${sent.error.name} ${sent.error.message}`,
+      );
+      throw new UpstreamError('OTP_SEND_FAILED', 'Error sending OTP to email');
+    }
+
+    this.logger.debug(`Код отправлен, id письма ${sent.data?.id}`);
+    await this.storeOtp(email, otp);
   }
 }

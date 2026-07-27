@@ -8,6 +8,7 @@ import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import * as process from 'node:process';
 import { IUnixtime } from './unixtime.interface';
+import { redactSecrets } from '../utils/redact';
 
 @Injectable()
 export class UnixtimeService
@@ -43,13 +44,28 @@ export class UnixtimeService
     try {
       const response = await lastValueFrom(
         this.httpService
-          .get(
-            `https://api.timezonedb.com/v2.1/get-time-zone?key=${process.env.UNIXTIME_KEY}&format=json&by=zone&zone=UTC`,
-          )
+          .get('https://api.timezonedb.com/v2.1/get-time-zone', {
+            // Ключ параметром, а не внутри строки URL: иначе он оседает в
+            // config.url и уезжает в лог с каждым стектрейсом axios.
+            params: {
+              key: process.env.UNIXTIME_KEY,
+              format: 'json',
+              by: 'zone',
+              zone: 'UTC',
+            },
+          })
           .pipe(
             timeout(this.REQUEST_TIMEOUT),
             catchError((error) => {
-              this.logger.error('Failed to get unixtime from API', error);
+              // Логируем причину, а не объект ошибки: дамп axios тянет за
+              // собой весь конфиг запроса вместе с ключом.
+              this.logger.error(
+                redactSecrets(
+                  `Не удалось получить время из API: ${
+                    error instanceof Error ? error.message : String(error)
+                  }`,
+                ),
+              );
               throw error;
             }),
           ),
