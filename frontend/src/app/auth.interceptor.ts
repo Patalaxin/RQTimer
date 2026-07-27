@@ -15,6 +15,7 @@ import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { ApiErrorBody } from './interfaces/api-error';
 // import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
@@ -56,21 +57,25 @@ export class HttpRequestInterceptor implements HttpInterceptor {
           return throwError(() => err);
         }
 
-        if (err.status === 409 && err.error.message.includes('Mob data for')) {
-          this.messageService.create(
-            'error',
-            // this.translateService.instant(
-            //   'INTERCEPTOR.MESSAGE.GROUP_TIMER_ADD_ERROR',
-            // ),
-            'Добавление в групповой таймер невозможен. Проверьте настройки отображения.',
-          );
-          return throwError(() => err);
-        }
-
-        this.messageService.create('error', err.error.message);
+        this.messageService.create('error', this.textOf(err));
         return throwError(() => err);
       }),
     );
+  }
+
+  /**
+   * ValidationPipe отдаёт `message` массивом нарушенных правил — в тост он
+   * попадал как `a,b,c`. Показываем по строке.
+   */
+  private textOf(err: HttpErrorResponse): string {
+    const body = err.error as ApiErrorBody | null;
+    const message = body?.message;
+
+    if (Array.isArray(message)) {
+      return message.join('\n');
+    }
+
+    return message ?? 'Что-то пошло не так';
   }
 
   private addAuthorizationHeader(req: HttpRequest<any>): HttpRequest<any> {
