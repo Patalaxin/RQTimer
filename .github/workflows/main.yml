@@ -6,8 +6,42 @@ on:
       - master
 
 jobs:
+  # Отдельным job, а не шагом в deploy: бэкенду нужен Node 20+ (@nestjs/core,
+  # prisma, resend), а фронт ниже собирается на 18. Базы тестам не нужно —
+  # PrismaService в них подменён, окружение приходит через configProvider.
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      # Клиент Prisma нужен и тестам: спеки ссылаются на типы @prisma/client.
+      # DATABASE_URL для генерации не требуется — строка подключения живёт не в
+      # схеме, а в коде (PrismaPg).
+      - name: Generate Prisma client
+        working-directory: backend
+        run: npx prisma generate
+
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test -- --ci
+
   deploy:
     runs-on: ubuntu-latest
+    # Красные тесты не должны доезжать до сервера.
+    needs: test
 
     steps:
       - name: Checkout
