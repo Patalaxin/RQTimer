@@ -71,8 +71,26 @@ jobs:
             echo "OTP_FROM=${{ secrets.OTP_FROM }}" >> .env
             echo "IP_DB=${{ secrets.IP_DB }}" >> .env
 
+            # Ниже — обязательные по src/config/env.validation.ts. Без любой из
+            # них приложение падает на старте, ещё до app.listen. Секретное
+            # здесь только DATABASE_URL: в нём пароль от Postgres.
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+            echo "CORS_ORIGIN=https://www.rqtimer.ru" >> .env
+            echo "SWAGGER_SERVER_URL=https://www.rqtimer.ru/api" >> .env
+            echo "PORT=3000" >> .env
+
             npm ci
+
+            # npm ci сносит node_modules, а postinstall-хука, который поднимал
+            # бы клиент Prisma, в проекте нет — генерируем явно.
+            npx prisma generate
+
             npm run build
+
+            # Схема БД доезжает до рестарта, а не после него: иначе новый код
+            # успевает встать на старую таблицу. deploy не задаёт вопросов и
+            # не пересоздаёт базу, в отличие от migrate dev.
+            npx prisma migrate deploy
 
             pm2 restart main
             pm2 save
