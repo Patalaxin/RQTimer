@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
-import { BadRequestException, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { UpstreamError, ValidationError } from '../errors/app.error';
 import * as bcrypt from 'bcrypt';
 import { otp_template } from './otp-template';
 import { PrismaService } from '../prisma/prisma.service';
@@ -89,7 +90,8 @@ export class OtpService implements OnModuleInit {
       where: { email },
     });
     if (existing && !existing.verified && existing.expiresAt > new Date()) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'OTP_ALREADY_SENT',
         'OTP has already been sent. If you did not receive the code, please request again in one minute.',
       );
     }
@@ -108,7 +110,9 @@ export class OtpService implements OnModuleInit {
     } catch (error) {
       console.error('Resend error:', error);
 
-      throw new BadRequestException('Error sending OTP to email');
+      // Лёг почтовый провайдер — виноват не клиент. 400 говорил «исправь
+      // запрос», хотя исправлять нечего и повтор имеет смысл.
+      throw new UpstreamError('OTP_SEND_FAILED', 'Error sending OTP to email');
     }
   }
 }

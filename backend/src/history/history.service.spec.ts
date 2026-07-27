@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException } from '@nestjs/common';
 import { HistoryService } from './history.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CleanupRegistryService } from '../cleanup/cleanup-registry.service';
@@ -159,7 +158,7 @@ describe('HistoryService (smoke)', () => {
     it('rejects a request without a group', async () => {
       await expect(
         service.getAllHistory(Servers.Helios, '', 1, 10),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toMatchObject({ status: 404, code: 'HISTORY_NOT_FOUND' });
       expect(prisma.history.findMany).not.toHaveBeenCalled();
     });
 
@@ -223,7 +222,7 @@ describe('HistoryService (smoke)', () => {
     it('rejects a request without a mob', async () => {
       await expect(
         service.getMobHistory(Servers.Fenix, GROUP, '', 1, 10),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toMatchObject({ status: 404, code: 'HISTORY_NOT_FOUND' });
     });
   });
 

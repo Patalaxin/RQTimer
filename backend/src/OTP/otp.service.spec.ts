@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { OtpService } from './otp.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -99,9 +98,10 @@ describe('OtpService (smoke)', () => {
     it('rejects a repeat request while the previous code is still alive', async () => {
       prisma.otpVerification.findUnique.mockResolvedValue(row());
 
-      await expect(service.sendOtp(EMAIL)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.sendOtp(EMAIL)).rejects.toMatchObject({
+        status: 400,
+        code: 'OTP_ALREADY_SENT',
+      });
       expect(mockSend).not.toHaveBeenCalled();
       expect(prisma.otpVerification.upsert).not.toHaveBeenCalled();
     });
@@ -120,9 +120,11 @@ describe('OtpService (smoke)', () => {
     it('does not store a code when the mail provider fails', async () => {
       mockSend.mockRejectedValue(new Error('resend down'));
 
-      await expect(service.sendOtp(EMAIL)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      // Лёг провайдер почты — это 502, а не «исправь запрос».
+      await expect(service.sendOtp(EMAIL)).rejects.toMatchObject({
+        status: 502,
+        code: 'OTP_SEND_FAILED',
+      });
       expect(prisma.otpVerification.upsert).not.toHaveBeenCalled();
     });
   });

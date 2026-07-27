@@ -2,12 +2,12 @@ import {
   Controller,
   Post,
   Body,
-  BadRequestException,
   UseInterceptors,
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { OtpService } from './otp.service';
+import { ValidationError } from '../errors/app.error';
 
 @ApiTags('OTP API')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -67,7 +67,7 @@ export class OtpController {
   ): Promise<{ message: string }> {
     const isValid = await this.otpService.validateOtp(email, otp);
     if (!isValid) {
-      throw new BadRequestException('Invalid or expired OTP');
+      throw new ValidationError('OTP_INVALID', 'Invalid or expired OTP');
     }
     return { message: 'OTP successfully verified' };
   }

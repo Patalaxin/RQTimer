@@ -1,13 +1,14 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Group } from '@prisma/client';
 import { ConflictError, NotFoundError } from '../errors/app.error';
 import { mapPrismaError } from '../errors/map-prisma-error';
+import { UserNotFound } from '../users/users.errors';
+import {
+  AlreadyInGroup,
+  GroupNotFound,
+  LeaderMustTransferFirst,
+  NotInGroup,
+} from './group.errors';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { JoinGroupDto } from './dto/join-group.dto';
 import { TransferLeaderDto } from './dto/transfer-leader-group.dto';
@@ -59,7 +60,7 @@ export class GroupService implements IGroup {
     const user = await this.usersService.findUser(email);
 
     if (user.groupName) {
-      throw new BadRequestException('User is already in a group');
+      throw new AlreadyInGroup();
     }
 
     try {
@@ -96,7 +97,7 @@ export class GroupService implements IGroup {
     });
 
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     return this.toResponse(group);
@@ -107,7 +108,7 @@ export class GroupService implements IGroup {
       where: { name: groupName },
     });
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     const inviteCode = Math.random().toString(36).substring(2, 8);
@@ -126,20 +127,23 @@ export class GroupService implements IGroup {
     const { inviteCode } = joinGroupDto;
     const group = await this.prisma.group.findUnique({ where: { inviteCode } });
     if (!group) {
-      throw new NotFoundException('Invalid or expired invite code');
+      throw new NotFoundError(
+        'INVITE_CODE_INVALID',
+        'Invalid or expired invite code',
+      );
     }
 
     const codeAgeMs = Date.now() - (group.inviteCodeCreatedAt?.getTime() ?? 0);
     if (codeAgeMs > INVITE_CODE_TTL_MS) {
-      throw new NotFoundException('Invite code is expired');
+      throw new NotFoundError('INVITE_CODE_EXPIRED', 'Invite code is expired');
     }
 
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new UserNotFound('User not found');
     }
     if (user.groupName) {
-      throw new BadRequestException('User is already in a group');
+      throw new AlreadyInGroup();
     }
 
     // Код одноразовый: гасим его тем же запросом, что добавляет участника.
@@ -169,7 +173,7 @@ export class GroupService implements IGroup {
   ): Promise<GroupResponseDto> {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new UserNotFound('User not found');
     }
 
     const { newLeaderEmail } = transferLeaderDto;
@@ -177,14 +181,14 @@ export class GroupService implements IGroup {
       where: { name: groupName },
     });
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     const newLeader = await this.prisma.user.findFirst({
       where: { email: { equals: newLeaderEmail, mode: 'insensitive' } },
     });
     if (!newLeader) {
-      throw new NotFoundException('New leader not found');
+      throw new NotFoundError('NEW_LEADER_NOT_FOUND', 'New leader not found');
     }
 
     const isNewLeaderInGroup = group.members.some((member) => {
@@ -193,7 +197,10 @@ export class GroupService implements IGroup {
     });
 
     if (!isNewLeaderInGroup) {
-      throw new NotFoundException('New leader not found in group');
+      throw new NotFoundError(
+        'NEW_LEADER_NOT_IN_GROUP',
+        'New leader not found in group',
+      );
     }
 
     const [updatedGroup] = await this.prisma.$transaction([
@@ -219,20 +226,18 @@ export class GroupService implements IGroup {
       where: { email: { equals: email, mode: 'insensitive' } },
     });
     if (!user?.groupName) {
-      throw new BadRequestException('User is not in a group');
+      throw new NotInGroup();
     }
 
     const group = await this.prisma.group.findUnique({
       where: { name: user.groupName },
     });
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     if (user.isGroupLeader) {
-      throw new BadRequestException(
-        'You are the group leader. Transfer leadership or delete the group before leaving.',
-      );
+      throw new LeaderMustTransferFirst();
     }
 
     const members = group.members.filter((member) => {
@@ -261,7 +266,7 @@ export class GroupService implements IGroup {
     });
 
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     await this.prisma.$transaction([

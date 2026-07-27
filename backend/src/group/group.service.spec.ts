@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { GroupService } from './group.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -109,7 +108,7 @@ describe('GroupService (smoke)', () => {
 
       await expect(
         service.createGroup(LEADER, { name: 'MyGroup' }),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 409, code: 'ALREADY_IN_GROUP' });
       expect(prisma.group.create).not.toHaveBeenCalled();
     });
 
@@ -158,7 +157,7 @@ describe('GroupService (smoke)', () => {
     it('rejects an unknown invite code', async () => {
       await expect(
         service.joinGroup({ inviteCode: 'nope' }, MEMBER),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toMatchObject({ status: 404, code: 'INVITE_CODE_INVALID' });
     });
 
     it('rejects a code older than an hour', async () => {
@@ -183,7 +182,7 @@ describe('GroupService (smoke)', () => {
 
       await expect(
         service.joinGroup({ inviteCode: 'abc123' }, MEMBER),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 409, code: 'ALREADY_IN_GROUP' });
       expect(prisma.group.update).not.toHaveBeenCalled();
     });
   });
@@ -258,18 +257,20 @@ describe('GroupService (smoke)', () => {
       );
       prisma.group.findUnique.mockResolvedValue(group());
 
-      await expect(service.leaveGroup(LEADER)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.leaveGroup(LEADER)).rejects.toMatchObject({
+        status: 409,
+        code: 'LEADER_MUST_TRANSFER',
+      });
       expect(prisma.group.update).not.toHaveBeenCalled();
     });
 
     it('rejects a user without a group', async () => {
       prisma.user.findFirst.mockResolvedValue(user({ groupName: null }));
 
-      await expect(service.leaveGroup(MEMBER)).rejects.toBeInstanceOf(
-        BadRequestException,
-      );
+      await expect(service.leaveGroup(MEMBER)).rejects.toMatchObject({
+        status: 409,
+        code: 'NOT_IN_GROUP',
+      });
     });
   });
 
@@ -295,9 +296,10 @@ describe('GroupService (smoke)', () => {
     });
 
     it('does not touch anything when the group is missing', async () => {
-      await expect(service.deleteGroup('Ghost')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(service.deleteGroup('Ghost')).rejects.toMatchObject({
+        status: 404,
+        code: 'GROUP_NOT_FOUND',
+      });
       expect(mobService.deleteAllMobData).not.toHaveBeenCalled();
     });
   });

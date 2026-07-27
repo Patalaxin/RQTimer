@@ -1,16 +1,19 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  NotFoundException,
-} from '@nestjs/common';
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   Mob as PrismaMob,
   MobsData as PrismaMobsData,
   Server,
 } from '@prisma/client';
-import { ConflictError, NotFoundError } from '../errors/app.error';
+import { ConflictError, ValidationError } from '../errors/app.error';
 import { mapPrismaError } from '../errors/map-prisma-error';
+import { GroupNotFound } from '../group/group.errors';
+import {
+  MobDataNotFound,
+  MobNotFound,
+  MobNotFoundInGroup,
+  MobsAddForbidden,
+  UnknownMobsRequested,
+} from './mob.errors';
 import { UsersService } from '../users/users.service';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
@@ -123,14 +126,12 @@ export class MobService implements IMob {
     const group: GroupResponseDto =
       await this.groupService.getGroupByName(groupName);
     if (!group) {
-      throw new NotFoundException('Group not found');
+      throw new GroupNotFound();
     }
 
     const user: UserResponseDto = await this.usersService.findUser(email);
     if (!user.isGroupLeader && !group.canMembersAddMobs) {
-      throw new NotFoundException(
-        'In this group, default members cannot add mobs',
-      );
+      throw new MobsAddForbidden();
     }
 
     const mobs = await this.prisma.mob.findMany({
@@ -138,7 +139,7 @@ export class MobService implements IMob {
     });
 
     if (mobs.length !== addMobInGroupDto.mobs.length) {
-      throw new BadRequestException('One or more mobs not found');
+      throw new UnknownMobsRequested();
     }
 
     // Уже добавленные мобы пропускаем — повторный вызов не должен падать.
@@ -179,7 +180,9 @@ export class MobService implements IMob {
     });
 
     if (!mob) {
-      throw new BadRequestException('Mob or Mob data not found for this group');
+      // Ручка смотрит в справочник и про группы ничего не знает — прежний текст
+      // «not found for this group» был копипастой из getMobFromGroup.
+      throw new MobNotFound();
     }
 
     return { mob: translateMob(this.toMobDto(mob), lang) };
@@ -199,7 +202,7 @@ export class MobService implements IMob {
     const unixtimeResponse = this.unixtimeService.getCurrentUnixtime();
 
     if (!mob || !mobData) {
-      throw new BadRequestException('Mob or Mob data not found for this group');
+      throw new MobNotFoundInGroup();
     }
 
     return {
@@ -258,7 +261,7 @@ export class MobService implements IMob {
       return this.toMobDto(mob);
     } catch (error) {
       throw mapPrismaError(error, {
-        P2025: () => new NotFoundError('MOB_NOT_FOUND', 'Mob not found'),
+        P2025: () => new MobNotFound(),
       });
     }
   }
@@ -277,7 +280,8 @@ export class MobService implements IMob {
     const mob = await this.getMobFromGroup({ mobId, server }, groupName);
 
     if (mob.mobData.respawnTime === null) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'RESPAWN_TIME_MISSING',
         'Respawn time is missing. Specify either date of death or date of respawn.',
       );
     }
@@ -411,7 +415,7 @@ export class MobService implements IMob {
       await this.prisma.mob.delete({ where: { id: mobId } });
     } catch (error) {
       throw mapPrismaError(error, {
-        P2025: () => new NotFoundError('MOB_NOT_FOUND', 'Mob not found'),
+        P2025: () => new MobNotFound(),
       });
     }
 
@@ -424,7 +428,7 @@ export class MobService implements IMob {
   ): Promise<RemoveMobFromGroupDtoResponse> {
     const { mobId, server } = removeMobDtoParams;
 
-    // Бросит 400, если моба нет в группе.
+    // Бросит 404, если моба нет в группе.
     await this.getMobFromGroup({ mobId, server }, groupName);
 
     await this.prisma.mobsData.delete({
@@ -541,8 +545,7 @@ export class MobService implements IMob {
       };
     } catch (error) {
       throw mapPrismaError(error, {
-        P2025: () =>
-          new NotFoundError('MOB_DATA_NOT_FOUND', 'Mob data not found'),
+        P2025: () => new MobDataNotFound(),
       });
     }
   }

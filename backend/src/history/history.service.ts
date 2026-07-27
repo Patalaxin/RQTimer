@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import {
   History as PrismaHistory,
   HistoryType,
@@ -6,6 +6,7 @@ import {
   Role,
   Server,
 } from '@prisma/client';
+import { NotFoundError } from '../errors/app.error';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { RolesTypes } from '../schemas/roles.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
@@ -142,7 +143,7 @@ export class HistoryService implements IHistory, OnModuleInit {
     historyType?: HistoryTypes,
   ): Promise<PaginatedHistoryDto> {
     if (!groupName) {
-      throw new NotFoundException('History not found');
+      throw new NotFoundError('HISTORY_NOT_FOUND', 'History not found');
     }
 
     return this.paginate(
@@ -168,7 +169,7 @@ export class HistoryService implements IHistory, OnModuleInit {
     lang?: string,
   ): Promise<PaginatedHistoryDto> {
     if (!groupName || !mobId) {
-      throw new NotFoundException('History not found');
+      throw new NotFoundError('HISTORY_NOT_FOUND', 'History not found');
     }
 
     return this.paginate(

@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { MobService } from './mob.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -128,7 +127,7 @@ describe('MobService (smoke)', () => {
           { mobId: MOB_ID, server: Servers.Helios },
           GROUP,
         ),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      ).rejects.toMatchObject({ status: 404, code: 'MOB_NOT_FOUND_IN_GROUP' });
     });
   });
 
@@ -173,7 +172,7 @@ describe('MobService (smoke)', () => {
           { mobs: [MOB_ID] },
           GROUP,
         ),
-      ).rejects.toBeInstanceOf(NotFoundException);
+      ).rejects.toMatchObject({ status: 403, code: 'MOBS_ADD_FORBIDDEN' });
       expect(prisma.mobsData.createMany).not.toHaveBeenCalled();
     });
 
