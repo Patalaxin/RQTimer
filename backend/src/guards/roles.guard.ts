@@ -11,6 +11,11 @@ import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 /**
  * Trusts request.user populated by TokensGuard — must run after it
  * (put both in the same @UseGuards(TokensGuard, RolesGuard) call).
+ *
+ * @Public() здесь намеренно не проверяется: у публичной ручки нет @Roles, и
+ * guard пропустит её сам. А если @Public() и @Roles() окажутся на одной ручке,
+ * то request.user пуст и мы честно ответим 401 — ошибка в декораторах не
+ * должна открывать ручку с ролями.
  */
 @Injectable()
 export class RolesGuard implements CanActivate {

@@ -14,13 +14,17 @@ import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
 import { TokensGuard } from '../guards/tokens.guard';
+import { Public } from '../decorators/public.decorator';
 import { AuthService } from './auth.service';
 
 @ApiTags('Auth API')
+@UseGuards(TokensGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // Вход: токен здесь как раз и выдаётся.
+  @Public()
   @ApiOperation({ summary: 'Login' })
   @Post('login')
   signIn(
@@ -30,6 +34,8 @@ export class AuthController {
     return this.authService.signIn(res, signInDto);
   }
 
+  // Обмен refresh-токена: сюда приходят как раз с протухшим access-токеном.
+  @Public()
   @ApiOperation({ summary: 'Exchange Refresh Token' })
   @ApiBearerAuth()
   @Post('exchange-refresh')
@@ -45,7 +51,6 @@ export class AuthController {
     );
   }
 
-  @UseGuards(TokensGuard)
   @ApiOperation({ summary: 'Sign Out' })
   @ApiBearerAuth()
   @Get('signout')

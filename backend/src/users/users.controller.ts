@@ -38,6 +38,7 @@ import { RolesGuard } from '../guards/roles.guard';
 import { TokensGuard } from '../guards/tokens.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { Roles } from '../decorators/roles.decorator';
+import { Public } from '../decorators/public.decorator';
 import {
   DeleteAllUsersDtoResponse,
   DeleteUserDtoResponse,
@@ -47,11 +48,14 @@ import { BotSession } from '@prisma/client';
 import { UsersService } from './users.service';
 
 @ApiTags('Users API')
+@UseGuards(TokensGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // Регистрация: токена у пользователя ещё нет и взяться ему неоткуда.
+  @Public()
   @ApiOperation({ summary: 'Create User' })
   @Post()
   create(
@@ -60,7 +64,6 @@ export class UsersController {
     return this.usersService.createUser(createUserDto);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get User' })
@@ -69,7 +72,6 @@ export class UsersController {
     return this.usersService.findUser(email);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get a Specific User By Email or Nickname' })
@@ -80,7 +82,6 @@ export class UsersController {
     return this.usersService.findUser(identifier);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Find All Users' })
@@ -93,7 +94,6 @@ export class UsersController {
     return this.usersService.findAll(page, limit);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change User Password' })
@@ -106,6 +106,8 @@ export class UsersController {
     return this.usersService.changePassword(email, updateUserPassDto);
   }
 
+  // Восстановление пароля: вызывается ровно тогда, когда войти не получается.
+  @Public()
   @ApiOperation({ summary: 'Forgot User Password' })
   @ApiOkResponse({ description: 'Success', type: ForgotUserPassDtoResponse })
   @Put('/forgot-password')
@@ -115,7 +117,6 @@ export class UsersController {
     return this.usersService.forgotPassword(forgotUserPassDto);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update User Excluded Mobs' })
@@ -127,7 +128,6 @@ export class UsersController {
     return this.usersService.updateExcluded(email, updateExcludedDto);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update The User Role' })
@@ -139,7 +139,6 @@ export class UsersController {
     return this.usersService.updateRole(updateUserRoleDto);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete User By Email or Nickname' })
@@ -151,7 +150,6 @@ export class UsersController {
     return this.usersService.deleteOne(identifier);
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete All Users' })
@@ -161,7 +159,6 @@ export class UsersController {
     return this.usersService.deleteAll();
   }
 
-  @UseGuards(TokensGuard, RolesGuard)
   @Roles()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update Timezone for Bot Session' })
@@ -174,6 +171,8 @@ export class UsersController {
     return this.usersService.updateTimezone(email, timezone);
   }
 
+  // Счётчик показывается на экране входа, то есть до авторизации.
+  @Public()
   @ApiOperation({ summary: 'Get Users Count' })
   @ApiOkResponse({ description: 'Success', schema: { example: { count: 42 } } })
   @Get('/stats/count')
