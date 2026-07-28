@@ -5,7 +5,10 @@ import { BotSession, Server } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { Locations, MobName, Servers } from '../schemas/mobs.enum';
 import { MobService } from '../mob/mob.service';
-import { HelperClass } from '../helper-class';
+import {
+  filterMobsForUser,
+  transformFindAllMobsResponse,
+} from './mobs-message';
 import { MESSAGES } from './messages';
 import { GetFullMobWithUnixDtoResponse } from '../mob/dto/get-mob.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -277,16 +280,15 @@ export class TelegramBotService {
             return;
           }
 
-          const userMobsMessage =
-            await HelperClass.transformFindAllMobsResponse(
-              allMobs,
-              updatedMobName,
-              updatedMobLocation,
-              session.timezone,
-              server,
-            );
+          const userMobsMessage = transformFindAllMobsResponse(
+            allMobs,
+            updatedMobName,
+            updatedMobLocation,
+            session.timezone,
+            server,
+          );
 
-          const filteredMessage = HelperClass.filterMobsForUser(
+          const filteredMessage = filterMobsForUser(
             userMobsMessage,
             user.excludedMobs,
           );

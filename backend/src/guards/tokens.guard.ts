@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { HelperClass } from '../helper-class';
+import { extractTokenFromHeader } from '../utils/extract-token';
 import { AuthenticatedUser } from '../auth/authenticated-user.interface';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class TokensGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token: string = HelperClass.extractTokenFromHeader(request);
+    const token: string = extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
     }
