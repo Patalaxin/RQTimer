@@ -30,7 +30,7 @@ export class WebsocketService {
 
   connect(token: string, email: string): void {
     this.socket = io(environment.url, {
-      path: '/api/socket.io',
+      path: environment.socketPath,
       query: { token },
       transports: ['websocket'],
     });

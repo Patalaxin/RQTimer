@@ -3,4 +3,5 @@ export const environment = {
   url: 'https://www.rqtimer.ru',
   apiUrl: 'https://www.rqtimer.ru/api',
   staticUrl: 'https://www.rqtimer.ru/api/static/',
+  socketPath: '/api/socket.io',
 };
