@@ -1,0 +1,87 @@
+import { plainToInstance } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  validateSync,
+} from 'class-validator';
+
+/**
+ * Схема окружения. Она же — тип для ConfigService: сервисы объявляют
+ * `ConfigService<EnvironmentVariables, true>`, и тогда `config.get('PORT',
+ * { infer: true })` проверяется компилятором. Опечатка в имени переменной
+ * становится ошибкой сборки, а не `undefined` в рантайме, и обязательные
+ * ключи приходят как `string`, а не `string | undefined`.
+ */
+export class EnvironmentVariables {
+  @IsString()
+  @IsNotEmpty()
+  SECRET_CONSTANT: string;
+
+  @IsString()
+  @IsNotEmpty()
+  UNIXTIME_KEY: string;
+
+  // Доступы к Mongo нужны только одноразовым скриптам переноса (src/scripts),
+  // само приложение к Mongo больше не подключается.
+  @IsString()
+  @IsOptional()
+  DATABASE_USER?: string;
+
+  @IsString()
+  @IsOptional()
+  DATABASE_PASSWORD?: string;
+
+  @IsString()
+  @IsOptional()
+  IP_DB?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_URL: string;
+
+  // Не обязателен: без токена приложение поднимается целиком, просто без
+  // Telegram-уведомлений (см. TelegramConnectionService).
+  @IsString()
+  @IsOptional()
+  TELEGRAM_BOT_TOKEN?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  RESEND_API_KEY: string;
+
+  @IsString()
+  @IsNotEmpty()
+  OTP_FROM: string;
+
+  @IsString()
+  @IsNotEmpty()
+  CORS_ORIGIN: string;
+
+  @IsString()
+  @IsNotEmpty()
+  SWAGGER_SERVER_URL: string;
+
+  @IsString()
+  @IsNotEmpty()
+  PORT: string;
+}
+
+export function validate(config: Record<string, unknown>) {
+  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+    enableImplicitConversion: true,
+  });
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false,
+  });
+
+  if (errors.length > 0) {
+    throw new Error(
+      `Config validation failed: ${errors
+        .map((e) => Object.values(e.constraints ?? {}).join(', '))
+        .join('; ')}`,
+    );
+  }
+
+  return validatedConfig;
+}

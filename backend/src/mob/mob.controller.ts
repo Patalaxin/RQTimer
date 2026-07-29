@@ -10,7 +10,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,10 +19,9 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
-import { GetEmailFromToken } from '../decorators/getEmail.decorator';
+import { GetUser } from '../decorators/get-user.decorator';
 import { Roles } from '../decorators/roles.decorator';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { TokensGuard } from '../guards/tokens.guard';
 import { IMob } from './mob.interface';
 import { CreateMobDtoRequest } from './dto/create-mob.dto';
@@ -39,21 +37,16 @@ import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
+import { UpdateMobRespawnDtoRequest } from './dto/update-mob-respawn.dto';
 import {
   DeleteMobDtoResponse,
   RemoveMobFromGroupDtoParamsRequest,
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
-import { HelperClass } from '../helper-class';
-import { JwtService } from '@nestjs/jwt';
 import { MobGateway } from './mob.gateway';
-import { Mob } from '../schemas/mob.schema';
+import { MobDto } from './dto/mob.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
-import { MobsData } from '../schemas/mobsData.schema';
-import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
+import { MobsDataDto } from './dto/mob.dto';
 import { RolesGuard } from '../guards/roles.guard';
 import { IsGroupLeaderGuard } from '../guards/isGroupLeader.guard';
 import { Servers } from '../schemas/mobs.enum';
@@ -73,7 +66,6 @@ import {
 export class MobController {
   constructor(
     @Inject('IMob') private readonly mobInterface: IMob,
-    private readonly jwtService: JwtService,
     private readonly mobGateway: MobGateway,
     private readonly telegramBotService: TelegramBotService,
   ) {}
@@ -81,17 +73,17 @@ export class MobController {
   @Roles(RolesTypes.Admin)
   @ApiOperation({ summary: 'Create Mob' })
   @Post()
-  create(@Body() createMobDto: CreateMobDtoRequest): Promise<Mob> {
+  create(@Body() createMobDto: CreateMobDtoRequest): Promise<MobDto> {
     return this.mobInterface.createMob(createMobDto);
   }
 
   @ApiOperation({ summary: 'Add Mob In Group' })
   @Post('/:server/add-in-group/')
   addMobInGroup(
-    @GetEmailFromToken() email: string,
+    @GetUser('email') email: string,
     @Param('server') server: Servers,
     @Body() addMobInGroupDto: AddMobInGroupDtoRequest,
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
     return this.mobInterface.addMobInGroup(
       email,
@@ -103,7 +95,7 @@ export class MobController {
 
   @Roles()
   @Get('/:mobId/')
-  @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
+  @ApiExtraModels(MobDto, MobsDataDto, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob' })
   @Header('Cache-Control', 'public, max-age=86400, immutable')
   getMob(
@@ -115,10 +107,10 @@ export class MobController {
 
   @Roles()
   @Get('/group/:server/:mobId/')
-  @ApiExtraModels(Mob, MobsData, GetFullMobWithUnixDtoResponse)
+  @ApiExtraModels(MobDto, MobsDataDto, GetFullMobWithUnixDtoResponse)
   @ApiOperation({ summary: 'Get Mob From Group' })
   getMobFromGroup(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() getMobDto: GetMobInGroupDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse> {
@@ -129,7 +121,7 @@ export class MobController {
   @ApiOperation({ summary: 'Find All User Mobs' })
   @Get('/server/:server/')
   findAllMobsByUser(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() getMobsDto: GetMobsDtoRequest,
     @Query('lang') lang: string = 'ru',
   ): Promise<GetFullMobWithUnixDtoResponse[]> {
@@ -140,7 +132,7 @@ export class MobController {
   @ApiOperation({ summary: 'Find All Available Mobs' })
   @Header('Cache-Control', 'public, max-age=3600')
   @Get()
-  findAllAvailableMobs(@Query('lang') lang: string = 'ru'): Promise<Mob[]> {
+  findAllAvailableMobs(@Query('lang') lang: string = 'ru'): Promise<MobDto[]> {
     return this.mobInterface.findAllAvailableMobs(lang);
   }
 
@@ -150,126 +142,38 @@ export class MobController {
   updateMob(
     @Body() updateMobDtoBody: UpdateMobDtoBodyRequest,
     @Param() updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<Mob> {
+  ): Promise<MobDto> {
     return this.mobInterface.updateMob(updateMobDtoBody, updateMobDtoParams);
   }
 
   @Roles()
-  @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
-  @Put('/:server/:mobId/cooldown')
-  async updateMobByCooldown(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+  @ApiOperation({ summary: 'Set Mob Respawn Time' })
+  @Put('/:server/:mobId/respawn')
+  async updateMobRespawn(
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param('mobId') mobId: string,
     @Param('server') server: Servers,
-    @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
+    @Body() updateMobRespawnDto: UpdateMobRespawnDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
-
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobByCooldown(
-        parsedToken.nickname,
-        parsedToken.role,
-        mobId,
-        server,
-        updateMobByCooldownDto,
-        groupName,
-      );
-
-    this.mobGateway.sendMobUpdate({
-      ...updateMobByCooldownDto,
-      ...mob,
-      socketType: 'updateMobByCooldown',
-      groupName,
-    });
-
-    this.telegramBotService.notifyGroupUsers(
-      groupName,
+    const mob: GetFullMobDtoResponse = await this.mobInterface.updateMobRespawn(
+      nickname,
+      role,
+      mobId,
       server,
-      mob.mob.mobName,
-      mob.mob.location,
+      updateMobRespawnDto,
+      groupName,
     );
-
-    return mob;
-  }
-
-  @Roles()
-  @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
-  @Put('/:server/:mobId/date-of-death')
-  async updateMobDateOfDeath(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
-    @Param('mobId') mobId: string,
-    @Param('server') server: Servers,
-    @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobDateOfDeath(
-        parsedToken.nickname,
-        parsedToken.role,
-        mobId,
-        server,
-        updateMobDateOfDeathDto,
-        groupName,
-      );
 
     this.mobGateway.sendMobUpdate({
-      ...updateMobDateOfDeathDto,
+      ...updateMobRespawnDto,
       ...mob,
-      socketType: 'updateMobDateOfDeath',
+      socketType: 'updateMobRespawn',
       groupName,
     });
 
-    this.telegramBotService.notifyGroupUsers(
-      groupName,
-      server,
-      mob.mob.mobName,
-      mob.mob.location,
-    );
-
-    return mob;
-  }
-
-  @Roles()
-  @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
-  @Put('/:server/:mobId/date-of-respawn')
-  async updateMobDateOfRespawn(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
-    @Param('mobId') mobId: string,
-    @Param('server') server: Servers,
-    @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
-
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobDateOfRespawn(
-        parsedToken.nickname,
-        parsedToken.role,
-        mobId,
-        server,
-        updateMobDateOfRespawnDto,
-        groupName,
-      );
-
-    this.mobGateway.sendMobUpdate({
-      ...updateMobDateOfRespawnDto,
-      ...mob,
-      socketType: 'updateMobDateOfRespawn',
-      groupName,
-    });
-
-    this.telegramBotService.notifyGroupUsers(
+    void this.telegramBotService.notifyGroupUsers(
       groupName,
       server,
       mob.mob.mobName,
@@ -290,7 +194,7 @@ export class MobController {
   @ApiOperation({ summary: 'Remove Mob From Group' })
   @Delete('/:server/:mobId/remove-from-group/')
   removeOneFromGroup(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param() removeMobDtoParams: RemoveMobFromGroupDtoParamsRequest,
   ): Promise<RemoveMobFromGroupDtoResponse> {
     return this.mobInterface.removeMobFromGroup(removeMobDtoParams, groupName);
@@ -300,18 +204,15 @@ export class MobController {
   @ApiOperation({ summary: 'Crash Mob Server' })
   @Post('/:server/crash-server/')
   async crashServer(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param() crashServerDtoParams: CrashServerDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse[]> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
     const mob: GetFullMobDtoResponse[] = await this.mobInterface.crashMobServer(
       groupName,
-      parsedToken.nickname,
-      parsedToken.role,
+      nickname,
+      role,
       crashServerDtoParams.server,
     );
 
@@ -328,18 +229,15 @@ export class MobController {
   @ApiOperation({ summary: 'Mob Respawn Lost' })
   @Put('/:server/:mobId/respawn-lost/')
   async respawnLost(
-    @GetGroupNameFromToken() groupName: string,
-    @Req() request: Request,
+    @GetUser('groupName') groupName: string,
+    @GetUser('nickname') nickname: string,
+    @GetUser('role') role: RolesTypes,
     @Param() respawnLostDtoParams: RespawnLostDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const parsedToken = HelperClass.getNicknameAndRoleFromToken(
-      request,
-      this.jwtService,
-    );
     const mob: GetFullMobDtoResponse = await this.mobInterface.respawnLost(
       respawnLostDtoParams,
-      parsedToken.nickname,
-      parsedToken.role,
+      nickname,
+      role,
       groupName,
     );
 
@@ -357,7 +255,7 @@ export class MobController {
   @ApiOperation({ summary: 'Update Mob Comment Data' })
   @Put('/:server/:mobId/comment/')
   updateMobComment(
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Body() updateMobCommentBody: UpdateMobCommentDtoBodyRequest,
     @Param() updateMobCommentParams: UpdateMobCommentDtoParamsRequest,
   ): Promise<GetFullMobDtoResponse> {

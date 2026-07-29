@@ -26,6 +26,47 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## Миграция с MongoDB на PostgreSQL
+
+Приложение полностью работает через Prisma и к Mongo не подключается. Mongo и
+схемы в `src/schemas/*.schema.ts` остаются только ради одноразовых скриптов
+переноса данных.
+
+### Схема применяется так
+
+```bash
+npx prisma migrate deploy
+```
+
+Миграции лежат в `prisma/migrations`. Файлы SQL сгенерированы
+`prisma migrate diff`, поэтому применять их можно и без доступа к дев-базе.
+
+### Перенос данных
+
+Порядок важен: `mobs_data` ссылается на справочник мобов внешним ключом,
+`refresh_tokens` — на пользователей, а группы сверяются с `users.groupName`.
+
+```bash
+MONGO_URI=mongodb://user:pass@host:27017/admin npx ts-node src/scripts/migrate-users-tokens-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-mobs-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-groups-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-mobs-data-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-history-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-bot-sessions-to-postgres.ts
+MONGO_URI=... npx ts-node src/scripts/migrate-notifications-to-postgres.ts
+```
+
+Каждый скрипт только читает Mongo, печатает сверку по количеству строк и
+отдельно сообщает о том, что перенести не удалось: мобы без записи в
+справочнике, дубликаты почт в сессиях бота, пользователи, ссылающиеся на
+несуществующую группу. Историю и уведомления скрипты переносят без записей,
+у которых уже истёк TTL.
+
+Когда перенос завершён и проверен, из проекта можно убрать `mongoose`,
+`@nestjs/mongoose`, `src/schemas/*.schema.ts`, `src/scripts/migrate-*.ts`,
+переменные `DATABASE_USER` / `DATABASE_PASSWORD` / `IP_DB` и сервисы `mongo`
+и `mongo-express` из `docker-compose.yml`.
+
 ## Installation
 
 ```bash

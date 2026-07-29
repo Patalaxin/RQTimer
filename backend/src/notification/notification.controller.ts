@@ -12,11 +12,14 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { INotification } from './notification.interface';
 import { GetNotificationsDtoResponse } from './dto/get-notifications.dto';
 import { TokensGuard } from '../guards/tokens.guard';
+import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
-import { RolesTypes } from '../schemas/user.schema';
+import { Public } from '../decorators/public.decorator';
+import { RolesTypes } from '../schemas/roles.enum';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @ApiTags('Notifications API')
+@UseGuards(TokensGuard, RolesGuard)
 @Controller('notifications')
 @UseInterceptors(ClassSerializerInterceptor)
 export class NotificationController {
@@ -25,7 +28,6 @@ export class NotificationController {
     private readonly notificationInterface: INotification,
   ) {}
 
-  @UseGuards(TokensGuard)
   @Roles(RolesTypes.Admin)
   @ApiBearerAuth()
   @Post()
@@ -46,6 +48,8 @@ export class NotificationController {
     return { status: 'ok' };
   }
 
+  // Объявления читает и неавторизованный: их показывает экран входа.
+  @Public()
   @Get()
   async findAll(): Promise<GetNotificationsDtoResponse[]> {
     return this.notificationInterface.getNotifications();

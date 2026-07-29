@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import { catchError, lastValueFrom, timeout } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-import * as process from 'node:process';
+import { ConfigService } from '@nestjs/config';
 import { IUnixtime } from './unixtime.interface';
+import { EnvironmentVariables } from '../config/env.validation';
+import { redactSecrets } from '../utils/redact';
 
 @Injectable()
 export class UnixtimeService
@@ -21,13 +23,17 @@ export class UnixtimeService
 
   private readonly REQUEST_TIMEOUT = 5000; // 5 секунд
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly config: ConfigService<EnvironmentVariables, true>,
+  ) {}
 
   async onModuleInit() {
     await this.syncUnixtimeFromApi();
 
     this.syncInterval = setInterval(() => {
-      this.syncUnixtimeFromApi();
+      // Метод гасит свои ошибки сам и откатывается на локальное время.
+      void this.syncUnixtimeFromApi();
     }, 60_000);
   }
 
@@ -42,13 +48,28 @@ export class UnixtimeService
     try {
       const response = await lastValueFrom(
         this.httpService
-          .get(
-            `https://api.timezonedb.com/v2.1/get-time-zone?key=${process.env.UNIXTIME_KEY}&format=json&by=zone&zone=UTC`,
-          )
+          .get('https://api.timezonedb.com/v2.1/get-time-zone', {
+            // Ключ параметром, а не внутри строки URL: иначе он оседает в
+            // config.url и уезжает в лог с каждым стектрейсом axios.
+            params: {
+              key: this.config.get('UNIXTIME_KEY', { infer: true }),
+              format: 'json',
+              by: 'zone',
+              zone: 'UTC',
+            },
+          })
           .pipe(
             timeout(this.REQUEST_TIMEOUT),
             catchError((error) => {
-              this.logger.error('Failed to get unixtime from API', error);
+              // Логируем причину, а не объект ошибки: дамп axios тянет за
+              // собой весь конфиг запроса вместе с ключом.
+              this.logger.error(
+                redactSecrets(
+                  `Не удалось получить время из API: ${
+                    error instanceof Error ? error.message : String(error)
+                  }`,
+                ),
+              );
               throw error;
             }),
           ),

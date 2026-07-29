@@ -1,57 +1,46 @@
-import {
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
-import { MobName, Servers } from '../../schemas/mobs.enum';
-import { Expose } from 'class-transformer';
-import { Prop } from '@nestjs/mongoose';
-import { RolesTypes } from '../../schemas/user.schema';
+import { Locations, MobName, Servers } from '../../schemas/mobs.enum';
+import { RolesTypes } from '../../schemas/roles.enum';
 import { HistoryTypes } from '../history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GetHistoryDtoResponse {
-  @IsEnum(MobName)
-  @IsNotEmpty()
+  @ApiProperty({ nullable: true })
+  mobId?: string;
+
+  @ApiProperty({ enum: MobName })
   mobName: MobName;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ enum: Locations, nullable: true })
+  location?: Locations;
+
+  @ApiProperty()
   nickname: string;
 
-  @IsEnum(Servers)
-  @IsNotEmpty()
+  @ApiProperty({ enum: Servers })
   server: Servers;
 
-  @IsNumber()
-  @IsNotEmpty()
+  @ApiProperty({ nullable: true })
+  groupName?: string;
+
+  @ApiProperty({ description: 'Unix time в миллисекундах' })
   date: number;
 
-  @Expose()
-  @Prop()
+  @ApiProperty({ enum: RolesTypes })
   role: RolesTypes;
 
-  @Expose()
-  @Prop()
+  @ApiProperty({ enum: HistoryTypes })
   historyTypes: HistoryTypes;
 
-  @IsNumber()
-  @IsOptional()
+  @ApiProperty({ nullable: true, description: 'Unix time в миллисекундах' })
   toWillResurrect?: number;
 
-  @IsNumber()
-  @IsOptional()
+  @ApiProperty({ nullable: true })
   fromCooldown?: number;
 
-  @IsNumber()
-  @IsOptional()
+  @ApiProperty({ nullable: true })
   toCooldown?: number;
 
-  @IsBoolean()
-  @IsOptional()
+  @ApiProperty()
   crashServer?: boolean;
 }
 

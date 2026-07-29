@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Schema grows incrementally, one module at a time (see the migration plan) —
+// tables for not-yet-migrated modules (Group, Mob, History, ...) are added
+// when that module's own cutover happens, not all upfront.
+
+enum Role {
+  Admin
+  User
+}
+
+/// Игровой сервер. В отличие от названий мобов и локаций, значения латинские
+/// и стабильные, поэтому здесь настоящий enum, а не строка.
+enum Server {
+  Helios
+  Fenix
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  nickname      String   @unique
+  passwordHash  String
+  role          Role     @default(User)
+  isGroupLeader Boolean  @default(false)
+  // Plain field for now (mirrors the current Mongo shape) — becomes a real FK
+  // to Group once the Group module migrates in a later step.
+  groupName     String?
+  // Plain string list for now (mirrors Mongo's excludedMobs: string[] of mob
+  // names) — becomes a join table to Mob once the Mob catalog migrates.
+  excludedMobs  String[] @default([])
+  refreshToken  RefreshToken?
+  createdAt     DateTime @default(now())
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String
+  expiresAt DateTime
+
+  @@map("refresh_tokens")
+}
+
+model OtpVerification {
+  email     String   @id
+  otpHash   String
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+
+  @@map("otp_verifications")
+}
+
+/// Справочник мобов — редактируется только админом, читается всеми.
+model Mob {
+  // ObjectId из Mongo переносится как есть и НЕ генерируется заново: на эти
+  // идентификаторы завязаны переводы (mob/mobs-translations.ts), MobsData.mobId,
+  // History.mobId и фронт. Новые мобы получают uuid — формат идентификатора
+  // нигде не проверяется, важна только его неизменность.
+  id String @id @default(uuid())
+  // mobName/location/mobType — значения enum'ов MobName/Locations/MobsTypes,
+  // но в БД это обычные строки: enum'ы кириллические, а состав справочника
+  // меняется чаще, чем хочется гонять миграции. Валидация — в CreateMobDtoRequest.
+  mobName      String
+  shortName    String
+  respawnText  String?
+  location     String
+  cooldownTime Int
+  image        String?
+  mobType      String
+  mobsData     MobsData[]
+
+  @@unique([location, mobName])
+  @@map("mobs")
+}
+
+/// Состояние моба внутри конкретной группы на конкретном сервере:
+/// когда убит, когда встанет, сколько раз прокрутили кулдаун.
+model MobsData {
+  mobId String
+  mob   Mob    @relation(fields: [mobId], references: [id], onDelete: Cascade)
+  // Остаётся простым полем, как и User.groupName: станет FK, когда все
+  // ссылки на группы по имени переедут на связь.
+  groupName String
+  server    Server
+
+  // Абсолютные метки времени в миллисекундах Unix, поэтому Float, а не Int:
+  // 32-битный integer переполняется на любой сегодняшней дате (~1.7e12),
+  // а double точно представляет целые до 2^53 и остаётся обычным number в JSON.
+  respawnTime Float?
+  deathTime   Float?
+
+  // Сколько раз к респауну прибавляли кулдаун моба — счётчик, не время.
+  cooldown Int @default(0)
+  // Длину ограничивает UpdateMobCommentDtoBodyRequest (@MaxLength(50)):
+  // на уровне БД лимита нет, иначе перелив превращался бы в 500.
+  comment     String?
+  respawnLost Boolean @default(false)
+  // Тип моба на момент добавления в группу: от него зависит, на сколько
+  // сдвигать респаун при краше сервера.
+  mobTypeAdditionalTime String
+
+  @@id([mobId, groupName, server])
+  @@map("mobs_data")
+}
+
+model Group {
+  // Имя — естественный ключ: User.groupName ссылается на группу по имени,
+  // и это тот же контракт, что был в Mongo (name unique).
+  name        String @id
+  groupLeader String
+  // Строки формата "nickname: email" — исторический формат из Mongo. Станет
+  // связью на User, когда фронт перестанет полагаться на плоский список.
+  members             String[]  @default([])
+  canMembersAddMobs   Boolean   @default(false)
+  inviteCode          String?   @unique
+  inviteCodeCreatedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("groups")
+}
+
+/// Привязка телеграм-аккаунта к пользователю таймера.
+model BotSession {
+  id String @id @default(uuid())
+
+  // Идентификатор чата в Telegram. Float, а не Int: идентификаторы давно
+  // перевалили за 2^31, при этом гарантированно влезают в 52 бита, где double
+  // точен, и остаются обычным number — таким его ждут и telegraf, и фронт.
+  //
+  // Оба ключа опциональны и оба уникальны: сессия заводится либо ботом (есть
+  // userId, почты ещё нет), либо настройкой таймзоны из веба (есть email,
+  // userId появится после /start).
+  userId Float?  @unique
+  email  String? @unique
+
+  groupName  String?
+  server     Server?
+  paused     Boolean @default(false)
+  isVerified Boolean @default(false)
+  timezone   String?
+
+  @@map("bot_sessions")
+}
+
+enum HistoryType {
+  updateMobByCooldown
+  updateMobDateOfDeath
+  updateMobDateOfRespawn
+  crashMobServer
+  respawnLost
+}
+
+/// Журнал действий по мобам. В Mongo под это было две коллекции —
+/// heliosHistory и fenixHistory, отличавшиеся только именем; здесь это одна
+/// таблица с колонкой server.
+model History {
+  id String @id @default(uuid())
+
+  // Ссылка на справочник намеренно без внешнего ключа: журнал переживает
+  // удаление моба, а у записи о краше сервера моба нет вовсе.
+  mobId    String?
+  mobName  String
+  location String?
+
+  nickname     String
+  role         Role
+  server       Server
+  groupName    String?
+  historyTypes HistoryType
+
+  // Unix-время в миллисекундах — как и в mobs_data, это double, а не int.
+  date            Float
+  toWillResurrect Float?
+
+  // Счётчики кулдауна, а не время.
+  fromCooldown Int?
+  toCooldown   Int?
+
+  crashServer Boolean @default(false)
+
+  // Замена Mongo TTL-индексу на 3 дня, чистится CleanupRegistryService.
+  expiresAt DateTime
+
+  @@index([server, groupName, date])
+  @@index([server, groupName, mobId, date])
+  @@index([expiresAt])
+  @@map("history")
+}
+
+model Notification {
+  id String @id @default(uuid())
+  // {"ru": "...", "en": "..."} — набор языков задаёт LanguageEnum, так что
+  // добавление языка не требует миграции. Форму валидирует CreateNotificationDto.
+  text      Json
+  createdAt DateTime @default(now())
+  // Замена Mongo TTL-индексу на 7 дней, чистится CleanupRegistryService.
+  expiresAt DateTime
+
+  @@index([createdAt])
+  @@map("notifications")
+}

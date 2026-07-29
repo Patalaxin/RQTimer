@@ -1,9 +1,24 @@
 import { mobTranslations } from '../mob/mobs-translations';
-import { Mob } from '../schemas/mob.schema';
 
-export function translateMob(mob: Mob, lang?: string): any {
+/**
+ * Минимум полей, нужных для перевода. Специально структурный тип, а не
+ * конкретная модель: сюда прилетают и строки из Postgres, и lean-документы
+ * Mongo из ещё не мигрировавших модулей.
+ *
+ * `_id` — идентификатор из справочника мобов, по нему же ключуются переводы.
+ */
+export interface TranslatableMob {
+  _id: unknown;
+  mobName: string;
+  shortName: string;
+  respawnText?: string;
+  location: string;
+  mobType: string;
+}
+
+export function translateMob(mob: TranslatableMob, lang?: string): any {
   if (lang !== 'ru') {
-    const t = mobTranslations[mob._id]?.[lang];
+    const t = mobTranslations[String(mob._id)]?.[lang];
     return {
       ...mob,
       mobName: t?.mobName ?? mob.mobName,

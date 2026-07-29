@@ -1,5 +1,3 @@
-import { BotSession } from '../schemas/telegram-bot.schema';
-
 export const MESSAGES = {
   CHOOSE_SERVER: 'Выберите сервер:',
   ENTER_EMAIL_PASSWORD:
@@ -17,7 +15,4 @@ export const MESSAGES = {
   LEAVE_SERVER: '🔄 Ты покинул сервер. Выбери новый сервер для отслеживания:',
   WRONG_SERVER: 'Неверный выбор сервера.',
   SELECT_SERVER: 'Сначала выберите сервер!',
-  NEW_INFO: (session: BotSession, response: string) =>
-    `Новая информация для сервера ${session.server}:
-${response}`,
 };

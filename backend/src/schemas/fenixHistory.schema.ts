@@ -1,9 +1,11 @@
+// Mongo-схема осталась только ради одноразовых скриптов переноса
+// (src/scripts/migrate-*.ts). Приложение читает данные через Prisma.
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { Locations, MobName, Servers } from './mobs.enum';
-import { RolesTypes } from './user.schema';
+import { RolesTypes } from './roles.enum';
 import { HistoryTypes } from '../history/history-types.interface';
 import { ApiProperty } from '@nestjs/swagger';
 

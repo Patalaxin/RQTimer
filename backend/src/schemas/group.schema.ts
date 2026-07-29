@@ -1,3 +1,5 @@
+// Mongo-схема осталась только ради одноразовых скриптов переноса
+// (src/scripts/migrate-*.ts). Приложение читает данные через Prisma.
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';

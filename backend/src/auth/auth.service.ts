@@ -1,32 +1,76 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import { Model } from 'mongoose';
-import { User, UserDocument } from '../schemas/user.schema';
-import { Token, TokenDocument } from '../schemas/refreshToken.schema';
+import { CookieOptions, Response } from 'express';
+import type { EnvironmentVariables } from '../config/env.validation';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
-import { Response } from 'express';
 import { AuthGateway } from './auth.gateway';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
-import { IAuth } from './auth.interface';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { UnauthorizedError, ValidationError } from '../errors/app.error';
+
+const REFRESH_TOKEN_TTL_MS = 31 * 24 * 60 * 60 * 1000;
+
+/**
+ * Хэш, с которым сверяется пароль, когда пользователя нет. Нужен только ради
+ * постоянного времени ответа — совпасть с ним нельзя, исходная строка нигде не
+ * хранится.
+ */
+const ABSENT_USER_HASH = bcrypt.hashSync(randomUUID(), 10);
 
 @Injectable()
-export class AuthService implements IAuth {
+export class AuthService {
   constructor(
-    @InjectModel(Token.name) private readonly tokenModel: Model<TokenDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly authGateway: AuthGateway,
+    private readonly configService: ConfigService<EnvironmentVariables, true>,
   ) {}
 
-  private async addTokens(user: User): Promise<SignInDtoResponse> {
+  /**
+   * Атрибуты refresh-куки. Жёсткие `secure: true` + `sameSite: 'none'` верны
+   * для прода, но локально фронт и бэк общаются по http, а Secure-куку,
+   * пришедшую по http, Safari не сохраняет вовсе (Chrome для localhost делает
+   * исключение). В таких браузерах refresh-токена на машине разработчика
+   * просто не оказывалось, и сессия отваливалась каждые 15 минут — на срок
+   * жизни access-токена.
+   *
+   * Признак берём из схемы CORS_ORIGIN, а не из NODE_ENV: это тот самый origin,
+   * с которого браузер и будет слать куку, переменная обязательная и уже
+   * провалидирована. NODE_ENV же выставляется в ecosystem.config.js, а деплой
+   * дергает `pm2 restart`, который env из файла не перечитывает, — незаметно
+   * разъехавшийся NODE_ENV снял бы с прод-куки Secure.
+   *
+   * localhost:4200 и localhost:3000 отличаются только портом, то есть для куки
+   * это один сайт, и `lax` её не режет.
+   *
+   * Удаление куки требует тех же атрибутов, что и установка, поэтому signOut
+   * берёт этот же объект.
+   */
+  private get refreshCookieOptions(): CookieOptions {
+    const isSecureOrigin = this.configService
+      .get('CORS_ORIGIN', { infer: true })
+      .startsWith('https://');
+
+    return {
+      httpOnly: true,
+      secure: isSecureOrigin,
+      sameSite: isSecureOrigin ? 'none' : 'lax',
+    };
+  }
+
+  private async addTokens(user: {
+    id: string;
+    email: string;
+    nickname: string;
+    role: string;
+    groupName: string | null;
+    isGroupLeader: boolean;
+  }): Promise<SignInDtoResponse> {
     const payload = {
       email: user.email,
       nickname: user.nickname,
@@ -35,21 +79,24 @@ export class AuthService implements IAuth {
       isGroupLeader: user.isGroupLeader,
     };
 
-    const accessToken: string = await this.jwtService.signAsync(payload, {
-      secret: process.env.SECRET_CONSTANT,
-    });
+    // Секрет и срок жизни берутся из JwtModule (см. auth.module.ts).
+    const accessToken: string = await this.jwtService.signAsync(payload);
     const refreshToken: string = randomUUID();
-    const hashedRefreshToken: string = await bcrypt.hash(refreshToken, 10);
-    await this.tokenModel.findOneAndUpdate(
-      { email: user.email, nickname: user.nickname },
-      {
-        $set: {
-          refreshToken: hashedRefreshToken,
-          expireAt: new Date(Date.now() + 2678400000),
-        },
+    const tokenHash: string = await bcrypt.hash(refreshToken, 10);
+
+    await this.prisma.refreshToken.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        tokenHash,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
       },
-      { upsert: true },
-    );
+      update: {
+        tokenHash,
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+      },
+    });
+
     const client = this.authGateway.getClientByEmail(user.email);
     if (client) {
       this.authGateway.sendUserStatusUpdate(client, user.email, 'online');
@@ -63,33 +110,38 @@ export class AuthService implements IAuth {
     signInDto: SignInDtoRequest,
   ): Promise<SignInDtoResponse> {
     if (signInDto.email && signInDto.nickname) {
-      throw new BadRequestException(
+      throw new ValidationError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     }
 
-    const query = signInDto.email
-      ? { email: new RegExp(`^${signInDto.email}$`, 'i') }
-      : { nickname: new RegExp(`^${signInDto.nickname}$`, 'i') };
+    const where: Prisma.UserWhereInput = signInDto.email
+      ? { email: { equals: signInDto.email, mode: 'insensitive' } }
+      : { nickname: { equals: signInDto.nickname, mode: 'insensitive' } };
 
-    const user: User = await this.userModel.findOne(query);
-    if (!user) {
-      throw new BadRequestException('Login or password invalid');
-    }
+    const user = await this.prisma.user.findFirst({ where });
 
+    // Несуществующий пользователь и неверный пароль обязаны быть неотличимы.
+    // Текст совпадал и раньше, а вот коды ответа — нет (400 против 401), и по
+    // ним перебирались существующие аккаунты. Сравнение по фиктивному хэшу
+    // нужно, чтобы не осталось и разницы во времени ответа: без него ветка
+    // «пользователя нет» отвечала заметно быстрее.
     const isPasswordMatch: boolean = await bcrypt.compare(
       signInDto.password,
-      user.password,
+      user?.passwordHash ?? ABSENT_USER_HASH,
     );
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('Login or password invalid');
+
+    if (!user || !isPasswordMatch) {
+      throw new UnauthorizedError(
+        'INVALID_CREDENTIALS',
+        'Login or password invalid',
+      );
     }
     const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 2678400000, // 2 678 400 000 =  31 day in milliseconds
-      sameSite: 'none',
+      ...this.refreshCookieOptions,
+      maxAge: REFRESH_TOKEN_TTL_MS,
     });
 
     return tokens;
@@ -101,56 +153,69 @@ export class AuthService implements IAuth {
     userRefreshToken: string,
   ): Promise<SignInDtoResponse> {
     if (exchangeRefreshDto.email && exchangeRefreshDto.nickname) {
-      throw new UnauthorizedException(
+      // Статус здесь и ниже остаётся 401 намеренно: интерцептор фронта по 401
+      // от exchange-refresh разлогинивает пользователя, и любой другой код
+      // оставил бы его с протухшей сессией.
+      throw new UnauthorizedError(
+        'AMBIGUOUS_IDENTIFIER',
         'Email and Nickname fields should not be together',
       );
     }
     if (!userRefreshToken) {
-      throw new UnauthorizedException(
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_MISSING',
         'Refresh token is missing from the request',
       );
     }
 
-    let user: User;
-    let refreshToken: string;
+    const where: Prisma.UserWhereInput = exchangeRefreshDto.email
+      ? { email: { equals: exchangeRefreshDto.email, mode: 'insensitive' } }
+      : {
+          nickname: {
+            equals: exchangeRefreshDto.nickname,
+            mode: 'insensitive',
+          },
+        };
 
-    try {
-      const query = exchangeRefreshDto.email
-        ? { email: new RegExp(`^${exchangeRefreshDto.email}$`, 'i') }
-        : { nickname: new RegExp(`^${exchangeRefreshDto.nickname}$`, 'i') };
-      user = await this.userModel.findOne(query).lean().exec();
-      const tokenRecord = await this.tokenModel.findOne(query);
+    const user = await this.prisma.user.findFirst({
+      where,
+      include: { refreshToken: true },
+    });
 
-      refreshToken = tokenRecord.refreshToken;
-    } catch {
-      throw new UnauthorizedException(
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_UNKNOWN',
         'There is no valid refresh token for this user',
       );
     }
 
     const isRefreshTokenCorrect: boolean = await bcrypt.compare(
       userRefreshToken,
-      refreshToken,
+      user.refreshToken.tokenHash,
     );
 
     if (!isRefreshTokenCorrect) {
-      throw new UnauthorizedException('Incorrect refresh token');
+      throw new UnauthorizedError(
+        'REFRESH_TOKEN_INVALID',
+        'Incorrect refresh token',
+      );
     }
 
     const tokens = await this.addTokens(user);
 
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 2678400000, // 2,678,400,000 = 31 day in milliseconds
-      sameSite: 'none',
+      ...this.refreshCookieOptions,
+      maxAge: REFRESH_TOKEN_TTL_MS,
     });
 
     return tokens;
   }
 
   async signOut(res: Response, email: string): Promise<SignOutsDtoResponse> {
-    await this.tokenModel.findOneAndDelete({ email: email });
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (user) {
+      await this.prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+    }
 
     const client = this.authGateway.getClientByEmail(email);
     if (client) {
@@ -158,10 +223,8 @@ export class AuthService implements IAuth {
     }
 
     res.cookie('refreshToken', '', {
-      httpOnly: true,
-      secure: true,
+      ...this.refreshCookieOptions,
       maxAge: 0,
-      sameSite: 'none',
     });
 
     return { message: 'Successfully logged out', status: 200 };

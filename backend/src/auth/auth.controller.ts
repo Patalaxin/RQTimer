@@ -1,27 +1,41 @@
-import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
-import { GetEmailFromToken } from '../decorators/getEmail.decorator';
+import { GetUser } from '../decorators/get-user.decorator';
 import { SignOutsDtoResponse } from './dto/signOut.dto';
-
-import { IAuth } from './auth.interface';
+import { TokensGuard } from '../guards/tokens.guard';
+import { Public } from '../decorators/public.decorator';
+import { AuthService } from './auth.service';
 
 @ApiTags('Auth API')
+@UseGuards(TokensGuard)
 @Controller('auth')
 export class AuthController {
-  constructor(@Inject('IAuth') private readonly authInterface: IAuth) {}
+  constructor(private readonly authService: AuthService) {}
 
+  // Вход: токен здесь как раз и выдаётся.
+  @Public()
   @ApiOperation({ summary: 'Login' })
   @Post('login')
   signIn(
     @Res({ passthrough: true }) res: Response,
     @Body() signInDto: SignInDtoRequest,
   ): Promise<SignInDtoResponse> {
-    return this.authInterface.signIn(res, signInDto);
+    return this.authService.signIn(res, signInDto);
   }
 
+  // Обмен refresh-токена: сюда приходят как раз с протухшим access-токеном.
+  @Public()
   @ApiOperation({ summary: 'Exchange Refresh Token' })
   @ApiBearerAuth()
   @Post('exchange-refresh')
@@ -30,7 +44,7 @@ export class AuthController {
     @Req() req: Request,
     @Body() exchangeRefreshDto: ExchangeRefreshDto,
   ): Promise<SignInDtoResponse> {
-    return this.authInterface.exchangeRefresh(
+    return this.authService.exchangeRefresh(
       res,
       exchangeRefreshDto,
       req.cookies['refreshToken'],
@@ -42,8 +56,8 @@ export class AuthController {
   @Get('signout')
   signOut(
     @Res({ passthrough: true }) res: Response,
-    @GetEmailFromToken() email: string,
+    @GetUser('email') email: string,
   ): Promise<SignOutsDtoResponse> {
-    return this.authInterface.signOut(res, email);
+    return this.authService.signOut(res, email);
   }
 }

@@ -1,34 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { Locations, Servers } from '../schemas/mobs.enum';
-import { GetMobsDtoResponse } from './dto/get-mobs.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Mob, MobDocument } from '../schemas/mob.schema';
-import { Model } from 'mongoose';
+import { Locations, MobsTypes, Servers } from '../schemas/mobs.enum';
+import {
+  BossCatalogItemDto,
+  GetMobsDtoResponse,
+  MobCatalogItemDto,
+} from './dto/get-mobs.dto';
 import { translateMob } from '../utils/translate-mob';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ConfigurationService {
-  constructor(
-    @InjectModel(Mob.name)
-    private readonly mobModel: Model<MobDocument>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   getServers(): Servers[] {
     return Object.values(Servers);
   }
 
   async getMobs(lang: string): Promise<GetMobsDtoResponse> {
-    const allMobs = await this.mobModel
-      .find({ mobType: { $in: ['Босс', 'Элитка'] } })
-      .select('mobName shortName mobType image respawnText location _id')
-      .lean();
+    const allMobs = await this.prisma.mob.findMany({
+      where: { mobType: { in: [MobsTypes.Босс, MobsTypes.Элитка] } },
+      select: {
+        id: true,
+        mobName: true,
+        shortName: true,
+        mobType: true,
+        image: true,
+        respawnText: true,
+        location: true,
+      },
+    });
 
-    const bossesArray: Mob[] = allMobs
-      .filter((mob) => mob.mobType === 'Босс')
+    // Фронт и таблица переводов знают моба по `_id`, поэтому наружу отдаём
+    // именно это имя поля, а не присмовское `id`.
+    const catalog: BossCatalogItemDto[] = allMobs.map(({ id, ...mob }) => ({
+      _id: id,
+      ...mob,
+    }));
+
+    const bossesArray = catalog
+      .filter((mob) => mob.mobType === MobsTypes.Босс)
       .map((mob) => translateMob(mob, lang));
 
-    const elitesArray: Mob[] = allMobs
-      .filter((mob) => mob.mobType === 'Элитка')
+    const elitesArray: MobCatalogItemDto[] = catalog
+      .filter((mob) => mob.mobType === MobsTypes.Элитка)
       .map((mob) => translateMob(mob, lang));
 
     return { bossesArray, elitesArray };

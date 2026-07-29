@@ -1,39 +1,40 @@
-import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { Mob } from '../../schemas/mob.schema';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  Locations,
+  MobName,
+  MobsTypes,
+  ShortMobName,
+} from '../../schemas/mobs.enum';
 
-class MobDto {
-  @IsString()
-  @IsNotEmpty()
+export class MobCatalogItemDto {
+  @ApiProperty({ description: 'Идентификатор моба в справочнике' })
+  _id: string;
+
+  @ApiProperty({ enum: MobName })
   mobName: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ enum: ShortMobName })
   shortName: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ enum: MobsTypes })
   mobType: string;
 
-  @IsString()
-  @IsNotEmpty()
-  image: string;
+  @ApiProperty({ enum: Locations })
+  location: string;
+
+  @ApiProperty({ nullable: true })
+  image: string | null;
 }
 
-class BossDto extends MobDto {
-  @IsString()
-  @IsNotEmpty()
-  respawnText: string;
+export class BossCatalogItemDto extends MobCatalogItemDto {
+  @ApiProperty({ nullable: true })
+  respawnText: string | null;
 }
 
 export class GetMobsDtoResponse {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => BossDto)
-  bossesArray: Mob[];
+  @ApiProperty({ type: [BossCatalogItemDto] })
+  bossesArray: BossCatalogItemDto[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => MobDto)
-  elitesArray: Mob[];
+  @ApiProperty({ type: [MobCatalogItemDto] })
+  elitesArray: MobCatalogItemDto[];
 }

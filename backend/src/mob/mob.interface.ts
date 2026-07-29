@@ -2,16 +2,15 @@ import { CreateMobDtoRequest } from './dto/create-mob.dto';
 import {
   GetFullMobDtoResponse,
   GetFullMobWithUnixDtoResponse,
-  GetMobDtoRequest, GetMobDtoResponse,
+  GetMobDtoRequest,
+  GetMobDtoResponse,
 } from './dto/get-mob.dto';
 import { GetMobsDtoRequest } from './dto/get-all-mobs.dto';
 import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
+import { UpdateMobRespawnDtoRequest } from './dto/update-mob-respawn.dto';
 import {
   DeleteAllMobsDataDtoResponse,
   DeleteMobDtoResponse,
@@ -19,8 +18,8 @@ import {
   RemoveMobFromGroupDtoResponse,
 } from './dto/delete-mob.dto';
 import { RespawnLostDtoParamsRequest } from './dto/respawn-lost.dto';
-import { RolesTypes } from '../schemas/user.schema';
-import { Mob } from '../schemas/mob.schema';
+import { RolesTypes } from '../schemas/roles.enum';
+import { MobDto } from './dto/mob.dto';
 import { AddMobInGroupDtoRequest } from './dto/add-mob-in-group.dto';
 import { Servers } from '../schemas/mobs.enum';
 import {
@@ -29,7 +28,7 @@ import {
 } from './dto/update-mob-comment.dto';
 
 export interface IMob {
-  createMob(createMobDto: CreateMobDtoRequest): Promise<Mob>;
+  createMob(createMobDto: CreateMobDtoRequest): Promise<MobDto>;
 
   addMobInGroup(
     email: string,
@@ -58,37 +57,19 @@ export interface IMob {
     lang: string,
   ): Promise<GetFullMobWithUnixDtoResponse[]>;
 
-  findAllAvailableMobs(lang: string): Promise<Mob[]>;
+  findAllAvailableMobs(lang: string): Promise<MobDto[]>;
 
   updateMob(
     updateMobDtoBody: UpdateMobDtoBodyRequest,
     updateMobDtoParams: UpdateMobDtoParamsRequest,
-  ): Promise<Mob>;
+  ): Promise<MobDto>;
 
-  updateMobByCooldown(
+  updateMobRespawn(
     nickname: string,
     role: RolesTypes,
     mobId: string,
     server: string,
-    updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse>;
-
-  updateMobDateOfDeath(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: string,
-    updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse>;
-
-  updateMobDateOfRespawn(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: string,
-    updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
+    updateMobRespawnDto: UpdateMobRespawnDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse>;
 

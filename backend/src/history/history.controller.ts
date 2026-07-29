@@ -1,15 +1,18 @@
 import {
   ClassSerializerInterceptor,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   UseGuards,
   UseInterceptors,
   Query,
   Inject,
 } from '@nestjs/common';
 import { TokensGuard } from '../guards/tokens.guard';
+import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import {
   ApiBearerAuth,
@@ -22,15 +25,15 @@ import {
 } from '@nestjs/swagger';
 import { Servers } from '../schemas/mobs.enum';
 import { PaginatedHistoryDto } from './dto/get-history.dto';
-import { RolesTypes } from '../schemas/user.schema';
+import { RolesTypes } from '../schemas/roles.enum';
 import { DeleteAllHistoryDtoResponse } from './dto/delete-history.dto';
-import { GetGroupNameFromToken } from '../decorators/getGroupName.decorator';
+import { GetUser } from '../decorators/get-user.decorator';
 import { IHistory } from './history.interface';
 import { HistoryTypes } from './history-types.interface';
 
 @ApiBearerAuth()
 @ApiTags('History API')
-@UseGuards(TokensGuard)
+@UseGuards(TokensGuard, RolesGuard)
 @Controller('history')
 export class HistoryController {
   constructor(
@@ -52,9 +55,9 @@ export class HistoryController {
   @Get('/list/:server')
   async findAll(
     @Param('server') server: Servers,
-    @GetGroupNameFromToken() groupName: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @GetUser('groupName') groupName: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('lang') language = 'ru',
     @Query('historyType') historyType?: HistoryTypes,
   ): Promise<PaginatedHistoryDto> {
@@ -82,10 +85,10 @@ export class HistoryController {
   @Get('/:server/:mobId')
   async findByMob(
     @Param('server') server: Servers,
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
     @Param('mobId') mobId: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('lang') language = 'ru',
   ): Promise<PaginatedHistoryDto> {
     return await this.historyInterface.getMobHistory(
@@ -106,7 +109,7 @@ export class HistoryController {
   @Delete(':server')
   deleteAll(
     @Param('server') server: Servers,
-    @GetGroupNameFromToken() groupName: string,
+    @GetUser('groupName') groupName: string,
   ): Promise<DeleteAllHistoryDtoResponse> {
     return this.historyInterface.deleteAll(server, groupName);
   }

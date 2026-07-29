@@ -1,74 +1,142 @@
 import { Resend } from 'resend';
-import { BadRequestException } from '@nestjs/common';
-import * as process from 'process';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { UpstreamError, ValidationError } from '../errors/app.error';
+import { EnvironmentVariables } from '../config/env.validation';
+import * as bcrypt from 'bcrypt';
 import { otp_template } from './otp-template';
-import { IOtp } from './otp.interface';
+import { PrismaService } from '../prisma/prisma.service';
+import { CleanupRegistryService } from '../cleanup/cleanup-registry.service';
 
-interface OtpRecord {
-  otp: string;
-  expiresAt: number;
-}
+const OTP_TTL_MS = 60_000; // время жизни неподтверждённого кода
+const VERIFIED_TTL_MS = 10 * 60_000; // окно на завершение signup/forgot-password после подтверждения
 
-export const otpStore: Record<string, OtpRecord> = {};
-export const verifiedUsers: Set<string> = new Set();
+@Injectable()
+export class OtpService implements OnModuleInit {
+  private readonly logger = new Logger(OtpService.name);
 
-export class OtpService implements IOtp {
-  private readonly resend = new Resend(process.env.RESEND_API_KEY);
+  private readonly resend: Resend;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cleanupRegistry: CleanupRegistryService,
+    private readonly config: ConfigService<EnvironmentVariables, true>,
+  ) {
+    this.resend = new Resend(config.get('RESEND_API_KEY', { infer: true }));
+  }
+
+  onModuleInit(): void {
+    this.cleanupRegistry.register('otp_verifications', async () => {
+      const { count } = await this.prisma.otpVerification.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
+      });
+      return count;
+    });
+  }
 
   generateOtp(): string {
     return Math.floor(10000 + Math.random() * 90000).toString();
   }
 
   async storeOtp(email: string, otp: string): Promise<void> {
-    const expiresAt: number = Date.now() + 60000;
-    otpStore[email] = { otp, expiresAt };
-
-    setTimeout((): void => {
-      delete otpStore[email];
-    }, 60000);
+    const otpHash = await bcrypt.hash(otp, 10);
+    await this.prisma.otpVerification.upsert({
+      where: { email },
+      create: {
+        email,
+        otpHash,
+        verified: false,
+        expiresAt: new Date(Date.now() + OTP_TTL_MS),
+      },
+      update: {
+        otpHash,
+        verified: false,
+        expiresAt: new Date(Date.now() + OTP_TTL_MS),
+      },
+    });
   }
 
-  validateOtp(email: string, otp: string): boolean {
-    const record: OtpRecord = otpStore[email];
-    if (!record || record.otp !== otp || Date.now() > record.expiresAt) {
+  async validateOtp(email: string, otp: string): Promise<boolean> {
+    const record = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+
+    if (!record || record.expiresAt < new Date()) {
       return false;
     }
 
-    delete otpStore[email];
-    verifiedUsers.add(email);
+    const isMatch = await bcrypt.compare(otp, record.otpHash);
+    if (!isMatch) {
+      return false;
+    }
+
+    await this.prisma.otpVerification.update({
+      where: { email },
+      data: {
+        verified: true,
+        expiresAt: new Date(Date.now() + VERIFIED_TTL_MS),
+      },
+    });
+
     return true;
   }
 
-  isEmailVerified(email: string): boolean {
-    return verifiedUsers.has(email);
+  async isEmailVerified(email: string): Promise<boolean> {
+    const record = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+    return !!record?.verified && record.expiresAt >= new Date();
   }
 
-  removeVerifiedEmail(email: string): void {
-    verifiedUsers.delete(email);
+  async removeVerifiedEmail(email: string): Promise<void> {
+    await this.prisma.otpVerification.deleteMany({ where: { email } });
   }
 
   async sendOtp(email: string): Promise<void> {
-    if (otpStore[email]) {
-      throw new BadRequestException(
+    const existing = await this.prisma.otpVerification.findUnique({
+      where: { email },
+    });
+    if (existing && !existing.verified && existing.expiresAt > new Date()) {
+      throw new ValidationError(
+        'OTP_ALREADY_SENT',
         'OTP has already been sent. If you did not receive the code, please request again in one minute.',
       );
     }
 
     const otp: string = this.generateOtp();
 
+    let sent: Awaited<ReturnType<typeof this.resend.emails.send>>;
     try {
-      const result = await this.resend.emails.send({
-        from: process.env.OTP_FROM,
+      sent = await this.resend.emails.send({
+        from: this.config.get('OTP_FROM', { infer: true }),
         to: email,
         subject: 'Код подтверждения',
         html: otp_template(otp),
       });
-      console.log('Resend! result:', result);
-      await this.storeOtp(email, otp);
     } catch (error) {
-      console.error('Resend error:', error);
+      // Сюда попадает только сеть: сам Resend отказы отдаёт полем error.
+      this.logger.error(
+        'Resend не ответил',
+        error instanceof Error ? error.stack : String(error),
+      );
 
-      throw new BadRequestException('Error sending OTP to email');
+      // Лёг почтовый провайдер — виноват не клиент. 400 говорил «исправь
+      // запрос», хотя исправлять нечего и повтор имеет смысл.
+      throw new UpstreamError('OTP_SEND_FAILED', 'Error sending OTP to email');
     }
+
+    // resend.emails.send отказ не бросает, а возвращает `{ data: null, error }`
+    // — просроченный ключ или выбранная квота молча доезжали до storeOtp.
+    // Пользователь получал 200, ждал письмо, которого нет, и ещё минуту не мог
+    // запросить код заново: строка-то создана.
+    if (sent.error) {
+      this.logger.error(
+        `Resend отклонил письмо: ${sent.error.name} ${sent.error.message}`,
+      );
+      throw new UpstreamError('OTP_SEND_FAILED', 'Error sending OTP to email');
+    }
+
+    this.logger.debug(`Код отправлен, id письма ${sent.data?.id}`);
+    await this.storeOtp(email, otp);
   }
 }

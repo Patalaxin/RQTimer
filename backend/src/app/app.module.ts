@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UsersModule } from '../users/users.module';
 import { AuthModule } from '../auth/auth.module';
@@ -10,15 +10,19 @@ import { MobModule } from '../mob/mob.module';
 import { ConfigurationModule } from '../configuration/configuration.module';
 import { UnixtimeModule } from '../unixtime/unixtime.module';
 import { GroupModule } from '../group/group.module';
-import * as process from 'process';
 import { TelegramBotModule } from '../bot/telegram-bot.module';
-import { TelegrafModule } from 'nestjs-telegraf';
 import { NotificationModule } from '../notification/notification.module';
+import { validate } from '../config/env.validation';
+import { AllExceptionsFilter } from '../filters/all-exceptions.filter';
+import { CleanupModule } from '../cleanup/cleanup.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate }),
+    PrismaModule,
+    CleanupModule,
     AuthModule,
     UsersModule,
     MobModule,
@@ -26,28 +30,13 @@ import { NotificationModule } from '../notification/notification.module';
     ConfigurationModule,
     UnixtimeModule,
     NotificationModule,
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => {
-        return {
-          uri: `mongodb://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.IP_DB}:27017/admin`,
-        };
-      },
-    }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', 'client'),
       serveRoot: '/static',
     }),
-    ScheduleModule.forRoot(),
-    TelegrafModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => ({
-        token: process.env.TELEGRAM_BOT_TOKEN,
-      }),
-    }),
     TelegramBotModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [{ provide: APP_FILTER, useClass: AllExceptionsFilter }],
 })
 export class AppModule {}

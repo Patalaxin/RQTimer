@@ -1,28 +1,26 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { User, UserSchema } from '../schemas/user.schema';
-import { Token, TokenSchema } from '../schemas/refreshToken.schema';
 import { AuthGateway } from './auth.gateway';
+import { EnvironmentVariables } from '../config/env.validation';
 
 @Module({
   imports: [
-    JwtModule.register({
+    // Секрет задаётся здесь один раз и становится значением по умолчанию для
+    // sign и verify. Раньше он же дублировался в каждом вызове JwtService.
+    JwtModule.registerAsync({
       global: true,
-      secret: process.env.SECRET_CONSTANT,
-      signOptions: { expiresIn: '900s' }, // 15 min live for access token
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<EnvironmentVariables, true>) => ({
+        secret: config.get('SECRET_CONSTANT', { infer: true }),
+        signOptions: { expiresIn: '900s' }, // 15 min live for access token
+      }),
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Token.name, schema: TokenSchema }]),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    AuthGateway,
-    { provide: 'IAuth', useClass: AuthService },
-  ],
+  providers: [AuthService, AuthGateway],
   exports: [AuthService, AuthGateway],
 })
 export class AuthModule {}
