@@ -10,9 +10,7 @@ import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
+import { UpdateMobRespawnDtoRequest } from './dto/update-mob-respawn.dto';
 import {
   DeleteAllMobsDataDtoResponse,
   DeleteMobDtoResponse,
@@ -66,30 +64,12 @@ export interface IMob {
     updateMobDtoParams: UpdateMobDtoParamsRequest,
   ): Promise<MobDto>;
 
-  updateMobByCooldown(
+  updateMobRespawn(
     nickname: string,
     role: RolesTypes,
     mobId: string,
     server: string,
-    updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse>;
-
-  updateMobDateOfDeath(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: string,
-    updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse>;
-
-  updateMobDateOfRespawn(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: string,
-    updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
+    updateMobRespawnDto: UpdateMobRespawnDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse>;
 

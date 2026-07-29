@@ -8,6 +8,11 @@ import { GroupService } from '../group/group.service';
 import { Locations, MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
 import { RolesTypes } from '../schemas/roles.enum';
 import { HistoryTypes } from '../history/history-types.interface';
+import {
+  RespawnInput,
+  UpdateMobRespawnDtoRequest,
+} from './dto/update-mob-respawn.dto';
+import { GetFullMobDtoResponse } from './dto/get-mob.dto';
 
 const MOB_ID = '673148021e738aba75ba3402';
 const GROUP = 'MyGroup';
@@ -190,95 +195,128 @@ describe('MobService (smoke)', () => {
     });
   });
 
-  describe('updateMobDateOfDeath', () => {
-    it('derives the respawn from the cooldown and logs history', async () => {
-      givenMobInGroup();
-      prisma.mobsData.update.mockResolvedValue(
-        mobDataRow({ deathTime: NOW_MS, respawnTime: NOW_MS + 3_600_000 }),
-      );
-
-      const result = await service.updateMobDateOfDeath(
+  describe('updateMobRespawn', () => {
+    const setRespawn = (
+      dto: UpdateMobRespawnDtoRequest,
+    ): Promise<GetFullMobDtoResponse> =>
+      service.updateMobRespawn(
         'Nick',
         RolesTypes.User,
         MOB_ID,
         Servers.Helios,
-        { dateOfDeath: NOW_MS, comment: undefined },
+        dto,
         GROUP,
       );
 
-      const { data } = prisma.mobsData.update.mock.calls[0][0];
-      expect(data.respawnTime).toBe(NOW_MS + 3_600_000);
-      expect(data.deathTime).toBe(NOW_MS);
-      expect(data.cooldown).toBe(0);
-      expect(data.respawnLost).toBe(false);
+    describe('by date of death', () => {
+      it('derives the respawn from the cooldown and logs history', async () => {
+        givenMobInGroup();
+        prisma.mobsData.update.mockResolvedValue(
+          mobDataRow({ deathTime: NOW_MS, respawnTime: NOW_MS + 3_600_000 }),
+        );
 
-      // Unix-миллисекунды не должны терять точность — ради этого поле double.
-      expect(result.mobData.respawnTime).toBe(NOW_MS + 3_600_000);
-      expect(Number.isSafeInteger(result.mobData.respawnTime)).toBe(true);
+        const result = await setRespawn({
+          by: RespawnInput.dateOfDeath,
+          value: NOW_MS,
+        });
 
-      const [history] = historyService.createHistory.mock.calls[0];
-      expect(history.historyTypes).toBe(HistoryTypes.updateMobDateOfDeath);
-      expect(history.toWillResurrect).toBe(NOW_MS + 3_600_000);
-      expect(history.mobName).toBe(MobName.Архон);
-    });
-  });
+        const { data } = prisma.mobsData.update.mock.calls[0][0];
+        expect(data.respawnTime).toBe(NOW_MS + 3_600_000);
+        expect(data.deathTime).toBe(NOW_MS);
+        expect(data.cooldown).toBe(0);
+        expect(data.respawnLost).toBe(false);
 
-  describe('updateMobByCooldown', () => {
-    it('adds cooldownTime * n to the respawn and bumps the counter', async () => {
-      givenMobInGroup(mobDataRow({ cooldown: 1, comment: undefined }));
-      prisma.mobsData.update.mockResolvedValue(mobDataRow({ cooldown: 3 }));
+        // Unix-миллисекунды не должны терять точность — ради этого поле double.
+        expect(result.mobData.respawnTime).toBe(NOW_MS + 3_600_000);
+        expect(Number.isSafeInteger(result.mobData.respawnTime)).toBe(true);
 
-      await service.updateMobByCooldown(
-        'Nick',
-        RolesTypes.User,
-        MOB_ID,
-        Servers.Helios,
-        { cooldown: 2, comment: 'ушёл в ребут' },
-        GROUP,
-      );
-
-      const { data } = prisma.mobsData.update.mock.calls[0][0];
-      expect(data.respawnTime).toBe(NOW_MS + 2 * 3_600_000);
-      expect(data.cooldown).toEqual({ increment: 2 });
-
-      const [history] = historyService.createHistory.mock.calls[0];
-      expect(history.fromCooldown).toBe(1);
-      expect(history.toCooldown).toBe(3);
+        const [history] = historyService.createHistory.mock.calls[0];
+        expect(history.historyTypes).toBe(HistoryTypes.updateMobDateOfDeath);
+        expect(history.toWillResurrect).toBe(NOW_MS + 3_600_000);
+        expect(history.mobName).toBe(MobName.Архон);
+      });
     });
 
-    it('refuses when the mob has no respawn time yet', async () => {
-      givenMobInGroup(mobDataRow({ respawnTime: null }));
+    describe('by cooldown', () => {
+      it('adds cooldownTime * n to the respawn and bumps the counter', async () => {
+        givenMobInGroup(mobDataRow({ cooldown: 1, comment: undefined }));
+        prisma.mobsData.update.mockResolvedValue(mobDataRow({ cooldown: 3 }));
 
-      await expect(
-        service.updateMobByCooldown(
-          'Nick',
-          RolesTypes.User,
-          MOB_ID,
-          Servers.Helios,
-          { cooldown: 1, comment: undefined },
-          GROUP,
-        ),
-      ).rejects.toThrow('Respawn time is missing');
-      expect(prisma.mobsData.update).not.toHaveBeenCalled();
+        await setRespawn({
+          by: RespawnInput.cooldown,
+          value: 2,
+          comment: 'ушёл в ребут',
+        });
+
+        const { data } = prisma.mobsData.update.mock.calls[0][0];
+        expect(data.respawnTime).toBe(NOW_MS + 2 * 3_600_000);
+        expect(data.cooldown).toEqual({ increment: 2 });
+        expect(data.comment).toBe('ушёл в ребут');
+        // Сдвиг на кулдауны не трогает время смерти.
+        expect(data).not.toHaveProperty('deathTime');
+
+        const [history] = historyService.createHistory.mock.calls[0];
+        expect(history.historyTypes).toBe(HistoryTypes.updateMobByCooldown);
+        expect(history.fromCooldown).toBe(1);
+        expect(history.toCooldown).toBe(3);
+      });
+
+      it('refuses when the mob has no respawn time yet', async () => {
+        givenMobInGroup(mobDataRow({ respawnTime: null }));
+
+        await expect(
+          setRespawn({ by: RespawnInput.cooldown, value: 1 }),
+        ).rejects.toMatchObject({
+          status: 400,
+          code: 'RESPAWN_TIME_MISSING',
+        });
+        expect(prisma.mobsData.update).not.toHaveBeenCalled();
+        expect(historyService.createHistory).not.toHaveBeenCalled();
+      });
     });
-  });
 
-  describe('updateMobDateOfRespawn', () => {
-    it('never derives a negative death time', async () => {
+    describe('by date of respawn', () => {
+      it('writes the respawn as given and derives the death time back', async () => {
+        givenMobInGroup();
+        prisma.mobsData.update.mockResolvedValue(mobDataRow());
+
+        await setRespawn({
+          by: RespawnInput.dateOfRespawn,
+          value: NOW_MS,
+        });
+
+        const { data } = prisma.mobsData.update.mock.calls[0][0];
+        expect(data.respawnTime).toBe(NOW_MS);
+        expect(data.deathTime).toBe(NOW_MS - 3_600_000);
+        expect(data.cooldown).toBe(0);
+
+        const [history] = historyService.createHistory.mock.calls[0];
+        expect(history.historyTypes).toBe(HistoryTypes.updateMobDateOfRespawn);
+        expect(history.toWillResurrect).toBe(NOW_MS);
+      });
+
+      it('never derives a negative death time', async () => {
+        givenMobInGroup();
+        prisma.mobsData.update.mockResolvedValue(mobDataRow());
+
+        await setRespawn({ by: RespawnInput.dateOfRespawn, value: 1000 });
+
+        const { data } = prisma.mobsData.update.mock.calls[0][0];
+        expect(data.deathTime).toBe(0);
+      });
+    });
+
+    // Комментарий необязателен, но в базе поле не nullable: пустая строка,
+    // а не undefined, иначе Prisma просто не тронет колонку и старый
+    // комментарий переживёт новую отметку.
+    it('clears the comment when the request has none', async () => {
       givenMobInGroup();
       prisma.mobsData.update.mockResolvedValue(mobDataRow());
 
-      await service.updateMobDateOfRespawn(
-        'Nick',
-        RolesTypes.User,
-        MOB_ID,
-        Servers.Helios,
-        { dateOfRespawn: 1000, comment: undefined },
-        GROUP,
-      );
+      await setRespawn({ by: RespawnInput.dateOfDeath, value: NOW_MS });
 
       const { data } = prisma.mobsData.update.mock.calls[0][0];
-      expect(data.deathTime).toBe(0);
+      expect(data.comment).toBe('');
     });
   });
 

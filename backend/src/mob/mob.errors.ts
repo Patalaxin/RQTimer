@@ -42,6 +42,20 @@ export class MobsAddForbidden extends ForbiddenError {
   }
 }
 
+/**
+ * Сдвиг на кулдауны считается от текущего респауна, а его нет: моб ещё ни разу
+ * не отмечен либо респаун потерян. Сначала нужно задать время смерти или
+ * респауна.
+ */
+export class RespawnTimeMissing extends ValidationError {
+  constructor() {
+    super(
+      'RESPAWN_TIME_MISSING',
+      'Respawn time is missing. Specify either date of death or date of respawn.',
+    );
+  }
+}
+
 /** В теле запроса пришли идентификаторы, которых нет в справочнике. */
 export class UnknownMobsRequested extends ValidationError {
   constructor() {

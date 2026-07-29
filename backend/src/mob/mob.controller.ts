@@ -37,9 +37,7 @@ import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
-import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
+import { UpdateMobRespawnDtoRequest } from './dto/update-mob-respawn.dto';
 import {
   DeleteMobDtoResponse,
   RemoveMobFromGroupDtoParamsRequest,
@@ -149,106 +147,29 @@ export class MobController {
   }
 
   @Roles()
-  @ApiOperation({ summary: 'Update Mob by Cooldown Respawn Time' })
-  @Put('/:server/:mobId/cooldown')
-  async updateMobByCooldown(
+  @ApiOperation({ summary: 'Set Mob Respawn Time' })
+  @Put('/:server/:mobId/respawn')
+  async updateMobRespawn(
     @GetUser('groupName') groupName: string,
     @GetUser('nickname') nickname: string,
     @GetUser('role') role: RolesTypes,
     @Param('mobId') mobId: string,
     @Param('server') server: Servers,
-    @Body() updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
+    @Body() updateMobRespawnDto: UpdateMobRespawnDtoRequest,
   ): Promise<GetFullMobDtoResponse> {
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobByCooldown(
-        nickname,
-        role,
-        mobId,
-        server,
-        updateMobByCooldownDto,
-        groupName,
-      );
-
-    this.mobGateway.sendMobUpdate({
-      ...updateMobByCooldownDto,
-      ...mob,
-      socketType: 'updateMobByCooldown',
-      groupName,
-    });
-
-    void this.telegramBotService.notifyGroupUsers(
-      groupName,
+    const mob: GetFullMobDtoResponse = await this.mobInterface.updateMobRespawn(
+      nickname,
+      role,
+      mobId,
       server,
-      mob.mob.mobName,
-      mob.mob.location,
+      updateMobRespawnDto,
+      groupName,
     );
 
-    return mob;
-  }
-
-  @Roles()
-  @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Death' })
-  @Put('/:server/:mobId/date-of-death')
-  async updateMobDateOfDeath(
-    @GetUser('groupName') groupName: string,
-    @GetUser('nickname') nickname: string,
-    @GetUser('role') role: RolesTypes,
-    @Param('mobId') mobId: string,
-    @Param('server') server: Servers,
-    @Body() updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobDateOfDeath(
-        nickname,
-        role,
-        mobId,
-        server,
-        updateMobDateOfDeathDto,
-        groupName,
-      );
-
     this.mobGateway.sendMobUpdate({
-      ...updateMobDateOfDeathDto,
+      ...updateMobRespawnDto,
       ...mob,
-      socketType: 'updateMobDateOfDeath',
-      groupName,
-    });
-
-    void this.telegramBotService.notifyGroupUsers(
-      groupName,
-      server,
-      mob.mob.mobName,
-      mob.mob.location,
-    );
-
-    return mob;
-  }
-
-  @Roles()
-  @ApiOperation({ summary: 'Update Mob Respawn Time by Date of Respawn' })
-  @Put('/:server/:mobId/date-of-respawn')
-  async updateMobDateOfRespawn(
-    @GetUser('groupName') groupName: string,
-    @GetUser('nickname') nickname: string,
-    @GetUser('role') role: RolesTypes,
-    @Param('mobId') mobId: string,
-    @Param('server') server: Servers,
-    @Body() updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-  ): Promise<GetFullMobDtoResponse> {
-    const mob: GetFullMobDtoResponse =
-      await this.mobInterface.updateMobDateOfRespawn(
-        nickname,
-        role,
-        mobId,
-        server,
-        updateMobDateOfRespawnDto,
-        groupName,
-      );
-
-    this.mobGateway.sendMobUpdate({
-      ...updateMobDateOfRespawnDto,
-      ...mob,
-      socketType: 'updateMobDateOfRespawn',
+      socketType: 'updateMobRespawn',
       groupName,
     });
 

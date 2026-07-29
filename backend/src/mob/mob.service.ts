@@ -4,7 +4,7 @@ import {
   MobsData as PrismaMobsData,
   Server,
 } from '@prisma/client';
-import { ConflictError, ValidationError } from '../errors/app.error';
+import { ConflictError } from '../errors/app.error';
 import { mapPrismaError } from '../errors/map-prisma-error';
 import { GroupNotFound } from '../group/group.errors';
 import {
@@ -12,6 +12,7 @@ import {
   MobNotFound,
   MobNotFoundInGroup,
   MobsAddForbidden,
+  RespawnTimeMissing,
   UnknownMobsRequested,
 } from './mob.errors';
 import { UsersService } from '../users/users.service';
@@ -29,10 +30,11 @@ import {
   UpdateMobDtoBodyRequest,
   UpdateMobDtoParamsRequest,
 } from './dto/update-mob.dto';
-import { UpdateMobByCooldownDtoRequest } from './dto/update-mob-by-cooldown.dto';
+import {
+  RespawnInput,
+  UpdateMobRespawnDtoRequest,
+} from './dto/update-mob-respawn.dto';
 import { HistoryService } from '../history/history.service';
-import { UpdateMobDateOfDeathDtoRequest } from './dto/update-mob-date-of-death.dto';
-import { UpdateMobDateOfRespawnDtoRequest } from './dto/update-mob-date-of-respawn.dto';
 import { MobName, MobsTypes, Servers } from '../schemas/mobs.enum';
 import {
   DeleteAllMobsDataDtoResponse,
@@ -55,6 +57,14 @@ import { IMob } from './mob.interface';
 import { translateMob } from '../utils/translate-mob';
 import { IUnixtime } from '../unixtime/unixtime.interface';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** Чем выбранное представление времени оборачивается для строки mobs_data. */
+interface RespawnChange {
+  historyTypes: HistoryTypes;
+  respawnTime: number;
+  data: { cooldown: number | { increment: number }; deathTime?: number };
+  historyExtras?: Pick<History, 'fromCooldown' | 'toCooldown'>;
+}
 
 /** На сколько сдвигается респаун при краше сервера. */
 const CRASH_SHIFT_MS: Record<string, number> = {
@@ -266,147 +276,97 @@ export class MobService implements IMob {
     }
   }
 
-  async updateMobByCooldown(
+  /**
+   * Единственная запись времени респауна. Все три представления (сдвиг на
+   * кулдауны, момент смерти, момент респауна) отличаются только тем, как из
+   * запроса получается новое время и что попадает в историю; чтение моба,
+   * запись строки и создание записи истории у них общие.
+   */
+  async updateMobRespawn(
     nickname: string,
     role: RolesTypes,
     mobId: string,
     server: Servers,
-    updateMobByCooldownDto: UpdateMobByCooldownDtoRequest,
+    updateMobRespawnDto: UpdateMobRespawnDtoRequest,
     groupName: string,
   ): Promise<GetFullMobDtoResponse> {
-    const { cooldown } = updateMobByCooldownDto;
-    const comment = updateMobByCooldownDto.comment ?? '';
+    const comment = updateMobRespawnDto.comment ?? '';
 
     const mob = await this.getMobFromGroup({ mobId, server }, groupName);
+    const change = this.resolveRespawnChange(updateMobRespawnDto, mob);
 
-    if (mob.mobData.respawnTime === null) {
-      throw new ValidationError(
-        'RESPAWN_TIME_MISSING',
-        'Respawn time is missing. Specify either date of death or date of respawn.',
-      );
+    const history: History = {
+      mobId,
+      location: mob.mob.location,
+      mobName: mob.mob.mobName,
+      nickname,
+      server,
+      groupName,
+      date: Date.now(),
+      role,
+      historyTypes: change.historyTypes,
+      toWillResurrect: change.respawnTime,
+      ...change.historyExtras,
+    };
+
+    const updatedMobData = await this.prisma.mobsData.update({
+      where: this.mobDataKey(mobId, groupName, server),
+      data: {
+        ...change.data,
+        respawnTime: change.respawnTime,
+        comment,
+        respawnLost: false,
+      },
+    });
+
+    await this.historyService.createHistory(history);
+
+    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
+  }
+
+  /** Переводит выбранное представление в изменение строки mobs_data. */
+  private resolveRespawnChange(
+    { by, value }: UpdateMobRespawnDtoRequest,
+    mob: GetFullMobWithUnixDtoResponse,
+  ): RespawnChange {
+    const { cooldownTime } = mob.mob;
+
+    switch (by) {
+      case RespawnInput.cooldown: {
+        // Сдвиг считается от текущего респауна, поэтому без него не обойтись.
+        if (mob.mobData.respawnTime === null) {
+          throw new RespawnTimeMissing();
+        }
+
+        return {
+          historyTypes: HistoryTypes.updateMobByCooldown,
+          respawnTime: cooldownTime * value + mob.mobData.respawnTime,
+          data: { cooldown: { increment: value } },
+          historyExtras: {
+            fromCooldown: mob.mobData.cooldown,
+            toCooldown: mob.mobData.cooldown + value,
+          },
+        };
+      }
+
+      case RespawnInput.dateOfDeath:
+        return {
+          historyTypes: HistoryTypes.updateMobDateOfDeath,
+          respawnTime: value + cooldownTime,
+          data: { cooldown: 0, deathTime: value },
+        };
+
+      case RespawnInput.dateOfRespawn: {
+        // Момент смерти считается назад от респауна и не может уйти за эпоху.
+        const deathTime = value - cooldownTime;
+
+        return {
+          historyTypes: HistoryTypes.updateMobDateOfRespawn,
+          respawnTime: value,
+          data: { cooldown: 0, deathTime: deathTime < 0 ? 0 : deathTime },
+        };
+      }
     }
-
-    const nextResurrectTime: number =
-      mob.mob.cooldownTime * cooldown + mob.mobData.respawnTime;
-
-    const history: History = {
-      mobId,
-      location: mob.mob.location,
-      mobName: mob.mob.mobName,
-      nickname,
-      server,
-      groupName,
-      date: Date.now(),
-      role,
-      historyTypes: HistoryTypes.updateMobByCooldown,
-      toWillResurrect: nextResurrectTime,
-      fromCooldown: mob.mobData.cooldown,
-      toCooldown: mob.mobData.cooldown + cooldown,
-    };
-
-    const updatedMobData = await this.prisma.mobsData.update({
-      where: this.mobDataKey(mobId, groupName, server),
-      data: {
-        cooldown: { increment: cooldown },
-        respawnTime: nextResurrectTime,
-        comment,
-        respawnLost: false,
-      },
-    });
-
-    await this.historyService.createHistory(history);
-
-    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
-  }
-
-  async updateMobDateOfDeath(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: Servers,
-    updateMobDateOfDeathDto: UpdateMobDateOfDeathDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse> {
-    const { dateOfDeath } = updateMobDateOfDeathDto;
-    const comment = updateMobDateOfDeathDto.comment ?? '';
-
-    const mob = await this.getMobFromGroup({ mobId, server }, groupName);
-
-    const nextResurrectTime: number = dateOfDeath + mob.mob.cooldownTime;
-
-    const history: History = {
-      mobId,
-      location: mob.mob.location,
-      mobName: mob.mob.mobName,
-      nickname,
-      server,
-      groupName,
-      date: Date.now(),
-      role,
-      historyTypes: HistoryTypes.updateMobDateOfDeath,
-      toWillResurrect: nextResurrectTime,
-    };
-
-    const updatedMobData = await this.prisma.mobsData.update({
-      where: this.mobDataKey(mobId, groupName, server),
-      data: {
-        respawnTime: nextResurrectTime,
-        cooldown: 0,
-        deathTime: dateOfDeath,
-        comment,
-        respawnLost: false,
-      },
-    });
-
-    await this.historyService.createHistory(history);
-
-    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
-  }
-
-  async updateMobDateOfRespawn(
-    nickname: string,
-    role: RolesTypes,
-    mobId: string,
-    server: Servers,
-    updateMobDateOfRespawnDto: UpdateMobDateOfRespawnDtoRequest,
-    groupName: string,
-  ): Promise<GetFullMobDtoResponse> {
-    const { dateOfRespawn } = updateMobDateOfRespawnDto;
-    const comment = updateMobDateOfRespawnDto.comment ?? '';
-
-    const mob = await this.getMobFromGroup({ mobId, server }, groupName);
-
-    const nextResurrectTime: number = dateOfRespawn;
-    const deathTime: number = nextResurrectTime - mob.mob.cooldownTime;
-    const adjustedDeathTime: number = deathTime < 0 ? 0 : deathTime;
-
-    const history: History = {
-      mobId,
-      location: mob.mob.location,
-      mobName: mob.mob.mobName,
-      nickname,
-      server,
-      groupName,
-      date: Date.now(),
-      role,
-      historyTypes: HistoryTypes.updateMobDateOfRespawn,
-      toWillResurrect: nextResurrectTime,
-    };
-
-    const updatedMobData = await this.prisma.mobsData.update({
-      where: this.mobDataKey(mobId, groupName, server),
-      data: {
-        respawnTime: nextResurrectTime,
-        cooldown: 0,
-        deathTime: adjustedDeathTime,
-        comment,
-        respawnLost: false,
-      },
-    });
-
-    await this.historyService.createHistory(history);
-
-    return { mob: mob.mob, mobData: this.toMobsDataDto(updatedMobData) };
   }
 
   async deleteMob(mobId: string): Promise<DeleteMobDtoResponse> {
