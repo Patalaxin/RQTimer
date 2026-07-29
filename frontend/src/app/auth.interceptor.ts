@@ -8,7 +8,7 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 import { TimerService } from './services/timer.service';
@@ -28,6 +28,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   // private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
 
+  private loggingOut = false;
+
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler,
@@ -45,6 +47,14 @@ export class HttpRequestInterceptor implements HttpInterceptor {
     return next.handle(newReq).pipe(
       catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
+          // signOut уходит с тем же протухшим токеном, который и вызвал 401.
+          // Обновлять его здесь нечем и незачем, а рекурсия «401 → refresh →
+          // onLogout → signOut → 401 → ...» вполне реальна — ровно ею фронт и
+          // уходил в бесконечный цикл запросов. Ошибку глотает onLogout.
+          if (req.url.includes('/auth/signout')) {
+            return throwError(() => err);
+          }
+
           return this.handle401Error(newReq, next);
         }
 
@@ -109,13 +119,27 @@ export class HttpRequestInterceptor implements HttpInterceptor {
   }
 
   private onLogout() {
-    this.authService.signOut().subscribe({
-      next: () => {
-        this.timerService.headerVisibility = false;
-        this.storageService.clean();
-        this.router.navigate(['/login']);
-      },
-    });
+    // Страница поднимает запросы пачкой, и 401 прилетает на каждый. Без этих
+    // двух проверок разлогин уходил бы столько раз, сколько было запросов.
+    if (this.loggingOut || !this.storageService.isLoggedIn()) {
+      return;
+    }
+    this.loggingOut = true;
+
+    // Локальную сессию чистим независимо от ответа сервера: signOut уходит с
+    // тем же протухшим токеном и сам отвечает 401, а оставленный в localStorage
+    // токен — это ровно то состояние, из которого всё и началось.
+    this.authService
+      .signOut()
+      .pipe(
+        finalize(() => {
+          this.timerService.headerVisibility = false;
+          this.storageService.clean();
+          this.loggingOut = false;
+          this.router.navigate(['/login']);
+        }),
+      )
+      .subscribe({ error: () => undefined });
   }
 }
 
