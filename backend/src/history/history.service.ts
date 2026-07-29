@@ -116,21 +116,25 @@ export class HistoryService implements IHistory, OnModuleInit {
     limit: number,
     lang?: string,
   ): Promise<PaginatedHistoryDto> {
+    // Prisma отвергает отрицательный skip, поэтому нижнюю границу держим здесь.
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.max(1, limit);
+
     const [total, rows] = await Promise.all([
       this.prisma.history.count({ where }),
       this.prisma.history.findMany({
         where,
         orderBy: { date: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: (safePage - 1) * safeLimit,
+        take: safeLimit,
       }),
     ]);
 
     return {
       data: await this.translateRows(rows, lang),
       total,
-      page,
-      pages: Math.ceil(total / limit),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
     };
   }
 

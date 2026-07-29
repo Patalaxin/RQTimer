@@ -1,9 +1,11 @@
 import {
   ClassSerializerInterceptor,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   UseGuards,
   UseInterceptors,
   Query,
@@ -54,8 +56,8 @@ export class HistoryController {
   async findAll(
     @Param('server') server: Servers,
     @GetUser('groupName') groupName: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('lang') language = 'ru',
     @Query('historyType') historyType?: HistoryTypes,
   ): Promise<PaginatedHistoryDto> {
@@ -85,8 +87,8 @@ export class HistoryController {
     @Param('server') server: Servers,
     @GetUser('groupName') groupName: string,
     @Param('mobId') mobId: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('lang') language = 'ru',
   ): Promise<PaginatedHistoryDto> {
     return await this.historyInterface.getMobHistory(

@@ -2,10 +2,12 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Header,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -88,8 +90,8 @@ export class UsersController {
   @Header('Cache-Control', 'public, max-age=180')
   @Get('/list')
   findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ): Promise<PaginatedUsersDto> {
     return this.usersService.findAll(page, limit);
   }

@@ -118,7 +118,10 @@ export class UsersService {
     page: number = 1,
     limit: number = 10,
   ): Promise<PaginatedUsersDto> {
-    const skip = (page - 1) * limit;
+    // Prisma отвергает отрицательный skip, поэтому нижнюю границу держим здесь.
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.max(1, limit);
+    const skip = (safePage - 1) * safeLimit;
     const [total, data] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.findMany({
@@ -130,7 +133,7 @@ export class UsersService {
           groupName: true,
         },
         skip,
-        take: limit,
+        take: safeLimit,
       }),
     ]);
 
@@ -143,8 +146,8 @@ export class UsersService {
         groupName: user.groupName,
       })),
       total,
-      page,
-      pages: Math.ceil(total / limit),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
     };
   }
 
