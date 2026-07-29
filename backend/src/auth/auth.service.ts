@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
+import type { EnvironmentVariables } from '../config/env.validation';
 import { SignInDtoRequest, SignInDtoResponse } from './dto/signIn.dto';
 import { ExchangeRefreshDto } from './dto/exchangeRefresh.dto';
 import { AuthGateway } from './auth.gateway';
@@ -26,7 +28,40 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly authGateway: AuthGateway,
+    private readonly configService: ConfigService<EnvironmentVariables, true>,
   ) {}
+
+  /**
+   * Атрибуты refresh-куки. Жёсткие `secure: true` + `sameSite: 'none'` верны
+   * для прода, но локально фронт и бэк общаются по http, а Secure-куку,
+   * пришедшую по http, Safari не сохраняет вовсе (Chrome для localhost делает
+   * исключение). В таких браузерах refresh-токена на машине разработчика
+   * просто не оказывалось, и сессия отваливалась каждые 15 минут — на срок
+   * жизни access-токена.
+   *
+   * Признак берём из схемы CORS_ORIGIN, а не из NODE_ENV: это тот самый origin,
+   * с которого браузер и будет слать куку, переменная обязательная и уже
+   * провалидирована. NODE_ENV же выставляется в ecosystem.config.js, а деплой
+   * дергает `pm2 restart`, который env из файла не перечитывает, — незаметно
+   * разъехавшийся NODE_ENV снял бы с прод-куки Secure.
+   *
+   * localhost:4200 и localhost:3000 отличаются только портом, то есть для куки
+   * это один сайт, и `lax` её не режет.
+   *
+   * Удаление куки требует тех же атрибутов, что и установка, поэтому signOut
+   * берёт этот же объект.
+   */
+  private get refreshCookieOptions(): CookieOptions {
+    const isSecureOrigin = this.configService
+      .get('CORS_ORIGIN', { infer: true })
+      .startsWith('https://');
+
+    return {
+      httpOnly: true,
+      secure: isSecureOrigin,
+      sameSite: isSecureOrigin ? 'none' : 'lax',
+    };
+  }
 
   private async addTokens(user: {
     id: string;
@@ -105,10 +140,8 @@ export class AuthService {
     }
     const tokens: SignInDtoResponse = await this.addTokens(user);
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
+      ...this.refreshCookieOptions,
       maxAge: REFRESH_TOKEN_TTL_MS,
-      sameSite: 'none',
     });
 
     return tokens;
@@ -171,10 +204,8 @@ export class AuthService {
     const tokens = await this.addTokens(user);
 
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
+      ...this.refreshCookieOptions,
       maxAge: REFRESH_TOKEN_TTL_MS,
-      sameSite: 'none',
     });
 
     return tokens;
@@ -192,10 +223,8 @@ export class AuthService {
     }
 
     res.cookie('refreshToken', '', {
-      httpOnly: true,
-      secure: true,
+      ...this.refreshCookieOptions,
       maxAge: 0,
-      sameSite: 'none',
     });
 
     return { message: 'Successfully logged out', status: 200 };

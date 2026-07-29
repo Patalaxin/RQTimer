@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
@@ -25,6 +26,25 @@ describe('AuthService (smoke)', () => {
   };
   let res: Response & { cookie: jest.Mock };
   let passwordHash: string;
+
+  // Атрибуты куки зависят от схемы CORS_ORIGIN, поэтому origin здесь —
+  // параметр. По умолчанию берём прод: на нём завязаны проверки secure ниже.
+  const buildService = async (corsOrigin = 'https://www.rqtimer.ru') => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: JwtService, useValue: jwtService },
+        { provide: AuthGateway, useValue: authGateway },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue(corsOrigin) },
+        },
+      ],
+    }).compile();
+
+    return module.get(AuthService);
+  };
 
   const user = (overrides = {}) => ({
     id: 'user-1',
@@ -59,16 +79,7 @@ describe('AuthService (smoke)', () => {
     };
     res = { cookie: jest.fn() } as unknown as Response & { cookie: jest.Mock };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        { provide: PrismaService, useValue: prisma },
-        { provide: JwtService, useValue: jwtService },
-        { provide: AuthGateway, useValue: authGateway },
-      ],
-    }).compile();
-
-    service = module.get(AuthService);
+    service = await buildService();
   });
 
   describe('signIn', () => {
@@ -86,7 +97,27 @@ describe('AuthService (smoke)', () => {
       const [name, value, options] = res.cookie.mock.calls[0];
       expect(name).toBe('refreshToken');
       expect(value).toBe(result.refreshToken);
-      expect(options).toMatchObject({ httpOnly: true, secure: true });
+      expect(options).toMatchObject({
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
+    });
+
+    // Secure-куку, пришедшую по http, Safari не сохраняет — локально её бы
+    // просто не было, и сессия отваливалась бы каждые 15 минут.
+    it('drops Secure on the refresh cookie for an http origin', async () => {
+      service = await buildService('http://localhost:4200');
+      prisma.user.findFirst.mockResolvedValue(user());
+
+      await service.signIn(res, { email: EMAIL, password: PASSWORD } as any);
+
+      const [, , options] = res.cookie.mock.calls[0];
+      expect(options).toMatchObject({
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      });
     });
 
     it('never puts the password hash into the JWT payload', async () => {
@@ -292,9 +323,16 @@ describe('AuthService (smoke)', () => {
       expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({
         where: { userId: 'user-1' },
       });
+      // Браузер удалит куку, только если атрибуты совпадают с теми, с которыми
+      // она ставилась, — иначе рядом просто ляжет вторая.
       const [, value, options] = res.cookie.mock.calls[0];
       expect(value).toBe('');
-      expect(options).toMatchObject({ maxAge: 0 });
+      expect(options).toMatchObject({
+        maxAge: 0,
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
       expect(result.message).toBe('Successfully logged out');
     });
 
