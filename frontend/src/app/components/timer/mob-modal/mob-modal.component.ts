@@ -1,5 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import * as moment from 'moment-timezone';
+import * as momentTimezone from 'moment-timezone';
+import * as moment from 'moment';
 
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
@@ -25,8 +26,8 @@ export class MobModalComponent implements OnInit {
   itemData: { mob: IMobCatalog } | undefined;
 
   ngOnInit(): void {
-    let userTimezone = moment.tz.guess();
-    let diffTimeZone = moment.tz(userTimezone).utcOffset() * 60000;
+    let userTimezone = momentTimezone.tz.guess();
+    let diffTimeZone = momentTimezone.tz(userTimezone).utcOffset() * 60000;
 
     if (this.item) {
       this.itemCooldownTime = moment(

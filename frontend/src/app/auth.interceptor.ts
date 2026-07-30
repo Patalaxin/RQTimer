@@ -11,8 +11,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
-import { TimerService } from './services/timer.service';
-import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { IApiError } from './interfaces/api-error';
@@ -20,10 +18,8 @@ import { IApiError } from './interfaces/api-error';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {
-  private readonly router = inject(Router);
   private readonly storageService = inject(StorageService);
   private readonly authService = inject(AuthService);
-  private readonly timerService = inject(TimerService);
   private readonly tokenService = inject(TokenService);
   // private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
@@ -133,10 +129,8 @@ export class HttpRequestInterceptor implements HttpInterceptor {
       .signOut()
       .pipe(
         finalize(() => {
-          this.timerService.headerVisibility = false;
-          this.storageService.clean();
+          this.authService.clearSession();
           this.loggingOut = false;
-          this.router.navigate(['/login']);
         }),
       )
       .subscribe({ error: () => undefined });

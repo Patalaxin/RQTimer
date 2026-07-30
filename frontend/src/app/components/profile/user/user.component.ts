@@ -9,6 +9,7 @@ import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
+import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validation';
 import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
@@ -24,30 +25,12 @@ export class UserComponent implements OnInit {
   private readonly translateService = inject(TranslateService);
   private readonly messageService = inject(NzMessageService);
   private readonly cdr = inject(ChangeDetectorRef);
+  readonly timerService = inject(TimerService);
 
   @Input() excludedMobs: string[] = [];
   @Input() role: string = '';
 
   isLoading: boolean = true;
-
-  duplicatedMobList: string[] = [
-    '673a9b38697139657bf024ad',
-    '673a9b3f697139657bf024b5',
-    '673a9b46697139657bf024b9',
-    '673a9b4e697139657bf024bd',
-    '67314c701e738aba75ba3484',
-    '67314c5f1e738aba75ba3480',
-    '67314c511e738aba75ba347c',
-    '67314d111e738aba75ba3488',
-    '67314d191e738aba75ba348c',
-    '67314d431e738aba75ba3490',
-    '67314e2d1e738aba75ba349e',
-    '67314e341e738aba75ba34a2',
-    '673151961e738aba75ba34ce',
-    '6731519c1e738aba75ba34d2',
-    '673152a61e738aba75ba34e8',
-    '673152aa1e738aba75ba34ec',
-  ];
 
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];

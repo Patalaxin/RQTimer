@@ -13,11 +13,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { jwtDecode } from 'jwt-decode';
+import * as momentTimezone from 'moment-timezone';
 import * as moment from 'moment';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { Subject, Subscription } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { ITimerItem } from 'src/app/interfaces/timer-item';
 import { IUser } from 'src/app/interfaces/user';
 import { IUserOnlineStatus } from 'src/app/interfaces/websocket';
@@ -87,24 +88,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   serverList: { label: string; value: string }[] = [];
 
-  duplicatedMobList: string[] = [
-    '673a9b38697139657bf024ad',
-    '673a9b3f697139657bf024b5',
-    '673a9b46697139657bf024b9',
-    '673a9b4e697139657bf024bd',
-    '67314c701e738aba75ba3484',
-    '67314c5f1e738aba75ba3480',
-    '67314c511e738aba75ba347c',
-    '67314d111e738aba75ba3488',
-    '67314d191e738aba75ba348c',
-    '67314d431e738aba75ba3490',
-    '67314e2d1e738aba75ba349e',
-    '67314e341e738aba75ba34a2',
-    '673151961e738aba75ba34ce',
-    '6731519c1e738aba75ba34d2',
-    '673152a61e738aba75ba34e8',
-    '673152aa1e738aba75ba34ec',
-  ];
   excludedMobs: string[] = [];
 
   isScreenWidth700: boolean = false;
@@ -235,12 +218,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private sortTimerList(timerList: ITimerItem[]): void {
-    this.timerList = timerList.sort((a, b) => {
-      if (!a.mobData.respawnTime) return 1;
-      if (!b.mobData.respawnTime) return -1;
-
-      return a.mobData.respawnTime - b.mobData.respawnTime;
-    });
+    this.timerList = this.timerService.sortByRespawnTime(timerList);
   }
 
   private scheduleTokenRefresh(expirationTime: number): void {
@@ -339,9 +317,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
-        const currentExcludedMobs = this.userService.currentExcludedMobs;
-        const filteredRes = res.filter(
-          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
+        const filteredRes = this.timerService.filterExcludedMobs(
+          res,
+          this.userService.currentExcludedMobs,
         );
         this.sortTimerList([...filteredRes]);
 
@@ -397,7 +375,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getCurrentUser() {
     let accessToken;
-    let userTimezone = moment.tz.guess();
+    let userTimezone = momentTimezone.tz.guess();
 
     this.userService.getUser().subscribe({
       next: (res) => {
@@ -436,9 +414,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const lang = localStorage.getItem('language') || 'ru';
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
-        const currentExcludedMobs = this.userService.currentExcludedMobs;
-        const filteredRes = res.filter(
-          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
+        const filteredRes = this.timerService.filterExcludedMobs(
+          res,
+          this.userService.currentExcludedMobs,
         );
 
         this.sortTimerList([...filteredRes]);
@@ -447,7 +425,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           item.mob.plusCooldown = 0;
           if (item.mobData.respawnTime) {
             data.push(
-              `${this.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
+              `${this.timerService.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
                 item.mobData.respawnTime,
               ).format('HH:mm:ss')}`,
             );
@@ -623,14 +601,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
-    this.authService.signOut().pipe(
-      finalize(() => {
-        this.timerService.headerVisibility = false;
-        this.websocketService.disconnect();
-        this.storageService.clean();
-        this.onLogin();
-      }),
-    ).subscribe();
+    this.authService.logout();
   }
 
   onHistory(): void {

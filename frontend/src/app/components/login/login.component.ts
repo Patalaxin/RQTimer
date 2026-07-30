@@ -11,7 +11,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { AuthService } from 'src/app/services/auth.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { StorageService } from 'src/app/services/storage.service';
-import * as moment from 'moment';
+import * as momentTimezone from 'moment-timezone';
 import { UserService } from 'src/app/services/user.service';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -103,7 +103,7 @@ export class LoginComponent implements OnInit {
             res.accessToken,
           );
           if (res.accessToken) {
-            let userTimezone = moment.tz.guess();
+            let userTimezone = momentTimezone.tz.guess();
 
             if (window.localStorage.getItem('timezone')) {
               if (window.localStorage.getItem('timezone') !== userTimezone) {

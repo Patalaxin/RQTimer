@@ -21,7 +21,7 @@ import {
 } from 'ng-zorro-antd/notification';
 import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subject, Subscription } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { ITimerItem, IFullMob } from 'src/app/interfaces/timer-item';
 import { IUser } from 'src/app/interfaces/user';
 import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
@@ -86,24 +86,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   availableMobList: IAvailableMob[] = [];
   filteredMobList: IAvailableMob[] = [];
   addedMobList: string[] = [];
-  duplicatedMobList: string[] = [
-    '673a9b38697139657bf024ad',
-    '673a9b3f697139657bf024b5',
-    '673a9b46697139657bf024b9',
-    '673a9b4e697139657bf024bd',
-    '67314c701e738aba75ba3484',
-    '67314c5f1e738aba75ba3480',
-    '67314c511e738aba75ba347c',
-    '67314d111e738aba75ba3488',
-    '67314d191e738aba75ba348c',
-    '67314d431e738aba75ba3490',
-    '67314e2d1e738aba75ba349e',
-    '67314e341e738aba75ba34a2',
-    '673151961e738aba75ba34ce',
-    '6731519c1e738aba75ba34d2',
-    '673152a61e738aba75ba34e8',
-    '673152aa1e738aba75ba34ec',
-  ];
   pvpMobList: string[] = [
     '673148be1e738aba75ba344d',
     '673149261e738aba75ba3455',
@@ -402,9 +384,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       next: (excludedMobs) => {
         this.excludedMobs = excludedMobs;
         if (this.timerList.length > 0) {
-          const currentExcludedMobs = this.userService.currentExcludedMobs;
-          const filteredRes = this.timerList.filter(
-            (item) => !currentExcludedMobs.includes(item.mobData.mobId),
+          const filteredRes = this.timerService.filterExcludedMobs(
+            this.timerList,
+            excludedMobs,
           );
           this.sortTimerList([...filteredRes]);
           this.timerService.timerList = this.timerList;
@@ -553,12 +535,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       item.mob.percent = this.calcPercent(item);
     });
 
-    this.timerList = timerList.sort((a, b) => {
-      if (!a.mobData.respawnTime) return 1;
-      if (!b.mobData.respawnTime) return -1;
-
-      return a.mobData.respawnTime - b.mobData.respawnTime;
-    });
+    this.timerList = this.timerService.sortByRespawnTime(timerList);
   }
 
   private checkScreenWidth(): void {
@@ -701,7 +678,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onClickTimerItem(item: ITimerItem): void {
     if (item.mobData.respawnTime) {
-      let data: string = `${this.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
+      let data: string = `${this.timerService.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
         item.mobData.respawnTime,
       ).format('HH:mm:ss')}`;
       this.messageService.create('success', `${data}`);
@@ -1427,9 +1404,9 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.addedMobList = res.map((item) => item.mob._id);
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
-        const currentExcludedMobs = this.userService.currentExcludedMobs;
-        const filteredRes = res.filter(
-          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
+        const filteredRes = this.timerService.filterExcludedMobs(
+          res,
+          this.userService.currentExcludedMobs,
         );
 
         this.sortTimerList([...filteredRes]);
@@ -1684,13 +1661,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private onLogout(): void {
-    this.authService.signOut().pipe(
-      finalize(() => {
-        this.timerService.headerVisibility = false;
-        this.websocketService.disconnect();
-        this.storageService.clean();
-        this.router.navigate(['/login']);
-      }),
-    ).subscribe();
+    this.authService.logout();
   }
 }
