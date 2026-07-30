@@ -1,8 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient } from '@angular/common/http';
 import {
-  HttpClientTestingModule,
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
+import {
   HttpTestingController,
+  provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -36,13 +40,14 @@ describe('HttpRequestInterceptor', () => {
     messageService = { create: jasmine.createSpy('create') };
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
         httpInterceptorProviders,
         StorageService,
         { provide: Router, useValue: router },
         { provide: NzMessageService, useValue: messageService },
         { provide: TimerService, useValue: { headerVisibility: true } },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
 
