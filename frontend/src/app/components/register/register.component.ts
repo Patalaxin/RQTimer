@@ -10,7 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
+import { OtpChangeEvent } from 'ngx-otp-input';
 import { IApiError } from 'src/app/interfaces/api-error';
 import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
 import { ConfigurationService } from 'src/app/services/configuration.service';
@@ -44,11 +44,7 @@ export class RegisterComponent implements OnInit {
   bossesCheckboxList: IMobCatalog[] = [];
   elitesCheckboxList: IMobCatalog[] = [];
 
-  otpOptions: NgxOtpInputComponentOptions = {
-    otpLength: 5,
-    autoFocus: true,
-    showBlinkingCursor: false,
-  };
+  otpLength: number = 5;
 
   isVerifyDisabled: boolean = true;
 
@@ -161,18 +157,8 @@ export class RegisterComponent implements OnInit {
     this.isModalVisible = false;
   }
 
-  onChangeOTP(event: string[]): void {
-    let otpCount: number = 0;
-    event.map((item) => {
-      if (item) {
-        otpCount++;
-      }
-    });
-    if (otpCount === 5) {
-      this.isVerifyDisabled = false;
-    } else {
-      this.isVerifyDisabled = true;
-    }
+  onChangeOTP(event: OtpChangeEvent): void {
+    this.isVerifyDisabled = !event.isComplete;
   }
 
   onCompleteOTP(event: string): void {

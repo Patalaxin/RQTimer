@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
+import { OtpChangeEvent } from 'ngx-otp-input';
 import { OtpService } from 'src/app/services/otp.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validation';
@@ -29,11 +29,7 @@ export class ChangePasswordComponent {
   isModalVisible: boolean = false;
   isModalLoading: boolean = false;
 
-  otpOptions: NgxOtpInputComponentOptions = {
-    otpLength: 5,
-    autoFocus: true,
-    showBlinkingCursor: false,
-  };
+  otpLength: number = 5;
 
   isVerifyDisabled: boolean = true;
 
@@ -96,18 +92,8 @@ export class ChangePasswordComponent {
     this.isModalVisible = false;
   }
 
-  onChangeOTP(event: string[]): void {
-    let otpCount: number = 0;
-    event.map((item) => {
-      if (item) {
-        otpCount++;
-      }
-    });
-    if (otpCount === 5) {
-      this.isVerifyDisabled = false;
-    } else {
-      this.isVerifyDisabled = true;
-    }
+  onChangeOTP(event: OtpChangeEvent): void {
+    this.isVerifyDisabled = !event.isComplete;
   }
 
   onCompleteOTP(event: string): void {
