@@ -124,7 +124,13 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let user of adminTable.data; let i = index">
+      <tr
+        *ngFor="
+          let user of adminTable.data;
+          let i = index;
+          trackBy: trackByEmail
+        "
+      >
         <td nzAlign="center">{{ i + pageSize * (userList.page - 1) + 1 }}</td>
         <td nzCustomFilter>
           {{ user.nickname }}
@@ -207,7 +213,7 @@
                       (ngModelChange)="onRoleChange($event, user.role)"
                     >
                       <nz-option
-                        *ngFor="let role of roleList"
+                        *ngFor="let role of roleList; trackBy: trackByRole"
                         [nzLabel]="role"
                         [nzValue]="role"
                       ></nz-option>

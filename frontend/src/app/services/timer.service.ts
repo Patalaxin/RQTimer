@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
 import { TimerItem } from '../interfaces/timer-item';
+import { RespawnInput } from '../interfaces/respawn-input';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -135,14 +136,11 @@ export class TimerService {
     dateOfDeath: number,
     comment: string,
   ): Observable<any> {
-    let payload = {
+    return this.setRespawn(
+      item,
+      RespawnInput.dateOfDeath,
       dateOfDeath,
       comment,
-    };
-
-    return this.http.put(
-      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-death`,
-      payload,
     );
   }
 
@@ -151,14 +149,11 @@ export class TimerService {
     dateOfRespawn: number,
     comment: string,
   ): Observable<any> {
-    let payload = {
+    return this.setRespawn(
+      item,
+      RespawnInput.dateOfRespawn,
       dateOfRespawn,
       comment,
-    };
-
-    return this.http.put(
-      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/date-of-respawn`,
-      payload,
     );
   }
 
@@ -167,13 +162,29 @@ export class TimerService {
     cooldown: number,
     comment: string,
   ): Observable<any> {
+    return this.setRespawn(item, RespawnInput.cooldown, cooldown, comment);
+  }
+
+  /**
+   * Раньше на каждое представление была своя ручка со своим телом запроса.
+   * Теперь ручка одна, а представление уезжает полем `by` — значение при этом
+   * читается по-разному, поэтому обёртки выше остаются: они не дают перепутать
+   * число кулдаунов с моментом времени.
+   */
+  private setRespawn(
+    item: TimerItem,
+    by: RespawnInput,
+    value: number,
+    comment: string,
+  ): Observable<any> {
     let payload = {
-      cooldown,
+      by,
+      value,
       comment,
     };
 
     return this.http.put(
-      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/cooldown`,
+      `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/respawn`,
       payload,
     );
   }

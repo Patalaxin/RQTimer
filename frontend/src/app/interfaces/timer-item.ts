@@ -16,6 +16,7 @@ export interface TimerItem {
     isHistoryOkLoading: boolean;
     isInfoModalVisible: boolean;
     isInfoOkLoading: boolean;
+    percent?: number;
   };
   mobData: {
     mobId: string;

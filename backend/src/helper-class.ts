@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { RolesTypes } from './schemas/user.schema';
+import { RolesTypes } from './schemas/roles.enum';
 import { GetFullMobWithUnixDtoResponse } from './mob/dto/get-mob.dto';
 import { Locations, MobName, Servers } from './schemas/mobs.enum';
 import { DateTime } from 'luxon';

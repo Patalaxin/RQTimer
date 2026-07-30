@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   HostListener,
   inject,
@@ -36,8 +38,10 @@ import { environment } from 'src/environments/environment';
   selector: 'app-timer',
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TimerComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly timerService = inject(TimerService);
   private readonly storageService = inject(StorageService);
@@ -340,6 +344,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.setTimerOptions();
+        this.cdr.markForCheck();
       });
 
     this.currentNotificationIndex = 0;
@@ -349,6 +354,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.isVisible = res;
+          this.cdr.markForCheck();
         },
       });
 
@@ -374,6 +380,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       (res: TimerItem) => {
         if (res) {
           this.updateItem(this.timerList, res);
+          this.cdr.markForCheck();
         }
       },
     );
@@ -389,6 +396,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.sortTimerList([...filteredRes]);
           this.timerService.timerList = this.timerList;
         }
+        this.cdr.markForCheck();
       },
     });
 
@@ -451,6 +459,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe((res: any) => {
         if (res) {
           this.onlineUserList = res.map((item: any) => item.email);
+          this.cdr.markForCheck();
         }
       });
   }
@@ -461,6 +470,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.timerList = res;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -489,11 +499,17 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.worker.onmessage = (event) => {
             const { updatedProgressTime } = event.data;
             this.currentProgressTime = updatedProgressTime;
-            this.timerList.forEach((item) => this.checkAndNotify(item, [1, 5]));
+            this.timerList.forEach((item) => {
+              item.mob.percent = this.calcPercent(item);
+              this.checkAndNotify(item, [1, 5]);
+            });
+            this.cdr.markForCheck();
           };
         } else {
           console.log('Web Workers не поддерживаются');
         }
+
+        this.cdr.markForCheck();
       },
     });
   }
@@ -520,6 +536,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private sortTimerList(timerList: TimerItem[]): void {
+    timerList.forEach((item) => {
+      item.mob.percent = this.calcPercent(item);
+    });
+
     this.timerList = timerList.sort((a, b) => {
       if (!a.mobData.respawnTime) return 1;
       if (!b.mobData.respawnTime) return -1;
@@ -638,7 +658,15 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  updatePercent(item: TimerItem): number {
+  trackByMobId(index: number, item: TimerItem): string {
+    return item.mobData.mobId;
+  }
+
+  trackByAvailableMobId(index: number, mob: any): string {
+    return mob._id;
+  }
+
+  private calcPercent(item: TimerItem): number {
     const { respawnTime, deathTime } = item.mobData;
 
     if (respawnTime && deathTime) {
@@ -702,6 +730,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -731,6 +760,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           );
         this.filteredMobList = [...this.availableMobList];
         this.isAddModalLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -756,10 +786,12 @@ export class TimerComponent implements OnInit, OnDestroy {
             'success',
             this.translateService.instant('TIMER.MESSAGE.MOBS_ADDED_SUCCESS'),
           );
+          this.cdr.markForCheck();
         },
         error: () => {
           this.isAddOkLoading = false;
           this.timerService.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -880,9 +912,11 @@ export class TimerComponent implements OnInit, OnDestroy {
               mobName: item.mob.mobName,
             }),
           );
+          this.cdr.markForCheck();
         },
         error: () => {
           this.timerService.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -937,12 +971,14 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.isOnlyComment = false;
       this.comment = '';
       this.messageService.create('success', message);
+      this.cdr.markForCheck();
     };
 
     const handleError = (err: any) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
       }
+      this.cdr.markForCheck();
     };
 
     const radioActions: any = {
@@ -1058,12 +1094,14 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.isOnlyComment = false;
       this.comment = '';
       this.messageService.create('success', message);
+      this.cdr.markForCheck();
     };
 
     const handleError = (err: any) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
       }
+      this.cdr.markForCheck();
     };
 
     const handleText = () => {
@@ -1250,6 +1288,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       nzOnCancel: () => {
         item.mob.isDeathOkLoading = false;
         item.mob.isOnDieNow = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1274,12 +1313,14 @@ export class TimerComponent implements OnInit, OnDestroy {
                   this.translateService.instant('TIMER.MESSAGE.RESP_REWRITTEN'),
                 );
                 item.mob.isOnDieNow = false;
+                this.cdr.markForCheck();
               },
             });
         },
         error: () => {
           this.timerService.isLoading = false;
           item.mob.isOnDieNow = false;
+          this.cdr.markForCheck();
         },
       });
     } else {
@@ -1287,10 +1328,12 @@ export class TimerComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.currentTime = res ? res.unixtime - 10000 : Date.now() - 10000;
           this.showConfirmRewriteModal(item, 'death');
+          this.cdr.markForCheck();
         },
         error: () => {
           this.timerService.isLoading = false;
           item.mob.isOnDieNow = false;
+          this.cdr.markForCheck();
         },
       });
     }
@@ -1321,6 +1364,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           'success',
           this.translateService.instant('TIMER.MESSAGE.RESP_REWRITTEN_BY_CD'),
         );
+        this.cdr.markForCheck();
       },
       error: () => {
         this.messageService.create(
@@ -1328,6 +1372,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.translateService.instant('TIMER.MESSAGE.RESP_LOST'),
         );
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1345,9 +1390,11 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.updateItem(this.timerList, res);
         }
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1379,9 +1426,11 @@ export class TimerComponent implements OnInit, OnDestroy {
           item.mob.isInfoOkLoading = false;
         });
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1411,6 +1460,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.userGroupList.forEach((item: any, i: any) => {
                 item.id = i++;
               });
+              this.cdr.markForCheck();
             },
           });
         }
@@ -1418,12 +1468,14 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.userService.currentUser$.subscribe({
           next: (res) => {
             this.currentUser = res;
+            this.cdr.markForCheck();
           },
         });
         if (!this.isInitialized) {
           this.getAllBosses();
           this.isInitialized = true;
         }
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1515,6 +1567,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               nzDuration: 0,
             });
           }
+          this.cdr.markForCheck();
         },
       });
     // },
@@ -1535,6 +1588,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           nzDuration: 0,
         });
       }
+      this.cdr.markForCheck();
     }
   }
 
@@ -1552,6 +1606,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           nzDuration: 0,
         });
       }
+      this.cdr.markForCheck();
     }
   }
 
@@ -1567,6 +1622,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.isGroupModalLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1583,6 +1639,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.isGroupModalLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -1595,11 +1652,13 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (callback && typeof callback === 'function') {
           callback();
         }
+        this.cdr.markForCheck();
       },
       error: (err) => {
         if (err.status === 401) {
           this.onLogout();
         }
+        this.cdr.markForCheck();
       },
     });
   }

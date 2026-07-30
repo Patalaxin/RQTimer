@@ -40,6 +40,10 @@ export class LogComponent implements OnInit {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
+  trackByHistoryItem(index: number, item: any): string {
+    return item._id ?? index;
+  }
+
   changePage($event: any, mobId: string): void {
     this.isLoading = true;
     const lang = localStorage.getItem('language') || 'ru';

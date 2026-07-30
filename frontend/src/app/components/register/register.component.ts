@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
+import { ApiErrorBody } from 'src/app/interfaces/api-error';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { OtpService } from 'src/app/services/otp.service';
 import { UserService } from 'src/app/services/user.service';
@@ -238,10 +239,10 @@ export class RegisterComponent implements OnInit {
         error: (err) => {
           this.registerLoading = false;
           this.isModalLoading = false;
-          if (
-            err.error.message ===
-            'A user with such an email or nickname already exists!'
-          ) {
+          // Ветвимся по коду: сравнение с текстом сообщения молча отвалилось,
+          // когда на бэке поправили формулировку, и «занят email» много
+          // релизов показывался как «неизвестная ошибка».
+          if ((err.error as ApiErrorBody)?.code === 'USER_ALREADY_EXISTS') {
             return this.messageService.create(
               'error',
               this.translateService.instant(
@@ -265,5 +266,9 @@ export class RegisterComponent implements OnInit {
     if (type === 'Элитка') {
       this.selectedElitesCheckbox = value;
     }
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }

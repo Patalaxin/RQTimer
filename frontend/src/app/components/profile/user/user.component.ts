@@ -204,4 +204,8 @@ export class UserComponent implements OnInit {
       this.selectedElitesCheckbox = value;
     }
   }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
 }

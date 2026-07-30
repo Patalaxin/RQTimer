@@ -31,7 +31,11 @@
                   </h4>
                   <div
                     formArrayName="excludedBosses"
-                    *ngFor="let boss of excludedBosses.controls; let i = index"
+                    *ngFor="
+                      let boss of excludedBosses.controls;
+                      let i = index;
+                      trackBy: trackByIndex
+                    "
                   >
                     <label
                       nz-checkbox
@@ -74,7 +78,11 @@
                   </h4>
                   <div
                     formArrayName="excludedElites"
-                    *ngFor="let boss of excludedElites.controls; let i = index"
+                    *ngFor="
+                      let boss of excludedElites.controls;
+                      let i = index;
+                      trackBy: trackByIndex
+                    "
                   >
                     <label
                       nz-checkbox

@@ -33,7 +33,7 @@ export class WebsocketService {
     this.currentEmail = email;
 
     this.socket = io(environment.url, {
-      path: '/api/socket.io',
+      path: environment.socketPath,
       query: { token },
       transports: ['websocket'],
     });

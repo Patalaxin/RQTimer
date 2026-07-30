@@ -110,6 +110,14 @@ export class AdminComponent implements OnInit {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
+  trackByEmail(index: number, user: any): string {
+    return user.email;
+  }
+
+  trackByRole(index: number, role: string): string {
+    return role;
+  }
+
   getAllUsers(nickname?: any, params?: any): void {
     this.isTableLoading = true;
     this.userService

@@ -117,7 +117,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of groupTable.data; let i = index">
+          <tr
+            *ngFor="
+              let user of groupTable.data;
+              let i = index;
+              trackBy: trackByEmail
+            "
+          >
             <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
             <td nzCustomFilter>
               {{ user.nickname }}

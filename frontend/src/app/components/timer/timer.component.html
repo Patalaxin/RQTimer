@@ -166,7 +166,7 @@
       <tour-step-template></tour-step-template>
       <nz-list nzItemLayout="horizontal" tourAnchor="timer">
         <nz-badge
-          *ngFor="let item of timerList; let i = index"
+          *ngFor="let item of timerList; let i = index; trackBy: trackByMobId"
           [nzCount]="item.mobData.cooldown"
           [nzOffset]="[-5, 5]"
           [tourAnchor]="i == 0 ? 'timer-item' : ''"
@@ -235,9 +235,9 @@
                   }}
                 </span>
                 <nz-progress
-                  [nzPercent]="updatePercent(item)"
+                  [nzPercent]="item.mob.percent ?? 0"
                   [nzStatus]="
-                    updatePercent(item) >= 100 ? 'exception' : 'active'
+                    (item.mob.percent ?? 0) >= 100 ? 'exception' : 'active'
                   "
                   nzSize="small"
                   [nzStrokeWidth]="10"
@@ -733,7 +733,13 @@
                   (nzOnChange)="onChangeCheckbox($event)"
                 >
                   <div>
-                    <div *ngFor="let mob of filteredMobList; let i = index">
+                    <div
+                      *ngFor="
+                        let mob of filteredMobList;
+                        let i = index;
+                        trackBy: trackByAvailableMobId
+                      "
+                    >
                       <label
                         nz-checkbox
                         [nzValue]="mob._id"

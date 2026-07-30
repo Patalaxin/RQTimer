@@ -19,7 +19,7 @@
   <nz-timeline *ngIf="!isLoading">
     <nz-timeline-item
       [nzColor]="getUserColor(item.role)"
-      *ngFor="let item of historyList"
+      *ngFor="let item of historyList; trackBy: trackByHistoryItem"
     >
       <p>
         <nz-tag nzColor="gold"

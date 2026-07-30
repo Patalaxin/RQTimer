@@ -201,6 +201,10 @@ export class TimerSettingsComponent implements OnInit {
     );
   }
 
+  trackByEmail(index: number, user: any): string {
+    return user.email;
+  }
+
   getGroupUsers(email?: any, mode?: 'transfer' | 'delete'): void {
     this.userGroupList = [];
     this.groupsService.getGroup().subscribe({

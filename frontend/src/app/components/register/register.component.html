@@ -280,7 +280,8 @@
                       formArrayName="excludedBosses"
                       *ngFor="
                         let boss of excludedBosses.controls;
-                        let i = index
+                        let i = index;
+                        trackBy: trackByIndex
                       "
                     >
                       <label
@@ -325,7 +326,8 @@
                       formArrayName="excludedElites"
                       *ngFor="
                         let boss of excludedElites.controls;
-                        let i = index
+                        let i = index;
+                        trackBy: trackByIndex
                       "
                     >
                       <label

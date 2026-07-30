@@ -1,4 +1,6 @@
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -31,8 +33,10 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly storageService = inject(StorageService);
   // private readonly configurationService = inject(ConfigurationService);
@@ -118,6 +122,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.timerListSubscription = this.timerService.timerList$.subscribe({
       next: (res) => {
         this.timerList = res;
+        this.cdr.markForCheck();
       },
     });
 
@@ -126,6 +131,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (res) {
           if (this.storageService.getLocalStorage('email') === res.email) {
             this.isOnline = res.status;
+            this.cdr.markForCheck();
           }
         }
       },
@@ -134,11 +140,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.excludedMobsSubscription = this.userService.excludedMobs$.subscribe({
       next: (excludedMobs) => {
         this.excludedMobs = excludedMobs;
+        this.cdr.markForCheck();
       },
     });
 
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateRoute();
+      this.cdr.markForCheck();
     });
     this.updateRoute();
 
@@ -214,6 +222,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }));
         this.currentServer =
           this.storageService.getLocalStorage('server') || 'Helios';
+        this.cdr.markForCheck();
       },
     });
   }
@@ -254,6 +263,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService.getUsersCount().subscribe({
       next: (res) => {
         this.usersCount = res.count;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -345,11 +355,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
             if (res) {
               this.updateHistory();
             }
+            this.cdr.markForCheck();
           },
         });
+
+        this.cdr.markForCheck();
       },
       error: () => {
         this.timerService.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -365,9 +379,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.historyService.historyList = this.historyList;
           this.historyService.historyListData = this.historyListData;
           this.historyService.isLoading = false;
+          this.cdr.markForCheck();
         },
         error: () => {
           this.historyService.isLoading = false;
+          this.cdr.markForCheck();
         },
       });
   }
@@ -402,6 +418,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
         const decodedToken = jwtDecode(accessToken) as { exp: number };
         this.scheduleTokenRefresh(decodedToken.exp);
+        this.cdr.markForCheck();
       },
     });
   }
@@ -436,6 +453,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
           ),
         );
         navigator.clipboard.writeText(data.join(',\n'));
+        this.cdr.markForCheck();
       },
     });
   }
