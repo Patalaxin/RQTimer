@@ -19,6 +19,7 @@ import { NotificationService } from './services/notification.service';
 import { StorageService } from './services/storage.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Meta, Title } from '@angular/platform-browser';
+import { INotification } from './interfaces/notification';
 
 @Component({
   selector: 'app-root',
@@ -40,7 +41,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   template?: TemplateRef<{}>;
 
   title = 'rq-timer-fe';
-  notifications: any[] = [];
+  notifications: INotification[] = [];
   currentNotificationIndex: number = 0;
   position: NzNotificationPlacement | undefined = 'bottomRight';
   showBackground: boolean = false;
@@ -100,8 +101,10 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
     });
 
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      )
+      .subscribe((event) => {
         this.checkRoute(event.urlAfterRedirects);
       });
   }
@@ -132,7 +135,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.notificationService.getNotifications().subscribe({
       next: (res) => {
         this.notificationService.notificationList = res.reverse();
-        this.notifications = res.filter((item: any) => {
+        this.notifications = res.filter((item) => {
           const viewed = this.storageService.getLocalStorage('notification');
           const viewedArr: string[] = viewed ? JSON.parse(viewed) : [];
           return !viewedArr.includes(item.id);

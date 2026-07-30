@@ -1,6 +1,6 @@
 <nz-pagination
-  [nzPageIndex]="historyListData.page"
-  [nzTotal]="historyListData.total"
+  [nzPageIndex]="historyListData?.page"
+  [nzTotal]="historyListData?.total || 0"
   nzShowSizeChanger
   [nzPageSize]="pageSize"
   [nzShowTotal]="rangeTemplate"
@@ -18,7 +18,7 @@
 
   <nz-timeline *ngIf="!isLoading">
     <nz-timeline-item
-      [nzColor]="getUserColor(item.role)"
+      [nzColor]="$any(getUserColor(item.role))"
       *ngFor="let item of historyList; trackBy: trackByHistoryItem"
     >
       <p>

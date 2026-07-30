@@ -27,17 +27,17 @@ export default class Validation {
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
 
-    const errors: any = {};
+    const errors: Record<string, string> = {};
 
     if (!hasNumber) {
-      errors.missingNumber = 'Пароль должен содержать хотя бы одну цифру.';
+      errors['missingNumber'] = 'Пароль должен содержать хотя бы одну цифру.';
     }
     if (!hasUpperCase) {
-      errors.missingUpperCase =
+      errors['missingUpperCase'] =
         'Пароль должен содержать хотя бы одну заглавную букву.';
     }
     if (!hasLowerCase) {
-      errors.missingLowerCase =
+      errors['missingLowerCase'] =
         'Пароль должен содержать хотя бы одну строчную букву.';
     }
 
@@ -46,11 +46,11 @@ export default class Validation {
 
   static nicknameValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value || '';
-    const errors: any = {};
+    const errors: Record<string, string> = {};
 
     const uppercaseLettersCount = (value.match(/[A-ZА-Я]/g) || []).length;
     if (uppercaseLettersCount > 2) {
-      errors.tooManyUppercase =
+      errors['tooManyUppercase'] =
         'Никнейм может содержать не более 2 заглавных букв.';
     }
 
@@ -60,7 +60,7 @@ export default class Validation {
     // }
 
     if (/\s/.test(value)) {
-      errors.containsSpaces = 'Никнейм не должен содержать пробелы.';
+      errors['containsSpaces'] = 'Никнейм не должен содержать пробелы.';
     }
 
     // const hyphenCount = (value.match(/-/g) || []).length;
@@ -71,22 +71,22 @@ export default class Validation {
     const hasLatin = /[A-Za-z]/.test(value);
     const hasCyrillic = /[А-Яа-я]/.test(value);
     if (hasLatin && hasCyrillic) {
-      errors.mixedCyrillicAndLatin =
+      errors['mixedCyrillicAndLatin'] =
         'Никнейм не может содержать смешение кириллицы и латиницы.';
     }
 
     if (/[0-9]/.test(value)) {
-      errors.containsNumbers = 'Никнейм не должен содержать цифры.';
+      errors['containsNumbers'] = 'Никнейм не должен содержать цифры.';
     }
 
     // Дефис разрешен
     // if (/[^A-Za-zА-Яа-я-]/.test(value)) {
-    //   errors.containsSpecialCharacters =
+    //   errors['containsSpecialCharacters'] =
     //     'Никнейм не должен содержать специальные символы.';
     // }
 
     if (/[^A-Za-zА-Яа-я]/.test(value)) {
-      errors.containsSpecialCharacters =
+      errors['containsSpecialCharacters'] =
         'Никнейм не должен содержать специальные символы.';
     }
 

@@ -9,6 +9,7 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
@@ -21,7 +22,15 @@ import {
 import { IStepOption, TourService } from 'ngx-ui-tour-tui-dropdown';
 import { Subject, Subscription } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { TimerItem } from 'src/app/interfaces/timer-item';
+import { ITimerItem, IFullMob } from 'src/app/interfaces/timer-item';
+import { IUser } from 'src/app/interfaces/user';
+import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
+import { IGroupMember } from 'src/app/interfaces/group';
+import { INotification } from 'src/app/interfaces/notification';
+import {
+  IHistoryEntry,
+  IPaginatedHistory,
+} from 'src/app/interfaces/history-entry';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
 import { GroupsService } from 'src/app/services/groups.service';
@@ -33,6 +42,10 @@ import { TokenService } from 'src/app/services/token.service';
 import { UserService } from 'src/app/services/user.service';
 import { WebsocketService } from 'src/app/services/websocket.service';
 import { environment } from 'src/environments/environment';
+
+interface IAvailableMob extends IMobCatalog {
+  isExcluded: boolean;
+}
 
 @Component({
   selector: 'app-timer',
@@ -69,11 +82,11 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   IMAGE_SRC = environment.staticUrl;
 
-  timerList: TimerItem[] = [];
-  availableMobList: any = [];
-  filteredMobList: any = [];
-  addedMobList: any = [];
-  duplicatedMobList: any = [
+  timerList: ITimerItem[] = [];
+  availableMobList: IAvailableMob[] = [];
+  filteredMobList: IAvailableMob[] = [];
+  addedMobList: string[] = [];
+  duplicatedMobList: string[] = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
     '673a9b46697139657bf024b9',
@@ -91,7 +104,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     '673152a61e738aba75ba34e8',
     '673152aa1e738aba75ba34ec',
   ];
-  pvpMobList: any = [
+  pvpMobList: string[] = [
     '673148be1e738aba75ba344d',
     '673149261e738aba75ba3455',
     '673a4607925dabf6e082f029',
@@ -99,26 +112,26 @@ export class TimerComponent implements OnInit, OnDestroy {
     '67314b311e738aba75ba3475',
   ];
 
-  randomTimeMobList: any = ['6a5d0bda682ea4717f616c1a'];
+  randomTimeMobList: string[] = ['6a5d0bda682ea4717f616c1a'];
 
-  addMobList: any = [];
-  historyList: any = [];
-  historyListData: any = [];
+  addMobList: string[] = [];
+  historyList: IHistoryEntry[] = [];
+  historyListData: IPaginatedHistory | null = null;
   isLoading = this.timerService.isLoading$;
   isHistoryLoading = this.historyService.isLoading$;
   currentServer: string = '';
-  currentUser: any = [];
+  currentUser: IUser | null = null;
   excludedMobs: string[] = [];
 
   radioValue: string = 'death';
-  datePickerTime: any;
-  timePickerTime: any;
-  currentTime: any = 0;
+  datePickerTime: Date | undefined;
+  timePickerTime: Date | undefined;
+  currentTime: number = 0;
   currentProgressTime: number = 0;
-  currentItem: any;
+  currentItem: ITimerItem | undefined;
   cooldown: number = 1;
 
-  intervalId: any;
+  intervalId: ReturnType<typeof setInterval> | undefined;
 
   isScreenWidth1000: boolean = false;
   isScreenWidth800: boolean = false;
@@ -131,7 +144,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   isAddOkLoading: boolean = false;
   isAddModalLoading: boolean = true;
 
-  userGroupName: any;
+  userGroupName: string = '';
   groupModalName: string = '';
   groupModalPlaceholder: string = '';
   groupOkButton: string = '';
@@ -142,9 +155,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   isGroupModalDisabled: boolean = true;
   isCreateGroupLoading: boolean = false;
   isJoinGroupLoading: boolean = false;
-  userGroupList: any[] = [];
+  userGroupList: IGroupMember[] = [];
   groupLeaderEmail: string = '';
-  onlineUserList: any[] = [];
+  onlineUserList: string[] = [];
   canMembersAddMobs: boolean = false;
 
   allAddChecked: boolean = false;
@@ -157,10 +170,10 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   isVisible: boolean = false;
 
-  timerOptions: any[] = [];
+  timerOptions: { label: string; value: string; icon: string }[] = [];
   selectedSegments: number = 0;
 
-  notifications: any[] = [];
+  notifications: INotification[] = [];
   currentNotificationIndex: number = 0;
   position: NzNotificationPlacement | undefined = 'bottomRight';
 
@@ -168,7 +181,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   isLangReady: boolean = false;
 
   isDesync: boolean = false;
-  desyncTime: any;
+  desyncTime: number | undefined;
 
   private audioQueue: HTMLAudioElement[] = [];
   private isPlayingAudio = false;
@@ -377,7 +390,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
 
     this.mobUpdateSubscription = this.websocketService.mobUpdate$.subscribe(
-      (res: TimerItem) => {
+      (res: IFullMob | null) => {
         if (res) {
           this.updateItem(this.timerList, res);
           this.cdr.markForCheck();
@@ -391,7 +404,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         if (this.timerList.length > 0) {
           const currentExcludedMobs = this.userService.currentExcludedMobs;
           const filteredRes = this.timerList.filter(
-            (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+            (item) => !currentExcludedMobs.includes(item.mobData.mobId),
           );
           this.sortTimerList([...filteredRes]);
           this.timerService.timerList = this.timerList;
@@ -456,9 +469,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   private getOnlineUserList(): void {
     this.websocketService.onlineUserList$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
+      .subscribe((res) => {
         if (res) {
-          this.onlineUserList = res.map((item: any) => item.email);
+          this.onlineUserList = res.map((item) => item.email);
           this.cdr.markForCheck();
         }
       });
@@ -514,7 +527,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateItem(timerList: TimerItem[], res: any): void {
+  private updateItem(timerList: ITimerItem[], res: IFullMob): void {
     timerList.forEach((item) => {
       if (
         item.mobData.mobId === res.mobData.mobId &&
@@ -535,7 +548,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sortTimerList(timerList: TimerItem[]): void {
+  private sortTimerList(timerList: ITimerItem[]): void {
     timerList.forEach((item) => {
       item.mob.percent = this.calcPercent(item);
     });
@@ -558,7 +571,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isScreenWidth372 = window.innerWidth <= 372;
   }
 
-  private checkAndNotify(item: TimerItem, minutes: number[]): void {
+  private checkAndNotify(item: ITimerItem, minutes: number[]): void {
     const enqueueAudio = (audio: HTMLAudioElement) => {
       this.audioQueue.push(audio);
       this.playNextAudio();
@@ -658,15 +671,15 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  trackByMobId(index: number, item: TimerItem): string {
+  trackByMobId(index: number, item: ITimerItem): string {
     return item.mobData.mobId;
   }
 
-  trackByAvailableMobId(index: number, mob: any): string {
+  trackByAvailableMobId(index: number, mob: IAvailableMob): string {
     return mob._id;
   }
 
-  private calcPercent(item: TimerItem): number {
+  private calcPercent(item: ITimerItem): number {
     const { respawnTime, deathTime } = item.mobData;
 
     if (respawnTime && deathTime) {
@@ -686,7 +699,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.tourService.start();
   }
 
-  onClickTimerItem(item: TimerItem): void {
+  onClickTimerItem(item: ITimerItem): void {
     if (item.mobData.respawnTime) {
       let data: string = `${this.duplicatedMobList.includes(item.mobData.mobId) ? `${item.mob.shortName}: ${item.mob.location}` : item.mob.shortName} - ${moment(
         item.mobData.respawnTime,
@@ -696,24 +709,26 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFocus(event: any) {
-    event.target.closest('.timer-radio-option').previousSibling.click();
+  onFocus(event: Event) {
+    const target = event.target as HTMLElement;
+    (target.closest('.timer-radio-option')?.previousSibling as HTMLElement)
+      ?.click();
   }
 
-  showHistoryModal(item: TimerItem): void {
+  showHistoryModal(item: ITimerItem): void {
     event?.stopPropagation();
     this.getHistory(item);
   }
 
-  confirmHistoryModal(item: TimerItem): void {
+  confirmHistoryModal(item: ITimerItem): void {
     item.mob.isHistoryModalVisible = false;
   }
 
-  cancelHistoryModal(item: TimerItem): void {
+  cancelHistoryModal(item: ITimerItem): void {
     item.mob.isHistoryModalVisible = false;
   }
 
-  getHistory(item: TimerItem): void {
+  getHistory(item: ITimerItem): void {
     this.historyService.isLoading = true;
     item.mob.isHistoryModalVisible = true;
     const lang = localStorage.getItem('language') || 'ru';
@@ -726,7 +741,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         lang,
       )
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.isLoading = false;
@@ -744,14 +759,14 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.getAvailableBosses(lang).subscribe({
       next: (res) => {
         this.availableMobList = res
-          .map((mob: any) => ({
+          .map((mob) => ({
             ...mob,
             isExcluded:
               this.addedMobList.includes(mob._id) &&
               this.excludedMobs.includes(mob._id),
           }))
           .filter(
-            (availableItem: any) =>
+            (availableItem) =>
               !this.timerList.some(
                 (timerItem) =>
                   timerItem.mobData.mobId === availableItem._id &&
@@ -796,9 +811,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       });
   }
 
-  addSearch(value: any): void {
+  addSearch(value: string): void {
     this.filteredMobList = value
-      ? this.availableMobList.filter((mob: any) =>
+      ? this.availableMobList.filter((mob) =>
           mob.mobName.toLowerCase().startsWith(value.toLowerCase()),
         )
       : [...this.availableMobList];
@@ -806,25 +821,27 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   addAllChecked(): void {
     this.indeterminate = false;
-    const mobsCheckbox = Array.from(document.querySelectorAll('.add-mob'));
+    const mobsCheckbox = Array.from(
+      document.querySelectorAll<HTMLElement>('.add-mob'),
+    );
     if (this.allAddChecked) {
-      mobsCheckbox.map((item: any) => {
+      mobsCheckbox.forEach((item) => {
         if (
           !item
-            .querySelector('.ant-checkbox')
+            .querySelector('.ant-checkbox')!
             .classList.contains('ant-checkbox-checked') &&
           !item
-            .querySelector('.ant-checkbox')
+            .querySelector('.ant-checkbox')!
             .classList.contains('ant-checkbox-disabled')
         ) {
           item.click();
         }
       });
     } else {
-      mobsCheckbox.map((item: any) => {
+      mobsCheckbox.forEach((item) => {
         if (
           item
-            .querySelector('.ant-checkbox')
+            .querySelector('.ant-checkbox')!
             .classList.contains('ant-checkbox-checked')
         ) {
           item.click();
@@ -833,15 +850,15 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onChangeCheckbox(event: any): void {
+  onChangeCheckbox(event: string[]): void {
     const nonExcludedMobs = this.availableMobList.filter(
-      (mob: any) => !mob.isExcluded,
+      (mob) => !mob.isExcluded,
     );
 
     if (
       nonExcludedMobs.filter(
-        (availableItem: any) =>
-          !event.some((selectedId: any) => selectedId === availableItem._id),
+        (availableItem) =>
+          !event.some((selectedId) => selectedId === availableItem._id),
       ).length
     ) {
       this.allAddChecked = false;
@@ -849,16 +866,16 @@ export class TimerComponent implements OnInit, OnDestroy {
 
       if (
         nonExcludedMobs.filter(
-          (availableItem: any) =>
-            !event.some((selectedId: any) => selectedId === availableItem._id),
+          (availableItem) =>
+            !event.some((selectedId) => selectedId === availableItem._id),
         ).length !== nonExcludedMobs.length
       ) {
         this.indeterminate = true;
       }
     } else if (
       !nonExcludedMobs.filter(
-        (availableItem: any) =>
-          !event.some((selectedId: any) => selectedId === availableItem._id),
+        (availableItem) =>
+          !event.some((selectedId) => selectedId === availableItem._id),
       ).length
     ) {
       this.allAddChecked = true;
@@ -868,20 +885,20 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.addMobList = event;
   }
 
-  onCanMembersAddMobsChange(value: any) {
+  onCanMembersAddMobsChange(value: boolean) {
     this.canMembersAddMobs = value;
   }
 
-  showInfoModal(item: TimerItem): void {
+  showInfoModal(item: ITimerItem): void {
     event?.stopPropagation();
     item.mob.isInfoModalVisible = true;
   }
 
-  cancelInfoModal(item: TimerItem) {
+  cancelInfoModal(item: ITimerItem) {
     item.mob.isInfoModalVisible = false;
   }
 
-  showDeleteModal(item: TimerItem): void {
+  showDeleteModal(item: ITimerItem): void {
     event?.stopPropagation();
     this.modalService.confirm({
       nzTitle: this.translateService.instant('TIMER.MODAL.DELETE_TITLE'),
@@ -896,7 +913,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(item: TimerItem): void {
+  onDelete(item: ITimerItem): void {
     this.timerService.isLoading = true;
     this.timerService
       .deleteMobGroup(
@@ -921,7 +938,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       });
   }
 
-  showDeathModal(item: TimerItem): void {
+  showDeathModal(item: ITimerItem): void {
     event?.stopPropagation();
     item.mob.isDeathModalVisible = true;
     this.comment = '';
@@ -944,23 +961,24 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   onTimeChange() {
-    this.currentTime = new Date(this.datePickerTime);
-    this.currentTime.setHours(
-      this.timePickerTime.getHours(),
-      this.timePickerTime.getMinutes(),
-      this.timePickerTime.getSeconds(),
+    const time = new Date(this.datePickerTime!);
+    time.setHours(
+      this.timePickerTime!.getHours(),
+      this.timePickerTime!.getMinutes(),
+      this.timePickerTime!.getSeconds(),
       0,
     );
+    this.currentTime = time.getTime();
   }
 
-  cancelDeathModal(item: TimerItem): void {
+  cancelDeathModal(item: ITimerItem): void {
     item.mob.isDeathModalVisible = false;
     this.isOnlyComment = false;
     this.comment = '';
   }
 
-  confirmDeathModal(item: TimerItem): void {
-    const handleSuccess = (message: string, item: TimerItem) => {
+  confirmDeathModal(item: ITimerItem): void {
+    const handleSuccess = (message: string, item: IFullMob) => {
       this.timerService.isLoading = true;
       if (item) {
         this.updateItem(this.timerList, item);
@@ -974,15 +992,16 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     };
 
-    const handleError = (err: any) => {
+    const handleError = (err: HttpErrorResponse) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
       }
       this.cdr.markForCheck();
     };
 
-    const radioActions: any = {
+    const radioActions: Record<string, () => void> = {
       death: () => {
+        if (!this.currentItem) return;
         if (
           !this.currentItem.mobData.respawnTime ||
           moment(this.currentTime).valueOf() >
@@ -995,7 +1014,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.comment,
             )
             .subscribe({
-              next: (res: any) => {
+              next: (res) => {
                 handleSuccess(
                   this.translateService.instant(
                     'TIMER.MESSAGE.RESP_UPDATED_BY_DEATH',
@@ -1012,6 +1031,7 @@ export class TimerComponent implements OnInit, OnDestroy {
         }
       },
       respawn: () => {
+        if (!this.currentItem) return;
         if (
           !this.currentItem.mobData.respawnTime ||
           (this.currentItem.mobData.respawnTime < this.currentItem.unixtime &&
@@ -1026,7 +1046,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.comment,
             )
             .subscribe({
-              next: (res: any) =>
+              next: (res) =>
                 handleSuccess(
                   this.translateService.instant(
                     'TIMER.MESSAGE.RESP_UPDATED_BY_RESPAWN',
@@ -1047,7 +1067,7 @@ export class TimerComponent implements OnInit, OnDestroy {
             this.comment,
           )
           .subscribe({
-            next: (res: any) =>
+            next: (res) =>
               handleSuccess(
                 this.translateService.instant(
                   'TIMER.MESSAGE.RESP_UPDATED_BY_CD',
@@ -1070,9 +1090,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (this.isOnlyComment) {
+    if (this.isOnlyComment && this.currentItem) {
       this.timerService.addComment(this.currentItem, this.comment).subscribe({
-        next: (res: any) =>
+        next: (res) =>
           handleSuccess(
             this.translateService.instant('TIMER.MESSAGE.COMMENT_UPDATED'),
             res,
@@ -1082,8 +1102,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  showConfirmRewriteModal(item: TimerItem, action: string) {
-    const handleSuccess = (message: string, item: TimerItem) => {
+  showConfirmRewriteModal(item: ITimerItem, action: string) {
+    const handleSuccess = (message: string, item: IFullMob) => {
       this.timerService.isLoading = true;
       if (item) {
         this.updateItem(this.timerList, item);
@@ -1097,7 +1117,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     };
 
-    const handleError = (err: any) => {
+    const handleError = (err: HttpErrorResponse) => {
       if (err.status !== 401) {
         item.mob.isDeathOkLoading = false;
       }
@@ -1232,7 +1252,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.comment,
             )
             .subscribe({
-              next: (res: any) =>
+              next: (res) =>
                 handleSuccess(
                   this.translateService.instant(
                     'TIMER.MESSAGE.RESP_UPDATED_BY_DEATH',
@@ -1251,7 +1271,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.comment,
             )
             .subscribe({
-              next: (res: any) =>
+              next: (res) =>
                 handleSuccess(
                   this.translateService.instant(
                     'TIMER.MESSAGE.RESP_UPDATED_BY_RESPAWN',
@@ -1270,7 +1290,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.comment,
             )
             .subscribe({
-              next: (res: any) =>
+              next: (res) =>
                 handleSuccess(
                   this.translateService.instant(
                     'TIMER.MESSAGE.RESP_UPDATED_BY_CD',
@@ -1293,7 +1313,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDieNow(item: TimerItem): void {
+  onDieNow(item: ITimerItem): void {
     event?.stopPropagation();
     item.mob.isOnDieNow = true;
     this.currentTime = Date.now() - 10000;
@@ -1305,7 +1325,7 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.timerService
             .setByDeathTime(item, this.currentTime - 10000, '')
             .subscribe({
-              next: (res: TimerItem) => {
+              next: (res: IFullMob) => {
                 this.updateItem(this.timerList, res);
                 this.timerService.isLoading = false;
                 this.messageService.create(
@@ -1339,7 +1359,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPlusCooldown(item: TimerItem): void {
+  onPlusCooldown(item: ITimerItem): void {
     event?.stopPropagation();
     item.mob.plusCooldown++;
     if (item.mobData.respawnTime) {
@@ -1347,11 +1367,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSetByCooldownTime(item: TimerItem): void {
+  onSetByCooldownTime(item: ITimerItem): void {
     event?.stopPropagation();
     this.timerService.isLoading = true;
     this.timerService.setByCooldownTime(item, 1, '').subscribe({
-      next: (res: TimerItem) => {
+      next: (res: IFullMob) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
@@ -1377,11 +1397,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  onLostCooldown(item: TimerItem): void {
+  onLostCooldown(item: ITimerItem): void {
     event?.stopPropagation();
     this.timerService.isLoading = true;
     this.timerService.respawnLost(item).subscribe({
-      next: (res: TimerItem) => {
+      next: (res: IFullMob) => {
         // if (item.timeoutId) {
         //   clearTimeout(item.timeoutId);
         //   item.isTimerRunning = false;
@@ -1404,12 +1424,12 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.currentServer = this.storageService.getLocalStorage('server');
     this.timerService.getAllBosses(this.currentServer, lang).subscribe({
       next: (res) => {
-        this.addedMobList = res.map((item: any) => item.mob._id);
+        this.addedMobList = res.map((item) => item.mob._id);
         this.currentTime = res.length ? res[0].unixtime : Date.now();
         this.currentProgressTime = res.length ? res[0].unixtime : Date.now();
         const currentExcludedMobs = this.userService.currentExcludedMobs;
         const filteredRes = res.filter(
-          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
         );
 
         this.sortTimerList([...filteredRes]);
@@ -1443,7 +1463,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerService.isLoading = true;
     this.userService.getUser().subscribe({
       next: (res) => {
-        this.userGroupName = res.groupName;
+        this.userGroupName = res.groupName || '';
         this.timerService.groupName = this.userGroupName;
         this.excludedMobs = res.excludedMobs || [];
         this.userService.excludedMobs = this.excludedMobs;
@@ -1457,8 +1477,8 @@ export class TimerComponent implements OnInit, OnDestroy {
                 let email: string = member.split(': ')[1];
                 this.userGroupList.push({ nickname, email });
               });
-              this.userGroupList.forEach((item: any, i: any) => {
-                item.id = i++;
+              this.userGroupList.forEach((item, i) => {
+                item.id = i;
               });
               this.cdr.markForCheck();
             },
@@ -1480,7 +1500,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
   }
 
-  onGroupValueChange(event: any) {
+  onGroupValueChange(event: string) {
     this.groupInputValue = event;
 
     if (!this.groupInputValue) {
@@ -1538,7 +1558,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onExchangeRefresh(event: any): void {
+  onExchangeRefresh(): void {
     this.exchangeRefresh(() => {
       this.isInitialized = false;
       this.getCurrentUser();

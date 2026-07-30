@@ -1,36 +1,61 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
-import { ChangePasswordComponent } from './components/change-password/change-password.component';
-import { TimerComponent } from './components/timer/timer.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { AuthGuard } from './guard/auth.guard';
-import { HistoryComponent } from './components/history/history.component';
-import { NoAuthGuard } from './guard/no-auth.guard';
-import { NotFoundComponent } from './components/not-found/not-found.component';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard] },
+  {
+    path: 'login',
+    loadChildren: () =>
+      import('./components/login/login.module').then((m) => m.LoginModule),
+  },
   {
     path: 'register',
-    component: RegisterComponent,
-    canActivate: [NoAuthGuard],
+    loadChildren: () =>
+      import('./components/register/register.module').then(
+        (m) => m.RegisterModule,
+      ),
   },
   {
     path: 'change-password',
-    component: ChangePasswordComponent,
-    canActivate: [NoAuthGuard],
+    loadChildren: () =>
+      import('./components/change-password/change-password.module').then(
+        (m) => m.ChangePasswordModule,
+      ),
   },
-  { path: 'timer', component: TimerComponent, canActivate: [AuthGuard] },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
-  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  {
+    path: 'timer',
+    loadChildren: () =>
+      import('./components/timer/timer.module').then((m) => m.TimerModule),
+  },
+  {
+    path: 'profile',
+    loadChildren: () =>
+      import('./components/profile/profile.module').then(
+        (m) => m.ProfileModule,
+      ),
+  },
+  {
+    path: 'history',
+    loadChildren: () =>
+      import('./components/history/history.module').then(
+        (m) => m.HistoryModule,
+      ),
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', component: NotFoundComponent, canActivate: [AuthGuard] },
+  {
+    path: '**',
+    loadChildren: () =>
+      import('./components/not-found/not-found.module').then(
+        (m) => m.NotFoundModule,
+      ),
+  },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [
+    RouterModule.forRoot(routes, {
+      preloadingStrategy: PreloadAllModules,
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

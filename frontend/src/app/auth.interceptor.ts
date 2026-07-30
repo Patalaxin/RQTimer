@@ -15,7 +15,7 @@ import { TimerService } from './services/timer.service';
 import { Router } from '@angular/router';
 import { TokenService } from './services/token.service';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ApiErrorBody } from './interfaces/api-error';
+import { IApiError } from './interfaces/api-error';
 // import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
@@ -78,7 +78,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
    * попадал как `a,b,c`. Показываем по строке.
    */
   private textOf(err: HttpErrorResponse): string {
-    const body = err.error as ApiErrorBody | null;
+    const body = err.error as IApiError | null;
     const message = body?.message;
 
     if (Array.isArray(message)) {
@@ -108,7 +108,7 @@ export class HttpRequestInterceptor implements HttpInterceptor {
         const newReq = this.addAuthorizationHeader(req);
         return next.handle(newReq);
       }),
-      catchError((err) => {
+      catchError((err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.onLogout();
         }

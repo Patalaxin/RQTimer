@@ -25,7 +25,7 @@ export class ProfileComponent implements OnInit {
     role: '',
   };
 
-  excludedMobs = [];
+  excludedMobs: string[] = [];
   isLoading: boolean = true;
 
   ngOnInit(): void {

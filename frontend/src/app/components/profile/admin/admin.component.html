@@ -163,7 +163,7 @@
             [nzTooltipMouseEnterDelay]="1"
             (click)="onShowDeleteModal(user.nickname)"
             nzShape="circle"
-            *ngIf="currentUser.nickname !== user.nickname"
+            *ngIf="currentUser?.nickname !== user.nickname"
           >
             <span nz-icon nzType="delete"></span>
           </button>
@@ -191,7 +191,7 @@
                   </nz-tag>
                   <div
                     class="admin-user-modal-role"
-                    *ngIf="currentUser.nickname !== user.nickname"
+                    *ngIf="currentUser?.nickname !== user.nickname"
                   >
                     <h4>
                       <span

@@ -3,6 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { StorageService } from './storage.service';
 import { BehaviorSubject, Observable } from 'rxjs';
+import {
+  IHistoryEntry,
+  IPaginatedHistory,
+} from 'src/app/interfaces/history-entry';
 
 @Injectable({
   providedIn: 'root',
@@ -13,15 +17,17 @@ export class HistoryService {
 
   HISTORY_API = environment.apiUrl + '/history/';
 
-  private historyListSubject$ = new BehaviorSubject<any>([]);
-  private historyListDataSubject$ = new BehaviorSubject<any>([]);
+  private historyListSubject$ = new BehaviorSubject<IHistoryEntry[]>([]);
+  private historyListDataSubject$ = new BehaviorSubject<IPaginatedHistory | null>(
+    null,
+  );
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
 
-  get historyList$(): Observable<any[]> {
+  get historyList$(): Observable<IHistoryEntry[]> {
     return this.historyListSubject$.asObservable();
   }
 
-  get historyListData$(): Observable<any[]> {
+  get historyListData$(): Observable<IPaginatedHistory | null> {
     return this.historyListDataSubject$.asObservable();
   }
 
@@ -29,11 +35,11 @@ export class HistoryService {
     return this.isLoadingSubject$.asObservable();
   }
 
-  set historyList(list: any) {
+  set historyList(list: IHistoryEntry[]) {
     this.historyListSubject$.next(list);
   }
 
-  set historyListData(list: any) {
+  set historyListData(list: IPaginatedHistory | null) {
     this.historyListDataSubject$.next(list);
   }
 
@@ -47,7 +53,7 @@ export class HistoryService {
     limit?: number,
     lang?: string,
     historyType?: string,
-  ) {
+  ): Observable<IPaginatedHistory> {
     let params = new HttpParams();
 
     if (page) params = params.set('page', page);
@@ -58,9 +64,12 @@ export class HistoryService {
 
     if (historyType) params = params.set('historyType', historyType);
 
-    return this.http.get(`${this.HISTORY_API}list/${server}`, {
-      params,
-    });
+    return this.http.get<IPaginatedHistory>(
+      `${this.HISTORY_API}list/${server}`,
+      {
+        params,
+      },
+    );
   }
 
   getMobHistory(
@@ -69,7 +78,7 @@ export class HistoryService {
     page?: number,
     limit?: number,
     lang?: string,
-  ) {
+  ): Observable<IPaginatedHistory> {
     let params = new HttpParams();
 
     if (page) params = params.set('page', page);
@@ -78,8 +87,11 @@ export class HistoryService {
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.HISTORY_API}${server}/${mobId}`, {
-      params,
-    });
+    return this.http.get<IPaginatedHistory>(
+      `${this.HISTORY_API}${server}/${mobId}`,
+      {
+        params,
+      },
+    );
   }
 }

@@ -11,6 +11,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { UserService } from 'src/app/services/user.service';
 import Validation from 'src/app/utils/validation';
+import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
 
 @Component({
   selector: 'app-user',
@@ -24,12 +25,12 @@ export class UserComponent implements OnInit {
   private readonly messageService = inject(NzMessageService);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input() excludedMobs: any;
+  @Input() excludedMobs: string[] = [];
   @Input() role: string = '';
 
   isLoading: boolean = true;
 
-  duplicatedMobList: any = [
+  duplicatedMobList: string[] = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
     '673a9b46697139657bf024b9',
@@ -51,8 +52,8 @@ export class UserComponent implements OnInit {
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
-  bossesCheckboxList: any;
-  elitesCheckboxList: any;
+  bossesCheckboxList: IMobCatalog[] = [];
+  elitesCheckboxList: IMobCatalog[] = [];
 
   bossList: string[] = [];
   eliteList: string[] = [];
@@ -88,7 +89,7 @@ export class UserComponent implements OnInit {
     this.getMobs();
   }
 
-  private addCheckbox(checkboxList: any[], control: FormArray): void {
+  private addCheckbox(checkboxList: IMobCatalog[], control: FormArray): void {
     checkboxList.forEach(() => {
       control.push(new FormControl());
     });
@@ -106,10 +107,10 @@ export class UserComponent implements OnInit {
     const lang = localStorage.getItem('language') || 'ru';
     this.configurationService.getMobs(lang).subscribe({
       next: (res) => {
-        res.bossesArray.forEach((boss: any) => {
+        res.bossesArray.forEach((boss) => {
           this.bossList.push(boss.mobName);
         });
-        res.elitesArray.forEach((elite: any) => {
+        res.elitesArray.forEach((elite) => {
           this.eliteList.push(elite.mobName);
         });
         this.bossesCheckboxList = res.bossesArray;
@@ -118,12 +119,12 @@ export class UserComponent implements OnInit {
         this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
         this.isLoading = false;
 
-        this.bossesCheckboxList.forEach((boss: any, i: number) => {
+        this.bossesCheckboxList.forEach((boss, i) => {
           if (this.excludedMobs && this.excludedMobs.includes(boss._id)) {
             this.excludedBosses.at(i).setValue(true);
           }
         });
-        this.elitesCheckboxList.forEach((elite: any, i: number) => {
+        this.elitesCheckboxList.forEach((elite, i) => {
           if (this.excludedMobs && this.excludedMobs.includes(elite._id)) {
             this.excludedElites.at(i).setValue(true);
           }
@@ -142,12 +143,12 @@ export class UserComponent implements OnInit {
     }
 
     const selectedBosses = this.bossesCheckboxList
-      .filter((_: any, i: number) => this.excludedBosses.at(i).value)
-      .map((boss: any) => boss._id);
+      .filter((_, i) => this.excludedBosses.at(i).value)
+      .map((boss) => boss._id);
 
     const selectedElites = this.elitesCheckboxList
-      .filter((_: any, i: number) => this.excludedElites.at(i).value)
-      .map((elite: any) => elite._id);
+      .filter((_, i) => this.excludedElites.at(i).value)
+      .map((elite) => elite._id);
 
     const newExcludedMobs = [...selectedBosses, ...selectedElites];
 

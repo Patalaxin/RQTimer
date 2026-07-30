@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import {
   AbstractControl,
@@ -38,7 +39,7 @@ export class ChangePasswordComponent {
 
   otpTimer: number = 60;
   otpComplete: string = '';
-  otpInterval: any;
+  otpInterval: ReturnType<typeof setInterval> | undefined;
 
   form: FormGroup = new FormGroup(
     {
@@ -95,9 +96,9 @@ export class ChangePasswordComponent {
     this.isModalVisible = false;
   }
 
-  onChangeOTP(event: any): void {
+  onChangeOTP(event: string[]): void {
     let otpCount: number = 0;
-    event.map((item: string) => {
+    event.map((item) => {
       if (item) {
         otpCount++;
       }
@@ -109,7 +110,7 @@ export class ChangePasswordComponent {
     }
   }
 
-  onCompleteOTP(event: any): void {
+  onCompleteOTP(event: string): void {
     this.otpComplete = event;
   }
 
@@ -149,9 +150,9 @@ export class ChangePasswordComponent {
             this.router.navigate(['/login']);
           }
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.passwordChangeLoading = false;
-          if (err.error.message) {
+          if (err.error?.message) {
             return this.messageService.create('error', err.error.message);
           }
           return this.messageService.create(

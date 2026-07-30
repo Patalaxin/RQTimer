@@ -9,7 +9,7 @@
     <div class="form-container">
       <h1>
         {{ "TIMER.GROUP_ABSENCE_NOTICE" | translate }}
-        {{ currentUser.nickname }}
+        {{ currentUser?.nickname }}
       </h1>
       <p>
         {{ "TIMER.GROUP_ABSENCE_MESSAGE" | translate }}
@@ -96,13 +96,13 @@
       <app-timer-settings
         [userList]="userGroupList"
         [groupLeaderEmail]="groupLeaderEmail"
-        [isGroupLeader]="currentUser.isGroupLeader"
+        [isGroupLeader]="!!currentUser?.isGroupLeader"
         [currentUser]="currentUser"
         [groupName]="userGroupName"
         [onlineUserList]="onlineUserList"
         [canMembersAddMobs]="canMembersAddMobs"
         (updateGroup)="onCanMembersAddMobsChange($event)"
-        (exchangeRefresh)="onExchangeRefresh($event)"
+        (exchangeRefresh)="onExchangeRefresh()"
       ></app-timer-settings>
     </div>
 
@@ -567,7 +567,7 @@
                     [nzTooltipTitle]="'TIMER.DELETE' | translate"
                     nzDanger
                     [nzTooltipMouseEnterDelay]="1"
-                    *ngIf="currentUser.isGroupLeader"
+                    *ngIf="currentUser?.isGroupLeader"
                     nzShape="circle"
                     [tourAnchor]="i == 0 ? 'delete' : ''"
                   >
@@ -654,7 +654,7 @@
                     [nzTooltipTitle]="'TIMER.DELETE' | translate"
                     nzDanger
                     [nzTooltipMouseEnterDelay]="1"
-                    *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
+                    *ngIf="canMembersAddMobs ? true : currentUser?.isGroupLeader"
                     nzShape="circle"
                   >
                     <span nz-icon nzType="delete"></span>
@@ -668,7 +668,7 @@
           class="box-shadow timer-d-flex-space-between"
           [ngClass]="'white'"
           tourAnchor="add"
-          *ngIf="canMembersAddMobs ? true : currentUser.isGroupLeader"
+          *ngIf="canMembersAddMobs ? true : currentUser?.isGroupLeader"
         >
           <button
             nz-button
@@ -753,7 +753,7 @@
                         ></nz-avatar>
                         <span
                           class="mob-name"
-                          [ngStyle]="mob.isExcluded && { color: '#999' }"
+                          [ngStyle]="mob.isExcluded ? { color: '#999' } : null"
                           ><b>{{ mob.mobName }}</b
                           >: {{ mob.location }}</span
                         >

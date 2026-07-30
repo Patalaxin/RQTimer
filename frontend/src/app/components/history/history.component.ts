@@ -6,6 +6,10 @@ import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { UserService } from 'src/app/services/user.service';
+import {
+  IHistoryEntry,
+  IPaginatedHistory,
+} from 'src/app/interfaces/history-entry';
 
 @Component({
   selector: 'app-history',
@@ -21,8 +25,8 @@ export class HistoryComponent implements OnInit {
   private readonly historyService = inject(HistoryService);
   private readonly messageService = inject(NzMessageService);
 
-  historyList: any = [];
-  historyListData: any = [];
+  historyList: IHistoryEntry[] = [];
+  historyListData: IPaginatedHistory | null = null;
   isLoading = this.historyService.isLoading$;
 
   user = {
@@ -66,7 +70,7 @@ export class HistoryComponent implements OnInit {
     this.historyService
       .getHistory(server, undefined, undefined, lang)
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.isLoading = false;

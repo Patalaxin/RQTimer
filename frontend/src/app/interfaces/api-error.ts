@@ -9,7 +9,7 @@
  * `message` бывает массивом: так ValidationPipe отдаёт список нарушенных
  * правил.
  */
-export interface ApiErrorBody {
+export interface IApiError {
   statusCode: number;
   code: string;
   message: string | string[];

@@ -3,7 +3,21 @@ import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NotificationService } from 'src/app/services/notification.service';
-import { UserService } from 'src/app/services/user.service';
+import { UserService, IPaginatedUsers } from 'src/app/services/user.service';
+import { IUser, IUserRole } from 'src/app/interfaces/user';
+
+interface IAdminUserRow extends IUser {
+  id: number;
+  isUserModalVisible: boolean;
+  isUserOkLoading: boolean;
+}
+
+interface IAdminUsersTable {
+  data: IAdminUserRow[];
+  total: number;
+  page: number;
+  pages: number;
+}
 
 @Component({
   selector: 'app-admin',
@@ -20,32 +34,33 @@ export class AdminComponent implements OnInit {
   @Input() bossList: string[] = [];
   @Input() eliteList: string[] = [];
 
-  userList: any = [];
-  userSearchList: any = [];
-  userData: any;
+  userList: IAdminUsersTable = { data: [], total: 0, page: 1, pages: 1 };
+  userSearchList: IAdminUsersTable = { data: [], total: 0, page: 1, pages: 1 };
+  userData: IUser | undefined;
   isUserDataLoading: boolean = false;
   isTableLoading: boolean = false;
   isGenerateLoading: boolean = false;
-  sortRole: any = (a: any, b: any) => a.role.localeCompare(b.role);
-  sortGroupName: any = (a: any, b: any) =>
+  sortRole = (a: IAdminUserRow, b: IAdminUserRow) =>
+    a.role.localeCompare(b.role);
+  sortGroupName = (a: IAdminUserRow, b: IAdminUserRow) =>
     String(a.groupName).localeCompare(String(b.groupName));
 
-  listOfCurrentPageData: any[] = [];
+  listOfCurrentPageData: IAdminUserRow[] = [];
   pageIndex: number = 1;
   pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
 
   isRoleChanged: boolean = false;
-  roleList = ['Admin', 'User'];
+  roleList: IUserRole[] = ['Admin', 'User'];
 
-  currentUser: any;
+  currentUser: IUser | null = null;
 
   isScreenWidth800: boolean = false;
   isScreenWidth550: boolean = false;
 
-  availableBossList: any;
-  availableEliteList: any;
+  availableBossList: string[] = [];
+  availableEliteList: string[] = [];
 
   isCreateNotificationModalVisible: boolean = false;
   isCreateNotificationOkLoading: boolean = false;
@@ -106,11 +121,11 @@ export class AdminComponent implements OnInit {
     this.englishText = '';
   }
 
-  getUserColor(role: string): any {
+  getUserColor(role: string): string {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
-  trackByEmail(index: number, user: any): string {
+  trackByEmail(index: number, user: IAdminUserRow): string {
     return user.email;
   }
 
@@ -118,7 +133,10 @@ export class AdminComponent implements OnInit {
     return role;
   }
 
-  getAllUsers(nickname?: any, params?: any): void {
+  getAllUsers(
+    nickname?: string,
+    params?: { pageIndex?: number; pageSize?: number },
+  ): void {
     this.isTableLoading = true;
     this.userService
       .getAllUsers(
@@ -126,14 +144,14 @@ export class AdminComponent implements OnInit {
         params?.pageSize || this.pageSize,
       )
       .subscribe({
-        next: (res) => {
-          this.userSearchList = res;
-          this.userSearchList?.data.forEach((item: any, i: any) => {
-            item.id = i++;
-            item.isUserModalVisible = false;
-            item.isUserOkLoading = false;
-          });
-
+        next: (res: IPaginatedUsers) => {
+          const rows: IAdminUserRow[] = res.data.map((user, i) => ({
+            ...user,
+            id: i,
+            isUserModalVisible: false,
+            isUserOkLoading: false,
+          }));
+          this.userSearchList = { ...res, data: rows };
           this.userList = { ...this.userSearchList };
           this.isTableLoading = false;
 
@@ -149,13 +167,7 @@ export class AdminComponent implements OnInit {
       });
   }
 
-  // onQueryParamsChange(params: any): void {
-  //   console.log(params);
-  //   const { pageSize, pageIndex, sort, filter } = params;
-  //   this.getAllUsers(undefined, { pageSize, pageIndex });
-  // }
-
-  onPageIndexChange(pageIndex: any): void {
+  onPageIndexChange(pageIndex: number): void {
     this.getAllUsers(undefined, { pageSize: this.pageSize, pageIndex });
   }
 
@@ -167,19 +179,9 @@ export class AdminComponent implements OnInit {
   onSearch(): void {
     this.isSearchVisible = false;
     this.userList.data = this.userSearchList.data.filter(
-      (item: any) => item.nickname.indexOf(this.searchValue) !== -1,
+      (item) => item.nickname.indexOf(this.searchValue) !== -1,
     );
   }
-
-  // onCurrentPageDataChange(listOfCurrentPageData: any): void {
-  //   this.isTableLoading = true;
-  //   this.listOfCurrentPageData = listOfCurrentPageData;
-  //   this.isTableLoading = false;
-  // }
-
-  // onPageIndexChange(pageIndex: any): void {
-  //   this.pageIndex = pageIndex;
-  // }
 
   getSpecificUser(nickname: string): void {
     this.isUserDataLoading = true;
@@ -187,10 +189,10 @@ export class AdminComponent implements OnInit {
       next: (res) => {
         this.userData = res;
         this.availableBossList = this.bossList.filter(
-          (item: any) => !res.unavailableMobs.includes(item),
+          (item) => !res.excludedMobs.includes(item),
         );
         this.availableEliteList = this.eliteList.filter(
-          (item: any) => !res.unavailableMobs.includes(item),
+          (item) => !res.excludedMobs.includes(item),
         );
         this.isUserDataLoading = false;
       },
@@ -212,12 +214,12 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  onShowUserModal(item: any): void {
+  onShowUserModal(item: IAdminUserRow): void {
     this.getSpecificUser(item.nickname);
     item.isUserModalVisible = true;
   }
 
-  confirmUserModal(item: any): void {
+  confirmUserModal(item: IAdminUserRow): void {
     if (this.isRoleChanged) {
       let role = item.role === 'Admin' ? 'User' : 'Admin';
 
@@ -234,10 +236,10 @@ export class AdminComponent implements OnInit {
     }
 
     let unavailableBossList = this.bossList.filter(
-      (item: any) => !this.availableBossList.includes(item),
+      (item) => !this.availableBossList.includes(item),
     );
     let unavailableEliteList = this.eliteList.filter(
-      (item: any) => !this.availableEliteList.includes(item),
+      (item) => !this.availableEliteList.includes(item),
     );
 
     this.isTableLoading = true;
@@ -262,7 +264,7 @@ export class AdminComponent implements OnInit {
       });
   }
 
-  cancelUserModal(item: any): void {
+  cancelUserModal(item: IAdminUserRow): void {
     item.isUserModalVisible = false;
   }
 
@@ -275,7 +277,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  onRoleChange(event: any, role: string): void {
+  onRoleChange(event: string, role: string): void {
     this.isRoleChanged = role !== event;
   }
 }

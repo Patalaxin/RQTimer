@@ -2,8 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { StorageService } from './storage.service';
-import { TimerItem } from '../interfaces/timer-item';
+import { ITimerItem, IFullMob } from '../interfaces/timer-item';
 import { RespawnInput } from '../interfaces/respawn-input';
+import { IMobCatalog } from '../interfaces/mob-catalog-entry';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -13,8 +14,8 @@ export class TimerService {
   private readonly http = inject(HttpClient);
 
   private readonly MOB_URL = environment.apiUrl + '/mobs';
-  private timerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
-  private filteredTimerListSubject$ = new BehaviorSubject<TimerItem[]>([]);
+  private timerListSubject$ = new BehaviorSubject<ITimerItem[]>([]);
+  private filteredTimerListSubject$ = new BehaviorSubject<ITimerItem[]>([]);
   private isLoadingSubject$ = new BehaviorSubject<boolean>(true);
   private headerVisibilitySubject$ = new BehaviorSubject<boolean>(false);
   private telegramBotVisibilitySubject$ = new BehaviorSubject<boolean>(false);
@@ -23,11 +24,11 @@ export class TimerService {
     JSON.parse(localStorage.getItem('specialNotification') || 'false'),
   );
 
-  get timerList$(): Observable<TimerItem[]> {
+  get timerList$(): Observable<ITimerItem[]> {
     return this.timerListSubject$.asObservable();
   }
 
-  get filteredTimerList$(): Observable<TimerItem[]> {
+  get filteredTimerList$(): Observable<ITimerItem[]> {
     return this.filteredTimerListSubject$.asObservable();
   }
 
@@ -51,11 +52,11 @@ export class TimerService {
     return this.switchVoiceSubject$.asObservable();
   }
 
-  set timerList(list: TimerItem[]) {
+  set timerList(list: ITimerItem[]) {
     this.timerListSubject$.next(list);
   }
 
-  set filteredTimerList(list: TimerItem[]) {
+  set filteredTimerList(list: ITimerItem[]) {
     this.filteredTimerListSubject$.next(list);
   }
 
@@ -79,63 +80,74 @@ export class TimerService {
     this.switchVoiceSubject$.next(enable);
   }
 
-  getUnixtime(): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/unixtime`);
+  getUnixtime(): Observable<{ unixtime: number }> {
+    return this.http.get<{ unixtime: number }>(
+      `${environment.apiUrl}/unixtime`,
+    );
   }
 
-  addMobGroup(server: string, mobs: string[]): Observable<any> {
+  addMobGroup(server: string, mobs: string[]): Observable<ITimerItem[]> {
     const payload = { mobs };
-    return this.http.post(`${this.MOB_URL}/${server}/add-in-group`, payload);
+    return this.http.post<ITimerItem[]>(
+      `${this.MOB_URL}/${server}/add-in-group`,
+      payload,
+    );
   }
 
-  deleteMobGroup(server: string, mobId: string): Observable<any> {
+  deleteMobGroup(
+    server: string,
+    mobId: string,
+  ): Observable<{ message: string }> {
     const payload = {};
-    return this.http.delete(
+    return this.http.delete<{ message: string }>(
       `${this.MOB_URL}/${server}/${mobId}/remove-from-group`,
       payload,
     );
   }
 
-  getMob(mobId: string, lang?: string) {
+  getMob(mobId: string, lang?: string): Observable<{ mob: IMobCatalog }> {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.MOB_URL}/${mobId}`, {
+    return this.http.get<{ mob: IMobCatalog }>(`${this.MOB_URL}/${mobId}`, {
       params,
     });
   }
 
-  getAllBosses(server: string, lang?: string): Observable<any> {
+  getAllBosses(server: string, lang?: string): Observable<ITimerItem[]> {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.MOB_URL}/server/${server}`, {
+    return this.http.get<ITimerItem[]>(`${this.MOB_URL}/server/${server}`, {
       params,
     });
   }
 
-  getAvailableBosses(lang?: string): Observable<any> {
+  getAvailableBosses(lang?: string): Observable<IMobCatalog[]> {
     let params = new HttpParams();
 
     if (lang) params = params.set('lang', lang);
 
-    return this.http.get(`${this.MOB_URL}`, {
+    return this.http.get<IMobCatalog[]>(`${this.MOB_URL}`, {
       params,
     });
   }
 
-  crashServerBosses(server: string): Observable<any> {
+  crashServerBosses(server: string): Observable<IFullMob[]> {
     const payload = {};
-    return this.http.post(`${this.MOB_URL}/${server}/crash-server`, payload);
+    return this.http.post<IFullMob[]>(
+      `${this.MOB_URL}/${server}/crash-server`,
+      payload,
+    );
   }
 
   setByDeathTime(
-    item: TimerItem,
+    item: ITimerItem,
     dateOfDeath: number,
     comment: string,
-  ): Observable<any> {
+  ): Observable<IFullMob> {
     return this.setRespawn(
       item,
       RespawnInput.dateOfDeath,
@@ -145,10 +157,10 @@ export class TimerService {
   }
 
   setByRespawnTime(
-    item: TimerItem,
+    item: ITimerItem,
     dateOfRespawn: number,
     comment: string,
-  ): Observable<any> {
+  ): Observable<IFullMob> {
     return this.setRespawn(
       item,
       RespawnInput.dateOfRespawn,
@@ -158,10 +170,10 @@ export class TimerService {
   }
 
   setByCooldownTime(
-    item: TimerItem,
+    item: ITimerItem,
     cooldown: number,
     comment: string,
-  ): Observable<any> {
+  ): Observable<IFullMob> {
     return this.setRespawn(item, RespawnInput.cooldown, cooldown, comment);
   }
 
@@ -172,36 +184,36 @@ export class TimerService {
    * число кулдаунов с моментом времени.
    */
   private setRespawn(
-    item: TimerItem,
+    item: ITimerItem,
     by: RespawnInput,
     value: number,
     comment: string,
-  ): Observable<any> {
+  ): Observable<IFullMob> {
     let payload = {
       by,
       value,
       comment,
     };
 
-    return this.http.put(
+    return this.http.put<IFullMob>(
       `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/respawn`,
       payload,
     );
   }
 
-  respawnLost(item: TimerItem): Observable<any> {
+  respawnLost(item: ITimerItem): Observable<IFullMob> {
     let payload = {};
 
-    return this.http.put(
+    return this.http.put<IFullMob>(
       `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/respawn-lost`,
       payload,
     );
   }
 
-  addComment(item: TimerItem, comment: string): Observable<any> {
+  addComment(item: ITimerItem, comment: string): Observable<IFullMob> {
     let payload = { comment };
 
-    return this.http.put(
+    return this.http.put<IFullMob>(
       `${this.MOB_URL}/${item.mobData.server}/${item.mobData.mobId}/comment`,
       payload,
     );

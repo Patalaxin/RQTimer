@@ -2,6 +2,10 @@ import { Component, HostListener, inject, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { HistoryService } from 'src/app/services/history.service';
 import { StorageService } from 'src/app/services/storage.service';
+import {
+  IHistoryEntry,
+  IPaginatedHistory,
+} from 'src/app/interfaces/history-entry';
 
 @Component({
   selector: 'app-log',
@@ -13,8 +17,8 @@ export class LogComponent implements OnInit {
   private readonly storageService = inject(StorageService);
   private readonly translateService = inject(TranslateService);
 
-  @Input() historyList: any;
-  @Input() historyListData: any;
+  @Input() historyList: IHistoryEntry[] = [];
+  @Input() historyListData: IPaginatedHistory | null = null;
   @Input() mobId: string = '';
 
   pageSize: number = 10;
@@ -36,15 +40,15 @@ export class LogComponent implements OnInit {
     this.isScreenWidth550 = window.innerWidth <= 550;
   }
 
-  getUserColor(role: string): any {
+  getUserColor(role: string): string {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 
-  trackByHistoryItem(index: number, item: any): string {
-    return item._id ?? index;
+  trackByHistoryItem(index: number, item: IHistoryEntry): number {
+    return index;
   }
 
-  changePage($event: any, mobId: string): void {
+  changePage($event: number, mobId: string): void {
     this.isLoading = true;
     const lang = localStorage.getItem('language') || 'ru';
     if (mobId) {
@@ -57,7 +61,7 @@ export class LogComponent implements OnInit {
           lang,
         )
         .subscribe({
-          next: (res: any) => {
+          next: (res) => {
             this.page = $event;
             this.historyList = res.data;
             this.isLoading = false;
@@ -74,7 +78,7 @@ export class LogComponent implements OnInit {
           lang,
         )
         .subscribe({
-          next: (res: any) => {
+          next: (res) => {
             this.page = $event;
             this.historyList = res.data;
             this.isLoading = false;
@@ -83,7 +87,7 @@ export class LogComponent implements OnInit {
     }
   }
 
-  changePageSize($event: any, mobId: string): void {
+  changePageSize($event: number, mobId: string): void {
     this.isLoading = true;
     const lang = localStorage.getItem('language') || 'ru';
     if (mobId) {
@@ -96,7 +100,7 @@ export class LogComponent implements OnInit {
           lang,
         )
         .subscribe({
-          next: (res: any) => {
+          next: (res) => {
             this.pageSize = $event;
             this.changePage(1, mobId);
             this.historyList = res.data;
@@ -114,7 +118,7 @@ export class LogComponent implements OnInit {
           lang,
         )
         .subscribe({
-          next: (res: any) => {
+          next: (res) => {
             this.pageSize = $event;
             this.changePage(1, mobId);
             this.historyList = res.data;
@@ -124,10 +128,10 @@ export class LogComponent implements OnInit {
     }
   }
 
-  getInputMethod(item: any): string {
+  getInputMethod(item: IHistoryEntry): string {
     const methods: { [key: string]: string } = {
       updateMobByCooldown: this.translateService.instant('LOG.COOLDOWN_COUNT', {
-        count: item.toCooldown - item.fromCooldown,
+        count: item.toCooldown! - item.fromCooldown!,
       }),
       updateMobDateOfDeath: this.translateService.instant(
         'LOG.EXACT_DEATH_TIME',

@@ -7,7 +7,7 @@
         nz-input
         class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
         style="width: 91px"
-        [ngModel]="this.itemData.mob.mobType"
+        [ngModel]="this.itemData!.mob.mobType"
         disabled
       />
       <input
@@ -16,7 +16,7 @@
         nzAllowClear
         style="min-width: 150px; width: fit-content"
         class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
-        [ngModel]="this.itemData.mob.mobName"
+        [ngModel]="this.itemData!.mob.mobName"
         disabled
       />
       <nz-time-picker
@@ -32,7 +32,7 @@
       <div class="mob-modal-bottom-left">
         <nz-avatar
           [nzSize]="64"
-          [nzSrc]="IMAGE_SRC + this.itemData.mob.image"
+          [nzSrc]="IMAGE_SRC + this.itemData!.mob.image"
         ></nz-avatar>
       </div>
 
@@ -41,24 +41,24 @@
           class="mob-modal-mb-10px br-50px"
           nz-input
           [placeholder]="'MOB_MODAL.SHORT_NAME' | translate"
-          [ngModel]="this.itemData.mob.shortName"
+          [ngModel]="this.itemData!.mob.shortName"
           disabled
         />
         <textarea
           nz-input
           [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
-          [ngModel]="this.itemData.mob.respawnText"
+          [ngModel]="this.itemData!.mob.respawnText"
           class="mob-modal-mb-10px"
           disabled
           nzAutosize
           style="resize: none; border-radius: 15px"
-          *ngIf="this.itemData.mob.mobType === ('MOB_MODAL.BOSS' | translate)"
+          *ngIf="this.itemData!.mob.mobType === ('MOB_MODAL.BOSS' | translate)"
         ></textarea>
         <input
           nz-input
           class="br-50px mob-modal-mb-10px"
           style="width: 100%"
-          [ngModel]="this.itemData.mob.location"
+          [ngModel]="this.itemData!.mob.location"
           disabled
           [placeholder]="'MOB_MODAL.LOCATION' | translate"
         />

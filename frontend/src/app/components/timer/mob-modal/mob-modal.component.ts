@@ -4,6 +4,8 @@ import * as moment from 'moment-timezone';
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
 import { environment } from 'src/environments/environment';
+import { ITimerItem } from 'src/app/interfaces/timer-item';
+import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
 
 @Component({
   selector: 'app-mob-modal',
@@ -16,11 +18,11 @@ export class MobModalComponent implements OnInit {
 
   IMAGE_SRC = environment.staticUrl;
 
-  @Input() item: any;
+  @Input() item: ITimerItem | undefined;
 
   isLoading: boolean = true;
   itemCooldownTime: number | null = null;
-  itemData: any;
+  itemData: { mob: IMobCatalog } | undefined;
 
   ngOnInit(): void {
     let userTimezone = moment.tz.guess();
@@ -37,7 +39,7 @@ export class MobModalComponent implements OnInit {
 
   getMob() {
     const lang = localStorage.getItem('language') || 'ru';
-    this.timerService.getMob(this.item.mobData.mobId, lang).subscribe({
+    this.timerService.getMob(this.item!.mobData.mobId, lang).subscribe({
       next: (res) => {
         this.itemData = res;
         this.isLoading = false;

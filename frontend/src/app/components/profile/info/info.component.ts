@@ -6,9 +6,13 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./info.component.scss'],
 })
 export class InfoComponent {
-  @Input() user: any;
+  @Input() user: { nickname: string; email: string; role: string } = {
+    nickname: '',
+    email: '',
+    role: '',
+  };
 
-  getUserColor(role: string): any {
+  getUserColor(role: string): string {
     return role == 'Admin' ? 'volcano' : 'lime';
   }
 }

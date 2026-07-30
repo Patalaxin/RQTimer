@@ -18,13 +18,21 @@ export class OtpService {
     };
   }
 
-  sendOTP(email: string): Observable<any> {
+  sendOTP(email: string): Observable<{ message: string }> {
     const payload = { email };
-    return this.http.post(`${this.OTP_API}`, payload, this.httpOptions);
+    return this.http.post<{ message: string }>(
+      `${this.OTP_API}`,
+      payload,
+      this.httpOptions,
+    );
   }
 
-  verifyOTP(email: string, otp: string): Observable<any> {
+  verifyOTP(email: string, otp: string): Observable<{ message: string }> {
     const payload = { email, otp };
-    return this.http.post(`${this.OTP_API}/verify`, payload, this.httpOptions);
+    return this.http.post<{ message: string }>(
+      `${this.OTP_API}/verify`,
+      payload,
+      this.httpOptions,
+    );
   }
 }

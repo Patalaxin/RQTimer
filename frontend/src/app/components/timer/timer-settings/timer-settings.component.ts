@@ -9,11 +9,14 @@ import {
 } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzSliderValue } from 'ng-zorro-antd/slider';
 import { GroupsService } from 'src/app/services/groups.service';
 import { WebsocketService } from '../../../services/websocket.service';
 import { TranslateService } from '@ngx-translate/core';
 import { TimerService } from 'src/app/services/timer.service';
 import { environment } from 'src/environments/environment';
+import { IUser } from 'src/app/interfaces/user';
+import { IGroupMember } from 'src/app/interfaces/group';
 
 @Component({
   selector: 'app-timer-settings',
@@ -29,29 +32,29 @@ export class TimerSettingsComponent implements OnInit {
   private readonly websocketService = inject(WebsocketService);
 
   @Input() isGroupLeader: boolean = false;
-  @Input() groupName: any;
-  @Input() currentUser: any;
-  @Input() userList: any;
+  @Input() groupName: string = '';
+  @Input() currentUser: IUser | null = null;
+  @Input() userList: IGroupMember[] = [];
   @Input() groupLeaderEmail: string = '';
-  @Input() onlineUserList: any[] = [];
+  @Input() onlineUserList: string[] = [];
   @Input() canMembersAddMobs: boolean = false;
 
-  @Output() exchangeRefresh: EventEmitter<any> = new EventEmitter<any>();
-  @Output() updateGroup: EventEmitter<any> = new EventEmitter<any>();
+  @Output() exchangeRefresh: EventEmitter<void> = new EventEmitter<void>();
+  @Output() updateGroup: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   IMAGE_SRC = environment.staticUrl;
-  userGroupList: any = [];
+  userGroupList: IGroupMember[] = [];
   inviteCode: string = '';
   isGenerateLoading: boolean = false;
   isDeleteGroupLoading: boolean = false;
   isLeaveGroupLoading: boolean = false;
   isTableLoading: boolean = false;
-  listOfCurrentPageData: any[] = [];
+  listOfCurrentPageData: IGroupMember[] = [];
   pageIndex: number = 1;
   pageSize: number = 10;
   isSearchVisible: boolean = false;
   searchValue: string = '';
-  sortStatus: any = (a: any, b: any) =>
+  sortStatus = (a: IGroupMember, b: IGroupMember) =>
     Number(this.onlineUserList.includes(b.email)) -
     Number(this.onlineUserList.includes(a.email));
 
@@ -99,12 +102,12 @@ export class TimerSettingsComponent implements OnInit {
     return `${value}%`;
   }
 
-  volumeChange(event: any): any {
+  volumeChange(event: NzSliderValue): void {
     let audio: HTMLAudioElement;
     const specialNotification = JSON.parse(
       localStorage.getItem('specialNotification') || 'false',
     );
-    localStorage.setItem('volume', event);
+    localStorage.setItem('volume', String(event));
     const volume = Number(localStorage.getItem('volume') || '50') / 100;
 
     if (this.currentAudio) {
@@ -179,13 +182,15 @@ export class TimerSettingsComponent implements OnInit {
     });
   }
 
-  onCurrentPageDataChange(listOfCurrentPageData: any): void {
+  onCurrentPageDataChange(
+    listOfCurrentPageData: readonly IGroupMember[],
+  ): void {
     this.isTableLoading = true;
-    this.listOfCurrentPageData = listOfCurrentPageData;
+    this.listOfCurrentPageData = [...listOfCurrentPageData];
     this.isTableLoading = false;
   }
 
-  onPageIndexChange(pageIndex: any): void {
+  onPageIndexChange(pageIndex: number): void {
     this.pageIndex = pageIndex;
   }
 
@@ -197,15 +202,15 @@ export class TimerSettingsComponent implements OnInit {
   onSearch(): void {
     this.isSearchVisible = false;
     this.userList = this.userGroupList.filter(
-      (item: any) => item.nickname.indexOf(this.searchValue) !== -1,
+      (item) => item.nickname.indexOf(this.searchValue) !== -1,
     );
   }
 
-  trackByEmail(index: number, user: any): string {
+  trackByEmail(index: number, user: IGroupMember): string {
     return user.email;
   }
 
-  getGroupUsers(email?: any, mode?: 'transfer' | 'delete'): void {
+  getGroupUsers(email?: string, mode?: 'transfer' | 'delete'): void {
     this.userGroupList = [];
     this.groupsService.getGroup().subscribe({
       next: (res) => {
@@ -214,8 +219,8 @@ export class TimerSettingsComponent implements OnInit {
           let email: string = member.split(': ')[1];
           this.userGroupList.push({ nickname, email });
         });
-        this.userGroupList.forEach((item: any, i: any) => {
-          item.id = i++;
+        this.userGroupList.forEach((item, i) => {
+          item.id = i;
         });
 
         this.userList = [...this.userGroupList];

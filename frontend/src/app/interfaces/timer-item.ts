@@ -1,5 +1,6 @@
-export interface TimerItem {
+export interface IFullMob {
   mob: {
+    _id: string;
     mobsDataId?: {};
     mobName: string;
     cooldownTime: number;
@@ -28,5 +29,8 @@ export interface TimerItem {
     mobTypeAdditionalTime?: string;
     comment?: string;
   };
+}
+
+export interface ITimerItem extends IFullMob {
   unixtime: number;
 }

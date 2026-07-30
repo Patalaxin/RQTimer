@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import {
   AbstractControl,
@@ -10,7 +11,8 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NgxOtpInputComponentOptions } from 'ngx-otp-input';
-import { ApiErrorBody } from 'src/app/interfaces/api-error';
+import { IApiError } from 'src/app/interfaces/api-error';
+import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
 import { ConfigurationService } from 'src/app/services/configuration.service';
 import { OtpService } from 'src/app/services/otp.service';
 import { UserService } from 'src/app/services/user.service';
@@ -34,7 +36,7 @@ export class RegisterComponent implements OnInit {
 
   currentStep: number = 0;
 
-  duplicatedMobList: any = [
+  duplicatedMobList: string[] = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
     '673a9b46697139657bf024b9',
@@ -56,8 +58,8 @@ export class RegisterComponent implements OnInit {
   selectedBossesCheckbox: string[] = [];
   selectedElitesCheckbox: string[] = [];
 
-  bossesCheckboxList: any;
-  elitesCheckboxList: any;
+  bossesCheckboxList: IMobCatalog[] = [];
+  elitesCheckboxList: IMobCatalog[] = [];
 
   otpOptions: NgxOtpInputComponentOptions = {
     otpLength: 5,
@@ -69,7 +71,7 @@ export class RegisterComponent implements OnInit {
 
   otpTimer: number = 60;
   otpComplete: string = '';
-  otpInterval: any;
+  otpInterval: ReturnType<typeof setInterval> | undefined;
 
   form: FormGroup = new FormGroup(
     {
@@ -103,7 +105,7 @@ export class RegisterComponent implements OnInit {
     this.getMobs();
   }
 
-  private addCheckbox(checkboxList: any[], control: FormArray): void {
+  private addCheckbox(checkboxList: IMobCatalog[], control: FormArray): void {
     checkboxList.forEach(() => {
       control.push(new FormControl());
     });
@@ -176,9 +178,9 @@ export class RegisterComponent implements OnInit {
     this.isModalVisible = false;
   }
 
-  onChangeOTP(event: any): void {
+  onChangeOTP(event: string[]): void {
     let otpCount: number = 0;
-    event.map((item: string) => {
+    event.map((item) => {
       if (item) {
         otpCount++;
       }
@@ -190,7 +192,7 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  onCompleteOTP(event: any): void {
+  onCompleteOTP(event: string): void {
     this.otpComplete = event;
   }
 
@@ -236,13 +238,13 @@ export class RegisterComponent implements OnInit {
           );
           this.router.navigate(['/login']);
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           this.registerLoading = false;
           this.isModalLoading = false;
           // Ветвимся по коду: сравнение с текстом сообщения молча отвалилось,
           // когда на бэке поправили формулировку, и «занят email» много
           // релизов показывался как «неизвестная ошибка».
-          if ((err.error as ApiErrorBody)?.code === 'USER_ALREADY_EXISTS') {
+          if ((err.error as IApiError)?.code === 'USER_ALREADY_EXISTS') {
             return this.messageService.create(
               'error',
               this.translateService.instant(

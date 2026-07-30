@@ -32,12 +32,12 @@ export class StorageService {
     }
   }
 
-  setLocalStorage(key: string, token?: any): void {
+  setLocalStorage(key: string, token?: string): void {
     key.includes('@')
       ? window.localStorage.setItem(EMAIL, key)
       : window.localStorage.setItem(NICKNAME, key);
 
-    window.localStorage.setItem(ACCESS_TOKEN, token);
+    window.localStorage.setItem(ACCESS_TOKEN, token ?? '');
 
     if (!window.localStorage.getItem(SERVER))
       window.localStorage.setItem(SERVER, this.currentServer);
@@ -51,12 +51,12 @@ export class StorageService {
       | 'server'
       | 'timezone'
       | 'notification',
-  ): any {
+  ): string {
     const value = window.localStorage.getItem(key);
     return value ?? '';
   }
 
-  isLoggedIn(): any {
+  isLoggedIn(): boolean {
     return !!window.localStorage.getItem(ACCESS_TOKEN);
   }
 }

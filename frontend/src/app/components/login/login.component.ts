@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
 
   isVisible: boolean = false;
 
-  images: any[] = [
+  images: { name: string; src: string; link: string }[] = [
     {
       name: 'lesta',
       src: '../../../assets/img/lesta-banner.avif',

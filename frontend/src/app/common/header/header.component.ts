@@ -9,6 +9,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { jwtDecode } from 'jwt-decode';
@@ -17,7 +18,13 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalRef, NzModalService } from 'ng-zorro-antd/modal';
 import { Subject, Subscription } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
-import { TimerItem } from 'src/app/interfaces/timer-item';
+import { ITimerItem } from 'src/app/interfaces/timer-item';
+import { IUser } from 'src/app/interfaces/user';
+import { IUserOnlineStatus } from 'src/app/interfaces/websocket';
+import {
+  IHistoryEntry,
+  IPaginatedHistory,
+} from 'src/app/interfaces/history-entry';
 import { AuthService } from 'src/app/services/auth.service';
 import { BindingService } from 'src/app/services/binding.service';
 import { ConfigurationService } from 'src/app/services/configuration.service';
@@ -56,11 +63,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   currentServer: string = 'Helios';
   currentRoute: string = '';
-  timerList: TimerItem[] = [];
-  historyListData: any = [];
-  historyList: any = [];
-  tokenRefreshTimeout: any;
-  currentUser: any = [];
+  timerList: ITimerItem[] = [];
+  historyListData: IPaginatedHistory | null = null;
+  historyList: IHistoryEntry[] = [];
+  tokenRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
+  currentUser: IUser | null = null;
 
   timerSearchValue: string = '';
 
@@ -78,9 +85,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   };
 
-  serverList: any[] = [];
+  serverList: { label: string; value: string }[] = [];
 
-  duplicatedMobList: any = [
+  duplicatedMobList: string[] = [
     '673a9b38697139657bf024ad',
     '673a9b3f697139657bf024b5',
     '673a9b46697139657bf024b9',
@@ -127,7 +134,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
 
     this.isOnlineSubscription = this.websocketService.isOnline$.subscribe(
-      (res: any) => {
+      (res: IUserOnlineStatus | null) => {
         if (res) {
           if (this.storageService.getLocalStorage('email') === res.email) {
             this.isOnline = res.status;
@@ -227,7 +234,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  private sortTimerList(timerList: TimerItem[]): void {
+  private sortTimerList(timerList: ITimerItem[]): void {
     this.timerList = timerList.sort((a, b) => {
       if (!a.mobData.respawnTime) return 1;
       if (!b.mobData.respawnTime) return -1;
@@ -246,12 +253,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private exchangeRefresh(callback: Function) {
     this.tokenService.refreshToken().subscribe({
-      next: (res) => {
+      next: () => {
         if (callback && typeof callback === 'function') {
           callback();
         }
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         if (err.status === 401) {
           this.onLogout();
         }
@@ -334,7 +341,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (res) => {
         const currentExcludedMobs = this.userService.currentExcludedMobs;
         const filteredRes = res.filter(
-          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
         );
         this.sortTimerList([...filteredRes]);
 
@@ -373,7 +380,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.historyService
       .getHistory(this.currentServer, undefined, undefined, lang)
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.historyListData = res;
           this.historyList = res.data;
           this.historyService.historyList = this.historyList;
@@ -431,7 +438,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       next: (res) => {
         const currentExcludedMobs = this.userService.currentExcludedMobs;
         const filteredRes = res.filter(
-          (item: any) => !currentExcludedMobs.includes(item.mobData.mobId),
+          (item) => !currentExcludedMobs.includes(item.mobData.mobId),
         );
 
         this.sortTimerList([...filteredRes]);
@@ -514,7 +521,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         'crashMobServer',
       )
       .subscribe({
-        next: (res: any) => {
+        next: (res) => {
           let crashInfoHtml = '';
 
           if (
@@ -587,9 +594,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  timerSearch(value: any): void {
+  timerSearch(value: string): void {
     this.timerService.filteredTimerList = value
-      ? this.timerList.filter((item: any) =>
+      ? this.timerList.filter((item) =>
           item.mob.mobName.toLowerCase().includes(value.toLowerCase()),
         )
       : [...this.timerList];

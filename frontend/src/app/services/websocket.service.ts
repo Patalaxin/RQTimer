@@ -2,30 +2,34 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { IFullMob } from 'src/app/interfaces/timer-item';
+import { IUserOnlineStatus, IOnlineUser } from 'src/app/interfaces/websocket';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebsocketService {
   private socket: Socket | undefined;
-  private mobUpdateSubject$: BehaviorSubject<any> = new BehaviorSubject(null);
-  private isOnlineSubject$: BehaviorSubject<any> = new BehaviorSubject(null);
-  private onlineUserListSubject$: BehaviorSubject<any> = new BehaviorSubject(
-    null
+  private mobUpdateSubject$ = new BehaviorSubject<IFullMob | null>(null);
+  private isOnlineSubject$ = new BehaviorSubject<IUserOnlineStatus | null>(
+    null,
   );
-  private pingInterval: any;
-  private responseTimeout: any;
+  private onlineUserListSubject$ = new BehaviorSubject<
+    IOnlineUser[] | null
+  >(null);
+  private pingInterval: ReturnType<typeof setInterval> | undefined;
+  private responseTimeout: ReturnType<typeof setTimeout> | undefined;
   private currentEmail: string | undefined;
 
-  get mobUpdate$(): Observable<any> {
+  get mobUpdate$(): Observable<IFullMob | null> {
     return this.mobUpdateSubject$.asObservable();
   }
 
-  get isOnline$(): Observable<any> {
+  get isOnline$(): Observable<IUserOnlineStatus | null> {
     return this.isOnlineSubject$.asObservable();
   }
 
-  get onlineUserList$(): Observable<any> {
+  get onlineUserList$(): Observable<IOnlineUser[] | null> {
     return this.onlineUserListSubject$.asObservable();
   }
 
@@ -38,7 +42,9 @@ export class WebsocketService {
       transports: ['websocket'],
     });
 
-    this.socket.on('mobUpdate', (res) => this.mobUpdateSubject$.next(res));
+    this.socket.on('mobUpdate', (res: IFullMob) =>
+      this.mobUpdateSubject$.next(res),
+    );
     this.socket.on('connect', () => {
       this.socket?.emit('register', email);
       this.resetResponseTimeout();
@@ -48,10 +54,12 @@ export class WebsocketService {
       this.resetResponseTimeout();
       this.isOnlineSubject$.next({ email, status: 'online' });
     });
-    this.socket.on('userStatusUpdate', (res) =>
-      this.isOnlineSubject$.next(res)
+    this.socket.on('userStatusUpdate', (res: IUserOnlineStatus) =>
+      this.isOnlineSubject$.next(res),
     );
-    this.socket.on('onlineUsersList', (res) => this.onlineUserListSubject$.next(res));
+    this.socket.on('onlineUsersList', (res: IOnlineUser[]) =>
+      this.onlineUserListSubject$.next(res),
+    );
 
     this.startPingInterval();
   }
