@@ -15,6 +15,7 @@ import {
   selector: 'app-history',
   templateUrl: './history.component.html',
   styleUrls: ['./history.component.scss'],
+  standalone: false,
 })
 export class HistoryComponent implements OnInit {
   private readonly router = inject(Router);

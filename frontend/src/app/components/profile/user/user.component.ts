@@ -18,6 +18,7 @@ import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss'],
+  standalone: false,
 })
 export class UserComponent implements OnInit {
   private readonly userService = inject(UserService);

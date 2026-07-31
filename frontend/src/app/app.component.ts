@@ -25,6 +25,7 @@ import { INotification } from './interfaces/notification';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  standalone: false,
 })
 export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   private readonly router = inject(Router);
@@ -38,7 +39,7 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
   private readonly cdr = inject(ChangeDetectorRef);
 
   @ViewChild('notificationTemplate', { static: false })
-  template?: TemplateRef<{}>;
+  template?: TemplateRef<any>;
 
   title = 'rq-timer-fe';
   notifications: INotification[] = [];
@@ -102,7 +103,9 @@ export class AppComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
     this.router.events
       .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        filter(
+          (event): event is NavigationEnd => event instanceof NavigationEnd,
+        ),
       )
       .subscribe((event) => {
         this.checkRoute(event.urlAfterRedirects);

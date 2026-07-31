@@ -19,6 +19,7 @@ import { TimerService } from 'src/app/services/timer.service';
       }
     `,
   ],
+  standalone: false,
 })
 export class LanguageSwitcherComponent implements OnInit {
   private readonly timerService = inject(TimerService);

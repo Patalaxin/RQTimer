@@ -10,6 +10,7 @@ import { UserService } from 'src/app/services/user.service';
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
+  standalone: false,
 })
 export class ProfileComponent implements OnInit {
   private readonly router = inject(Router);

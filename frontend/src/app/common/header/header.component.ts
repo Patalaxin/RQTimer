@@ -42,6 +42,7 @@ import { WebsocketService } from 'src/app/services/websocket.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);

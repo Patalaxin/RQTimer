@@ -11,6 +11,7 @@ import {
   selector: 'app-log',
   templateUrl: './log.component.html',
   styleUrls: ['./log.component.scss'],
+  standalone: false,
 })
 export class LogComponent implements OnInit {
   private readonly historyService = inject(HistoryService);

@@ -5,8 +5,14 @@
 //   outline: 1px solid red;
 // }
 
-body[data-tui-theme] {
-  background: #1d273b !important;
+html[data-tui-theme] body {
+  background-color: #1d273b !important;
+}
+
+// tui-root (Taiga UI v4+) paints its own opaque background via a border-image
+// conic-gradient trick, which sits on top of and hides the fixed .background image
+tui-root {
+  border-image: none !important;
 }
 
 .ant-segmented-item-label {

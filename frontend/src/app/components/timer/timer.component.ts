@@ -52,6 +52,7 @@ interface IAvailableMob extends IMobCatalog {
   templateUrl: './timer.component.html',
   styleUrls: ['./timer.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: false,
 })
 export class TimerComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
@@ -152,7 +153,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   isVisible: boolean = false;
 
-  timerOptions: { label: string; value: string; icon: string }[] = [];
+  timerOptions: { label: string; value: number; icon: string }[] = [];
   selectedSegments: number = 0;
 
   notifications: INotification[] = [];
@@ -327,7 +328,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('notificationTemplate', { static: false })
-  template?: TemplateRef<{}>;
+  template?: TemplateRef<any>;
 
   ngOnInit(): void {
     this.language = localStorage.getItem('language') || 'ru';
@@ -437,12 +438,12 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.timerOptions = [
       {
         label: this.translateService.instant('TIMER.TIMER'),
-        value: 'Timer',
+        value: 0,
         icon: 'history',
       },
       {
         label: this.translateService.instant('TIMER.SETTINGS'),
-        value: 'Settings',
+        value: 1,
         icon: 'setting',
       },
     ];
@@ -471,42 +472,45 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private updateWorkers(): void {
-    this.timerService.getUnixtime().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
-        this.currentProgressTime = res.unixtime;
+    this.timerService
+      .getUnixtime()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.currentProgressTime = res.unixtime;
 
-        if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
-          this.isDesync = true;
-          this.desyncTime = Math.ceil(
-            Math.abs(this.currentProgressTime - Date.now()) / 1000,
-          );
-        }
+          if (Math.abs(this.currentProgressTime - Date.now()) >= 15000) {
+            this.isDesync = true;
+            this.desyncTime = Math.ceil(
+              Math.abs(this.currentProgressTime - Date.now()) / 1000,
+            );
+          }
 
-        if (typeof Worker !== 'undefined') {
-          this.worker = new Worker(
-            new URL('../../workers/timer.worker', import.meta.url),
-          );
+          if (typeof Worker !== 'undefined') {
+            this.worker = new Worker(
+              new URL('../../workers/timer.worker', import.meta.url),
+            );
 
-          this.worker.postMessage({
-            currentProgressTime: this.currentProgressTime,
-          });
-
-          this.worker.onmessage = (event) => {
-            const { updatedProgressTime } = event.data;
-            this.currentProgressTime = updatedProgressTime;
-            this.timerList.forEach((item) => {
-              item.mob.percent = this.calcPercent(item);
-              this.checkAndNotify(item, [1, 5]);
+            this.worker.postMessage({
+              currentProgressTime: this.currentProgressTime,
             });
-            this.cdr.markForCheck();
-          };
-        } else {
-          console.log('Web Workers не поддерживаются');
-        }
 
-        this.cdr.markForCheck();
-      },
-    });
+            this.worker.onmessage = (event) => {
+              const { updatedProgressTime } = event.data;
+              this.currentProgressTime = updatedProgressTime;
+              this.timerList.forEach((item) => {
+                item.mob.percent = this.calcPercent(item);
+                this.checkAndNotify(item, [1, 5]);
+              });
+              this.cdr.markForCheck();
+            };
+          } else {
+            console.log('Web Workers не поддерживаются');
+          }
+
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   private updateItem(timerList: ITimerItem[], res: IFullMob): void {
@@ -688,8 +692,9 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   onFocus(event: Event) {
     const target = event.target as HTMLElement;
-    (target.closest('.timer-radio-option')?.previousSibling as HTMLElement)
-      ?.click();
+    (
+      target.closest('.timer-radio-option')?.previousSibling as HTMLElement
+    )?.click();
   }
 
   showHistoryModal(item: ITimerItem): void {

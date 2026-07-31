@@ -6,6 +6,7 @@ import { TimerService } from 'src/app/services/timer.service';
   selector: 'app-not-found',
   templateUrl: './not-found.component.html',
   styleUrls: ['./not-found.component.scss'],
+  standalone: false,
 })
 export class NotFoundComponent {
   private readonly router = inject(Router);

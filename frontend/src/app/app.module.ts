@@ -21,8 +21,9 @@ import {
   vi_VN,
 } from 'ng-zorro-antd/i18n';
 
-import { TUI_SANITIZER } from '@taiga-ui/core';
+import { TUI_SANITIZER } from '@taiga-ui/legacy';
 import { NgDompurifySanitizer } from '@tinkoff/ng-dompurify';
+import { provideEventPlugins } from '@taiga-ui/event-plugins';
 
 import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 
@@ -62,6 +63,7 @@ export function getZorroLocale(): NzI18nInterface {
   providers: [
     { provide: NZ_I18N, useFactory: getZorroLocale },
     { provide: TUI_SANITIZER, useClass: NgDompurifySanitizer },
+    provideEventPlugins(),
   ],
   bootstrap: [AppComponent],
 })

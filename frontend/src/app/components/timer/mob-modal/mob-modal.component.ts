@@ -12,6 +12,7 @@ import { IMobCatalog } from 'src/app/interfaces/mob-catalog-entry';
   selector: 'app-mob-modal',
   templateUrl: './mob-modal.component.html',
   styleUrls: ['./mob-modal.component.scss'],
+  standalone: false,
 })
 export class MobModalComponent implements OnInit {
   private readonly timerService = inject(TimerService);

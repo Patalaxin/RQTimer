@@ -22,6 +22,7 @@ import { IGroupMember } from 'src/app/interfaces/group';
   selector: 'app-timer-settings',
   templateUrl: './timer-settings.component.html',
   styleUrls: ['./timer-settings.component.scss'],
+  standalone: false,
 })
 export class TimerSettingsComponent implements OnInit {
   private readonly groupsService = inject(GroupsService);

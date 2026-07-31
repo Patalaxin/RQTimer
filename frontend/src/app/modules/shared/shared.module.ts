@@ -40,8 +40,8 @@ import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 // Add Taiga UI Modules
-import { TuiReorderModule } from '@taiga-ui/addon-table';
-import { TuiAlertModule, TuiDialogModule, TuiRootModule } from '@taiga-ui/core';
+import { TuiReorder } from '@taiga-ui/addon-table';
+import { TuiAlert, TuiDialog, TuiRoot } from '@taiga-ui/core';
 import { NgxOtpInputComponent } from 'ngx-otp-input';
 import { TourTuiDropdownModule } from 'ngx-ui-tour-tui-dropdown';
 
@@ -84,10 +84,10 @@ const sharedModules = [
   NzNotificationModule,
   NzSliderModule,
   NzAlertModule,
-  TuiRootModule,
-  TuiDialogModule,
-  TuiAlertModule,
-  TuiReorderModule,
+  TuiRoot,
+  TuiDialog,
+  TuiAlert,
+  TuiReorder,
   TourTuiDropdownModule,
 ];
 
