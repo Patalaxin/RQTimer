@@ -15,7 +15,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzListModule } from 'ng-zorro-antd/list';
-import { NzMessageModule } from 'ng-zorro-antd/message';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
@@ -35,7 +34,6 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
-import { NzNotificationModule } from 'ng-zorro-antd/notification';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 
@@ -55,7 +53,6 @@ const sharedModules = [
   NzCheckboxModule,
   NzStepsModule,
   NzIconModule,
-  NzMessageModule,
   NzSkeletonModule,
   NzTabsModule,
   NzListModule,
@@ -81,7 +78,6 @@ const sharedModules = [
   NzAvatarModule,
   NzSegmentedModule,
   NzSwitchModule,
-  NzNotificationModule,
   NzSliderModule,
   NzAlertModule,
   TuiRoot,
