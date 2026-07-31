@@ -1,31 +1,33 @@
 <div class="timer-settings container">
   <div class="form-container">
     <h1>"{{ groupName }}"</h1>
-    <div *ngIf="isGroupLeader">
-      <h2 tourAnchor="lost">{{ "TIMER_SETTINGS.INVITE" | translate }}</h2>
-      <div class="generate-form">
-        <nz-input-group nzPrefixIcon="number" class="br-50px">
-          <input
-            class="generate-form-input"
-            nz-input
-            type="text"
-            [(ngModel)]="inviteCode"
-            (click)="onInviteCodeClick(inviteCode)"
-            readonly
-          />
-        </nz-input-group>
-        <button
-          nz-button
-          class="generate-form-button"
-          [nzType]="'primary'"
-          type="submit"
-          (click)="onGenerateInviteCode()"
-          [nzLoading]="isGenerateLoading"
-        >
-          {{ "COMMON.BUTTONS.GENERATE" | translate }}
-        </button>
+    @if (isGroupLeader) {
+      <div>
+        <h2 tourAnchor="lost">{{ "TIMER_SETTINGS.INVITE" | translate }}</h2>
+        <div class="generate-form">
+          <nz-input-group nzPrefixIcon="number" class="br-50px">
+            <input
+              class="generate-form-input"
+              nz-input
+              type="text"
+              [(ngModel)]="inviteCode"
+              (click)="onInviteCodeClick(inviteCode)"
+              readonly
+            />
+          </nz-input-group>
+          <button
+            nz-button
+            class="generate-form-button"
+            [nzType]="'primary'"
+            type="submit"
+            (click)="onGenerateInviteCode()"
+            [nzLoading]="isGenerateLoading"
+          >
+            {{ "COMMON.BUTTONS.GENERATE" | translate }}
+          </button>
+        </div>
       </div>
-    </div>
+    }
 
     <h2>
       {{ "TIMER_SETTINGS.NOTIFICATION_SETTINGS" | translate }}
@@ -39,14 +41,16 @@
           (nzOnAfterChange)="volumeChange($event)"
         ></nz-slider>
       </div>
-      <div class="voice-setting" *ngIf="language !== 'en'">
-        <h3>{{ "TIMER_SETTINGS.VOICE_SETTING" | translate }}</h3>
-        <nz-switch
-          [(ngModel)]="switchVoiceValue"
-          [nzControl]="true"
-          (click)="clickVoiceSwitch()"
-        ></nz-switch>
-      </div>
+      @if (language !== "en") {
+        <div class="voice-setting">
+          <h3>{{ "TIMER_SETTINGS.VOICE_SETTING" | translate }}</h3>
+          <nz-switch
+            [(ngModel)]="switchVoiceValue"
+            [nzControl]="true"
+            (click)="clickVoiceSwitch()"
+          ></nz-switch>
+        </div>
+      }
     </div>
 
     <h2>
@@ -57,15 +61,17 @@
         ) | translate
       }}
     </h2>
-    <div *ngIf="isGroupLeader" class="add-mobs-setting">
-      <h3>{{ "TIMER_SETTINGS.ADD_MOBS" | translate }}</h3>
-      <nz-switch
-        [(ngModel)]="switchAddMobsValue"
-        [nzControl]="true"
-        (click)="clickAddMobsSwitch()"
-        [nzLoading]="isSwitchLoading"
-      ></nz-switch>
-    </div>
+    @if (isGroupLeader) {
+      <div class="add-mobs-setting">
+        <h3>{{ "TIMER_SETTINGS.ADD_MOBS" | translate }}</h3>
+        <nz-switch
+          [(ngModel)]="switchAddMobsValue"
+          [nzControl]="true"
+          (click)="clickAddMobsSwitch()"
+          [nzLoading]="isSwitchLoading"
+        ></nz-switch>
+      </div>
+    }
     <div class="group-table">
       <nz-table
         #groupTable
@@ -111,74 +117,76 @@
               {{ "TIMER_SETTINGS.TABLE.STATUS" | translate }}
             </th>
             <th>{{ "TIMER_SETTINGS.TABLE.EMAIL" | translate }}</th>
-            <th class="admin-buttons" *ngIf="isGroupLeader">
-              {{ "TIMER_SETTINGS.TABLE.ACTIONS" | translate }}
-            </th>
+            @if (isGroupLeader) {
+              <th class="admin-buttons">
+                {{ "TIMER_SETTINGS.TABLE.ACTIONS" | translate }}
+              </th>
+            }
           </tr>
         </thead>
         <tbody>
-          <tr
-            *ngFor="
-              let user of groupTable.data;
-              let i = index;
-              trackBy: trackByEmail
-            "
-          >
-            <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
-            <td nzCustomFilter>
-              {{ user.nickname }}
-              <span
-                *ngIf="groupLeaderEmail === user.email"
-                nz-icon
-                nzType="crown"
-              ></span>
-            </td>
-            <td style="text-align: center">
-              <nz-tag nzColor="lime" *ngIf="onlineUserList.includes(user.email)"
-                >Online
-              </nz-tag>
-              <nz-tag
-                nzColor="volcano"
-                *ngIf="!onlineUserList.includes(user.email)"
-                >Offline
-              </nz-tag>
-            </td>
-            <td>{{ user.email }}</td>
-            <td class="admin-buttons" *ngIf="isGroupLeader">
-              <nz-tag
-                nzColor="gold"
-                *ngIf="currentUser?.nickname === user.nickname"
-                >Leader
-              </nz-tag>
-              <button
-                nz-button
-                nzType="primary"
-                nz-tooltip
-                [nzTooltipTitle]="
-                  'TIMER_SETTINGS.TABLE.ASSIGN_AS_LEADER' | translate
-                "
-                [nzTooltipMouseEnterDelay]="1"
-                nzShape="circle"
-                (click)="onShowTransferModal(user.nickname, user.email)"
-                *ngIf="currentUser?.nickname !== user.nickname"
-              >
-                <span nz-icon nzType="crown"></span>
-              </button>
-              <button
-                nz-button
-                nzType="primary"
-                nzDanger
-                nz-tooltip
-                [nzTooltipTitle]="'TIMER_SETTINGS.TABLE.DELETE' | translate"
-                [nzTooltipMouseEnterDelay]="1"
-                (click)="onShowDeleteModal(user.nickname, user.email)"
-                nzShape="circle"
-                *ngIf="currentUser?.nickname !== user.nickname"
-              >
-                <span nz-icon nzType="delete"></span>
-              </button>
-            </td>
-          </tr>
+          @for (
+            user of groupTable.data;
+            track trackByEmail(i, user);
+            let i = $index
+          ) {
+            <tr>
+              <td nzAlign="center">{{ i + pageSize * (pageIndex - 1) + 1 }}</td>
+              <td nzCustomFilter>
+                {{ user.nickname }}
+                @if (groupLeaderEmail === user.email) {
+                  <span nz-icon nzType="crown"></span>
+                }
+              </td>
+              <td style="text-align: center">
+                @if (onlineUserList.includes(user.email)) {
+                  <nz-tag nzColor="lime">Online </nz-tag>
+                }
+                @if (!onlineUserList.includes(user.email)) {
+                  <nz-tag nzColor="volcano">Offline </nz-tag>
+                }
+              </td>
+              <td>{{ user.email }}</td>
+              @if (isGroupLeader) {
+                <td class="admin-buttons">
+                  @if (currentUser?.nickname === user.nickname) {
+                    <nz-tag nzColor="gold">Leader </nz-tag>
+                  }
+                  @if (currentUser?.nickname !== user.nickname) {
+                    <button
+                      nz-button
+                      nzType="primary"
+                      nz-tooltip
+                      [nzTooltipTitle]="
+                        'TIMER_SETTINGS.TABLE.ASSIGN_AS_LEADER' | translate
+                      "
+                      [nzTooltipMouseEnterDelay]="1"
+                      nzShape="circle"
+                      (click)="onShowTransferModal(user.nickname, user.email)"
+                    >
+                      <span nz-icon nzType="crown"></span>
+                    </button>
+                  }
+                  @if (currentUser?.nickname !== user.nickname) {
+                    <button
+                      nz-button
+                      nzType="primary"
+                      nzDanger
+                      nz-tooltip
+                      [nzTooltipTitle]="
+                        'TIMER_SETTINGS.TABLE.DELETE' | translate
+                      "
+                      [nzTooltipMouseEnterDelay]="1"
+                      (click)="onShowDeleteModal(user.nickname, user.email)"
+                      nzShape="circle"
+                    >
+                      <span nz-icon nzType="delete"></span>
+                    </button>
+                  }
+                </td>
+              }
+            </tr>
+          }
         </tbody>
       </nz-table>
       <nz-dropdown-menu #menu="nzDropdownMenu">
@@ -210,36 +218,40 @@
       </nz-dropdown-menu>
     </div>
 
-    <div *ngIf="!isGroupLeader">
-      <h2>{{ "TIMER_SETTINGS.LEAVE_GROUP" | translate }}</h2>
-      <div class="group-leave">
-        <button
-          nz-button
-          nzType="primary"
-          nzDanger
-          type="submit"
-          (click)="onShowLeaveGroupModal()"
-          [nzLoading]="isLeaveGroupLoading"
-        >
-          {{ "COMMON.BUTTONS.LEAVE" | translate }}
-        </button>
+    @if (!isGroupLeader) {
+      <div>
+        <h2>{{ "TIMER_SETTINGS.LEAVE_GROUP" | translate }}</h2>
+        <div class="group-leave">
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            type="submit"
+            (click)="onShowLeaveGroupModal()"
+            [nzLoading]="isLeaveGroupLoading"
+          >
+            {{ "COMMON.BUTTONS.LEAVE" | translate }}
+          </button>
+        </div>
       </div>
-    </div>
+    }
 
-    <div *ngIf="isGroupLeader">
-      <h2>{{ "TIMER_SETTINGS.DELETE_GROUP" | translate }}</h2>
-      <div class="group-delete">
-        <button
-          nz-button
-          nzType="primary"
-          nzDanger
-          type="submit"
-          (click)="onShowDeleteGroupModal()"
-          [nzLoading]="isDeleteGroupLoading"
-        >
-          {{ "COMMON.BUTTONS.DELETE" | translate }}
-        </button>
+    @if (isGroupLeader) {
+      <div>
+        <h2>{{ "TIMER_SETTINGS.DELETE_GROUP" | translate }}</h2>
+        <div class="group-delete">
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            type="submit"
+            (click)="onShowDeleteGroupModal()"
+            [nzLoading]="isDeleteGroupLoading"
+          >
+            {{ "COMMON.BUTTONS.DELETE" | translate }}
+          </button>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>

@@ -1,247 +1,255 @@
-<nz-skeleton
-  [nzActive]="true"
-  *ngIf="isLoading"
-  class="container"
-></nz-skeleton>
+@if (isLoading) {
+  <nz-skeleton [nzActive]="true" class="container"></nz-skeleton>
+}
 
-<div class="user" *ngIf="!isLoading">
-  <nz-tabset>
-    <nz-tab [nzTitle]="'USER.DISPLAY_SETTINGS' | translate">
-      <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
-        <div nz-row class="update-excluded-form">
-          <nz-form-item>
-            <nz-form-control>
-              <nz-checkbox-wrapper
-                style="width: 100%"
-                (nzOnChange)="onChangeCheckbox($event, 'Босс')"
-              >
-                <div>
-                  <h4>
-                    <span
-                      nz-icon
-                      nzType="question-circle"
-                      nzTheme="outline"
-                      [nzTooltipTitle]="
-                        'USER.EXCLUDE_BOSSES_DESCRIPTION' | translate
-                      "
-                      nzTooltipPlacement="bottom"
-                      nz-tooltip
-                    ></span>
-                    {{ "USER.EXCLUDE_BOSSES_TITLE" | translate }}
-                  </h4>
-                  <div
-                    formArrayName="excludedBosses"
-                    *ngFor="
-                      let boss of excludedBosses.controls;
-                      let i = index;
-                      trackBy: trackByIndex
-                    "
-                  >
-                    <label
-                      nz-checkbox
-                      [formControlName]="i"
-                      class="boss-input"
-                      [nzValue]="bossesCheckboxList[i]._id"
-                    >
-                      {{
-                        !timerService.duplicatedMobList.includes(bossesCheckboxList[i]._id)
-                          ? bossesCheckboxList[i].mobName
-                          : bossesCheckboxList[i].mobName +
-                            ": " +
-                            bossesCheckboxList[i].location
-                      }}
-                    </label>
+@if (!isLoading) {
+  <div class="user">
+    <nz-tabs>
+      <nz-tab [nzTitle]="'USER.DISPLAY_SETTINGS' | translate">
+        <form [formGroup]="excludedForm" (ngSubmit)="onUpdateExcluded()">
+          <div nz-row class="update-excluded-form">
+            <nz-form-item>
+              <nz-form-control>
+                <div style="width: 100%">
+                  <div>
+                    <h4>
+                      <span
+                        nz-icon
+                        nzType="question-circle"
+                        nzTheme="outline"
+                        [nzTooltipTitle]="
+                          'USER.EXCLUDE_BOSSES_DESCRIPTION' | translate
+                        "
+                        nzTooltipPlacement="bottom"
+                        nz-tooltip
+                      ></span>
+                      {{ "USER.EXCLUDE_BOSSES_TITLE" | translate }}
+                    </h4>
+                    @for (
+                      boss of excludedBosses.controls;
+                      track trackByIndex(i);
+                      let i = $index
+                    ) {
+                      <div formArrayName="excludedBosses">
+                        <label
+                          nz-checkbox
+                          [formControlName]="i"
+                          class="boss-input"
+                          [nzValue]="bossesCheckboxList[i]._id"
+                        >
+                          {{
+                            !timerService.duplicatedMobList.includes(
+                              bossesCheckboxList[i]._id
+                            )
+                              ? bossesCheckboxList[i].mobName
+                              : bossesCheckboxList[i].mobName +
+                                ": " +
+                                bossesCheckboxList[i].location
+                          }}
+                        </label>
+                      </div>
+                    }
                   </div>
                 </div>
-              </nz-checkbox-wrapper>
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-control>
-              <nz-checkbox-wrapper
-                style="width: 100%"
-                (nzOnChange)="onChangeCheckbox($event, 'Элитка')"
-              >
-                <div>
-                  <h4>
-                    <span
-                      nz-icon
-                      nzType="question-circle"
-                      nzTheme="outline"
-                      [nzTooltipTitle]="
-                        'USER.EXCLUDE_ELITES_DESCRIPTION' | translate
-                      "
-                      nzTooltipPlacement="bottom"
-                      nz-tooltip
-                    ></span>
-                    {{ "USER.EXCLUDE_ELITES_TITLE" | translate }}
-                  </h4>
-                  <div
-                    formArrayName="excludedElites"
-                    *ngFor="
-                      let boss of excludedElites.controls;
-                      let i = index;
-                      trackBy: trackByIndex
-                    "
-                  >
-                    <label
-                      nz-checkbox
-                      [formControlName]="i"
-                      class="elite-input"
-                      [nzValue]="elitesCheckboxList[i]._id"
-                    >
-                      {{
-                        !timerService.duplicatedMobList.includes(elitesCheckboxList[i]._id)
-                          ? elitesCheckboxList[i].mobName
-                          : elitesCheckboxList[i].mobName +
-                            ": " +
-                            elitesCheckboxList[i].location
-                      }}
-                    </label>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-control>
+                <div style="width: 100%">
+                  <div>
+                    <h4>
+                      <span
+                        nz-icon
+                        nzType="question-circle"
+                        nzTheme="outline"
+                        [nzTooltipTitle]="
+                          'USER.EXCLUDE_ELITES_DESCRIPTION' | translate
+                        "
+                        nzTooltipPlacement="bottom"
+                        nz-tooltip
+                      ></span>
+                      {{ "USER.EXCLUDE_ELITES_TITLE" | translate }}
+                    </h4>
+                    @for (
+                      boss of excludedElites.controls;
+                      track trackByIndex(i);
+                      let i = $index
+                    ) {
+                      <div formArrayName="excludedElites">
+                        <label
+                          nz-checkbox
+                          [formControlName]="i"
+                          class="elite-input"
+                          [nzValue]="elitesCheckboxList[i]._id"
+                        >
+                          {{
+                            !timerService.duplicatedMobList.includes(
+                              elitesCheckboxList[i]._id
+                            )
+                              ? elitesCheckboxList[i].mobName
+                              : elitesCheckboxList[i].mobName +
+                                ": " +
+                                elitesCheckboxList[i].location
+                          }}
+                        </label>
+                      </div>
+                    }
                   </div>
                 </div>
-              </nz-checkbox-wrapper>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <nz-form-item>
+            <nz-form-control class="update-excluded-form-center">
+              <button nz-button nzType="primary" nzShape="round">
+                {{ "COMMON.BUTTONS.UPDATE" | translate }}
+              </button>
             </nz-form-control>
           </nz-form-item>
-        </div>
-        <nz-form-item>
-          <nz-form-control class="update-excluded-form-center">
-            <button nz-button nzType="primary" nzShape="round">
-              {{ "COMMON.BUTTONS.UPDATE" | translate }}
-            </button>
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </nz-tab>
-    <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
-      <form
-        [formGroup]="changePasswordForm"
-        class="change-password-form"
-        (ngSubmit)="onChangePassword()"
-      >
-        <nz-form-item>
-          <nz-form-control
-            [nzErrorTip]="
-              'COMMON.VALIDATIONS.OLD_PASSWORD_REQUIRED' | translate
-            "
-          >
-            <nz-input-group
-              nzPrefixIcon="lock"
-              [nzSuffix]="suffixTemplate"
-              class="br-50px"
-            >
-              <input
-                nz-input
-                [type]="passwordVisible ? 'text' : 'password'"
-                formControlName="oldPassword"
-                [placeholder]="'USER.OLD_PASSWORD' | translate"
-                name="mix"
-                minlength="6"
-                required
-              />
-            </nz-input-group>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-control [nzErrorTip]="passwordErrorTpl">
-            <nz-input-group
-              nzPrefixIcon="lock"
-              [nzSuffix]="suffixTemplate"
-              class="br-50px"
-            >
-              <input
-                nz-input
-                [type]="passwordVisible ? 'text' : 'password'"
-                formControlName="newPassword"
-                [placeholder]="'USER.NEW_PASSWORD' | translate"
-                name="mix"
-                minlength="6"
-                required
-              />
-            </nz-input-group>
-          </nz-form-control>
-          <ng-template #passwordErrorTpl let-control>
-            <div *ngIf="control.errors?.required">
-              {{ "COMMON.VALIDATIONS.NEW_PASSWORD_REQUIRED" | translate }}
-            </div>
-            <div *ngIf="!control.errors?.required && control.errors?.minlength">
-              {{
-                "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
-                  | translate: { value: 6 }
-              }}
-            </div>
-            <div *ngIf="!control.errors?.required && control.errors?.maxlength">
-              {{
-                "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
-                  | translate: { value: 64 }
-              }}
-            </div>
-            <div
-              *ngIf="!control.errors?.required && control.errors?.missingNumber"
-            >
-              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate }}
-            </div>
-            <div
-              *ngIf="
-                !control.errors?.required && control.errors?.missingUpperCase
-              "
-            >
-              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN" | translate }}
-            </div>
-            <div
-              *ngIf="
-                !control.errors?.required && control.errors?.missingLowerCase
-              "
-            >
-              {{ "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN" | translate }}
-            </div>
-          </ng-template>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-control
-            [nzErrorTip]="
-              'COMMON.VALIDATIONS.NEW_PASSWORD_MISMATCH' | translate
-            "
-          >
-            <nz-input-group
-              nzPrefixIcon="lock"
-              [nzSuffix]="suffixTemplate"
-              class="br-50px"
-            >
-              <input
-                nz-input
-                [type]="passwordVisible ? 'text' : 'password'"
-                formControlName="confirmNewPassword"
-                [placeholder]="'USER.CONFIRM_NEW_PASSWORD' | translate"
-                name="mix"
-                matching
-                required
-              />
-            </nz-input-group>
-          </nz-form-control>
-        </nz-form-item>
-        <ng-template #suffixTemplate>
-          <span
-            nz-icon
-            [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
-            (click)="passwordVisible = !passwordVisible"
-          ></span>
-        </ng-template>
-        <button
-          nz-button
-          class="change-password-form-button"
-          [nzType]="'primary'"
-          type="submit"
-          [disabled]="!changePasswordForm.valid"
-          nzShape="round"
-          [nzLoading]="passwordChangeLoading"
+        </form>
+      </nz-tab>
+      <nz-tab [nzTitle]="'USER.CHANGE_PASSWORD' | translate">
+        <form
+          [formGroup]="changePasswordForm"
+          class="change-password-form"
+          (ngSubmit)="onChangePassword()"
         >
-          {{ "COMMON.BUTTONS.CHANGE_PASSWORD" | translate }}
-        </button>
-      </form>
-    </nz-tab>
-    <nz-tab [nzTitle]="'USER.ADMIN' | translate" *ngIf="role === 'Admin'">
-      <app-admin [bossList]="bossList" [eliteList]="eliteList"></app-admin>
-    </nz-tab>
-  </nz-tabset>
-</div>
+          <nz-form-item>
+            <nz-form-control
+              [nzErrorTip]="
+                'COMMON.VALIDATIONS.OLD_PASSWORD_REQUIRED' | translate
+              "
+            >
+              <nz-input-group
+                nzPrefixIcon="lock"
+                [nzSuffix]="suffixTemplate"
+                class="br-50px"
+              >
+                <input
+                  nz-input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="oldPassword"
+                  [placeholder]="'USER.OLD_PASSWORD' | translate"
+                  name="mix"
+                  minlength="6"
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control [nzErrorTip]="passwordErrorTpl">
+              <nz-input-group
+                nzPrefixIcon="lock"
+                [nzSuffix]="suffixTemplate"
+                class="br-50px"
+              >
+                <input
+                  nz-input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="newPassword"
+                  [placeholder]="'USER.NEW_PASSWORD' | translate"
+                  name="mix"
+                  minlength="6"
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+            <ng-template #passwordErrorTpl let-control>
+              @if (control.errors?.required) {
+                <div>
+                  {{ "COMMON.VALIDATIONS.NEW_PASSWORD_REQUIRED" | translate }}
+                </div>
+              }
+              @if (!control.errors?.required && control.errors?.minlength) {
+                <div>
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
+                      | translate: { value: 6 }
+                  }}
+                </div>
+              }
+              @if (!control.errors?.required && control.errors?.maxlength) {
+                <div>
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
+                      | translate: { value: 64 }
+                  }}
+                </div>
+              }
+              @if (!control.errors?.required && control.errors?.missingNumber) {
+                <div>
+                  {{ "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate }}
+                </div>
+              }
+              @if (
+                !control.errors?.required && control.errors?.missingUpperCase
+              ) {
+                <div>
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN" | translate
+                  }}
+                </div>
+              }
+              @if (
+                !control.errors?.required && control.errors?.missingLowerCase
+              ) {
+                <div>
+                  {{
+                    "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN" | translate
+                  }}
+                </div>
+              }
+            </ng-template>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-control
+              [nzErrorTip]="
+                'COMMON.VALIDATIONS.NEW_PASSWORD_MISMATCH' | translate
+              "
+            >
+              <nz-input-group
+                nzPrefixIcon="lock"
+                [nzSuffix]="suffixTemplate"
+                class="br-50px"
+              >
+                <input
+                  nz-input
+                  [type]="passwordVisible ? 'text' : 'password'"
+                  formControlName="confirmNewPassword"
+                  [placeholder]="'USER.CONFIRM_NEW_PASSWORD' | translate"
+                  name="mix"
+                  matching
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <ng-template #suffixTemplate>
+            <span
+              nz-icon
+              [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+              (click)="passwordVisible = !passwordVisible"
+            ></span>
+          </ng-template>
+          <button
+            nz-button
+            class="change-password-form-button"
+            [nzType]="'primary'"
+            type="submit"
+            [disabled]="!changePasswordForm.valid"
+            nzShape="round"
+            [nzLoading]="passwordChangeLoading"
+          >
+            {{ "COMMON.BUTTONS.CHANGE_PASSWORD" | translate }}
+          </button>
+        </form>
+      </nz-tab>
+      @if (role === "Admin") {
+        <nz-tab [nzTitle]="'USER.ADMIN' | translate">
+          <app-admin [bossList]="bossList" [eliteList]="eliteList"></app-admin>
+        </nz-tab>
+      }
+    </nz-tabs>
+  </div>
+}

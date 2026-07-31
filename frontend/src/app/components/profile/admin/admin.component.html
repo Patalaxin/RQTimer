@@ -124,145 +124,147 @@
       </tr>
     </thead>
     <tbody>
-      <tr
-        *ngFor="
-          let user of adminTable.data;
-          let i = index;
-          trackBy: trackByEmail
-        "
-      >
-        <td nzAlign="center">{{ i + pageSize * (userList.page - 1) + 1 }}</td>
-        <td nzCustomFilter>
-          {{ user.nickname }}
-        </td>
-        <td style="text-align: center">
-          <nz-tag [nzColor]="getUserColor(user.role)">
-            {{ user.role }}
-          </nz-tag>
-        </td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.groupName }}</td>
-        <td class="admin-buttons">
-          <button
-            nz-button
-            nzType="primary"
-            nz-tooltip
-            [nzTooltipTitle]="'ADMIN.TABLE.EDIT' | translate"
-            [nzTooltipMouseEnterDelay]="1"
-            (click)="onShowUserModal(user)"
-            nzShape="circle"
-          >
-            <span nz-icon nzType="edit"></span>
-          </button>
-          <button
-            nz-button
-            nzType="primary"
-            nzDanger
-            nz-tooltip
-            [nzTooltipTitle]="'ADMIN.TABLE.DELETE' | translate"
-            [nzTooltipMouseEnterDelay]="1"
-            (click)="onShowDeleteModal(user.nickname)"
-            nzShape="circle"
-            *ngIf="currentUser?.nickname !== user.nickname"
-          >
-            <span nz-icon nzType="delete"></span>
-          </button>
-
-          <nz-modal
-            [(nzVisible)]="user.isUserModalVisible"
-            (nzOnCancel)="cancelUserModal(user)"
-            (nzOnOk)="confirmUserModal(user)"
-            [nzOkLoading]="user.isUserOkLoading"
-            [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
-          >
-            <p *nzModalContent>
-              <nz-skeleton
-                [nzActive]="true"
-                *ngIf="isUserDataLoading"
-              ></nz-skeleton>
-
-              <span>
-                <div
-                  class="admin-user-modal-content"
-                  *ngIf="!isUserDataLoading"
-                >
-                  <nz-tag [nzColor]="getUserColor(user.role)"
-                    >{{ "ADMIN.USER" | translate }} {{ user.nickname }}
-                  </nz-tag>
-                  <div
-                    class="admin-user-modal-role"
-                    *ngIf="currentUser?.nickname !== user.nickname"
-                  >
-                    <h4>
-                      <span
-                        nz-icon
-                        nzType="question-circle"
-                        nzTheme="outline"
-                        [nzTooltipTitle]="
-                          'ADMIN.UPDATE_ROLE_DESCRIPTION' | translate
-                        "
-                        nzTooltipPlacement="bottom"
-                        nz-tooltip
-                      ></span>
-                      {{ "ADMIN.UPDATE_ROLE_TITLE" | translate }}
-                    </h4>
-                    <span class="role">{{ "ADMIN.ROLE" | translate }} </span>
-                    <nz-select
-                      [ngModel]="user.role"
-                      style="width: 30%"
-                      (ngModelChange)="onRoleChange($event, user.role)"
-                    >
-                      <nz-option
-                        *ngFor="let role of roleList; trackBy: trackByRole"
-                        [nzLabel]="role"
-                        [nzValue]="role"
-                      ></nz-option>
-                    </nz-select>
-                  </div>
-                  <div class="admin-user-modal-unavailable">
-                    <h4>
-                      <span
-                        nz-icon
-                        nzType="question-circle"
-                        nzTheme="outline"
-                        [nzTooltipTitle]="
-                          'ADMIN.UNAVAILABLE_BOSSES_DESCRIPTION' | translate
-                        "
-                        nzTooltipPlacement="bottom"
-                        nz-tooltip
-                      ></span>
-                      {{ "ADMIN.UNAVAILABLE_BOSSES_TITLE" | translate }}
-                    </h4>
-                    <tui-reorder
-                      class="list"
-                      [(enabled)]="availableBossList"
-                      [(items)]="bossList"
-                    ></tui-reorder>
-                    <h4>
-                      <span
-                        nz-icon
-                        nzType="question-circle"
-                        nzTheme="outline"
-                        [nzTooltipTitle]="
-                          'ADMIN.UNAVAILABLE_ELITES_DESCRIPTION' | translate
-                        "
-                        nzTooltipPlacement="bottom"
-                        nz-tooltip
-                      ></span>
-                      {{ "ADMIN.UNAVAILABLE_ELITES_TITLE" | translate }}
-                    </h4>
-                    <tui-reorder
-                      class="list"
-                      [(enabled)]="availableEliteList"
-                      [(items)]="eliteList"
-                    ></tui-reorder>
-                  </div>
-                </div>
-              </span>
-            </p>
-          </nz-modal>
-        </td>
-      </tr>
+      @for (
+        user of adminTable.data;
+        track trackByEmail(i, user);
+        let i = $index
+      ) {
+        <tr>
+          <td nzAlign="center">{{ i + pageSize * (userList.page - 1) + 1 }}</td>
+          <td nzCustomFilter>
+            {{ user.nickname }}
+          </td>
+          <td style="text-align: center">
+            <nz-tag [nzColor]="getUserColor(user.role)">
+              {{ user.role }}
+            </nz-tag>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.groupName }}</td>
+          <td class="admin-buttons">
+            <button
+              nz-button
+              nzType="primary"
+              nz-tooltip
+              [nzTooltipTitle]="'ADMIN.TABLE.EDIT' | translate"
+              [nzTooltipMouseEnterDelay]="1"
+              (click)="onShowUserModal(user)"
+              nzShape="circle"
+            >
+              <span nz-icon nzType="edit"></span>
+            </button>
+            @if (currentUser?.nickname !== user.nickname) {
+              <button
+                nz-button
+                nzType="primary"
+                nzDanger
+                nz-tooltip
+                [nzTooltipTitle]="'ADMIN.TABLE.DELETE' | translate"
+                [nzTooltipMouseEnterDelay]="1"
+                (click)="onShowDeleteModal(user.nickname)"
+                nzShape="circle"
+              >
+                <span nz-icon nzType="delete"></span>
+              </button>
+            }
+            <nz-modal
+              [(nzVisible)]="user.isUserModalVisible"
+              (nzOnCancel)="cancelUserModal(user)"
+              (nzOnOk)="confirmUserModal(user)"
+              [nzOkLoading]="user.isUserOkLoading"
+              [nzBodyStyle]="{ maxHeight: '450px', overflow: 'auto' }"
+            >
+              <p *nzModalContent>
+                @if (isUserDataLoading) {
+                  <nz-skeleton [nzActive]="true"></nz-skeleton>
+                }
+                <span>
+                  @if (!isUserDataLoading) {
+                    <div class="admin-user-modal-content">
+                      <nz-tag [nzColor]="getUserColor(user.role)"
+                        >{{ "ADMIN.USER" | translate }} {{ user.nickname }}
+                      </nz-tag>
+                      @if (currentUser?.nickname !== user.nickname) {
+                        <div class="admin-user-modal-role">
+                          <h4>
+                            <span
+                              nz-icon
+                              nzType="question-circle"
+                              nzTheme="outline"
+                              [nzTooltipTitle]="
+                                'ADMIN.UPDATE_ROLE_DESCRIPTION' | translate
+                              "
+                              nzTooltipPlacement="bottom"
+                              nz-tooltip
+                            ></span>
+                            {{ "ADMIN.UPDATE_ROLE_TITLE" | translate }}
+                          </h4>
+                          <span class="role"
+                            >{{ "ADMIN.ROLE" | translate }}
+                          </span>
+                          <nz-select
+                            [ngModel]="user.role"
+                            style="width: 30%"
+                            (ngModelChange)="onRoleChange($event, user.role)"
+                          >
+                            @for (
+                              role of roleList;
+                              track trackByRole($index, role)
+                            ) {
+                              <nz-option
+                                [nzLabel]="role"
+                                [nzValue]="role"
+                              ></nz-option>
+                            }
+                          </nz-select>
+                        </div>
+                      }
+                      <div class="admin-user-modal-unavailable">
+                        <h4>
+                          <span
+                            nz-icon
+                            nzType="question-circle"
+                            nzTheme="outline"
+                            [nzTooltipTitle]="
+                              'ADMIN.UNAVAILABLE_BOSSES_DESCRIPTION' | translate
+                            "
+                            nzTooltipPlacement="bottom"
+                            nz-tooltip
+                          ></span>
+                          {{ "ADMIN.UNAVAILABLE_BOSSES_TITLE" | translate }}
+                        </h4>
+                        <tui-reorder
+                          class="list"
+                          [(enabled)]="availableBossList"
+                          [(items)]="bossList"
+                        ></tui-reorder>
+                        <h4>
+                          <span
+                            nz-icon
+                            nzType="question-circle"
+                            nzTheme="outline"
+                            [nzTooltipTitle]="
+                              'ADMIN.UNAVAILABLE_ELITES_DESCRIPTION' | translate
+                            "
+                            nzTooltipPlacement="bottom"
+                            nz-tooltip
+                          ></span>
+                          {{ "ADMIN.UNAVAILABLE_ELITES_TITLE" | translate }}
+                        </h4>
+                        <tui-reorder
+                          class="list"
+                          [(enabled)]="availableEliteList"
+                          [(items)]="eliteList"
+                        ></tui-reorder>
+                      </div>
+                    </div>
+                  }
+                </span>
+              </p>
+            </nz-modal>
+          </td>
+        </tr>
+      }
     </tbody>
   </nz-table>
 

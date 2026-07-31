@@ -124,6 +124,27 @@ export class RegisterComponent implements OnInit {
         this.elitesCheckboxList = res.elitesArray;
         this.addCheckbox(this.bossesCheckboxList, this.excludedBosses);
         this.addCheckbox(this.elitesCheckboxList, this.excludedElites);
+
+        this.excludedBosses.valueChanges.subscribe((checked: boolean[]) => {
+          this.onChangeCheckbox(
+            checked
+              .map((isChecked, i) =>
+                isChecked ? this.bossesCheckboxList[i]._id : null,
+              )
+              .filter((id): id is string => id !== null),
+            'Босс',
+          );
+        });
+        this.excludedElites.valueChanges.subscribe((checked: boolean[]) => {
+          this.onChangeCheckbox(
+            checked
+              .map((isChecked, i) =>
+                isChecked ? this.elitesCheckboxList[i]._id : null,
+              )
+              .filter((id): id is string => id !== null),
+            'Элитка',
+          );
+        });
       },
     });
   }

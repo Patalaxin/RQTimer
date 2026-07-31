@@ -69,7 +69,7 @@ export class TimerSettingsComponent implements OnInit {
   volume: string = localStorage.getItem('volume') || '50';
   language: string = 'ru';
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize(): void {
     this.checkScreenWidth();
   }

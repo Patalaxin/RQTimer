@@ -145,6 +145,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   allAddChecked: boolean = false;
   indeterminate: boolean = false;
+  checkedMobIds: string[] = [];
 
   addSearchValue: string = '';
 
@@ -301,7 +302,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     },
   ];
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize(): void {
     this.checkScreenWidth();
   }

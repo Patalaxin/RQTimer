@@ -24,363 +24,371 @@
         (ngSubmit)="onVerifyOTP()"
         autocomplete="off"
       >
-        <div class="steps-content" *ngIf="currentStep === 0">
-          <div class="register-form-info">
-            <nz-form-item>
-              <nz-form-control [nzErrorTip]="nicknameErrorTpl">
-                <nz-input-group nzPrefixIcon="user" class="br-50px">
-                  <input
-                    nz-input
-                    formControlName="nickname"
-                    [placeholder]="'REGISTER.NICKNAME' | translate"
-                    name="mix"
-                    minlength="4"
-                    required
-                    appCapitalize
-                    autocomplete="off"
-                    readonly
-                    onfocus="this.removeAttribute('readonly')"
-                  />
-                </nz-input-group>
-              </nz-form-control>
-              <ng-template #nicknameErrorTpl let-control>
-                <div *ngIf="control.errors?.required">
-                  {{ "COMMON.VALIDATIONS.NICKNAME_REQUIRED" | translate }}
-                </div>
-                <div
-                  *ngIf="!control.errors?.required && control.errors?.minlength"
-                >
-                  {{
-                    "COMMON.VALIDATIONS.NICKNAME_MIN_LENGTH"
-                      | translate: { value: 4 }
-                  }}
-                </div>
-                <div
-                  *ngIf="!control.errors?.required && control.errors?.maxlength"
-                >
-                  {{
-                    "COMMON.VALIDATIONS.NICKNAME_MAX_LENGTH"
-                      | translate: { value: 16 }
-                  }}
-                </div>
-                <div
-                  *ngIf="
+        @if (currentStep === 0) {
+          <div class="steps-content">
+            <div class="register-form-info">
+              <nz-form-item>
+                <nz-form-control [nzErrorTip]="nicknameErrorTpl">
+                  <nz-input-group nzPrefixIcon="user" class="br-50px">
+                    <input
+                      nz-input
+                      formControlName="nickname"
+                      [placeholder]="'REGISTER.NICKNAME' | translate"
+                      name="mix"
+                      minlength="4"
+                      required
+                      appCapitalize
+                      autocomplete="off"
+                      readonly
+                      onfocus="this.removeAttribute('readonly')"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+                <ng-template #nicknameErrorTpl let-control>
+                  @if (control.errors?.required) {
+                    <div>
+                      {{ "COMMON.VALIDATIONS.NICKNAME_REQUIRED" | translate }}
+                    </div>
+                  }
+                  @if (!control.errors?.required && control.errors?.minlength) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.NICKNAME_MIN_LENGTH"
+                          | translate: { value: 4 }
+                      }}
+                    </div>
+                  }
+                  @if (!control.errors?.required && control.errors?.maxlength) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.NICKNAME_MAX_LENGTH"
+                          | translate: { value: 16 }
+                      }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required &&
                     control.errors?.tooManyUppercase
-                  "
-                >
-                  {{ "COMMON.VALIDATIONS.NICKNAME_MAX_UPPER" | translate }}
-                </div>
-                <div
-                  *ngIf="
+                  ) {
+                    <div>
+                      {{ "COMMON.VALIDATIONS.NICKNAME_MAX_UPPER" | translate }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required && control.errors?.containsSpaces
-                  "
-                >
-                  {{ "COMMON.VALIDATIONS.NICKNAME_NO_SPACES" | translate }}
-                </div>
-                <div
-                  *ngIf="
+                  ) {
+                    <div>
+                      {{ "COMMON.VALIDATIONS.NICKNAME_NO_SPACES" | translate }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required &&
                     control.errors?.containsSpecialCharacters
-                  "
-                >
-                  {{
-                    "COMMON.VALIDATIONS.NICKNAME_NO_SPECIAL_CHARS" | translate
-                  }}
-                </div>
-                <!-- <div
+                  ) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.NICKNAME_NO_SPECIAL_CHARS"
+                          | translate
+                      }}
+                    </div>
+                  }
+                  <!-- <div
                   *ngIf="
                     !control.errors?.required &&
                     control.errors?.invalidHyphenPosition
                   "
-                >
+                  >
                   {{
-                    "COMMON.VALIDATIONS.NICKNAME_NO_HYPHEN_START_END"
-                      | translate
+                  "COMMON.VALIDATIONS.NICKNAME_NO_HYPHEN_START_END"
+                  | translate
                   }}
                 </div> -->
-                <!-- <div
+                  <!-- <div
                   *ngIf="
                     !control.errors?.required && control.errors?.tooManyHyphens
                   "
                 >
-                  {{ "COMMON.VALIDATIONS.NICKNAME_MAX_ONE_HYPHEN" | translate }}
-                </div> -->
-                <div
-                  *ngIf="
+                {{ "COMMON.VALIDATIONS.NICKNAME_MAX_ONE_HYPHEN" | translate }}
+              </div> -->
+                  @if (
                     !control.errors?.required && control.errors?.containsNumbers
-                  "
-                >
-                  {{ "COMMON.VALIDATIONS.NICKNAME_NO_NUMBERS" | translate }}
-                </div>
-                <div
-                  *ngIf="
+                  ) {
+                    <div>
+                      {{ "COMMON.VALIDATIONS.NICKNAME_NO_NUMBERS" | translate }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required &&
                     control.errors?.mixedCyrillicAndLatin
-                  "
+                  ) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.NICKNAME_NO_MIXED_SCRIPTS"
+                          | translate
+                      }}
+                    </div>
+                  }
+                </ng-template>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control
+                  [nzErrorTip]="'COMMON.VALIDATIONS.EMAIL_REQUIRED' | translate"
                 >
-                  {{
-                    "COMMON.VALIDATIONS.NICKNAME_NO_MIXED_SCRIPTS" | translate
-                  }}
-                </div>
-              </ng-template>
-            </nz-form-item>
-            <nz-form-item>
-              <nz-form-control
-                [nzErrorTip]="'COMMON.VALIDATIONS.EMAIL_REQUIRED' | translate"
-              >
-                <nz-input-group nzPrefixIcon="mail" class="br-50px">
-                  <input
-                    nz-input
-                    formControlName="email"
-                    [placeholder]="'REGISTER.EMAIL' | translate"
-                    name="mix"
-                    email
-                    required
-                    autocomplete="off"
-                    readonly
-                    onfocus="this.removeAttribute('readonly')"
-                  />
-                </nz-input-group>
-              </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-              <nz-form-control [nzErrorTip]="passwordErrorTpl">
-                <nz-input-group
-                  nzPrefixIcon="lock"
-                  [nzSuffix]="suffixTemplate"
-                  class="br-50px"
-                >
-                  <input
-                    nz-input
-                    [type]="passwordVisible ? 'text' : 'password'"
-                    formControlName="password"
-                    [placeholder]="'REGISTER.PASSWORD' | translate"
-                    name="mix"
-                    minlength="6"
-                    required
-                    autocomplete="off"
-                    readonly
-                    onfocus="this.removeAttribute('readonly')"
-                  />
-                </nz-input-group>
-              </nz-form-control>
-              <ng-template #passwordErrorTpl let-control>
-                <div *ngIf="control.errors?.required">
-                  {{ "COMMON.VALIDATIONS.PASSWORD_REQUIRED" | translate }}
-                </div>
-                <div
-                  *ngIf="!control.errors?.required && control.errors?.minlength"
-                >
-                  {{
-                    "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
-                      | translate: { value: 6 }
-                  }}
-                </div>
-                <div
-                  *ngIf="!control.errors?.required && control.errors?.maxlength"
-                >
-                  {{
-                    "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
-                      | translate: { value: 64 }
-                  }}
-                </div>
-                <div
-                  *ngIf="
+                  <nz-input-group nzPrefixIcon="mail" class="br-50px">
+                    <input
+                      nz-input
+                      formControlName="email"
+                      [placeholder]="'REGISTER.EMAIL' | translate"
+                      name="mix"
+                      email
+                      required
+                      autocomplete="off"
+                      readonly
+                      onfocus="this.removeAttribute('readonly')"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control [nzErrorTip]="passwordErrorTpl">
+                  <nz-input-group
+                    nzPrefixIcon="lock"
+                    [nzSuffix]="suffixTemplate"
+                    class="br-50px"
+                  >
+                    <input
+                      nz-input
+                      [type]="passwordVisible ? 'text' : 'password'"
+                      formControlName="password"
+                      [placeholder]="'REGISTER.PASSWORD' | translate"
+                      name="mix"
+                      minlength="6"
+                      required
+                      autocomplete="off"
+                      readonly
+                      onfocus="this.removeAttribute('readonly')"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+                <ng-template #passwordErrorTpl let-control>
+                  @if (control.errors?.required) {
+                    <div>
+                      {{ "COMMON.VALIDATIONS.PASSWORD_REQUIRED" | translate }}
+                    </div>
+                  }
+                  @if (!control.errors?.required && control.errors?.minlength) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.PASSWORD_MIN_LENGTH"
+                          | translate: { value: 6 }
+                      }}
+                    </div>
+                  }
+                  @if (!control.errors?.required && control.errors?.maxlength) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.PASSWORD_MAX_LENGTH"
+                          | translate: { value: 64 }
+                      }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required && control.errors?.missingNumber
-                  "
-                >
-                  {{ "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate }}
-                </div>
-                <div
-                  *ngIf="
+                  ) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.PASSWORD_MISS_NUMBER" | translate
+                      }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required &&
                     control.errors?.missingUpperCase
-                  "
-                >
-                  {{
-                    "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN" | translate
-                  }}
-                </div>
-                <div
-                  *ngIf="
+                  ) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.PASSWORD_MISS_UPPER_LATIN"
+                          | translate
+                      }}
+                    </div>
+                  }
+                  @if (
                     !control.errors?.required &&
                     control.errors?.missingLowerCase
+                  ) {
+                    <div>
+                      {{
+                        "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN"
+                          | translate
+                      }}
+                    </div>
+                  }
+                </ng-template>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control
+                  [nzErrorTip]="
+                    'COMMON.VALIDATIONS.PASSWORD_MISMATCH' | translate
                   "
                 >
-                  {{
-                    "COMMON.VALIDATIONS.PASSWORD_MISS_LOWER_LATIN" | translate
-                  }}
-                </div>
+                  <nz-input-group
+                    nzPrefixIcon="lock"
+                    [nzSuffix]="suffixTemplate"
+                    class="br-50px"
+                  >
+                    <input
+                      nz-input
+                      [type]="passwordVisible ? 'text' : 'password'"
+                      formControlName="confirmPassword"
+                      [placeholder]="'REGISTER.CONFIRM_PASSWORD' | translate"
+                      name="mix"
+                      matching
+                      required
+                      autocomplete="off"
+                      readonly
+                      onfocus="this.removeAttribute('readonly')"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+              <ng-template #suffixTemplate>
+                <span
+                  nz-icon
+                  [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
+                  (click)="passwordVisible = !passwordVisible"
+                ></span>
               </ng-template>
-            </nz-form-item>
-            <nz-form-item>
-              <nz-form-control
-                [nzErrorTip]="
-                  'COMMON.VALIDATIONS.PASSWORD_MISMATCH' | translate
-                "
-              >
-                <nz-input-group
-                  nzPrefixIcon="lock"
-                  [nzSuffix]="suffixTemplate"
-                  class="br-50px"
-                >
-                  <input
-                    nz-input
-                    [type]="passwordVisible ? 'text' : 'password'"
-                    formControlName="confirmPassword"
-                    [placeholder]="'REGISTER.CONFIRM_PASSWORD' | translate"
-                    name="mix"
-                    matching
-                    required
-                    autocomplete="off"
-                    readonly
-                    onfocus="this.removeAttribute('readonly')"
-                  />
-                </nz-input-group>
-              </nz-form-control>
-            </nz-form-item>
-            <ng-template #suffixTemplate>
-              <span
-                nz-icon
-                [nzType]="passwordVisible ? 'eye-invisible' : 'eye'"
-                (click)="passwordVisible = !passwordVisible"
-              ></span>
-            </ng-template>
-            <div class="register-form-center">
-              <a [routerLink]="['/login']">{{
-                "REGISTER.HAVE_ACCOUNT" | translate
-              }}</a>
+              <div class="register-form-center">
+                <a [routerLink]="['/login']">{{
+                  "REGISTER.HAVE_ACCOUNT" | translate
+                }}</a>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="steps-content" *ngIf="currentStep === 1">
-          <div nz-row class="register-form-excluded">
-            <nz-form-item>
-              <nz-form-control>
-                <nz-checkbox-wrapper
-                  style="width: 100%"
-                  (nzOnChange)="onChangeCheckbox($event, 'Босс')"
-                >
-                  <div>
-                    <h4>
-                      <span
-                        nz-icon
-                        nzType="question-circle"
-                        nzTheme="outline"
-                        [nzTooltipTitle]="
-                          'REGISTER.EXCLUDE_BOSSES_DESCRIPTION' | translate
-                        "
-                        nzTooltipPlacement="bottom"
-                        nz-tooltip
-                      ></span>
-                      {{ "REGISTER.EXCLUDE_BOSSES_TITLE" | translate }}
-                    </h4>
-                    <div
-                      formArrayName="excludedBosses"
-                      *ngFor="
-                        let boss of excludedBosses.controls;
-                        let i = index;
-                        trackBy: trackByIndex
-                      "
-                    >
-                      <label
-                        nz-checkbox
-                        [formControlName]="i"
-                        [nzValue]="bossesCheckboxList[i]._id"
-                      >
-                        <span class="mob-name">{{
-                          !timerService.duplicatedMobList.includes(bossesCheckboxList[i]._id)
-                            ? bossesCheckboxList[i].mobName
-                            : bossesCheckboxList[i].mobName +
-                              ": " +
-                              bossesCheckboxList[i].location
-                        }}</span>
-                      </label>
+        }
+        @if (currentStep === 1) {
+          <div class="steps-content">
+            <div nz-row class="register-form-excluded">
+              <nz-form-item>
+                <nz-form-control>
+                  <div style="width: 100%">
+                    <div>
+                      <h4>
+                        <span
+                          nz-icon
+                          nzType="question-circle"
+                          nzTheme="outline"
+                          [nzTooltipTitle]="
+                            'REGISTER.EXCLUDE_BOSSES_DESCRIPTION' | translate
+                          "
+                          nzTooltipPlacement="bottom"
+                          nz-tooltip
+                        ></span>
+                        {{ "REGISTER.EXCLUDE_BOSSES_TITLE" | translate }}
+                      </h4>
+                      @for (
+                        boss of excludedBosses.controls;
+                        track trackByIndex(i);
+                        let i = $index
+                      ) {
+                        <div formArrayName="excludedBosses">
+                          <label
+                            nz-checkbox
+                            [formControlName]="i"
+                            [nzValue]="bossesCheckboxList[i]._id"
+                          >
+                            <span class="mob-name">{{
+                              !timerService.duplicatedMobList.includes(
+                                bossesCheckboxList[i]._id
+                              )
+                                ? bossesCheckboxList[i].mobName
+                                : bossesCheckboxList[i].mobName +
+                                  ": " +
+                                  bossesCheckboxList[i].location
+                            }}</span>
+                          </label>
+                        </div>
+                      }
                     </div>
                   </div>
-                </nz-checkbox-wrapper>
-              </nz-form-control>
-            </nz-form-item>
-            <nz-form-item>
-              <nz-form-control>
-                <nz-checkbox-wrapper
-                  style="width: 100%"
-                  (nzOnChange)="onChangeCheckbox($event, 'Элитка')"
-                >
-                  <div>
-                    <h4>
-                      <span
-                        nz-icon
-                        nzType="question-circle"
-                        nzTheme="outline"
-                        [nzTooltipTitle]="
-                          'REGISTER.EXCLUDE_ELITES_DESCRIPTION' | translate
-                        "
-                        nzTooltipPlacement="bottom"
-                        nz-tooltip
-                      ></span>
-                      {{ "REGISTER.EXCLUDE_ELITES_TITLE" | translate }}
-                    </h4>
-                    <div
-                      formArrayName="excludedElites"
-                      *ngFor="
-                        let boss of excludedElites.controls;
-                        let i = index;
-                        trackBy: trackByIndex
-                      "
-                    >
-                      <label
-                        nz-checkbox
-                        [formControlName]="i"
-                        [nzValue]="elitesCheckboxList[i]._id"
-                      >
-                        <span class="mob-name">{{
-                          !timerService.duplicatedMobList.includes(elitesCheckboxList[i]._id)
-                            ? elitesCheckboxList[i].mobName
-                            : elitesCheckboxList[i].mobName +
-                              ": " +
-                              elitesCheckboxList[i].location
-                        }}</span>
-                      </label>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-control>
+                  <div style="width: 100%">
+                    <div>
+                      <h4>
+                        <span
+                          nz-icon
+                          nzType="question-circle"
+                          nzTheme="outline"
+                          [nzTooltipTitle]="
+                            'REGISTER.EXCLUDE_ELITES_DESCRIPTION' | translate
+                          "
+                          nzTooltipPlacement="bottom"
+                          nz-tooltip
+                        ></span>
+                        {{ "REGISTER.EXCLUDE_ELITES_TITLE" | translate }}
+                      </h4>
+                      @for (
+                        boss of excludedElites.controls;
+                        track trackByIndex(i);
+                        let i = $index
+                      ) {
+                        <div formArrayName="excludedElites">
+                          <label
+                            nz-checkbox
+                            [formControlName]="i"
+                            [nzValue]="elitesCheckboxList[i]._id"
+                          >
+                            <span class="mob-name">{{
+                              !timerService.duplicatedMobList.includes(
+                                elitesCheckboxList[i]._id
+                              )
+                                ? elitesCheckboxList[i].mobName
+                                : elitesCheckboxList[i].mobName +
+                                  ": " +
+                                  elitesCheckboxList[i].location
+                            }}</span>
+                          </label>
+                        </div>
+                      }
                     </div>
                   </div>
-                </nz-checkbox-wrapper>
-              </nz-form-control>
-            </nz-form-item>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
           </div>
-        </div>
+        }
       </form>
       <div class="steps-action">
-        <button
-          nz-button
-          nzType="default"
-          (click)="prev()"
-          *ngIf="currentStep > 0"
-          nzShape="round"
-        >
-          <span>{{ "COMMON.BUTTONS.BACK" | translate }}</span>
-        </button>
-        <button
-          nz-button
-          nzType="default"
-          (click)="next()"
-          *ngIf="currentStep < 1"
-          [disabled]="form.invalid"
-          nzShape="round"
-        >
-          <span>{{ "COMMON.BUTTONS.NEXT" | translate }}</span>
-        </button>
-        <button
-          nz-button
-          nzType="primary"
-          (click)="done()"
-          *ngIf="currentStep === 1"
-          nzShape="round"
-          [nzLoading]="registerLoading"
-        >
-          <span>{{ "COMMON.BUTTONS.VERIFY_EMAIL" | translate }}</span>
-        </button>
+        @if (currentStep > 0) {
+          <button nz-button nzType="default" (click)="prev()" nzShape="round">
+            <span>{{ "COMMON.BUTTONS.BACK" | translate }}</span>
+          </button>
+        }
+        @if (currentStep < 1) {
+          <button
+            nz-button
+            nzType="default"
+            (click)="next()"
+            [disabled]="form.invalid"
+            nzShape="round"
+          >
+            <span>{{ "COMMON.BUTTONS.NEXT" | translate }}</span>
+          </button>
+        }
+        @if (currentStep === 1) {
+          <button
+            nz-button
+            nzType="primary"
+            (click)="done()"
+            nzShape="round"
+            [nzLoading]="registerLoading"
+          >
+            <span>{{ "COMMON.BUTTONS.VERIFY_EMAIL" | translate }}</span>
+          </button>
+        }
         <nz-modal
           [(nzVisible)]="isModalVisible"
           [nzFooter]="otpFooter"
@@ -397,16 +405,20 @@
               (otpChange)="onChangeOTP($event)"
               class="otp-modal-input"
             ></ngx-otp-input>
-            <span class="otp-modal-timer" *ngIf="otpTimer">{{
-              "REGISTER.MODAL.OTP_TIMER" | translate: { seconds: otpTimer }
-            }}</span>
+            @if (otpTimer) {
+              <span class="otp-modal-timer">{{
+                "REGISTER.MODAL.OTP_TIMER" | translate: { seconds: otpTimer }
+              }}</span>
+            }
 
-            <span class="otp-modal-timer" *ngIf="!otpTimer"
-              >{{ "REGISTER.MODAL.OTP_INVALID" | translate }}
-              <button (click)="onSendOTP()" class="new-otp">
-                {{ "COMMON.BUTTONS.GET_NEW_OTP" | translate }}
-              </button></span
-            >
+            @if (!otpTimer) {
+              <span class="otp-modal-timer"
+                >{{ "REGISTER.MODAL.OTP_INVALID" | translate }}
+                <button (click)="onSendOTP()" class="new-otp">
+                  {{ "COMMON.BUTTONS.GET_NEW_OTP" | translate }}
+                </button></span
+              >
+            }
           </p>
 
           <ng-template #otpFooter>

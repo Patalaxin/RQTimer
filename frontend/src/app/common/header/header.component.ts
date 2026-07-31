@@ -93,7 +93,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isScreenWidth700: boolean = false;
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize(): void {
     this.checkScreenWidth();
   }

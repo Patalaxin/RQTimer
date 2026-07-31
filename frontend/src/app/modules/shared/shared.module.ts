@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Import NgZorro modules
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
-import { NzBackTopModule } from 'ng-zorro-antd/back-top';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
@@ -31,17 +30,18 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzFloatButtonModule } from 'ng-zorro-antd/float-button';
 
 // Add Taiga UI Modules
 import { TuiReorder } from '@taiga-ui/addon-table';
-import { TuiAlert, TuiDialog, TuiRoot } from '@taiga-ui/core';
+import { TuiDialog, TuiNotification, TuiRoot } from '@taiga-ui/core';
 import { NgxOtpInputComponent } from 'ngx-otp-input';
-import { TourTuiDropdownModule } from 'ngx-ui-tour-tui-dropdown';
+import { TourTuiDropdown } from 'ngx-ui-tour-tui-dropdown';
 
 const sharedModules = [
   NgxOtpInputComponent,
@@ -62,7 +62,7 @@ const sharedModules = [
   NzBadgeModule,
   NzModalModule,
   NzPageHeaderModule,
-  NzToolTipModule,
+  NzTooltipModule,
   NzTimePickerModule,
   NzDatePickerModule,
   NzPopoverModule,
@@ -73,7 +73,7 @@ const sharedModules = [
   NzSpaceModule,
   NzInputNumberModule,
   NzPaginationModule,
-  NzBackTopModule,
+  NzFloatButtonModule,
   NzTableModule,
   NzAvatarModule,
   NzSegmentedModule,
@@ -82,9 +82,9 @@ const sharedModules = [
   NzAlertModule,
   TuiRoot,
   TuiDialog,
-  TuiAlert,
+  ...TuiNotification,
   TuiReorder,
-  TourTuiDropdownModule,
+  ...TourTuiDropdown,
 ];
 
 @NgModule({

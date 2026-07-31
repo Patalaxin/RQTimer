@@ -69,7 +69,7 @@ export class AdminComponent implements OnInit {
   russianText: string = '';
   englishText: string = '';
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize')
   onResize(): void {
     this.checkScreenWidth();
   }

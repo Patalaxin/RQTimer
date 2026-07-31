@@ -5,7 +5,7 @@
 //   outline: 1px solid red;
 // }
 
-html[data-tui-theme] body {
+body[tuitheme] {
   background-color: #1d273b !important;
 }
 
@@ -29,8 +29,10 @@ tui-root {
 
 .ant-segmented-item-selected,
 nz-segmented .ng-animating,
+.ant-segmented-thumb,
 .ant-slider-track {
   background-color: #1890ff;
+  border-radius: 50px;
 }
 
 .ant-slider-handle {
@@ -279,6 +281,9 @@ nz-segmented .ng-animating {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  // Taiga UI v5 sets tui-root's own text color to white for the dark app theme;
+  // this light card needs its own dark text, same as <form> already gets from ng-zorro's reset
+  color: rgba(0, 0, 0, 0.85);
 }
 
 .cdk-global-scrollblock {

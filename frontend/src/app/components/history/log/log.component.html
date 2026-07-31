@@ -14,56 +14,63 @@
 </ng-template>
 
 <div class="log container">
-  <nz-skeleton [nzActive]="true" *ngIf="isLoading"></nz-skeleton>
+  @if (isLoading) {
+    <nz-skeleton [nzActive]="true"></nz-skeleton>
+  }
 
-  <nz-timeline *ngIf="!isLoading">
-    <nz-timeline-item
-      [nzColor]="$any(getUserColor(item.role))"
-      *ngFor="let item of historyList; trackBy: trackByHistoryItem"
-    >
-      <p>
-        <nz-tag nzColor="gold"
-          ><b>{{ item.date | date: "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
-        >{{ "LOG.USER" | translate }}
-        <nz-tag [nzColor]="getUserColor(item.role)"
-          >{{ item.nickname }}
-        </nz-tag>
-        {{ "LOG.UPDATED" | translate }}
-        <nz-tag
-          nzColor="blue"
-          *ngIf="!(item.historyTypes == 'crashMobServer')"
-          >{{ item.mobName }}</nz-tag
-        >
-        <nz-tag nzColor="cyan">{{ getInputMethod(item) }}</nz-tag>
-      </p>
-      <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
-        {{ "LOG.INITIAL_COOLDOWN" | translate }}
-        <nz-tag nzColor="gold">{{ item.fromCooldown }} </nz-tag>
-      </p>
-      <p *ngIf="item.historyTypes == 'updateMobByCooldown'">
-        {{ "LOG.UPDATED_COOLDOWN" | translate }}
-        <nz-tag nzColor="gold">{{ item.toCooldown }} </nz-tag>
-      </p>
-      <p
-        *ngIf="
-          !(item.historyTypes == 'crashMobServer') &&
-          !(item.historyTypes == 'respawnLost')
-        "
-      >
-        {{ "LOG.RESPAWN_TIME" | translate }}
-        <nz-tag nzColor="gold"
-          >{{ item.toWillResurrect | date: "HH:mm:ss" }}
-        </nz-tag>
-      </p>
-      <!-- <p>
-        Время возрождение:
-        <nz-tag nzColor="gold"
-          >{{ item.toWillResurrect | date : "HH:mm:ss" }}
-        </nz-tag>
-      </p> -->
-    </nz-timeline-item>
-  </nz-timeline>
-  <nz-list-empty *ngIf="historyList.length === 0"></nz-list-empty>
+  @if (!isLoading) {
+    <nz-timeline>
+      @for (item of historyList; track trackByHistoryItem($index, item)) {
+        <nz-timeline-item [nzColor]="$any(getUserColor(item.role))">
+          <p>
+            <nz-tag nzColor="gold"
+              ><b>{{ item.date | date: "dd/MM/yyyy - HH:mm:ss" }}</b> </nz-tag
+            >{{ "LOG.USER" | translate }}
+            <nz-tag [nzColor]="getUserColor(item.role)"
+              >{{ item.nickname }}
+            </nz-tag>
+            {{ "LOG.UPDATED" | translate }}
+            @if (!(item.historyTypes == "crashMobServer")) {
+              <nz-tag nzColor="blue">{{ item.mobName }}</nz-tag>
+            }
+            <nz-tag nzColor="cyan">{{ getInputMethod(item) }}</nz-tag>
+          </p>
+          @if (item.historyTypes == "updateMobByCooldown") {
+            <p>
+              {{ "LOG.INITIAL_COOLDOWN" | translate }}
+              <nz-tag nzColor="gold">{{ item.fromCooldown }} </nz-tag>
+            </p>
+          }
+          @if (item.historyTypes == "updateMobByCooldown") {
+            <p>
+              {{ "LOG.UPDATED_COOLDOWN" | translate }}
+              <nz-tag nzColor="gold">{{ item.toCooldown }} </nz-tag>
+            </p>
+          }
+          @if (
+            !(item.historyTypes == "crashMobServer") &&
+            !(item.historyTypes == "respawnLost")
+          ) {
+            <p>
+              {{ "LOG.RESPAWN_TIME" | translate }}
+              <nz-tag nzColor="gold"
+                >{{ item.toWillResurrect | date: "HH:mm:ss" }}
+              </nz-tag>
+            </p>
+          }
+          <!-- <p>
+              Время возрождение:
+              <nz-tag nzColor="gold"
+                >{{ item.toWillResurrect | date : "HH:mm:ss" }}
+              </nz-tag>
+            </p> -->
+        </nz-timeline-item>
+      }
+    </nz-timeline>
+  }
+  @if (historyList.length === 0) {
+    <nz-list-empty></nz-list-empty>
+  }
 </div>
 
 <!-- <nz-pagination
@@ -76,4 +83,4 @@
   (nzPageSizeChange)="changePageSize($event)"
 ></nz-pagination> -->
 
-<nz-back-top [nzVisibilityHeight]="300"></nz-back-top>
+<nz-float-button-top [nzVisibilityHeight]="300"></nz-float-button-top>

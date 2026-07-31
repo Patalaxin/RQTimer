@@ -1,19 +1,19 @@
-<nz-skeleton
-  [nzActive]="true"
-  *ngIf="isLoading"
-  class="container"
-></nz-skeleton>
+@if (isLoading) {
+  <nz-skeleton [nzActive]="true" class="container"></nz-skeleton>
+}
 
-<div *ngIf="!isLoading" class="profile container">
-  <nz-page-header class="site-page-header" nzBackIcon (nzBack)="onTimer()">
-    <nz-page-header-title (click)="onBack($event)" style="cursor: pointer">{{
-      "PROFILE.HEADER_TITLE" | translate
-    }}</nz-page-header-title>
-    <nz-page-header-extra>
-      <app-info [user]="user"></app-info>
-    </nz-page-header-extra>
-  </nz-page-header>
-  <app-user [excludedMobs]="excludedMobs" [role]="user.role"></app-user>
-</div>
+@if (!isLoading) {
+  <div class="profile container">
+    <nz-page-header class="site-page-header" nzBackIcon (nzBack)="onTimer()">
+      <nz-page-header-title (click)="onBack($event)" style="cursor: pointer">{{
+        "PROFILE.HEADER_TITLE" | translate
+      }}</nz-page-header-title>
+      <nz-page-header-extra>
+        <app-info [user]="user"></app-info>
+      </nz-page-header-extra>
+    </nz-page-header>
+    <app-user [excludedMobs]="excludedMobs" [role]="user.role"></app-user>
+  </div>
+}
 
-<nz-back-top [nzVisibilityHeight]="300"></nz-back-top>
+<nz-float-button-top [nzVisibilityHeight]="300"></nz-float-button-top>

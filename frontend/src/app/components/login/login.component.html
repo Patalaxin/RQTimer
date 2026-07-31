@@ -133,19 +133,20 @@
               {{ "COMMON.BUTTONS.VIDEO_GUIDE" | translate }}
             </button>
 
-            <a
-              *ngIf="isVisible"
-              href="https://t.me/rqtimerbot"
-              target="_blank"
-              nz-button
-              nzType="primary"
-              nzShape="round"
-            >
-              <span>
-                <img src="../../../assets/img/tg.svg" alt="" />
-                {{ "COMMON.BUTTONS.TELEGRAM_BOT" | translate }}</span
+            @if (isVisible) {
+              <a
+                href="https://t.me/rqtimerbot"
+                target="_blank"
+                nz-button
+                nzType="primary"
+                nzShape="round"
               >
-            </a>
+                <span>
+                  <img src="../../../assets/img/tg.svg" alt="" />
+                  {{ "COMMON.BUTTONS.TELEGRAM_BOT" | translate }}</span
+                >
+              </a>
+            }
           </div>
 
           <nz-modal
@@ -161,7 +162,15 @@
                 src="https://www.youtube.com/embed/KhcfLDxCCiw?si=IOuA_WE6WHvQe_LO"
                 title="YouTube video player"
                 frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="
+                  accelerometer;
+                  autoplay;
+                  clipboard-write;
+                  encrypted-media;
+                  gyroscope;
+                  picture-in-picture;
+                  web-share;
+                "
                 referrerpolicy="strict-origin-when-cross-origin"
                 allowfullscreen
               ></iframe>

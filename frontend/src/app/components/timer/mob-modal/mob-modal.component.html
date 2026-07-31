@@ -1,68 +1,72 @@
 <div class="mob-modal container">
-  <nz-skeleton [nzActive]="true" *ngIf="isLoading"></nz-skeleton>
+  @if (isLoading) {
+    <nz-skeleton [nzActive]="true"></nz-skeleton>
+  }
 
-  <div *ngIf="!isLoading">
-    <div class="mob-modal-top">
-      <input
-        nz-input
-        class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
-        style="width: 91px"
-        [ngModel]="this.itemData!.mob.mobType"
-        disabled
-      />
-      <input
-        nz-input
-        nzShowSearch
-        nzAllowClear
-        style="min-width: 150px; width: fit-content"
-        class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
-        [ngModel]="this.itemData!.mob.mobName"
-        disabled
-      />
-      <nz-time-picker
-        class="mob-modal-ml-0 mob-modal-mb-10px"
-        style="width: 150px; margin-top: 0"
-        [ngModel]="itemCooldownTime"
-        disabled=""
-        nzNowText=" "
-      >
-      </nz-time-picker>
-    </div>
-    <div class="mob-modal-bottom mob-modal-d-flex-space-between">
-      <div class="mob-modal-bottom-left">
-        <nz-avatar
-          [nzSize]="64"
-          [nzSrc]="IMAGE_SRC + this.itemData!.mob.image"
-        ></nz-avatar>
-      </div>
-
-      <div class="mob-modal-bottom-right">
-        <input
-          class="mob-modal-mb-10px br-50px"
-          nz-input
-          [placeholder]="'MOB_MODAL.SHORT_NAME' | translate"
-          [ngModel]="this.itemData!.mob.shortName"
-          disabled
-        />
-        <textarea
-          nz-input
-          [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
-          [ngModel]="this.itemData!.mob.respawnText"
-          class="mob-modal-mb-10px"
-          disabled
-          nzAutosize
-          style="resize: none; border-radius: 15px"
-          *ngIf="this.itemData!.mob.mobType === ('MOB_MODAL.BOSS' | translate)"
-        ></textarea>
+  @if (!isLoading) {
+    <div>
+      <div class="mob-modal-top">
         <input
           nz-input
-          class="br-50px mob-modal-mb-10px"
-          style="width: 100%"
-          [ngModel]="this.itemData!.mob.location"
+          class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
+          style="width: 91px"
+          [ngModel]="this.itemData!.mob.mobType"
           disabled
-          [placeholder]="'MOB_MODAL.LOCATION' | translate"
         />
+        <input
+          nz-input
+          nzShowSearch
+          nzAllowClear
+          style="min-width: 150px; width: fit-content"
+          class="mob-modal-mb-10px mob-modal-mr-5px br-50px"
+          [ngModel]="this.itemData!.mob.mobName"
+          disabled
+        />
+        <nz-time-picker
+          class="mob-modal-ml-0 mob-modal-mb-10px"
+          style="width: 150px; margin-top: 0"
+          [ngModel]="itemCooldownTime"
+          disabled=""
+          nzNowText=" "
+        >
+        </nz-time-picker>
+      </div>
+      <div class="mob-modal-bottom mob-modal-d-flex-space-between">
+        <div class="mob-modal-bottom-left">
+          <nz-avatar
+            [nzSize]="64"
+            [nzSrc]="IMAGE_SRC + this.itemData!.mob.image"
+          ></nz-avatar>
+        </div>
+        <div class="mob-modal-bottom-right">
+          <input
+            class="mob-modal-mb-10px br-50px"
+            nz-input
+            [placeholder]="'MOB_MODAL.SHORT_NAME' | translate"
+            [ngModel]="this.itemData!.mob.shortName"
+            disabled
+          />
+          @if (this.itemData!.mob.mobType === ("MOB_MODAL.BOSS" | translate)) {
+            <textarea
+              nz-input
+              [placeholder]="'MOB_MODAL.RESPAWN_TEXT' | translate"
+              [ngModel]="this.itemData!.mob.respawnText"
+              class="mob-modal-mb-10px"
+              disabled
+              nzAutosize
+              style="resize: none; border-radius: 15px"
+            ></textarea>
+          }
+          <input
+            nz-input
+            class="br-50px mob-modal-mb-10px"
+            style="width: 100%"
+            [ngModel]="this.itemData!.mob.location"
+            disabled
+            [placeholder]="'MOB_MODAL.LOCATION' | translate"
+          />
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>
