@@ -1,6 +1,6 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import * as momentTimezone from 'moment-timezone';
-import * as moment from 'moment';
+import momentTimezone from 'moment-timezone';
+import moment from 'moment';
 
 import { StorageService } from 'src/app/services/storage.service';
 import { TimerService } from 'src/app/services/timer.service';
